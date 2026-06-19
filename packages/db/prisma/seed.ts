@@ -73,6 +73,29 @@ async function main() {
     },
   });
 
+  // Optional: add a real Discord user (you) to the demo guild as admin, so the
+  // dashboard isn't empty after login. Set SEED_MEMBER_DISCORD_ID and re-run.
+  // The user must have logged in at least once (so their account exists).
+  const memberDiscordId = process.env.SEED_MEMBER_DISCORD_ID;
+  if (memberDiscordId) {
+    const member = await prisma.user.findUnique({
+      where: { discordId: memberDiscordId },
+      select: { id: true, username: true },
+    });
+    if (!member) {
+      console.warn(
+        `SEED_MEMBER_DISCORD_ID=${memberDiscordId} has no account yet — log in once, then re-run.`,
+      );
+    } else {
+      await prisma.guildMember.upsert({
+        where: { guildId_userId: { guildId: guild.id, userId: member.id } },
+        update: { role: "admin" },
+        create: { guildId: guild.id, userId: member.id, role: "admin" },
+      });
+      console.log(`Added ${member.username} to "${guild.name}" as admin.`);
+    }
+  }
+
   console.log(`Seeded. Public form: /f/${DEMO_FORM_SLUG}`);
 }
 
