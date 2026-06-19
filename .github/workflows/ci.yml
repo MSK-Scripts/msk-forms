@@ -17,7 +17,6 @@ permissions:
 
 env:
   NODE_VERSION: "22"
-  PNPM_VERSION: "9"
 
 jobs:
   build-and-test:
@@ -59,9 +58,9 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Setup pnpm
+        # Version wird aus dem "packageManager"-Feld der package.json gelesen.
+        # (action-setup@v6 verbietet zusaetzlich den "version"-Input.)
         uses: pnpm/action-setup@v6
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
