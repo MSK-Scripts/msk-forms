@@ -17,3 +17,6 @@ overrides:
   "esbuild@<0.28.1": ">=0.28.1"
   "postcss@<8.5.10": ">=8.5.10"
   "undici@<6.27.0": "^6.27.0"
+  # GHSA-92pp-h63x-v22m — serveStatic middleware bypass via repeated slashes
+  # (transitive via prisma -> @prisma/dev). Dev-only, but kept patched.
+  "@hono/node-server@<1.19.13": ">=1.19.13 <2"
