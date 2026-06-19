@@ -16,6 +16,7 @@
     "@msk-forms/db": "workspace:*",
     "@msk-forms/shared": "workspace:*",
     "@msk-forms/ui": "workspace:*",
+    "iron-session": "^8.0.4",
     "next": "^16.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
