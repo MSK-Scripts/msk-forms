@@ -4,8 +4,10 @@ import { NextResponse, type NextRequest } from "next/server";
  * Nonce-based CSP ('strict-dynamic') + security headers (concept §18).
  * Headers are set centrally here; the Apache vhost neutralizes its own via
  * `Header always unset` to avoid duplicates.
+ *
+ * Next.js 16 renamed the `middleware` file convention to `proxy`.
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
 
   const csp = [
