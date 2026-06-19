@@ -6,9 +6,8 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   // Geteilte Workspace-Packages transpilieren
   transpilePackages: ["@msk-forms/ui", "@msk-forms/shared", "@msk-forms/db"],
-  experimental: {
-    typedRoutes: true,
-  },
+  // typedRoutes graduated out of `experimental` in Next.js 16.
+  typedRoutes: true,
   // Note: Next.js 16 removed `next lint` — linting runs centrally via the
   // flat config (eslint.config.mjs) at the monorepo root.
 };

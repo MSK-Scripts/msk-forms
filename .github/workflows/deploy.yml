@@ -33,7 +33,6 @@ jobs:
           username: ${{ secrets.DEPLOY_SSH_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: ${{ secrets.DEPLOY_SSH_PORT }}
-          script_stop: true
           script: |
             set -euo pipefail
             cd /opt/msk-forms
@@ -43,9 +42,9 @@ jobs:
             git reset --hard origin/main
 
             echo "-> Install dependencies (frozen)"
-            # Non-fatal: corepack may fail to write its shim when pnpm already
-            # exists globally; the global pnpm still works.
-            corepack enable || true
+            # Silenced & non-fatal: corepack can't replace a root-owned global
+            # pnpm (EACCES); the global pnpm works fine for the install.
+            corepack enable >/dev/null 2>&1 || true
             pnpm install --frozen-lockfile --prod=false
 
             echo "-> Prisma migrate (deploy) + generate"
