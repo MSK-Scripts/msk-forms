@@ -10,6 +10,8 @@ module.exports = {
         NODE_ENV: "production",
         // Must match the Apache reverse-proxy target (forms.msk-scripts.de -> 3008).
         PORT: "3008",
+        // Bind to loopback only — reachable solely via the Apache reverse proxy.
+        HOSTNAME: "127.0.0.1",
       },
       instances: 1,
       exec_mode: "cluster",

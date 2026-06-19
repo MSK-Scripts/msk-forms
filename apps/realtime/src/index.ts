@@ -5,9 +5,11 @@ import { WebSocketServer } from "ws";
  * the dashboard. Phase 0: minimal WS server with echo/heartbeat.
  */
 const PORT = Number(process.env.REALTIME_PORT ?? 3100);
+// Bind to loopback so the service is only reachable locally (via the reverse proxy).
+const HOST = process.env.REALTIME_HOST ?? "127.0.0.1";
 
 export function createServer(port: number = PORT): WebSocketServer {
-  const wss = new WebSocketServer({ port });
+  const wss = new WebSocketServer({ host: HOST, port });
 
   wss.on("connection", (socket) => {
     socket.send(JSON.stringify({ type: "welcome", service: "msk-forms-realtime" }));
@@ -18,7 +20,7 @@ export function createServer(port: number = PORT): WebSocketServer {
     });
   });
 
-  console.info(`[realtime] WebSocket server listening on port ${port}`);
+  console.info(`[realtime] WebSocket server listening on ${HOST}:${port}`);
   return wss;
 }
 
