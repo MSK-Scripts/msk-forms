@@ -28,6 +28,12 @@
   "prisma": {
     "schema": "packages/db/prisma/schema.prisma"
   },
+  "pnpm": {
+    "overrides": {
+      "esbuild@<0.28.1": ">=0.28.1",
+      "postcss@<8.5.10": ">=8.5.10"
+    }
+  },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
     "@types/node": "^22.10.0",
