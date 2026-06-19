@@ -10,7 +10,7 @@
     "node": ">=22",
     "pnpm": ">=9"
   },
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@11.2.2+sha512.36e6621fad506178936455e70247b8808ef4ec25797a9f437a93281a020484e2607f6a469a22e982987c3dbb8866e3071514ab10a4a1749e06edcd1ec118436f",
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
@@ -27,13 +27,6 @@
   },
   "prisma": {
     "schema": "packages/db/prisma/schema.prisma"
-  },
-  "pnpm": {
-    "overrides": {
-      "esbuild@<0.28.1": ">=0.28.1",
-      "postcss@<8.5.10": ">=8.5.10",
-      "undici@<6.27.0": "^6.27.0"
-    }
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
