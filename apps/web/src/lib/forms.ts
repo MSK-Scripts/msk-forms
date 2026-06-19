@@ -34,6 +34,25 @@ export function parseFormSpec(schema: unknown): FormSpec | null {
   return result.success ? result.data : null;
 }
 
+/** Load a form for the builder (edit mode), scoped to its guild. */
+export async function getFormForEdit(formId: string, guildId: string) {
+  const form = await prisma.form.findUnique({
+    where: { id: formId },
+    select: {
+      id: true,
+      guildId: true,
+      slug: true,
+      title: true,
+      description: true,
+      status: true,
+      visibility: true,
+      schema: true,
+    },
+  });
+  if (!form || form.guildId !== guildId) return null;
+  return form;
+}
+
 /** Load a live (published) form by slug for the public submission page. */
 export async function getLiveFormBySlug(slug: string) {
   const form = await prisma.form.findUnique({
