@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { discordAvatarUrl, exchangeCode, fetchDiscordUser, mapLocale } from "@/lib/discord";
 import { getSession } from "@/lib/session";
+import { absoluteUrl } from "@/lib/url";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
   cookieStore.delete("oauth_return_to");
 
   if (!code || !state || !storedState || state !== storedState) {
-    return NextResponse.redirect(new URL("/?auth=error", request.url));
+    return NextResponse.redirect(absoluteUrl("/?auth=error"));
   }
 
   try {
@@ -58,9 +59,9 @@ export async function GET(request: NextRequest) {
     session.isLoggedIn = true;
     await session.save();
 
-    return NextResponse.redirect(new URL(returnTo, request.url));
+    return NextResponse.redirect(absoluteUrl(returnTo));
   } catch (error) {
     console.error("Discord OAuth callback failed:", error);
-    return NextResponse.redirect(new URL("/?auth=error", request.url));
+    return NextResponse.redirect(absoluteUrl("/?auth=error"));
   }
 }
