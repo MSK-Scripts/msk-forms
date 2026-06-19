@@ -77,8 +77,9 @@ jobs:
           pnpm prisma generate
           pnpm prisma validate
 
-      - name: Apply migrations (test DB)
-        run: pnpm prisma migrate deploy
+      - name: Sync schema to test DB
+        # Phase 0: noch keine Migrationen → db push. Ab erster Migration auf `migrate deploy` wechseln.
+        run: pnpm prisma db push --skip-generate --accept-data-loss
 
       - name: Lint
         run: pnpm run lint

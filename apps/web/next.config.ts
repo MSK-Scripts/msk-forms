@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
   experimental: {
     typedRoutes: true,
   },
+  // Lint läuft zentral via Flat-Config (eslint.config.mjs) im Monorepo-Root.
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;

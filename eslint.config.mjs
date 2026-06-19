@@ -17,6 +17,9 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   {
     rules: {
+      // Von TypeScript abgedeckt → Core-Regeln deaktivieren (sonst False-Positives)
+      "no-undef": "off",
+      "no-unused-vars": "off",
       "@typescript-eslint/no-unused-vars": [
         "warn",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
