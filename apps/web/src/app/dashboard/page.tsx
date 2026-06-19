@@ -24,7 +24,7 @@ export default async function GuildsPage() {
             You aren&apos;t managing any guilds yet.
           </p>
           <p className="text-sm text-text-muted">
-            Connecting a guild happens through the Discord bot invite — that flow
+            Connecting a guild happens through the Discord bot invite. That flow
             lands in a later slice. For now, an admin can add you to a guild.
           </p>
         </Card>
