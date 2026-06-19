@@ -2,6 +2,15 @@ packages:
   - "apps/*"
   - "packages/*"
 
+# pnpm 11 no longer runs dependency build scripts by default (supply-chain
+# protection). Explicitly allow the trusted ones we rely on.
+allowBuilds:
+  "@prisma/client": true
+  "@prisma/engines": true
+  esbuild: true
+  prisma: true
+  sharp: true
+
 # Security overrides for transitive dependencies (moved here because pnpm no
 # longer reads the "pnpm" field in package.json).
 overrides:
