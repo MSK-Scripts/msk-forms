@@ -1,0 +1,42 @@
+{
+  "name": "msk-forms",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MSK Forms — moderne Form- & Bewerbungs-Plattform mit Status-Feedback und Discord-Bot",
+  "author": "Moritz Kohm <moritz.kohm@gmail.com> (https://msk-scripts.de)",
+  "license": "SEE LICENSE IN LICENSE",
+  "type": "module",
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "eslint .",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:studio": "prisma studio",
+    "clean": "turbo run clean && rm -rf node_modules"
+  },
+  "prisma": {
+    "schema": "packages/db/prisma/schema.prisma"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/node": "^22.10.0",
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.2",
+    "prettier-plugin-tailwindcss": "^0.6.9",
+    "prisma": "^6.2.0",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.1"
+  }
+}

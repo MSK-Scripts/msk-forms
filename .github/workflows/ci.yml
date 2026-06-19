@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+    branches: ["main", "develop"]
+  workflow_dispatch:
+
+# Laufende CI bei neuem Push auf denselben Branch/PR abbrechen
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "22"
+  PNPM_VERSION: "9"
+
+jobs:
+  build-and-test:
+    name: Lint, Typecheck, Build & Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # Service-Container für DB-abhängige Tests (Prisma / Integration)
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: msk
+          POSTGRES_PASSWORD: msk
+          POSTGRES_DB: msk_forms_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U msk"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: "postgresql://msk:msk@localhost:5432/msk_forms_test?schema=public"
+      REDIS_URL: "redis://localhost:6379"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prisma generate & validate
+        run: |
+          pnpm prisma generate
+          pnpm prisma validate
+
+      - name: Apply migrations (test DB)
+        run: pnpm prisma migrate deploy
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Unit & Integration Tests
+        run: pnpm run test --if-present
+
+      - name: Build
+        run: pnpm run build

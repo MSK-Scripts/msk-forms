@@ -1,0 +1,267 @@
+// MSK Forms — Prisma Schema
+// Datenmodell gemäß Konzept.md §15. DB: PostgreSQL.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────────────────────
+
+enum Plan {
+  free
+  pro
+  enterprise
+}
+
+enum GuildRole {
+  owner
+  admin
+  reviewer
+  viewer
+}
+
+enum FormMode {
+  application
+  survey
+  contact
+  quiz
+}
+
+enum FormStatus {
+  draft
+  live
+  closed
+  archived
+}
+
+enum FormVisibility {
+  public
+  authenticated
+  password
+  role_required
+}
+
+enum SubmissionEventType {
+  status_change
+  note
+  message
+  reminder
+  info_request
+  info_reply
+}
+
+enum EventVisibility {
+  public
+  internal
+}
+
+// ─────────────────────────────────────────────────────────────
+// Kern-Entitäten
+// ─────────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  discordId String   @unique @map("discord_id")
+  username  String
+  avatar    String?
+  email     String?
+  locale    String   @default("de")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  memberships   GuildMember[]
+  submissions   Submission[]
+  createdForms  Form[]              @relation("FormCreatedBy")
+  events        SubmissionEvent[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model Guild {
+  id             String   @id @default(uuid()) @db.Uuid
+  discordGuildId String   @unique @map("discord_guild_id")
+  name           String
+  icon           String?
+  ownerUserId    String   @map("owner_user_id") @db.Uuid
+  plan           Plan     @default(free)
+  branding       Json     @default("{}")
+  botConfig      Json     @default("{}") @map("bot_config")
+  customDomain   String?  @unique @map("custom_domain")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  members      GuildMember[]
+  forms        Form[]
+  submissions  Submission[]
+  formStatuses FormStatusDef[]
+  apiKeys      ApiKey[]
+
+  @@map("guilds")
+}
+
+model GuildMember {
+  guildId String    @map("guild_id") @db.Uuid
+  userId  String    @map("user_id") @db.Uuid
+  role    GuildRole @default(viewer)
+
+  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([guildId, userId])
+  @@index([userId])
+  @@map("guild_members")
+}
+
+model Form {
+  id          String         @id @default(uuid()) @db.Uuid
+  guildId     String         @map("guild_id") @db.Uuid
+  slug        String         @unique
+  title       String
+  description String?
+  mode        FormMode       @default(application)
+  status      FormStatus     @default(draft)
+  visibility  FormVisibility @default(authenticated)
+  schema      Json           @default("{}")
+  settings    Json           @default("{}")
+  theme       Json           @default("{}")
+  version     Int            @default(1)
+  openAt      DateTime?      @map("open_at")
+  closeAt     DateTime?      @map("close_at")
+  createdById String         @map("created_by") @db.Uuid
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  guild        Guild           @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  createdBy    User            @relation("FormCreatedBy", fields: [createdById], references: [id])
+  versions     FormVersion[]
+  submissions  Submission[]
+  formStatuses FormStatusDef[]
+
+  @@index([guildId, status])
+  @@map("forms")
+}
+
+model FormVersion {
+  id        String   @id @default(uuid()) @db.Uuid
+  formId    String   @map("form_id") @db.Uuid
+  version   Int
+  schema    Json
+  settings  Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  form Form @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@unique([formId, version])
+  @@map("form_versions")
+}
+
+model FormStatusDef {
+  id                 String  @id @default(uuid()) @db.Uuid
+  guildId            String  @map("guild_id") @db.Uuid
+  formId             String? @map("form_id") @db.Uuid
+  key                String
+  label              String
+  color              String  @default("#6b6b72")
+  order              Int     @default(0)
+  visibleToApplicant Boolean @default(true) @map("visible_to_applicant")
+  isTerminal         Boolean @default(false) @map("is_terminal")
+
+  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  form  Form? @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@unique([guildId, formId, key])
+  @@map("form_statuses")
+}
+
+model Submission {
+  id          String   @id @default(uuid()) @db.Uuid // = UUID-Link
+  formId      String   @map("form_id") @db.Uuid
+  guildId     String   @map("guild_id") @db.Uuid
+  userId      String?  @map("user_id") @db.Uuid
+  answers     Json     @default("{}")
+  status      String   @default("submitted")
+  score       Int?
+  meta        Json     @default("{}")
+  submittedAt DateTime @default(now()) @map("submitted_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  form   Form              @relation(fields: [formId], references: [id], onDelete: Cascade)
+  guild  Guild             @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  user   User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  events SubmissionEvent[]
+  files  FileUpload[]
+
+  @@index([formId, status])
+  @@index([userId])
+  @@index([guildId, submittedAt])
+  @@map("submissions")
+}
+
+model SubmissionEvent {
+  id           String              @id @default(uuid()) @db.Uuid
+  submissionId String              @map("submission_id") @db.Uuid
+  actorUserId  String?             @map("actor_user_id") @db.Uuid
+  type         SubmissionEventType
+  fromStatus   String?             @map("from_status")
+  toStatus     String?             @map("to_status")
+  message      String?
+  visibility   EventVisibility     @default(internal)
+  createdAt    DateTime            @default(now()) @map("created_at")
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  actor      User?      @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([submissionId, createdAt])
+  @@map("submission_events")
+}
+
+model FileUpload {
+  id           String   @id @default(uuid()) @db.Uuid
+  submissionId String   @map("submission_id") @db.Uuid
+  fieldId      String   @map("field_id")
+  filename     String
+  mime         String
+  size         Int
+  storageKey   String   @map("storage_key")
+  scanned      Boolean  @default(false)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@map("files")
+}
+
+model Notification {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  type      String
+  payload   Json     @default("{}")
+  readAt    DateTime? @map("read_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+model ApiKey {
+  id         String    @id @default(uuid()) @db.Uuid
+  guildId    String    @map("guild_id") @db.Uuid
+  name       String
+  hashedKey  String    @unique @map("hashed_key")
+  lastUsedAt DateTime? @map("last_used_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}

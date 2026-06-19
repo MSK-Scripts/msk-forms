@@ -1,0 +1,70 @@
+name: Deploy (Production)
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+# Nie zwei Deploys gleichzeitig — laufendes Deploy NICHT abbrechen
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: SSH Deploy → Debian / PM2
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: https://forms.msk-scripts.de
+
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_SSH_HOST }}
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_SSH_PORT }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            cd /opt/msk-forms
+
+            echo "→ Pull latest"
+            git fetch --all --prune
+            git reset --hard origin/main
+
+            echo "→ Install dependencies (frozen)"
+            corepack enable
+            pnpm install --frozen-lockfile --prod=false
+
+            echo "→ Prisma migrate (deploy) + generate"
+            pnpm prisma migrate deploy
+            pnpm prisma generate
+
+            echo "→ Build"
+            pnpm run build
+
+            echo "→ Reload services via PM2 (zero-downtime)"
+            pm2 reload ecosystem.config.cjs --update-env
+
+            echo "→ Save PM2 process list"
+            pm2 save
+
+            echo "✓ Deploy abgeschlossen"
+
+      - name: Notify Discord (optional)
+        if: always()
+        continue-on-error: true
+        run: |
+          STATUS="${{ job.status }}"
+          if [ -n "${{ secrets.DEPLOY_DISCORD_WEBHOOK }}" ]; then
+            curl -fsSL -H "Content-Type: application/json" \
+              -d "{\"content\":\"**MSK Forms** Deploy: \`$STATUS\` (commit ${GITHUB_SHA::7})\"}" \
+              "${{ secrets.DEPLOY_DISCORD_WEBHOOK }}"
+          fi
