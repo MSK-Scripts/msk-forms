@@ -6,10 +6,8 @@
 // So we load `/opt/msk-forms/.env` here and pass it through to every app's
 // env. Node 22's process.loadEnvFile populates process.env without any extra
 // dependency.
-const path = require("node:path");
-
 try {
-  process.loadEnvFile(path.join(__dirname, ".env"));
+  process.loadEnvFile(`${__dirname}/.env`);
 } catch {
   // No .env present (e.g. local checkout) — rely on the ambient environment.
 }
