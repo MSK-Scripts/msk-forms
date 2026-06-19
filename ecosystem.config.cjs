@@ -31,7 +31,8 @@ module.exports = {
       script: "dist/index.js",
       env: {
         NODE_ENV: "production",
-        REALTIME_PORT: "3100",
+        // 3100 is taken on the server; 3009 sits next to the web app (3008).
+        REALTIME_PORT: "3009",
       },
       instances: 1,
       max_memory_restart: "256M",
