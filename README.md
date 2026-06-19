@@ -22,7 +22,7 @@ Google/Microsoft Forms, neu gedacht — modernes UI, mehr Features und ein echte
 abgelehnt / in Prüfung) auf derselben Seite, auf der sie das Formular ausgefüllt
 haben. Communities laden einfach den **Discord-Bot** auf ihren Server ein.
 
-📄 Vollständiges Konzept: **[Konzept.md](./Konzept.md)**
+> Das vollständige Konzept wird projektintern gepflegt.
 
 ## Tech-Stack
 
