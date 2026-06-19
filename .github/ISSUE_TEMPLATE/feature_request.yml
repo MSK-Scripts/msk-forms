@@ -1,0 +1,40 @@
+name: ✨ Feature Request
+description: Eine neue Funktion oder Verbesserung vorschlagen
+labels: ["enhancement", "triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Motivation
+      description: Welches Problem löst das Feature? Was ist der Anwendungsfall?
+      placeholder: "Als <Rolle> möchte ich <Ziel>, um <Nutzen> …"
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Gewünschte Lösung
+      description: Wie sollte das Feature funktionieren?
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Bereich
+      options:
+        - Form-Builder
+        - Dashboard
+        - Feedback-Loop / Status
+        - Discord-Bot
+        - Branding / i18n
+        - Integrationen / API
+        - Sonstiges
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativen
+      description: Welche Alternativen hast du in Betracht gezogen?
+    validations:
+      required: false
