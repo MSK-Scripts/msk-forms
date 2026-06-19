@@ -19,6 +19,10 @@ jobs:
     name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Code-Scanning-Upload erfordert GitHub Advanced Security. Auf privaten
+    # Repos ohne GHAS schlägt der Upload fehl → Job überspringen, bis das Repo
+    # public ist oder GHAS aktiviert wird.
+    if: ${{ !github.event.repository.private }}
     strategy:
       fail-fast: false
       matrix:
