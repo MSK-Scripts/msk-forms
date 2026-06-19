@@ -1,11 +1,8 @@
 name: Deploy (Production)
 
 on:
-  # Phase 0: push-triggered auto-deploy is disabled until the server
-  # (/opt/msk-forms) and deploy secrets are set up. Re-enable the block below
-  # once the infrastructure is ready:
-  # push:
-  #   branches: ["main"]
+  push:
+    branches: ["main"]
   workflow_dispatch:
 
 # Never run two deploys at once — do NOT cancel a running deploy
