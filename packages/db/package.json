@@ -15,6 +15,7 @@
     "test": "vitest run --passWithNoTests",
     "generate": "prisma generate",
     "migrate": "prisma migrate dev",
+    "seed": "tsx prisma/seed.ts",
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {
@@ -25,6 +26,7 @@
     "@types/pg": "^8.11.10",
     "pg": "^8.13.1",
     "prisma": "^7.0.0",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitest": "^3.2.6"
   }
