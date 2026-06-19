@@ -9,14 +9,19 @@ import { NextResponse, type NextRequest } from "next/server";
  */
 export function proxy(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+  const isDev = process.env.NODE_ENV === "development";
 
+  // Dev (Turbopack/HMR) needs eval + inline + a websocket; production stays on
+  // the strict nonce + 'strict-dynamic' policy with no eval.
   const csp = [
     `default-src 'self'`,
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+    isDev
+      ? `script-src 'self' 'unsafe-eval' 'unsafe-inline'`
+      : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
     `style-src 'self' 'unsafe-inline'`,
     `img-src 'self' data: https://cdn.discordapp.com`,
     `font-src 'self'`,
-    `connect-src 'self'`,
+    isDev ? `connect-src 'self' ws: wss:` : `connect-src 'self'`,
     `frame-ancestors 'none'`,
     `base-uri 'self'`,
     `form-action 'self'`,

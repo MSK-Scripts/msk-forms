@@ -19,21 +19,18 @@ export interface FieldProps {
  */
 export function Field({ htmlFor, label, required, hint, error, children }: FieldProps) {
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-2">
       {label && (
-        <label
-          htmlFor={htmlFor}
-          className="font-mono text-xs uppercase tracking-widest text-text-secondary"
-        >
+        <label htmlFor={htmlFor} className="text-sm font-medium text-foreground">
           {label}
-          {required && <span className="ml-1 text-accent">*</span>}
+          {required && <span className="ml-1 text-primary">*</span>}
         </label>
       )}
       {children}
       {error ? (
-        <p className="font-mono text-xs text-red-400">{error}</p>
+        <p className="text-xs text-destructive">{error}</p>
       ) : hint ? (
-        <p className="text-xs text-text-muted">{hint}</p>
+        <p className="text-xs text-muted-foreground">{hint}</p>
       ) : null}
     </div>
   );

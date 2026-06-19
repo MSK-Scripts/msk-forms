@@ -1,34 +1,42 @@
 import { IconArrowRight, IconBrandDiscord } from "@tabler/icons-react";
 
-import { LinkButton } from "@/components/landing/link-button";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { getDict } from "@/i18n";
 
-export function CtaBand({ loggedIn }: { loggedIn: boolean }) {
+export async function CtaBand({ loggedIn }: { loggedIn: boolean }) {
+  const t = await getDict();
+
   return (
-    <section className="mx-auto max-w-content px-6 py-20 lg:py-28">
-      <div className="reveal relative overflow-hidden rounded-lg border border-border bg-bg-panel px-8 py-16 text-center">
+    <section className="container py-20 lg:py-28">
+      <Card className="relative overflow-hidden border-primary/20 bg-primary/[0.04]">
         <div
           aria-hidden
-          className="absolute -top-24 left-1/2 -z-0 h-64 w-[36rem] -translate-x-1/2 rounded-full bg-accent/10 blur-3xl"
+          className="absolute -top-24 left-1/2 h-64 w-[36rem] -translate-x-1/2 rounded-full bg-primary/15 blur-3xl"
         />
-        <div className="relative">
-          <h2 className="mx-auto max-w-2xl font-heading text-3xl font-bold tracking-tight text-text-primary md:text-4xl">
-            Start collecting applications people can actually follow.
+        <CardContent className="relative px-8 py-16 text-center">
+          <h2 className="mx-auto max-w-2xl text-balance font-heading text-3xl font-bold tracking-tight md:text-4xl">
+            {t.cta.title}
           </h2>
           <div className="mt-9 flex justify-center">
             {loggedIn ? (
-              <LinkButton href="/dashboard">
-                Open dashboard
-                <IconArrowRight size={16} stroke={2} />
-              </LinkButton>
+              <Button asChild size="lg">
+                <a href="/dashboard">
+                  {t.cta.openDashboard}
+                  <IconArrowRight size={16} stroke={2} />
+                </a>
+              </Button>
             ) : (
-              <LinkButton href="/api/auth/discord/login">
-                <IconBrandDiscord size={16} stroke={1.75} />
-                Log in with Discord
-              </LinkButton>
+              <Button asChild size="lg">
+                <a href="/api/auth/discord/login">
+                  <IconBrandDiscord size={16} stroke={1.75} />
+                  {t.cta.loginDiscord}
+                </a>
+              </Button>
             )}
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </section>
   );
 }

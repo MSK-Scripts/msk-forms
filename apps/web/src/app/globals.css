@@ -2,66 +2,77 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --bg: #0a0b0d;
-  --bg-panel: #131317;
-  --bg-elevated: #17171c;
-  --bg-input: rgba(255, 255, 255, 0.05);
-  --border: rgba(255, 255, 255, 0.08);
-  --border-accent: rgba(0, 230, 118, 0.35);
-  --accent: #00e676;
-  --accent-dim: #00b65f;
-  --accent-ink: #04130b;
-  --text-primary: #f0ede8;
-  --text-secondary: #b0adb8;
-  --text-muted: #6b6b72;
-  --shadow-panel: 0 12px 40px rgba(0, 0, 0, 0.55);
-  --radius-lg: 14px;
-  --radius-sm: 6px;
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-html,
-body {
-  background: var(--bg);
-  color: var(--text-primary);
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-
-::selection {
-  background: rgba(0, 230, 118, 0.24);
-  color: #ffffff;
-}
-
-/* Entry rise: elements lift in on load. Staggered via inline animation-delay. */
-@media (prefers-reduced-motion: no-preference) {
-  .rise {
-    opacity: 0;
-    animation: rise 0.7s var(--ease-out) forwards;
-  }
-  @keyframes rise {
-    from {
-      opacity: 0;
-      transform: translateY(14px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+/* shadcn/ui theme — Neutral base + Emerald primary + Yellow charts. */
+@layer base {
+  :root {
+    --background: 0 0% 96.5%;
+    --foreground: 0 0% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 161 94% 30%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 93%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 0 0% 93%;
+    --muted-foreground: 0 0% 42%;
+    --accent: 0 0% 93%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 161 94% 30%;
+    --chart-1: 43 96% 56%;
+    --chart-2: 161 64% 42%;
+    --chart-3: 200 80% 47%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --radius: 0.75rem;
   }
 
-  /* Scroll-reveal via CSS scroll-driven animation; visible by default when
-     unsupported, so content never hides. */
-  @supports (animation-timeline: view()) {
-    .reveal {
-      animation: rise 0.8s var(--ease-out) both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 22%;
-    }
+  .dark {
+    --background: 0 0% 9%;
+    --foreground: 0 0% 97%;
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 97%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 97%;
+    --primary: 161 84% 38%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 17%;
+    --secondary-foreground: 0 0% 97%;
+    --muted: 0 0% 17%;
+    --muted-foreground: 0 0% 66%;
+    --accent: 0 0% 19%;
+    --accent-foreground: 0 0% 97%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 20%;
+    --input: 0 0% 23%;
+    --ring: 161 84% 42%;
+    --chart-1: 43 96% 56%;
+    --chart-2: 161 64% 50%;
+    --chart-3: 200 80% 55%;
+    --chart-4: 280 65% 65%;
+    --chart-5: 340 75% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    @apply bg-primary/20;
   }
 }

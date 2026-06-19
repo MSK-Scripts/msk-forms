@@ -32,7 +32,7 @@ export function CheckboxGroup({
           <label
             key={opt.value}
             htmlFor={id}
-            className="flex cursor-pointer items-center gap-2.5 text-sm text-text-secondary"
+            className="flex cursor-pointer items-center gap-2.5 text-sm text-muted-foreground"
           >
             <input
               id={id}
@@ -42,7 +42,7 @@ export function CheckboxGroup({
               checked={value.includes(opt.value)}
               disabled={disabled}
               onChange={(e) => toggle(opt.value, e.target.checked)}
-              className="h-4 w-4 accent-accent"
+              className="h-4 w-4 accent-primary"
             />
             {opt.label}
           </label>

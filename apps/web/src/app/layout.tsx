@@ -1,19 +1,23 @@
 import type { Metadata } from "next";
-import { DM_Sans, Space_Mono, Syne } from "next/font/google";
+import { Noto_Sans, Outfit, Space_Mono } from "next/font/google";
+import { headers } from "next/headers";
 
+import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/site-header";
+import { ThemeProvider } from "@/components/theme-provider";
+import { getCurrentUser } from "@/lib/auth";
 import "./globals.css";
 
-// Self-hosted via next/font (CSP-safe: served from /_next/static, font-src 'self').
-const syne = Syne({
+const outfit = Outfit({
   subsets: ["latin"],
-  weight: ["600", "700", "800"],
-  variable: "--font-syne",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-outfit",
   display: "swap",
 });
-const dmSans = DM_Sans({
+const notoSans = Noto_Sans({
   subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-dm-sans",
+  weight: ["600", "700", "800"],
+  variable: "--font-noto-sans",
   display: "swap",
 });
 const spaceMono = Space_Mono({
@@ -33,15 +37,27 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+  const user = await getCurrentUser();
+
   return (
     <html
       lang="en"
-      className={`${syne.variable} ${dmSans.variable} ${spaceMono.variable}`}
+      suppressHydrationWarning
+      className={`${outfit.variable} ${notoSans.variable} ${spaceMono.variable}`}
     >
-      <body className="font-body antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        <ThemeProvider nonce={nonce}>
+          <div className="flex min-h-screen flex-col">
+            <SiteHeader user={user} />
+            <div className="flex-1">{children}</div>
+            <SiteFooter />
+          </div>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

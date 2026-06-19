@@ -1,51 +1,46 @@
-import { StatusBadge } from "@msk-forms/ui";
-import { IconCheck, IconClock, IconSend } from "@tabler/icons-react";
+import { IconCheck, IconClock, IconRefresh, IconSend } from "@tabler/icons-react";
+
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getDict } from "@/i18n";
 
 /**
  * Hero visual: a faithful miniature of the real applicant status card (the
- * product's feedback-loop USP), composed from the actual design tokens and the
- * real StatusBadge component. Not a stock photo, not a fake-div screenshot.
+ * product's feedback-loop USP), built from the actual shadcn Card + Badge.
  */
-export function StatusPreview() {
+export async function StatusPreview() {
+  const t = (await getDict()).preview;
+
   return (
-    <div className="relative">
-      <div
-        aria-hidden
-        className="absolute -inset-10 -z-10 rounded-full bg-accent/15 blur-3xl"
-      />
-      <div className="rounded-lg border border-border bg-bg-panel p-6 shadow-panel">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="font-mono text-[11px] uppercase tracking-widest text-text-muted">
-              Your submission
-            </p>
-            <p className="mt-1 font-heading text-lg font-bold text-text-primary">
-              Whitelist application
-            </p>
-          </div>
-          <StatusBadge label="In review" color="#00E676" />
+    <Card className="mx-auto w-full max-w-md text-left shadow-lg">
+      <CardHeader className="flex-row items-start justify-between space-y-0">
+        <div>
+          <CardDescription className="text-[11px] uppercase tracking-wider">
+            {t.submission}
+          </CardDescription>
+          <CardTitle className="mt-1.5">{t.title}</CardTitle>
         </div>
-
-        <div className="mt-6 flex flex-col gap-4">
-          <TimelineRow icon={<IconSend size={14} stroke={1.75} />} label="Submitted" time="Jun 18" done />
-          <TimelineRow icon={<IconClock size={14} stroke={1.75} />} label="Picked up by a reviewer" time="Jun 19" done />
-          <TimelineRow icon={<IconCheck size={14} stroke={1.75} />} label="Decision" time="pending" />
+        <Badge>
+          <IconRefresh size={12} stroke={2} />
+          {t.inReview}
+        </Badge>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        <div className="space-y-3.5">
+          <Row icon={<IconSend size={13} stroke={1.75} />} label={t.submitted} time="Jun 18" done />
+          <Row icon={<IconClock size={13} stroke={1.75} />} label={t.pickedUp} time="Jun 19" done />
+          <Row icon={<IconCheck size={13} stroke={1.75} />} label={t.decision} time={t.pending} />
         </div>
-
-        <div className="mt-6 border-t border-border pt-4">
-          <p className="font-mono text-[11px] uppercase tracking-widest text-text-muted">
-            Reviewer note
-          </p>
-          <p className="mt-1.5 text-sm text-text-secondary">
-            Looks solid. Confirming your in-game name, then you&apos;re in.
-          </p>
+        <div className="rounded-md border bg-muted/50 p-3">
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{t.reviewerNote}</p>
+          <p className="mt-1 text-sm text-foreground">{t.note}</p>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
-function TimelineRow({
+function Row({
   icon,
   label,
   time,
@@ -60,15 +55,13 @@ function TimelineRow({
     <div className="flex items-center gap-3">
       <span
         className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border ${
-          done
-            ? "border-border-accent bg-accent/10 text-accent"
-            : "border-border bg-bg-input text-text-muted"
+          done ? "border-primary/30 bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
         }`}
       >
         {icon}
       </span>
-      <span className="flex-1 text-sm text-text-primary">{label}</span>
-      <span className="font-mono text-[11px] text-text-muted">{time}</span>
+      <span className="flex-1 text-sm text-foreground">{label}</span>
+      <span className="text-[11px] tabular-nums text-muted-foreground">{time}</span>
     </div>
   );
 }

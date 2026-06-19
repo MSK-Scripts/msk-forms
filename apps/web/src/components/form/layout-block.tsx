@@ -7,17 +7,17 @@ export function LayoutBlock({ field }: { field: FormField }) {
     case "section_break":
       return (
         <div className="border-b border-border pb-2">
-          <h2 className="font-heading text-xl font-semibold text-text-primary">
+          <h2 className="font-heading text-xl font-semibold text-foreground">
             {field.label}
           </h2>
           {field.description && (
-            <p className="mt-1 text-sm text-text-secondary">{field.description}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{field.description}</p>
           )}
         </div>
       );
 
     case "paragraph":
-      return <p className="text-sm text-text-secondary">{field.description ?? field.label}</p>;
+      return <p className="text-sm text-muted-foreground">{field.description ?? field.label}</p>;
 
     case "divider":
       return <hr className="border-border" />;

@@ -45,7 +45,7 @@ export function FieldEditor({
   return (
     <Card className="flex flex-col gap-3 p-4">
       <div className="flex items-center justify-between">
-        <span className="font-mono text-xs uppercase tracking-widest text-accent">
+        <span className="font-mono text-xs uppercase tracking-widest text-primary">
           {index + 1}. {fieldTypeLabel(field.type)}
         </span>
         <div className="flex items-center gap-1">
@@ -98,7 +98,7 @@ export function FieldEditor({
                 <button
                   type="button"
                   onClick={addOption}
-                  className="self-start font-mono text-xs uppercase tracking-widest text-accent hover:underline"
+                  className="self-start font-mono text-xs uppercase tracking-widest text-primary hover:underline"
                 >
                   + Add option
                 </button>
@@ -136,7 +136,7 @@ function IconButton({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="flex h-7 w-7 items-center justify-center rounded-sm border border-border text-text-secondary transition-colors hover:border-border-accent hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-30"
+      className="flex h-7 w-7 items-center justify-center rounded-sm border border-border text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
     >
       {children}
     </button>
