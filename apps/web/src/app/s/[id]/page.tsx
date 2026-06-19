@@ -11,7 +11,7 @@ const LAYOUT = ["section_break", "heading", "paragraph", "image_block", "divider
 
 /** Human-readable rendering of a stored answer value. */
 function formatAnswer(field: FormField, value: unknown): string {
-  if (value === undefined || value === null || value === "") return "—";
+  if (value === undefined || value === null || value === "") return "Not answered";
   if (typeof value === "boolean") return value ? "Yes" : "No";
 
   const labelFor = (v: string) =>
