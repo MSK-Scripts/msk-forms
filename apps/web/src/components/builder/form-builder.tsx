@@ -126,7 +126,7 @@ export function FormBuilder({
               <button
                 type="button"
                 onClick={() => setSlug(slugify(title))}
-                className="shrink-0 rounded-sm border border-border px-2 font-mono text-xs uppercase text-text-secondary hover:border-border-accent"
+                className="shrink-0 rounded-sm border border-border px-2 font-mono text-xs uppercase text-muted-foreground hover:border-primary/40"
               >
                 Auto
               </button>
@@ -185,7 +185,7 @@ export function FormBuilder({
         </Button>
       </Card>
 
-      {error && <p className="font-mono text-xs text-red-400">{error}</p>}
+      {error && <p className="font-mono text-xs text-destructive">{error}</p>}
 
       <div className="flex items-center gap-3">
         <Button type="button" onClick={save} disabled={saving}>
@@ -194,7 +194,7 @@ export function FormBuilder({
         <button
           type="button"
           onClick={() => router.push(`/dashboard/${guildId}/forms` as Route)}
-          className="font-mono text-xs uppercase tracking-widest text-text-muted hover:text-text-secondary"
+          className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-muted-foreground"
         >
           Cancel
         </button>

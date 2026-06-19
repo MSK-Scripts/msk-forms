@@ -15,11 +15,11 @@ export default async function MySubmissionsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="font-heading text-2xl font-bold text-text-primary">My submissions</h1>
+      <h1 className="font-heading text-2xl font-bold text-foreground">My submissions</h1>
 
       {submissions.length === 0 ? (
         <Card className="p-8">
-          <p className="text-text-secondary">
+          <p className="text-muted-foreground">
             You haven&apos;t submitted any forms yet.
           </p>
         </Card>
@@ -29,10 +29,10 @@ export default async function MySubmissionsPage() {
             const status = resolveStatus(s.status, []);
             return (
               <Link key={s.id} href={`/s/${s.id}` as Route}>
-                <Card className="flex items-center justify-between gap-4 p-4 transition-colors hover:border-border-accent">
+                <Card className="flex items-center justify-between gap-4 p-4 transition-colors hover:border-primary/40">
                   <div className="flex min-w-0 flex-col gap-1">
-                    <span className="truncate font-medium text-text-primary">{s.form.title}</span>
-                    <span className="font-mono text-xs text-text-muted">
+                    <span className="truncate font-medium text-foreground">{s.form.title}</span>
+                    <span className="font-mono text-xs text-muted-foreground">
                       {s.guild.name} · {s.submittedAt.toISOString().slice(0, 10)}
                     </span>
                   </div>

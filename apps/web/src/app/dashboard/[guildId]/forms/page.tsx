@@ -27,12 +27,12 @@ export default async function GuildFormsPage({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="font-mono text-xs uppercase tracking-widest text-text-secondary">
+        <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
           {forms.length} {forms.length === 1 ? "form" : "forms"}
         </h2>
         <Link
           href={`/dashboard/${guildId}/forms/new` as Route}
-          className="rounded-sm bg-accent px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-bg hover:opacity-90"
+          className="rounded-sm bg-primary px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-primary-foreground hover:opacity-90"
         >
           + New form
         </Link>
@@ -40,7 +40,7 @@ export default async function GuildFormsPage({
 
       {forms.length === 0 ? (
         <Card className="p-8">
-          <p className="text-text-secondary">No forms yet. Create your first one.</p>
+          <p className="text-muted-foreground">No forms yet. Create your first one.</p>
         </Card>
       ) : (
         <div className="flex flex-col gap-2">
@@ -48,13 +48,13 @@ export default async function GuildFormsPage({
             <Card key={form.id} className="flex items-center justify-between gap-4 p-4">
               <div className="flex min-w-0 flex-col gap-1">
                 <div className="flex items-center gap-3">
-                  <span className="truncate font-medium text-text-primary">{form.title}</span>
+                  <span className="truncate font-medium text-foreground">{form.title}</span>
                   <StatusBadge
                     label={form.status}
                     color={FORM_STATUS_COLORS[form.status] ?? "#6b6b72"}
                   />
                 </div>
-                <span className="font-mono text-xs text-text-muted">
+                <span className="font-mono text-xs text-muted-foreground">
                   {form._count.submissions} submissions
                   {form.status === "live" && (
                     <>
@@ -63,7 +63,7 @@ export default async function GuildFormsPage({
                         href={`${base}/f/${form.slug}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-accent hover:underline"
+                        className="text-primary hover:underline"
                       >
                         /f/{form.slug}
                       </a>
@@ -73,7 +73,7 @@ export default async function GuildFormsPage({
               </div>
               <Link
                 href={`/dashboard/${guildId}/forms/${form.id}/edit` as Route}
-                className="shrink-0 rounded-sm border border-border px-3 py-1.5 font-mono text-xs uppercase tracking-widest text-text-secondary hover:border-border-accent hover:text-text-primary"
+                className="shrink-0 rounded-sm border border-border px-3 py-1.5 font-mono text-xs uppercase tracking-widest text-muted-foreground hover:border-primary/40 hover:text-foreground"
               >
                 Edit
               </Link>

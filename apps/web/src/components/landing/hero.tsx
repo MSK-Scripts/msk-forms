@@ -1,55 +1,59 @@
 import { IconArrowRight, IconBrandDiscord } from "@tabler/icons-react";
 
-import { LinkButton } from "@/components/landing/link-button";
 import { StatusPreview } from "@/components/landing/status-preview";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { getDict } from "@/i18n";
 
-export function Hero({ loggedIn }: { loggedIn: boolean }) {
+export async function Hero({ loggedIn }: { loggedIn: boolean }) {
+  const t = await getDict();
+
   return (
     <section className="relative overflow-hidden">
-      <div className="mx-auto grid max-w-content items-center gap-14 px-6 pb-20 pt-20 lg:grid-cols-[1.05fr_0.95fr] lg:pb-28 lg:pt-24">
+      <div className="container grid items-center gap-12 pb-20 pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:pb-28 lg:pt-24">
         <div>
-          <p
-            className="rise font-mono text-xs uppercase tracking-[0.28em] text-accent"
-            style={{ animationDelay: "0ms" }}
-          >
-            Application platform
-          </p>
-          <h1
-            className="rise mt-5 font-heading text-4xl font-extrabold leading-[1.04] tracking-tight text-text-primary md:text-5xl lg:text-6xl"
-            style={{ animationDelay: "60ms" }}
-          >
-            Application forms with a real{" "}
-            <span className="text-accent">status loop.</span>
+          <Badge variant="outline" className="gap-1.5 border-primary/30 text-primary">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            {t.hero.badge}
+          </Badge>
+
+          <h1 className="mt-6 max-w-xl text-balance font-heading text-4xl font-bold leading-[1.08] tracking-tight md:text-5xl lg:text-6xl">
+            {t.hero.headPre}
+            <span className="text-primary">{t.hero.headAccent}</span>
+            {t.hero.headPost}
           </h1>
-          <p
-            className="rise mt-6 max-w-xl text-lg leading-relaxed text-text-secondary"
-            style={{ animationDelay: "120ms" }}
-          >
-            Build a form, share a link, let applicants track their status live.
-            With a Discord bot any server can invite.
+
+          <p className="mt-6 max-w-lg text-pretty text-lg leading-relaxed text-muted-foreground">
+            {t.hero.sub}
           </p>
-          <div
-            className="rise mt-9 flex flex-wrap items-center gap-3"
-            style={{ animationDelay: "180ms" }}
-          >
+
+          <div className="mt-9 flex flex-wrap items-center gap-3">
             {loggedIn ? (
-              <LinkButton href="/dashboard">
-                Open dashboard
-                <IconArrowRight size={16} stroke={2} />
-              </LinkButton>
+              <Button asChild size="lg">
+                <a href="/dashboard">
+                  {t.hero.openDashboard}
+                  <IconArrowRight size={16} stroke={2} />
+                </a>
+              </Button>
             ) : (
-              <LinkButton href="/api/auth/discord/login">
-                <IconBrandDiscord size={16} stroke={1.75} />
-                Log in with Discord
-              </LinkButton>
+              <Button asChild size="lg">
+                <a href="/api/auth/discord/login">
+                  <IconBrandDiscord size={16} stroke={1.75} />
+                  {t.hero.loginDiscord}
+                </a>
+              </Button>
             )}
-            <LinkButton href="/f/demo-whitelist" variant="ghost">
-              View a demo form
-            </LinkButton>
+            <Button asChild variant="outline" size="lg">
+              <a href="/f/demo-whitelist">{t.hero.demo}</a>
+            </Button>
           </div>
         </div>
 
-        <div className="rise lg:pl-4" style={{ animationDelay: "240ms" }}>
+        <div className="relative">
+          <div
+            aria-hidden
+            className="absolute -inset-6 -z-10 rounded-full bg-primary/10 blur-3xl"
+          />
           <StatusPreview />
         </div>
       </div>

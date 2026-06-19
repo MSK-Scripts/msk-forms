@@ -27,7 +27,7 @@ export function RadioGroup({
           <label
             key={opt.value}
             htmlFor={id}
-            className="flex cursor-pointer items-center gap-2.5 text-sm text-text-secondary"
+            className="flex cursor-pointer items-center gap-2.5 text-sm text-muted-foreground"
           >
             <input
               id={id}
@@ -37,7 +37,7 @@ export function RadioGroup({
               checked={value === opt.value}
               disabled={disabled}
               onChange={(e) => onChange?.(e.target.value)}
-              className="h-4 w-4 accent-accent"
+              className="h-4 w-4 accent-primary"
             />
             {opt.label}
           </label>

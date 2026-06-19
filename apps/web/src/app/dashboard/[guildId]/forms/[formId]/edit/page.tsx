@@ -19,7 +19,7 @@ export default async function EditFormPage({
   if (!(await canManageForms(guildId, user.id))) {
     return (
       <Card className="p-8">
-        <p className="text-text-secondary">You don&apos;t have permission to edit forms.</p>
+        <p className="text-muted-foreground">You don&apos;t have permission to edit forms.</p>
       </Card>
     );
   }
@@ -31,7 +31,7 @@ export default async function EditFormPage({
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="font-heading text-xl font-semibold text-text-primary">Edit form</h2>
+      <h2 className="font-heading text-xl font-semibold text-foreground">Edit form</h2>
       <FormBuilder
         guildId={guildId}
         formId={form.id}

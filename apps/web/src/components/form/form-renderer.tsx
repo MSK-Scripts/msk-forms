@@ -23,7 +23,22 @@ function isEmpty(value: FieldValue): boolean {
   return false;
 }
 
-export function FormRenderer({ slug, spec }: { slug: string; spec: FormSpec }) {
+export interface FormLabels {
+  submit: string;
+  submitting: string;
+  required: string;
+  submitFailed: string;
+}
+
+export function FormRenderer({
+  slug,
+  spec,
+  labels,
+}: {
+  slug: string;
+  spec: FormSpec;
+  labels: FormLabels;
+}) {
   const router = useRouter();
   const [answers, setAnswers] = useState<Answers>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -47,7 +62,7 @@ export function FormRenderer({ slug, spec }: { slug: string; spec: FormSpec }) {
     for (const field of fields) {
       if (isLayout(field)) continue;
       if (field.validation.required && isEmpty(answers[field.id])) {
-        next[field.id] = "This field is required.";
+        next[field.id] = labels.required;
       }
     }
     setErrors(next);
@@ -68,12 +83,12 @@ export function FormRenderer({ slug, spec }: { slug: string; spec: FormSpec }) {
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => null)) as { error?: string } | null;
-        throw new Error(data?.error ?? "Submission failed.");
+        throw new Error(data?.error ?? labels.submitFailed);
       }
       const { submissionId } = (await res.json()) as { submissionId: string };
       router.push(`/s/${submissionId}` as Route);
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "Submission failed.");
+      setSubmitError(err instanceof Error ? err.message : labels.submitFailed);
       setSubmitting(false);
     }
   }
@@ -103,13 +118,11 @@ export function FormRenderer({ slug, spec }: { slug: string; spec: FormSpec }) {
         ),
       )}
 
-      {submitError && (
-        <p className="font-mono text-xs text-red-400">{submitError}</p>
-      )}
+      {submitError && <p className="text-sm text-destructive">{submitError}</p>}
 
       <div>
         <Button type="submit" disabled={submitting}>
-          {submitting ? "Submitting…" : "Submit"}
+          {submitting ? labels.submitting : labels.submit}
         </Button>
       </div>
     </form>

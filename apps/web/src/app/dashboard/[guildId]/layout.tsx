@@ -24,11 +24,11 @@ export default async function GuildLayout({
         {guild.icon ? (
           <img src={guild.icon} alt="" width={36} height={36} className="rounded-md" />
         ) : (
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-bg-input font-heading text-text-secondary">
+          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-muted font-heading text-muted-foreground">
             {guild.name.charAt(0)}
           </div>
         )}
-        <h1 className="font-heading text-2xl font-bold text-text-primary">{guild.name}</h1>
+        <h1 className="font-heading text-2xl font-bold text-foreground">{guild.name}</h1>
       </div>
 
       <NavTabs

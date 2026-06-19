@@ -1,45 +1,86 @@
 import type { Config } from "tailwindcss";
+import animate from "tailwindcss-animate";
 
-// MSK design system (concept §22) — tokens as CSS variables, fonts via next/font.
+// shadcn/ui config (Tailwind v3) — Neutral base, Emerald primary, Outfit/Noto Sans.
 const config: Config = {
+  darkMode: "class",
   content: ["./src/**/*.{ts,tsx}", "../../packages/ui/src/**/*.{ts,tsx}"],
   theme: {
+    container: {
+      center: true,
+      padding: "1.5rem",
+      screens: { "2xl": "1180px" },
+    },
     extend: {
       colors: {
-        bg: "var(--bg)",
-        "bg-panel": "var(--bg-panel)",
-        "bg-elevated": "var(--bg-elevated)",
-        "bg-input": "var(--bg-input)",
-        border: "var(--border)",
-        "border-accent": "var(--border-accent)",
-        accent: "var(--accent)",
-        "accent-dim": "var(--accent-dim)",
-        "accent-ink": "var(--accent-ink)",
-        "text-primary": "var(--text-primary)",
-        "text-secondary": "var(--text-secondary)",
-        "text-muted": "var(--text-muted)",
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+        chart: {
+          1: "hsl(var(--chart-1))",
+          2: "hsl(var(--chart-2))",
+          3: "hsl(var(--chart-3))",
+          4: "hsl(var(--chart-4))",
+          5: "hsl(var(--chart-5))",
+        },
       },
       borderRadius: {
-        lg: "var(--radius-lg)",
-        sm: "var(--radius-sm)",
-      },
-      boxShadow: {
-        panel: "var(--shadow-panel)",
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        heading: ["var(--font-syne)", "ui-sans-serif", "system-ui", "sans-serif"],
-        body: ["var(--font-dm-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["var(--font-outfit)", "ui-sans-serif", "system-ui", "sans-serif"],
+        heading: ["var(--font-noto-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["var(--font-space-mono)", "ui-monospace", "monospace"],
       },
-      transitionTimingFunction: {
-        out: "cubic-bezier(0.16, 1, 0.3, 1)",
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
       },
-      maxWidth: {
-        content: "1180px",
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
       },
     },
   },
-  plugins: [],
+  plugins: [animate],
 };
 
 export default config;
