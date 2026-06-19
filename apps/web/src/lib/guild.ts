@@ -3,6 +3,27 @@ import "server-only";
 import { prisma } from "@msk-forms/db";
 import { notFound } from "next/navigation";
 
+/** Roles allowed to create/edit/manage a guild's forms (concept §17). */
+export const MANAGER_ROLES = ["owner", "admin"] as const;
+
+/** The user's role in a guild, or null if they aren't a member. */
+export async function getGuildRole(
+  guildId: string,
+  userId: string,
+): Promise<string | null> {
+  const membership = await prisma.guildMember.findUnique({
+    where: { guildId_userId: { guildId, userId } },
+    select: { role: true },
+  });
+  return membership?.role ?? null;
+}
+
+/** True if the user may manage (create/edit) the guild's forms. */
+export async function canManageForms(guildId: string, userId: string): Promise<boolean> {
+  const role = await getGuildRole(guildId, userId);
+  return role !== null && (MANAGER_ROLES as readonly string[]).includes(role);
+}
+
 /** Guilds the user is a member of, with counts for the switcher cards. */
 export async function getUserGuilds(userId: string) {
   const memberships = await prisma.guildMember.findMany({
