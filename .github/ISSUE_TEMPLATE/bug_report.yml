@@ -1,49 +1,49 @@
 name: 🐛 Bug Report
-description: Einen Fehler melden, damit wir ihn beheben können
+description: Report a bug so we can fix it
 labels: ["bug", "triage"]
 body:
   - type: markdown
     attributes:
       value: |
-        Danke für deinen Bug-Report! Bitte fülle die Felder so vollständig wie möglich aus.
+        Thanks for the bug report! Please fill in the fields as completely as possible.
   - type: textarea
     id: description
     attributes:
-      label: Beschreibung
-      description: Was ist passiert? Was hast du erwartet?
-      placeholder: Klare und präzise Beschreibung des Fehlers …
+      label: Description
+      description: What happened? What did you expect?
+      placeholder: A clear and concise description of the bug …
     validations:
       required: true
   - type: textarea
     id: reproduction
     attributes:
-      label: Schritte zur Reproduktion
-      description: Wie lässt sich der Fehler nachstellen?
+      label: Steps to reproduce
+      description: How can the bug be reproduced?
       value: |
-        1. Gehe zu '…'
-        2. Klicke auf '…'
-        3. Fehler tritt auf
+        1. Go to '…'
+        2. Click on '…'
+        3. See error
     validations:
       required: true
   - type: dropdown
     id: area
     attributes:
-      label: Betroffener Bereich
+      label: Affected area
       options:
-        - Web (Dashboard / Builder)
-        - Öffentliches Formular / Status-Seite
-        - Discord-Bot
+        - Web (dashboard / builder)
+        - Public form / status page
+        - Discord bot
         - Realtime
-        - Datenbank / Prisma
-        - CI/CD / Build
-        - Sonstiges
+        - Database / Prisma
+        - CI/CD / build
+        - Other
     validations:
       required: true
   - type: textarea
     id: environment
     attributes:
-      label: Umgebung
-      description: Browser, OS, Node-Version etc.
+      label: Environment
+      description: Browser, OS, Node version, etc.
       placeholder: |
         - OS: Windows 11
         - Browser: Chrome 130
@@ -53,8 +53,8 @@ body:
   - type: textarea
     id: logs
     attributes:
-      label: Logs / Screenshots
-      description: Relevante Konsolen-/Server-Logs oder Screenshots.
+      label: Logs / screenshots
+      description: Relevant console/server logs or screenshots.
       render: shell
     validations:
       required: false

@@ -7,7 +7,7 @@ on:
     branches: ["main", "develop"]
   workflow_dispatch:
 
-# Laufende CI bei neuem Push auf denselben Branch/PR abbrechen
+# Cancel an in-progress CI run when a new push hits the same branch/PR
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
-    # Service-Container für DB-abhängige Tests (Prisma / Integration)
+    # Service containers for DB-dependent tests (Prisma / integration)
     services:
       postgres:
         image: postgres:16
@@ -58,8 +58,8 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Setup pnpm
-        # Version wird aus dem "packageManager"-Feld der package.json gelesen.
-        # (action-setup@v6 verbietet zusaetzlich den "version"-Input.)
+        # Version is read from the "packageManager" field in package.json.
+        # (action-setup@v6 also forbids passing the "version" input.)
         uses: pnpm/action-setup@v6
 
       - name: Setup Node.js

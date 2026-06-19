@@ -6,7 +6,7 @@ const spec: FormSpec = {
   pages: [
     {
       id: "p1",
-      title: "Seite 1",
+      title: "Page 1",
       fields: [
         { id: "name", type: "short_text", width: "full", validation: { required: true }, conditional: [] },
         { id: "age", type: "number", width: "full", validation: { required: false }, conditional: [] },
@@ -17,19 +17,19 @@ const spec: FormSpec = {
 };
 
 describe("formSpecSchema", () => {
-  it("parst eine gültige Form-Spec", () => {
+  it("parses a valid form spec", () => {
     expect(() => formSpecSchema.parse(spec)).not.toThrow();
   });
 
-  it("lehnt eine Spec ohne Seiten ab", () => {
+  it("rejects a spec without pages", () => {
     expect(() => formSpecSchema.parse({ version: 1, pages: [] })).toThrow();
   });
 });
 
 describe("buildAnswerSchema", () => {
-  it("erzwingt Pflichtfelder und ignoriert Layout-Felder", () => {
+  it("enforces required fields and ignores layout fields", () => {
     const answerSchema = buildAnswerSchema(spec);
     expect(answerSchema.safeParse({ name: "Moritz", age: 30 }).success).toBe(true);
-    expect(answerSchema.safeParse({ age: 30 }).success).toBe(false); // name fehlt
+    expect(answerSchema.safeParse({ age: 30 }).success).toBe(false); // name missing
   });
 });

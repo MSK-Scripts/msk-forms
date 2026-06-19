@@ -1,4 +1,4 @@
-# Lokale Dev-Infrastruktur für MSK Forms: Postgres, Redis, MinIO.
+# Local dev infrastructure for MSK Forms: Postgres, Redis, MinIO.
 # Start: docker compose up -d
 services:
   postgres:

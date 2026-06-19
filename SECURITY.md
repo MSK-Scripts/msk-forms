@@ -1,32 +1,32 @@
-# Sicherheitsrichtlinie
+# Security Policy
 
-## Unterstützte Versionen
+## Supported Versions
 
-MSK Forms befindet sich in aktiver Entwicklung. Sicherheitsupdates werden für
-den `main`-Branch bereitgestellt.
+MSK Forms is under active development. Security updates are provided for the
+`main` branch.
 
-## Eine Sicherheitslücke melden
+## Reporting a Vulnerability
 
-**Bitte melde Sicherheitslücken niemals über öffentliche GitHub-Issues.**
+**Please never report security vulnerabilities through public GitHub issues.**
 
-Bevorzugter Weg:
+Preferred channels:
 
-1. **GitHub Private Vulnerability Reporting** — über den Tab
-   *Security → Report a vulnerability* dieses Repositories.
-2. Alternativ per E-Mail an **moritz.kohm@gmail.com** mit dem Betreff
+1. **GitHub Private Vulnerability Reporting** — via the *Security → Report a
+   vulnerability* tab of this repository.
+2. Alternatively, email **moritz.kohm@gmail.com** with the subject
    `[Security] MSK Forms`.
 
-Bitte gib so viele Details wie möglich an:
+Please include as much detail as possible:
 
-- Art und Auswirkung der Schwachstelle
-- Schritte zur Reproduktion (Proof of Concept, falls vorhanden)
-- Betroffene Komponente/Version
+- Type and impact of the vulnerability
+- Steps to reproduce (proof of concept, if available)
+- Affected component/version
 
-## Ablauf
+## Process
 
-- **Bestätigung** des Eingangs: innerhalb von 72 Stunden.
-- **Erste Einschätzung**: innerhalb von 7 Tagen.
-- Wir halten dich über den Fortschritt auf dem Laufenden und stimmen einen
-  Zeitpunkt für die verantwortungsvolle Offenlegung (Responsible Disclosure) ab.
+- **Acknowledgement** of receipt: within 72 hours.
+- **Initial assessment**: within 7 days.
+- We will keep you updated on the progress and coordinate a timeline for
+  responsible disclosure.
 
-Vielen Dank, dass du dazu beiträgst, MSK Forms sicher zu halten.
+Thank you for helping keep MSK Forms secure.

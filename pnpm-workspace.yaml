@@ -1,3 +1,9 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+# Security overrides for transitive dependencies (moved here because pnpm no
+# longer reads the "pnpm" field in package.json).
+overrides:
+  "esbuild@<0.28.1": ">=0.28.1"
+  "postcss@<8.5.10": ">=8.5.10"

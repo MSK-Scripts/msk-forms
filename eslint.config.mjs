@@ -1,4 +1,4 @@
-// Flat ESLint-Config (ESLint 9) — Monorepo-weit
+// Flat ESLint config (ESLint 9) — monorepo-wide
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 
@@ -17,7 +17,7 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   {
     rules: {
-      // Von TypeScript abgedeckt → Core-Regeln deaktivieren (sonst False-Positives)
+      // Covered by TypeScript → disable core rules (otherwise false positives)
       "no-undef": "off",
       "no-unused-vars": "off",
       "@typescript-eslint/no-unused-vars": [

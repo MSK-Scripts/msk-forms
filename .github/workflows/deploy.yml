@@ -1,14 +1,14 @@
 name: Deploy (Production)
 
 on:
-  # Phase 0: Auto-Deploy auf Push deaktiviert, solange Server (/opt/msk-forms)
-  # und Deploy-Secrets noch nicht eingerichtet sind. Sobald die Infra steht,
-  # den folgenden Block wieder aktivieren:
+  # Phase 0: push-triggered auto-deploy is disabled until the server
+  # (/opt/msk-forms) and deploy secrets are set up. Re-enable the block below
+  # once the infrastructure is ready:
   # push:
   #   branches: ["main"]
   workflow_dispatch:
 
-# Nie zwei Deploys gleichzeitig — laufendes Deploy NICHT abbrechen
+# Never run two deploys at once — do NOT cancel a running deploy
 concurrency:
   group: deploy-production
   cancel-in-progress: false
@@ -38,28 +38,30 @@ jobs:
             set -euo pipefail
             cd /opt/msk-forms
 
-            echo "→ Pull latest"
+            echo "-> Pull latest"
             git fetch --all --prune
             git reset --hard origin/main
 
-            echo "→ Install dependencies (frozen)"
-            corepack enable
+            echo "-> Install dependencies (frozen)"
+            # Non-fatal: corepack may fail to write its shim when pnpm already
+            # exists globally; the global pnpm still works.
+            corepack enable || true
             pnpm install --frozen-lockfile --prod=false
 
-            echo "→ Prisma migrate (deploy) + generate"
+            echo "-> Prisma migrate (deploy) + generate"
             pnpm prisma migrate deploy
             pnpm prisma generate
 
-            echo "→ Build"
+            echo "-> Build"
             pnpm run build
 
-            echo "→ Reload services via PM2 (zero-downtime)"
+            echo "-> Reload services via PM2 (zero-downtime)"
             pm2 reload ecosystem.config.cjs --update-env
 
-            echo "→ Save PM2 process list"
+            echo "-> Save PM2 process list"
             pm2 save
 
-            echo "✓ Deploy abgeschlossen"
+            echo "Deploy finished"
 
       - name: Notify Discord (optional)
         if: always()
