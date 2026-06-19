@@ -5,7 +5,19 @@
  *
  * Run with DATABASE_URL set:  pnpm --filter @msk-forms/db seed
  */
-import { prisma } from "../src/index";
+import { fileURLToPath } from "node:url";
+
+// The seed runs outside Next/PM2 (which inject env) and tsx doesn't load .env.
+// Load the repo-root .env relative to this file BEFORE importing the db client
+// (which reads DATABASE_URL at module load). A dynamic import keeps this order;
+// a static import would be hoisted above the env load.
+try {
+  process.loadEnvFile(fileURLToPath(new URL("../../../.env", import.meta.url)));
+} catch {
+  // Fall back to the ambient environment if no .env is present.
+}
+
+const { prisma } = await import("../src/index");
 
 const DEMO_DISCORD_ID = "000000000000000001";
 const DEMO_GUILD_DISCORD_ID = "000000000000000010";
