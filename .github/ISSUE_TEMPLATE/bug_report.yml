@@ -1,0 +1,60 @@
+name: 🐛 Bug Report
+description: Einen Fehler melden, damit wir ihn beheben können
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke für deinen Bug-Report! Bitte fülle die Felder so vollständig wie möglich aus.
+  - type: textarea
+    id: description
+    attributes:
+      label: Beschreibung
+      description: Was ist passiert? Was hast du erwartet?
+      placeholder: Klare und präzise Beschreibung des Fehlers …
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Schritte zur Reproduktion
+      description: Wie lässt sich der Fehler nachstellen?
+      value: |
+        1. Gehe zu '…'
+        2. Klicke auf '…'
+        3. Fehler tritt auf
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Betroffener Bereich
+      options:
+        - Web (Dashboard / Builder)
+        - Öffentliches Formular / Status-Seite
+        - Discord-Bot
+        - Realtime
+        - Datenbank / Prisma
+        - CI/CD / Build
+        - Sonstiges
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Umgebung
+      description: Browser, OS, Node-Version etc.
+      placeholder: |
+        - OS: Windows 11
+        - Browser: Chrome 130
+        - Node: 22.x
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Screenshots
+      description: Relevante Konsolen-/Server-Logs oder Screenshots.
+      render: shell
+    validations:
+      required: false

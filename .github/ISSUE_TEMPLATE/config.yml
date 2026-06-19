@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔒 Sicherheitslücke melden
+    url: https://github.com/MSK-Scripts/msk-forms/security/advisories/new
+    about: Sicherheitslücken bitte privat melden – nicht als öffentliches Issue.
+  - name: 💬 Discord / Support
+    url: https://msk-scripts.de
+    about: Allgemeine Fragen und Support über MSK Scripts.
