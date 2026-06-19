@@ -18,10 +18,13 @@
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {
-    "@prisma/client": "^6.2.0"
+    "@prisma/adapter-pg": "^7.0.0",
+    "@prisma/client": "^7.0.0"
   },
   "devDependencies": {
-    "prisma": "^6.2.0",
+    "@types/pg": "^8.11.10",
+    "pg": "^8.13.1",
+    "prisma": "^7.0.0",
     "typescript": "^5.7.2",
     "vitest": "^3.2.6"
   }
