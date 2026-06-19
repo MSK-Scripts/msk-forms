@@ -1,40 +1,40 @@
 name: ✨ Feature Request
-description: Eine neue Funktion oder Verbesserung vorschlagen
+description: Suggest a new feature or improvement
 labels: ["enhancement", "triage"]
 body:
   - type: textarea
     id: problem
     attributes:
-      label: Problem / Motivation
-      description: Welches Problem löst das Feature? Was ist der Anwendungsfall?
-      placeholder: "Als <Rolle> möchte ich <Ziel>, um <Nutzen> …"
+      label: Problem / motivation
+      description: What problem does the feature solve? What is the use case?
+      placeholder: "As a <role> I want <goal> so that <benefit> …"
     validations:
       required: true
   - type: textarea
     id: solution
     attributes:
-      label: Gewünschte Lösung
-      description: Wie sollte das Feature funktionieren?
+      label: Desired solution
+      description: How should the feature work?
     validations:
       required: true
   - type: dropdown
     id: area
     attributes:
-      label: Bereich
+      label: Area
       options:
-        - Form-Builder
+        - Form builder
         - Dashboard
-        - Feedback-Loop / Status
-        - Discord-Bot
+        - Feedback loop / status
+        - Discord bot
         - Branding / i18n
-        - Integrationen / API
-        - Sonstiges
+        - Integrations / API
+        - Other
     validations:
       required: true
   - type: textarea
     id: alternatives
     attributes:
-      label: Alternativen
-      description: Welche Alternativen hast du in Betracht gezogen?
+      label: Alternatives
+      description: Which alternatives did you consider?
     validations:
       required: false

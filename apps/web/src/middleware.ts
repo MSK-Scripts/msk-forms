@@ -1,9 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
- * Nonce-basiertes CSP ('strict-dynamic') + Security-Header (Konzept.md §18).
- * Header werden zentral hier gesetzt; der Apache-vhost neutralisiert seine
- * eigenen via `Header always unset`, um Duplikate zu vermeiden.
+ * Nonce-based CSP ('strict-dynamic') + security headers (concept §18).
+ * Headers are set centrally here; the Apache vhost neutralizes its own via
+ * `Header always unset` to avoid duplicates.
  */
 export function middleware(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");

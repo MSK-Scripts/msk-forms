@@ -1,20 +1,20 @@
-## Beschreibung
-<!-- Was ändert dieser PR und warum? -->
+## Description
+<!-- What does this PR change and why? -->
 
-## Art der Änderung
+## Type of change
 - [ ] Bugfix
-- [ ] Neues Feature
-- [ ] Breaking Change
-- [ ] Refactor / Tech-Debt
+- [ ] New feature
+- [ ] Breaking change
+- [ ] Refactor / tech debt
 - [ ] Docs / CI
 
-## Checkliste
-- [ ] `pnpm lint`, `pnpm typecheck`, `pnpm build` laufen lokal durch
-- [ ] Tests ergänzt/aktualisiert (falls sinnvoll)
-- [ ] Prisma-Migration enthalten (falls Schema-Änderung)
-- [ ] Keine Secrets/`.env`-Werte committet
-- [ ] Security-Auswirkungen bedacht (Input-Validierung, Authz, CSP)
-- [ ] `Konzept.md` / Doku aktualisiert, falls Architektur betroffen
+## Checklist
+- [ ] `pnpm lint`, `pnpm typecheck`, `pnpm build` pass locally
+- [ ] Tests added/updated (where it makes sense)
+- [ ] Prisma migration included (if the schema changed)
+- [ ] No secrets / `.env` values committed
+- [ ] Security implications considered (input validation, authz, CSP)
+- [ ] Docs updated if architecture is affected
 
-## Verknüpfte Issues
+## Linked issues
 <!-- Closes #... -->

@@ -1,4 +1,4 @@
-// PM2-Prozesse für MSK Forms (Konzept.md §23).
+// PM2 processes for MSK Forms (concept §23).
 // Deploy: `pm2 reload ecosystem.config.cjs --update-env`
 module.exports = {
   apps: [

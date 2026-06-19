@@ -1,6 +1,6 @@
 import type { Config } from "tailwindcss";
 
-// MSK Design-System (Konzept.md §22) — Tokens als CSS-Variablen
+// MSK design system (concept §22) — tokens as CSS variables
 const config: Config = {
   content: [
     "./src/**/*.{ts,tsx}",

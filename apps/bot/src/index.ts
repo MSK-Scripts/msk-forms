@@ -9,19 +9,19 @@ import {
 import { config } from "./config.js";
 
 /**
- * MSK Forms Discord-Bot — Multi-Tenant (Konzept.md §11).
- * Phase 0: Grundgerüst, Slash-Command-Registrierung, Ready-Handler.
+ * MSK Forms Discord bot — multi-tenant (concept §11).
+ * Phase 0: scaffolding, slash command registration, ready handler.
  */
 
 const commands = [
   new SlashCommandBuilder()
     .setName("forms")
-    .setDescription("MSK Forms — Formulare verwalten")
+    .setDescription("MSK Forms — manage forms")
     .addSubcommand((sub) =>
-      sub.setName("list").setDescription("Aktive Formulare dieser Guild anzeigen"),
+      sub.setName("list").setDescription("List active forms of this guild"),
     )
     .addSubcommand((sub) =>
-      sub.setName("setup").setDescription("Setup-Wizard im Dashboard öffnen"),
+      sub.setName("setup").setDescription("Open the setup wizard in the dashboard"),
     )
     .toJSON(),
 ];
@@ -29,14 +29,14 @@ const commands = [
 export async function registerCommands(): Promise<void> {
   const rest = new REST({ version: "10" }).setToken(config.token);
   await rest.put(Routes.applicationCommands(config.clientId), { body: commands });
-  console.info(`[bot] ${commands.length} Slash-Command(s) registriert.`);
+  console.info(`[bot] Registered ${commands.length} slash command(s).`);
 }
 
 export function createClient(): Client {
   const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
   client.once(Events.ClientReady, (c) => {
-    console.info(`[bot] Eingeloggt als ${c.user.tag} — ${c.guilds.cache.size} Guild(s).`);
+    console.info(`[bot] Logged in as ${c.user.tag} — ${c.guilds.cache.size} guild(s).`);
   });
 
   client.on(Events.InteractionCreate, async (interaction) => {
@@ -46,12 +46,12 @@ export function createClient(): Client {
     const sub = interaction.options.getSubcommand();
     if (sub === "setup") {
       await interaction.reply({
-        content: `🔧 Setup im Dashboard: ${config.apiBaseUrl}/dashboard`,
+        content: `🔧 Setup in the dashboard: ${config.apiBaseUrl}/dashboard`,
         ephemeral: true,
       });
       return;
     }
-    await interaction.reply({ content: "📋 Noch keine Formulare (Phase 0).", ephemeral: true });
+    await interaction.reply({ content: "📋 No forms yet (Phase 0).", ephemeral: true });
   });
 
   return client;
@@ -63,10 +63,10 @@ async function main(): Promise<void> {
   await client.login(config.token);
 }
 
-// Nur starten, wenn direkt ausgeführt (nicht bei Test-Import).
+// Only start when run directly (not on test import).
 if (process.env.NODE_ENV !== "test") {
   main().catch((err) => {
-    console.error("[bot] Fataler Fehler:", err);
+    console.error("[bot] Fatal error:", err);
     process.exit(1);
   });
 }

@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Standalone-Output für PM2-Deploy auf dem Debian-Server
+  // Standalone output for the PM2 deploy on the Debian server
   output: "standalone",
   reactStrictMode: true,
   // Geteilte Workspace-Packages transpilieren
@@ -9,8 +9,8 @@ const nextConfig: NextConfig = {
   experimental: {
     typedRoutes: true,
   },
-  // Hinweis: Next.js 16 hat `next lint` entfernt — Linting läuft zentral
-  // über die Flat-Config (eslint.config.mjs) im Monorepo-Root.
+  // Note: Next.js 16 removed `next lint` — linting runs centrally via the
+  // flat config (eslint.config.mjs) at the monorepo root.
 };
 
 export default nextConfig;

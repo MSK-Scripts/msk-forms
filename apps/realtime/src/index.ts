@@ -1,8 +1,8 @@
 import { WebSocketServer } from "ws";
 
 /**
- * Realtime-Service (Konzept.md §10/§14) — Live-Status-Updates an Bewerber
- * und Dashboard. Phase 0: minimaler WS-Server mit Echo/Heartbeat.
+ * Realtime service (concept §10/§14) — live status updates to applicants and
+ * the dashboard. Phase 0: minimal WS server with echo/heartbeat.
  */
 const PORT = Number(process.env.REALTIME_PORT ?? 3100);
 
@@ -13,12 +13,12 @@ export function createServer(port: number = PORT): WebSocketServer {
     socket.send(JSON.stringify({ type: "welcome", service: "msk-forms-realtime" }));
 
     socket.on("message", (raw) => {
-      // Phase 0: Echo. Später: Subscribe auf submission/:uuid bzw. guild/:gid.
+      // Phase 0: echo. Later: subscribe to submission/:uuid or guild/:gid.
       socket.send(raw.toString());
     });
   });
 
-  console.info(`[realtime] WebSocket-Server läuft auf Port ${port}`);
+  console.info(`[realtime] WebSocket server listening on port ${port}`);
   return wss;
 }
 

@@ -1,46 +1,46 @@
-# Beitragen zu MSK Forms
+# Contributing to MSK Forms
 
-Danke für dein Interesse an MSK Forms! Dieses Dokument beschreibt, wie du zum
-Projekt beiträgst.
+Thanks for your interest in MSK Forms! This document explains how to contribute
+to the project.
 
-> **Hinweis zur Lizenz:** MSK Forms ist proprietär ([LICENSE](./LICENSE)).
-> Beiträge werden gemäß den Lizenzbedingungen dem Autor (MSK Scripts) übertragen.
-> Bitte kläre größere Beiträge vorab per Issue oder E-Mail ab.
+> **License note:** MSK Forms is proprietary ([LICENSE](./LICENSE)).
+> Contributions are assigned to the author (MSK Scripts) under the license terms.
+> Please discuss larger contributions up front via an issue or email.
 
-## Voraussetzungen
+## Requirements
 
-- **Node.js ≥ 22** und **pnpm ≥ 9** (`corepack enable`)
-- **Docker** (für lokale Infrastruktur: Postgres, Redis, MinIO)
+- **Node.js ≥ 22** and **pnpm ≥ 9** (`corepack enable`)
+- **Docker** (for local infrastructure: Postgres, Redis, MinIO)
 
-## Lokales Setup
+## Local setup
 
 ```bash
 pnpm install
-cp .env.example .env        # Werte eintragen
+cp .env.example .env        # fill in values
 docker compose up -d        # Postgres, Redis, MinIO
-pnpm prisma migrate dev     # bzw. prisma db push in Phase 0
+pnpm prisma migrate dev     # or prisma db push in early phases
 pnpm dev                    # web + bot + realtime
 ```
 
-## Branch-Modell
+## Branching model
 
-- `main` → Production (geschützt, Merge nur via PR)
-- `develop` → Integration
-- Feature-/Fix-Branches: `feat/…`, `fix/…`, `chore/…`, `docs/…` → PR gegen `develop` bzw. `main`
+- `main` → production (protected, merge via PR only)
+- `develop` → integration
+- Feature/fix branches: `feat/…`, `fix/…`, `chore/…`, `docs/…` → PR against `develop` or `main`
 
-## Commit-Konventionen
+## Commit conventions
 
-Wir nutzen [Conventional Commits](https://www.conventionalcommits.org/):
+We use [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
-<type>(<scope>): <kurze Beschreibung>
+<type>(<scope>): <short description>
 ```
 
-Gängige Typen: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`, `perf`.
+Common types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`, `perf`.
 
-## Pull Requests
+## Pull requests
 
-Vor dem Öffnen eines PR bitte sicherstellen, dass lokal grün:
+Before opening a PR, make sure everything passes locally:
 
 ```bash
 pnpm lint
@@ -49,16 +49,15 @@ pnpm test
 pnpm build
 ```
 
-Weitere Checkliste siehe [Pull-Request-Template](./.github/pull_request_template.md).
-Jeder PR durchläuft **CI** (Lint, Typecheck, Build, Test, Prisma-Validate) und
-**CodeQL**.
+See the [pull request template](./.github/pull_request_template.md) for the full
+checklist. Every PR runs **CI** (lint, typecheck, build, test, Prisma validate)
+and **CodeQL**.
 
-## Sicherheit
+## Security
 
-Sicherheitslücken **nicht** als öffentliches Issue melden — siehe
+Do **not** report security vulnerabilities as public issues — see
 [SECURITY.md](./SECURITY.md).
 
-## Verhaltenskodex
+## Code of conduct
 
-Mit deiner Teilnahme akzeptierst du unseren
-[Verhaltenskodex](./CODE_OF_CONDUCT.md).
+By participating you agree to our [Code of Conduct](./CODE_OF_CONDUCT.md).

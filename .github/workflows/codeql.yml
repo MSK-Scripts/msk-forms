@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: ["main"]
   schedule:
-    # Wöchentlich Montag 05:00 UTC
+    # Weekly, Monday 05:00 UTC
     - cron: "0 5 * * 1"
 
 permissions:
@@ -19,9 +19,9 @@ jobs:
     name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Code-Scanning-Upload erfordert GitHub Advanced Security. Auf privaten
-    # Repos ohne GHAS schlägt der Upload fehl → Job überspringen, bis das Repo
-    # public ist oder GHAS aktiviert wird.
+    # Code-scanning upload requires GitHub Advanced Security. On private repos
+    # without GHAS the upload fails, so skip the job until the repo is public
+    # or GHAS is enabled.
     if: ${{ !github.event.repository.private }}
     strategy:
       fail-fast: false

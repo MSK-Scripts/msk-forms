@@ -1,9 +1,9 @@
-# Dependabot — automatische Dependency-Updates für MSK Forms
+# Dependabot — automated dependency updates for MSK Forms
 # Docs: https://docs.github.com/code-security/dependabot/dependabot-version-updates
 version: 2
 
 updates:
-  # --- npm / pnpm (Monorepo-Root) -----------------------------------------
+  # --- npm / pnpm (monorepo root) -----------------------------------------
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -18,7 +18,7 @@ updates:
       prefix: "chore(deps)"
       prefix-development: "chore(deps-dev)"
     groups:
-      # Patch/Minor gebündelt, um PR-Flut zu vermeiden
+      # Bundle patch/minor updates to avoid a flood of PRs
       production-minor-patch:
         applies-to: version-updates
         dependency-type: "production"
@@ -31,7 +31,7 @@ updates:
         update-types:
           - "minor"
           - "patch"
-      # Next.js / React separat halten (Major-relevant)
+      # Keep Next.js / React separate (major-relevant)
       next-react:
         patterns:
           - "next"
@@ -39,7 +39,7 @@ updates:
           - "react-dom"
           - "@next/*"
     ignore:
-      # Major-Bumps von Next.js bewusst manuell durchführen
+      # Do Next.js major bumps manually
       - dependency-name: "next"
         update-types: ["version-update:semver-major"]
 
@@ -60,7 +60,7 @@ updates:
         patterns:
           - "*"
 
-  # --- Docker (docker-compose / Dev-Images) --------------------------------
+  # --- Docker (docker-compose / dev images) --------------------------------
   - package-ecosystem: "docker"
     directory: "/"
     schedule:

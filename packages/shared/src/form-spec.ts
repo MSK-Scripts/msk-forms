@@ -1,12 +1,12 @@
 import { z } from "zod";
 
 /**
- * Form-Spec — die JSON-Definition eines Formulars (Konzept.md §6–§8).
- * Wird in Form.schema (JSONB) gespeichert und zur Laufzeit gegen Submissions validiert.
+ * Form spec — the JSON definition of a form (concept §6–§8).
+ * Stored in Form.schema (JSONB) and validated against submissions at runtime.
  */
 
 export const FIELD_TYPES = [
-  // Eingabe
+  // Input
   "short_text",
   "long_text",
   "email",
@@ -14,7 +14,7 @@ export const FIELD_TYPES = [
   "phone",
   "url",
   "password",
-  // Auswahl
+  // Choice
   "single_choice",
   "multi_choice",
   "dropdown",
@@ -22,16 +22,16 @@ export const FIELD_TYPES = [
   "yes_no",
   "ranking",
   "matrix",
-  // Bewertung
+  // Rating
   "rating_stars",
   "nps",
   "slider",
   "emoji_scale",
-  // Medien
+  // Media
   "file_upload",
   "image_upload",
   "signature",
-  // Spezial / Gaming
+  // Special / gaming
   "date",
   "time",
   "datetime",
@@ -121,7 +121,7 @@ export const formSpecSchema = z.object({
 });
 export type FormSpec = z.infer<typeof formSpecSchema>;
 
-/** Baut ein dynamisches zod-Schema zur Validierung einer Submission gegen eine Form-Spec. */
+/** Builds a dynamic zod schema to validate a submission against a form spec. */
 export function buildAnswerSchema(spec: FormSpec): z.ZodTypeAny {
   const shape: Record<string, z.ZodTypeAny> = {};
   for (const page of spec.pages) {

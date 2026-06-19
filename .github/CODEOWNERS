@@ -1,6 +1,6 @@
-# Standard-Reviewer für alle Änderungen
+# Default reviewer for all changes
 *           @musiker15
 
-# CI/CD & Security besonders schützen
+# Extra protection for CI/CD & security
 /.github/   @musiker15
 /LICENSE    @musiker15
