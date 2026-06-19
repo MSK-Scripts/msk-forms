@@ -42,6 +42,10 @@ coverage/
 # Uploads / local storage (dev)
 /uploads/
 /tmp/
+.claude/
+CLAUDE.md
+KONZEPT.md
+REPO-SETUP.md
 
 # Misc
 *.tsbuildinfo
