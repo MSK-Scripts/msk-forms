@@ -8,7 +8,8 @@ module.exports = {
       script: ".next/standalone/apps/web/server.js",
       env: {
         NODE_ENV: "production",
-        PORT: "3000",
+        // Must match the Apache reverse-proxy target (forms.msk-scripts.de -> 3008).
+        PORT: "3008",
       },
       instances: 1,
       exec_mode: "cluster",
