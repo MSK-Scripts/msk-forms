@@ -17,7 +17,6 @@ permissions:
 
 env:
   NODE_VERSION: "22"
-  PNPM_VERSION: "9"
 
 jobs:
   build-and-test:
@@ -56,15 +55,15 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
+        # Version wird aus dem "packageManager"-Feld der package.json gelesen.
+        # (action-setup@v6 verbietet zusaetzlich den "version"-Input.)
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
@@ -88,7 +87,7 @@ jobs:
         run: pnpm run typecheck
 
       - name: Unit & Integration Tests
-        run: pnpm run test --if-present
+        run: pnpm run test
 
       - name: Build
         run: pnpm run build

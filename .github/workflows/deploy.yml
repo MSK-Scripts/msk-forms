@@ -1,8 +1,11 @@
 name: Deploy (Production)
 
 on:
-  push:
-    branches: ["main"]
+  # Phase 0: Auto-Deploy auf Push deaktiviert, solange Server (/opt/msk-forms)
+  # und Deploy-Secrets noch nicht eingerichtet sind. Sobald die Infra steht,
+  # den folgenden Block wieder aktivieren:
+  # push:
+  #   branches: ["main"]
   workflow_dispatch:
 
 # Nie zwei Deploys gleichzeitig — laufendes Deploy NICHT abbrechen
