@@ -14,16 +14,6 @@ import { FileField, type FileFieldLabels } from "./file-field";
 
 export type FieldValue = string | number | boolean | string[] | FileAnswer | undefined;
 
-/** Field types that carry no answer value (rendered as layout only). */
-export const LAYOUT_TYPES = [
-  "section_break",
-  "heading",
-  "paragraph",
-  "image_block",
-  "divider",
-  "spacer",
-] as const;
-
 const YES_NO_OPTIONS = [
   { value: "yes", label: "Yes" },
   { value: "no", label: "No" },

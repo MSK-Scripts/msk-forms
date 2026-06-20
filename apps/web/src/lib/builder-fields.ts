@@ -22,10 +22,12 @@ export const BUILDER_FIELDS: { type: FieldType; label: string }[] = [
 ];
 
 const CHOICE_TYPES: FieldType[] = ["single_choice", "dropdown", "multi_choice"];
-const LAYOUT_TYPES: FieldType[] = ["heading", "paragraph", "divider"];
+// Distinct from shared LAYOUT_FIELD_TYPES: only the layout types the builder
+// currently offers (not every layout type the renderer can display).
+const BUILDER_LAYOUT_TYPES: FieldType[] = ["heading", "paragraph", "divider"];
 
 export const fieldTypeLabel = (type: FieldType): string =>
   BUILDER_FIELDS.find((f) => f.type === type)?.label ?? type;
 
 export const needsOptions = (type: FieldType): boolean => CHOICE_TYPES.includes(type);
-export const isLayoutType = (type: FieldType): boolean => LAYOUT_TYPES.includes(type);
+export const isLayoutType = (type: FieldType): boolean => BUILDER_LAYOUT_TYPES.includes(type);
