@@ -4,7 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getDict } from "@/i18n";
 
-export async function CtaBand({ loggedIn }: { loggedIn: boolean }) {
+export async function CtaBand({
+  loggedIn,
+  botInvite,
+}: {
+  loggedIn: boolean;
+  botInvite: string;
+}) {
   const t = await getDict();
 
   return (
@@ -18,7 +24,7 @@ export async function CtaBand({ loggedIn }: { loggedIn: boolean }) {
           <h2 className="mx-auto max-w-2xl text-balance font-heading text-3xl font-bold tracking-tight md:text-4xl">
             {t.cta.title}
           </h2>
-          <div className="mt-9 flex justify-center">
+          <div className="mt-9 flex flex-wrap justify-center gap-3">
             {loggedIn ? (
               <Button asChild size="lg">
                 <a href="/dashboard">
@@ -34,6 +40,12 @@ export async function CtaBand({ loggedIn }: { loggedIn: boolean }) {
                 </a>
               </Button>
             )}
+            <Button asChild variant="outline" size="lg">
+              <a href={botInvite} target="_blank" rel="noopener noreferrer">
+                <IconBrandDiscord size={16} stroke={1.75} />
+                {t.cta.inviteBot}
+              </a>
+            </Button>
           </div>
         </CardContent>
       </Card>

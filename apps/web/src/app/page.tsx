@@ -3,6 +3,7 @@ import { Features } from "@/components/landing/features";
 import { Hero } from "@/components/landing/hero";
 import { Steps } from "@/components/landing/steps";
 import { getCurrentUser } from "@/lib/auth";
+import { botInviteUrl } from "@/lib/url";
 import { getDict } from "@/i18n";
 
 export default async function HomePage({
@@ -13,6 +14,7 @@ export default async function HomePage({
   const user = await getCurrentUser();
   const { auth } = await searchParams;
   const t = await getDict();
+  const botInvite = botInviteUrl();
 
   return (
     <>
@@ -24,10 +26,10 @@ export default async function HomePage({
         </div>
       )}
 
-      <Hero loggedIn={Boolean(user)} />
+      <Hero loggedIn={Boolean(user)} botInvite={botInvite} />
       <Features />
       <Steps />
-      <CtaBand loggedIn={Boolean(user)} />
+      <CtaBand loggedIn={Boolean(user)} botInvite={botInvite} />
     </>
   );
 }

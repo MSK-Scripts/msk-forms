@@ -14,6 +14,7 @@ const en = {
     headPre: "Application forms with a real ", headAccent: "status loop", headPost: ".",
     sub: "Build a form, share a link, let applicants track their status live. With a Discord bot any server can invite.",
     loginDiscord: "Log in with Discord", demo: "View a demo form", openDashboard: "Open dashboard",
+    inviteBot: "Invite the bot",
   },
   features: {
     title: "The part most form tools skip.",
@@ -36,6 +37,7 @@ const en = {
   cta: {
     title: "Start collecting applications people can actually follow.",
     openDashboard: "Open dashboard", loginDiscord: "Log in with Discord",
+    inviteBot: "Invite the Discord bot",
   },
   form: {
     notAccepting: "This form is not accepting responses right now.",
@@ -124,6 +126,7 @@ const de: Dictionary = {
     headPre: "Formulare mit echtem ", headAccent: "Status-Loop", headPost: ".",
     sub: "Formular bauen, Link teilen, Bewerber sehen ihren Status live. Mit einem Discord-Bot, den jeder Server einladen kann.",
     loginDiscord: "Mit Discord anmelden", demo: "Demo-Formular ansehen", openDashboard: "Zum Dashboard",
+    inviteBot: "Bot einladen",
   },
   features: {
     title: "Der Teil, den die meisten Formular-Tools auslassen.",
@@ -146,6 +149,7 @@ const de: Dictionary = {
   cta: {
     title: "Sammle Bewerbungen, die man wirklich verfolgen kann.",
     openDashboard: "Zum Dashboard", loginDiscord: "Mit Discord anmelden",
+    inviteBot: "Discord-Bot einladen",
   },
   form: {
     notAccepting: "Dieses Formular nimmt aktuell keine Antworten an.",
