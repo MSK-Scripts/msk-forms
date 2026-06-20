@@ -43,6 +43,9 @@ module.exports = {
       script: "src/index.ts",
       interpreter: "node",
       interpreter_args: "--import tsx",
+      // A gateway bot holds a single connection — fork, never cluster. Cluster
+      // mode also doesn't play well with the --import tsx interpreter.
+      exec_mode: "fork",
       env: {
         ...baseEnv,
         NODE_ENV: "production",
