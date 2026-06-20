@@ -31,7 +31,8 @@ function buildPreview(spec: FormSpec, data: Record<string, unknown>): string[] {
     if (value === undefined || value === null || value === "") return "—";
     if (typeof value === "boolean") return value ? "Yes" : "No";
     if (Array.isArray(value)) return value.map((v) => labelFor(field, String(v))).join(", ");
-    if (typeof value === "object" && value && "name" in value) {
+    // null/undefined already returned above, so a plain object check suffices.
+    if (typeof value === "object" && "name" in value) {
       return String((value as { name: unknown }).name);
     }
     if (field.options) return labelFor(field, String(value));
