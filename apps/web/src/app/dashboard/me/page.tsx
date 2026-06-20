@@ -5,6 +5,7 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { resolveStatus } from "@/lib/forms";
 import { getUserSubmissions } from "@/lib/guild";
+import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,16 +13,15 @@ export const dynamic = "force-dynamic";
 export default async function MySubmissionsPage() {
   const user = await requireUser("/dashboard/me");
   const submissions = await getUserSubmissions(user.id);
+  const t = (await getDict()).dashboard;
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="font-heading text-2xl font-bold text-foreground">My submissions</h1>
+      <h1 className="font-heading text-2xl font-bold text-foreground">{t.mySubmissionsTitle}</h1>
 
       {submissions.length === 0 ? (
         <Card className="p-8">
-          <p className="text-muted-foreground">
-            You haven&apos;t submitted any forms yet.
-          </p>
+          <p className="text-muted-foreground">{t.noMySubmissions}</p>
         </Card>
       ) : (
         <div className="flex flex-col gap-2">

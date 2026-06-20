@@ -5,6 +5,7 @@ import { FormBuilder } from "@/components/builder/form-builder";
 import { requireUser } from "@/lib/auth";
 import { getFormForEdit, parseFormSpec } from "@/lib/forms";
 import { canManageForms } from "@/lib/guild";
+import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,10 +17,11 @@ export default async function EditFormPage({
 }) {
   const { guildId, formId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/forms/${formId}/edit`);
+  const t = await getDict();
   if (!(await canManageForms(guildId, user.id))) {
     return (
       <Card className="p-8">
-        <p className="text-muted-foreground">You don&apos;t have permission to edit forms.</p>
+        <p className="text-muted-foreground">{t.dashboard.noPermEdit}</p>
       </Card>
     );
   }
@@ -31,10 +33,13 @@ export default async function EditFormPage({
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="font-heading text-xl font-semibold text-foreground">Edit form</h2>
+      <h2 className="font-heading text-xl font-semibold text-foreground">
+        {t.dashboard.editFormTitle}
+      </h2>
       <FormBuilder
         guildId={guildId}
         formId={form.id}
+        t={t.builder}
         initial={{
           title: form.title,
           description: form.description ?? "",
