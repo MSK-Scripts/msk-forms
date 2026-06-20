@@ -1,8 +1,6 @@
-import type { Route } from "next";
-
-import { NavTabs } from "@/components/dashboard/nav-tabs";
+import { NavTabs, type NavTab } from "@/components/dashboard/nav-tabs";
 import { requireUser } from "@/lib/auth";
-import { requireGuildMembership } from "@/lib/guild";
+import { MANAGER_ROLES, requireGuildMembership } from "@/lib/guild";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -20,6 +18,15 @@ export default async function GuildLayout({
   const guild = await requireGuildMembership(guildId, user.id);
   const t = (await getDict()).dashboard;
 
+  const canManage = (MANAGER_ROLES as readonly string[]).includes(guild.role);
+  const tabs: NavTab[] = [
+    { href: `/dashboard/${guildId}/forms`, label: t.formsTab, prefix: true },
+    { href: `/dashboard/${guildId}/submissions`, label: t.submissionsTab, prefix: true },
+    ...(canManage
+      ? [{ href: `/dashboard/${guildId}/branding`, label: t.brandingTab, prefix: true }]
+      : []),
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-3">
@@ -33,12 +40,7 @@ export default async function GuildLayout({
         <h1 className="font-heading text-2xl font-bold text-foreground">{guild.name}</h1>
       </div>
 
-      <NavTabs
-        tabs={[
-          { href: `/dashboard/${guildId}/forms` as Route, label: t.formsTab, prefix: true },
-          { href: `/dashboard/${guildId}/submissions` as Route, label: t.submissionsTab, prefix: true },
-        ]}
-      />
+      <NavTabs tabs={tabs} />
 
       <div>{children}</div>
     </div>

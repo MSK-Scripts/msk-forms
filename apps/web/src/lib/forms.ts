@@ -107,7 +107,12 @@ export async function getSubmissionForStatus(id: string) {
       submittedAt: true,
       updatedAt: true,
       form: {
-        select: { title: true, schema: true, guildId: true },
+        select: {
+          title: true,
+          schema: true,
+          guildId: true,
+          guild: { select: { branding: true } },
+        },
       },
       events: {
         where: { visibility: "public" },
