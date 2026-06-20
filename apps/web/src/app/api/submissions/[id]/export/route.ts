@@ -1,6 +1,8 @@
 import { prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { clientIp, rateLimit } from "@/lib/rate-limit";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -9,10 +11,15 @@ export const dynamic = "force-dynamic";
  * Capability model: access by the submission UUID.
  */
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+  // Throttle for parity with withdraw/delete (the UUID is the only credential).
+  const rl = await rateLimit(`export:${clientIp(request.headers)}`, 10, 60);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Too many requests." }, { status: 429 });
+  }
 
   const submission = await prisma.submission.findUnique({
     where: { id },

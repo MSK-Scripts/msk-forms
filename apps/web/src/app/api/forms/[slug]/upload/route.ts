@@ -1,5 +1,5 @@
 import { prisma } from "@msk-forms/db";
-import { FILE_FIELD_TYPES } from "@msk-forms/shared";
+import { FILE_FIELD_TYPES, MAX_FILE_SIZE_MB } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { parseFormSpec } from "@/lib/forms";
@@ -59,7 +59,10 @@ export async function POST(
     return NextResponse.json({ error: "Not a file field." }, { status: 400 });
   }
 
-  const maxBytes = (field.validation.maxFileSizeMb ?? DEFAULT_MAX_FILE_MB) * 1024 * 1024;
+  // Clamp the field's configured limit to the hard server ceiling (defense in
+  // depth — the spec schema also caps it, but never trust a stored value).
+  const limitMb = Math.min(field.validation.maxFileSizeMb ?? DEFAULT_MAX_FILE_MB, MAX_FILE_SIZE_MB);
+  const maxBytes = limitMb * 1024 * 1024;
   if (file.size === 0 || file.size > maxBytes) {
     return NextResponse.json(
       { error: `File must be between 1 byte and ${Math.round(maxBytes / 1024 / 1024)} MB.` },
@@ -80,6 +83,8 @@ export async function POST(
 
   const key = `uploads/${form.id}/${crypto.randomUUID()}`;
   try {
+    // Buffer fully into memory — bounded by the size check above (≤ MAX_FILE_SIZE_MB),
+    // so this is safe; streaming would only matter for much larger uploads.
     await putObject(key, new Uint8Array(await file.arrayBuffer()), mime);
   } catch (err) {
     console.error("[upload] storage error:", (err as Error).message);
