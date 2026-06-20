@@ -1,6 +1,11 @@
 import "server-only";
 
-import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 
 // Reuse one client across hot reloads (mirrors the Prisma/Redis singletons).
 // `undefined` = unresolved; `null` = object storage not configured.
@@ -43,6 +48,17 @@ export async function putObject(key: string, body: Uint8Array, contentType: stri
   await s3.send(
     new PutObjectCommand({ Bucket: s3Bucket(), Key: key, Body: body, ContentType: contentType }),
   );
+}
+
+/** Delete an object. Best-effort — never throws (storage may be unconfigured). */
+export async function deleteObject(key: string): Promise<void> {
+  const s3 = getS3();
+  if (!s3) return;
+  try {
+    await s3.send(new DeleteObjectCommand({ Bucket: s3Bucket(), Key: key }));
+  } catch (err) {
+    console.error("[s3] delete failed:", (err as Error).message);
+  }
 }
 
 /** Fetch an object as a web stream plus its metadata, or null if missing. */
