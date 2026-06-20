@@ -13,6 +13,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { captchaEnabled, verifyCaptcha } from "@/lib/captcha";
 import { parseFormSpec } from "@/lib/forms";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
+import { headObject } from "@/lib/s3";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -115,7 +116,10 @@ export async function POST(
   }
 
   // Turn file-field answers into FileUpload rows. Keys must live under this
-  // form's upload prefix — that's what ties an uploaded object to this form.
+  // form's upload prefix — that's what ties an uploaded object to this form —
+  // and the object must actually exist in storage. We trust the *server-stored*
+  // size/type (via HEAD), not the client-supplied descriptor; only the display
+  // filename comes from the client (and is never used to address the object).
   const data = result.data as Record<string, unknown>;
   const fileFields = spec.pages
     .flatMap((p) => p.fields)
@@ -127,7 +131,17 @@ export async function POST(
     if (!v.key.startsWith(`uploads/${form.id}/`)) {
       return NextResponse.json({ error: "Invalid file reference." }, { status: 400 });
     }
-    fileRows.push({ fieldId: f.id, filename: v.name, mime: v.mime, size: v.size, storageKey: v.key });
+    const head = await headObject(v.key);
+    if (!head) {
+      return NextResponse.json({ error: "Invalid file reference." }, { status: 400 });
+    }
+    fileRows.push({
+      fieldId: f.id,
+      filename: v.name,
+      mime: head.contentType,
+      size: head.contentLength,
+      storageKey: v.key,
+    });
   }
 
   const user = await getCurrentUser();

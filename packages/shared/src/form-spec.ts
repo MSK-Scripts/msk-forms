@@ -137,26 +137,87 @@ export const fileAnswerSchema = z.object({
 });
 export type FileAnswer = z.infer<typeof fileAnswerSchema>;
 
-/** Builds a dynamic zod schema to validate a submission against a form spec. */
+/** Field types that carry no answer (pure layout/markup). */
+export const LAYOUT_FIELD_TYPES = [
+  "section_break",
+  "heading",
+  "paragraph",
+  "image_block",
+  "divider",
+  "spacer",
+] as const;
+
+/** True for layout-only fields, which never produce a submission answer. */
+export function isLayoutField(type: FieldType): boolean {
+  return (LAYOUT_FIELD_TYPES as readonly string[]).includes(type);
+}
+
+const NUMBER_TYPES = ["number", "slider", "nps", "rating_stars"];
+const MULTI_TYPES = ["multi_choice", "multi_select", "ranking"];
+const BOOLEAN_TYPES = ["yes_no", "consent", "age_check"];
+const SINGLE_CHOICE_TYPES = ["single_choice", "dropdown"];
+
+/**
+ * Builds a dynamic zod schema to validate a submission against a form spec.
+ * Enforces the full `field.validation` contract server-side — not just
+ * `required` — so the API never trusts the client to honor min/max, lengths,
+ * patterns, formats, or the allowed option set.
+ */
 export function buildAnswerSchema(spec: FormSpec): z.ZodTypeAny {
   const shape: Record<string, z.ZodTypeAny> = {};
   for (const page of spec.pages) {
     for (const field of page.fields) {
-      if (["section_break", "heading", "paragraph", "image_block", "divider", "spacer"].includes(field.type)) {
-        continue;
-      }
-      let base: z.ZodTypeAny = z.string();
-      if (field.type === "number" || field.type === "slider" || field.type === "nps" || field.type === "rating_stars") {
-        base = z.number();
-      } else if (field.type === "multi_choice" || field.type === "multi_select" || field.type === "ranking") {
-        base = z.array(z.string());
-      } else if (field.type === "yes_no" || field.type === "consent" || field.type === "age_check") {
-        base = z.boolean();
-      } else if ((FILE_FIELD_TYPES as readonly string[]).includes(field.type)) {
-        base = fileAnswerSchema;
-      }
-      shape[field.id] = field.validation.required ? base : base.optional();
+      if (isLayoutField(field.type)) continue;
+      shape[field.id] = buildFieldSchema(field);
     }
   }
   return z.object(shape);
+}
+
+function buildFieldSchema(field: FormField): z.ZodTypeAny {
+  const v = field.validation;
+  const optionValues = field.options?.map((o) => o.value) ?? [];
+  let base: z.ZodTypeAny;
+
+  if (NUMBER_TYPES.includes(field.type)) {
+    let n = z.number();
+    if (v.min !== undefined) n = n.min(v.min);
+    if (v.max !== undefined) n = n.max(v.max);
+    base = n;
+  } else if (MULTI_TYPES.includes(field.type)) {
+    let arr = z.array(z.string());
+    if (v.min !== undefined) arr = arr.min(v.min);
+    if (v.max !== undefined) arr = arr.max(v.max);
+    base =
+      optionValues.length > 0
+        ? arr.refine((vals) => vals.every((x) => optionValues.includes(x)), "Invalid option.")
+        : arr;
+  } else if (BOOLEAN_TYPES.includes(field.type)) {
+    base = z.boolean();
+  } else if ((FILE_FIELD_TYPES as readonly string[]).includes(field.type)) {
+    base = fileAnswerSchema;
+  } else if (SINGLE_CHOICE_TYPES.includes(field.type)) {
+    base = optionValues.length > 0 ? z.enum(optionValues as [string, ...string[]]) : z.string();
+  } else {
+    // Text-like fields (short_text, long_text, email, url, phone, etc.).
+    let s = z.string();
+    if (v.minLength !== undefined) s = s.min(v.minLength);
+    if (v.maxLength !== undefined) s = s.max(v.maxLength);
+    if (field.type === "email") s = s.email();
+    if (field.type === "url") s = s.url();
+    if (v.pattern) {
+      try {
+        const re = new RegExp(v.pattern);
+        s = s.regex(re, "Invalid format.");
+      } catch {
+        // Ignore an invalid stored pattern rather than rejecting everything.
+      }
+    }
+    base = s;
+  }
+
+  if (!v.required) return base.optional();
+  // A required field must be present; for text, also reject the empty string.
+  if (base instanceof z.ZodString) return (base as z.ZodString).min(v.minLength ?? 1);
+  return base;
 }

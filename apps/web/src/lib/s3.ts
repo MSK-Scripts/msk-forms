@@ -3,6 +3,7 @@ import "server-only";
 import {
   DeleteObjectCommand,
   GetObjectCommand,
+  HeadObjectCommand,
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
@@ -58,6 +59,28 @@ export async function deleteObject(key: string): Promise<void> {
     await s3.send(new DeleteObjectCommand({ Bucket: s3Bucket(), Key: key }));
   } catch (err) {
     console.error("[s3] delete failed:", (err as Error).message);
+  }
+}
+
+/**
+ * Look up an object's stored metadata without downloading it, or null if it's
+ * missing/unconfigured. Used on submit to confirm an uploaded object actually
+ * exists and to read its *server-recorded* size/type instead of trusting the
+ * client-supplied descriptor.
+ */
+export async function headObject(
+  key: string,
+): Promise<{ contentType: string; contentLength: number } | null> {
+  const s3 = getS3();
+  if (!s3) return null;
+  try {
+    const out = await s3.send(new HeadObjectCommand({ Bucket: s3Bucket(), Key: key }));
+    return {
+      contentType: out.ContentType ?? "application/octet-stream",
+      contentLength: out.ContentLength ?? 0,
+    };
+  } catch {
+    return null;
   }
 }
 

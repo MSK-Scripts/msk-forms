@@ -1,4 +1,4 @@
-import { Prisma, prisma } from "@msk-forms/db";
+import { changeSubmissionStatus, prisma } from "@msk-forms/db";
 import {
   DEFAULT_STATUSES,
   parseBotConfig,
@@ -64,42 +64,27 @@ export async function handleReviewButton(interaction: ButtonInteraction): Promis
 
   const toStatus = ACTION_STATUS[action];
 
-  if (submission.status !== toStatus) {
-    const ops: Prisma.PrismaPromise<unknown>[] = [
-      prisma.submission.update({ where: { id: submissionId }, data: { status: toStatus } }),
-      prisma.submissionEvent.create({
-        data: {
-          submissionId,
-          type: "status_change",
-          fromStatus: submission.status,
-          toStatus,
-          visibility: "public",
-        },
-      }),
-    ];
-    if (submission.userId) {
-      const payload: StatusChangeNotification = {
+  // Idempotent, race-safe transition shared with the web review route.
+  const notify: StatusChangeNotification | null = submission.userId
+    ? {
         submissionId,
         formTitle: submission.form.title,
         toStatus,
         toStatusLabel: statusLabel(toStatus),
-      };
-      ops.push(
-        prisma.notification.create({
-          data: {
-            userId: submission.userId,
-            type: "status_change",
-            payload: payload as unknown as Prisma.InputJsonValue,
-          },
-        }),
-      );
-    }
-    await prisma.$transaction(ops);
+      }
+    : null;
+  const { changed } = await changeSubmissionStatus({
+    submissionId,
+    toStatus,
+    notify:
+      submission.userId && notify
+        ? { userId: submission.userId, type: "status_change", payload: notify }
+        : null,
+  });
 
-    if (action === "accept" && submission.userId) {
-      const roleId = parseBotConfig(submission.guild.botConfig).acceptedRoleId;
-      if (roleId) await grantRole(interaction, submission.userId, roleId);
-    }
+  if (changed && action === "accept" && submission.userId) {
+    const roleId = parseBotConfig(submission.guild.botConfig).acceptedRoleId;
+    if (roleId) await grantRole(interaction, submission.userId, roleId);
   }
 
   await updateMessage(interaction, submission.guildId, submissionId, toStatus);
