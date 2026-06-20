@@ -23,7 +23,10 @@ export default async function GuildLayout({
     { href: `/dashboard/${guildId}/forms`, label: t.formsTab, prefix: true },
     { href: `/dashboard/${guildId}/submissions`, label: t.submissionsTab, prefix: true },
     ...(canManage
-      ? [{ href: `/dashboard/${guildId}/branding`, label: t.brandingTab, prefix: true }]
+      ? [
+          { href: `/dashboard/${guildId}/branding`, label: t.brandingTab, prefix: true },
+          { href: `/dashboard/${guildId}/bot`, label: t.botTab, prefix: true },
+        ]
       : []),
   ];
 

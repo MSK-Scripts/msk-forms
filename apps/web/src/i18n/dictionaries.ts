@@ -61,7 +61,7 @@ const en = {
     note: "Looks solid. Confirming your in-game name, then you’re in.",
   },
   dashboard: {
-    guilds: "Guilds", mySubmissions: "My Submissions", formsTab: "Forms", submissionsTab: "Submissions", brandingTab: "Branding",
+    guilds: "Guilds", mySubmissions: "My Submissions", formsTab: "Forms", submissionsTab: "Submissions", brandingTab: "Branding", botTab: "Bot",
     yourGuilds: "Your guilds",
     noGuilds: "You aren’t managing any guilds yet.",
     noGuildsHint:
@@ -97,6 +97,17 @@ const en = {
     save: "Save", saving: "Saving…", saved: "Saved.", reset: "Reset",
     errSave: "Could not save branding.",
     noPerm: "You don’t have permission to edit branding.",
+  },
+  botConfig: {
+    title: "Bot settings",
+    reviewChannel: "Review channel ID",
+    reviewChannelHint: "New submissions are posted here for your team to review.",
+    acceptedRole: "Accepted role ID",
+    acceptedRoleHint: "Granted to the applicant when a submission is accepted.",
+    idHint: "Enable Developer Mode in Discord (Settings → Advanced), then right-click a channel/role → Copy ID.",
+    save: "Save", saving: "Saving…", saved: "Saved.",
+    errSave: "Could not save bot settings.",
+    noPerm: "You don’t have permission to edit bot settings.",
   },
   builder: {
     title: "Title", description: "Description", slug: "Slug", slugHint: "Public URL: /f/<slug>", auto: "Auto",
@@ -184,7 +195,7 @@ const de: Dictionary = {
     note: "Sieht gut aus. Wir bestätigen deinen In-Game-Namen, dann bist du dabei.",
   },
   dashboard: {
-    guilds: "Guilds", mySubmissions: "Meine Einreichungen", formsTab: "Formulare", submissionsTab: "Einreichungen", brandingTab: "Branding",
+    guilds: "Guilds", mySubmissions: "Meine Einreichungen", formsTab: "Formulare", submissionsTab: "Einreichungen", brandingTab: "Branding", botTab: "Bot",
     yourGuilds: "Deine Guilds",
     noGuilds: "Du verwaltest noch keine Guilds.",
     noGuildsHint:
@@ -220,6 +231,17 @@ const de: Dictionary = {
     save: "Speichern", saving: "Wird gespeichert…", saved: "Gespeichert.", reset: "Zurücksetzen",
     errSave: "Branding konnte nicht gespeichert werden.",
     noPerm: "Du hast keine Berechtigung, das Branding zu bearbeiten.",
+  },
+  botConfig: {
+    title: "Bot-Einstellungen",
+    reviewChannel: "Review-Kanal-ID",
+    reviewChannelHint: "Neue Einreichungen werden hier für dein Team zur Prüfung gepostet.",
+    acceptedRole: "Annahme-Rollen-ID",
+    acceptedRoleHint: "Wird dem Bewerber bei Annahme der Einreichung vergeben.",
+    idHint: "Aktiviere den Entwicklermodus in Discord (Einstellungen → Erweitert), dann Rechtsklick auf Kanal/Rolle → ID kopieren.",
+    save: "Speichern", saving: "Wird gespeichert…", saved: "Gespeichert.",
+    errSave: "Bot-Einstellungen konnten nicht gespeichert werden.",
+    noPerm: "Du hast keine Berechtigung, die Bot-Einstellungen zu bearbeiten.",
   },
   builder: {
     title: "Titel", description: "Beschreibung", slug: "Slug", slugHint: "Öffentliche URL: /f/<slug>", auto: "Auto",
