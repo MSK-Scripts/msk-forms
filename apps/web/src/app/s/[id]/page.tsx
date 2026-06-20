@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 
 import { AnswerSummary } from "@/components/submission/answer-summary";
 import { SubmissionActions } from "@/components/submission/submission-actions";
-import { brandStyle, parseBranding } from "@/lib/branding";
+import { brandStyle, logoUrl, parseBranding } from "@/lib/branding";
 import { getSubmissionForStatus, resolveStatus } from "@/lib/forms";
 import { getDict } from "@/i18n";
 
@@ -25,11 +25,14 @@ export default async function SubmissionStatusPage({
   const t = (await getDict()).status;
   const status = resolveStatus(submission.status, submission.statusDefs);
   const answers = (submission.answers ?? {}) as Record<string, unknown>;
-  const brand = brandStyle(parseBranding(submission.form.guild.branding));
+  const branding = parseBranding(submission.form.guild.branding);
+  const brand = brandStyle(branding);
+  const logo = logoUrl(submission.form.guildId, branding);
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12" style={brand}>
       <header className="flex flex-col gap-3">
+        {logo && <img src={logo} alt="" className="h-12 w-auto self-start" />}
         <span className="text-sm font-medium text-primary">{t.yourSubmission}</span>
         <h1 className="font-heading text-3xl font-bold text-foreground">
           {submission.form.title}

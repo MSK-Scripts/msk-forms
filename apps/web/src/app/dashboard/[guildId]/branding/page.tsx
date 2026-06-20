@@ -2,8 +2,9 @@ import { prisma } from "@msk-forms/db";
 import { Card } from "@msk-forms/ui";
 
 import { BrandingForm } from "@/components/branding/branding-form";
+import { LogoForm } from "@/components/branding/logo-form";
 import { requireUser } from "@/lib/auth";
-import { parseBranding } from "@/lib/branding";
+import { logoUrl, parseBranding } from "@/lib/branding";
 import { canManageForms } from "@/lib/guild";
 import { getDict } from "@/i18n";
 
@@ -37,6 +38,7 @@ export default async function BrandingPage({
     <div className="flex flex-col gap-4">
       <h2 className="font-heading text-xl font-semibold text-foreground">{t.branding.title}</h2>
       <BrandingForm guildId={guildId} initial={branding} t={t.branding} />
+      <LogoForm guildId={guildId} logoUrl={logoUrl(guildId, branding)} t={t.branding} />
     </div>
   );
 }

@@ -6,7 +6,7 @@ import type { CSSProperties } from "react";
 
 import { FormRenderer } from "@/components/form/form-renderer";
 import { getCurrentUser } from "@/lib/auth";
-import { brandStyle, parseBranding } from "@/lib/branding";
+import { brandStyle, logoUrl, parseBranding } from "@/lib/branding";
 import { captchaSiteKey } from "@/lib/captcha";
 import { getLiveFormBySlug } from "@/lib/forms";
 import { getDict } from "@/i18n";
@@ -25,11 +25,13 @@ export default async function PublicFormPage({
 
   if (!form || !form.spec) notFound();
 
-  const brand = brandStyle(parseBranding(form.guild.branding));
+  const branding = parseBranding(form.guild.branding);
+  const brand = brandStyle(branding);
+  const logo = logoUrl(form.guildId, branding);
 
   if (form.status !== "live") {
     return (
-      <Shell guildName={form.guild.name} title={form.title} style={brand}>
+      <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo}>
         <p className="text-sm text-muted-foreground">{t.notAccepting}</p>
       </Shell>
     );
@@ -39,7 +41,7 @@ export default async function PublicFormPage({
     const user = await getCurrentUser();
     if (!user) {
       return (
-        <Shell guildName={form.guild.name} title={form.title} style={brand}>
+        <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo}>
           <p className="text-sm text-muted-foreground">{t.needLogin}</p>
           <a
             href={`/api/auth/discord/login?returnTo=/f/${slug}`}
@@ -54,7 +56,7 @@ export default async function PublicFormPage({
 
   if (form.visibility === "password" || form.visibility === "role_required") {
     return (
-      <Shell guildName={form.guild.name} title={form.title} style={brand}>
+      <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo}>
         <p className="text-sm text-muted-foreground">{t.accessRestricted}</p>
       </Shell>
     );
@@ -64,7 +66,7 @@ export default async function PublicFormPage({
   const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
-    <Shell guildName={form.guild.name} title={form.title} description={form.description} style={brand}>
+    <Shell guildName={form.guild.name} title={form.title} description={form.description} style={brand} logoSrc={logo}>
       {siteKey && (
         <Script
           src="https://challenges.cloudflare.com/turnstile/v0/api.js"
@@ -97,16 +99,19 @@ function Shell({
   description,
   children,
   style,
+  logoSrc,
 }: {
   guildName: string;
   title: string;
   description?: string | null;
   children: React.ReactNode;
   style?: CSSProperties;
+  logoSrc?: string | null;
 }) {
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12" style={style}>
       <header className="flex flex-col gap-1">
+        {logoSrc && <img src={logoSrc} alt="" className="mb-2 h-12 w-auto self-start" />}
         <span className="text-sm font-medium text-primary">{guildName}</span>
         <h1 className="font-heading text-3xl font-bold text-foreground">{title}</h1>
         {description && <p className="text-muted-foreground">{description}</p>}
