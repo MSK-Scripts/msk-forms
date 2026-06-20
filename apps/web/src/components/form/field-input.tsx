@@ -1,6 +1,6 @@
 "use client";
 
-import type { FormField } from "@msk-forms/shared";
+import type { FileAnswer, FormField } from "@msk-forms/shared";
 import {
   Checkbox,
   CheckboxGroup,
@@ -10,7 +10,9 @@ import {
   Textarea,
 } from "@msk-forms/ui";
 
-export type FieldValue = string | number | boolean | string[] | undefined;
+import { FileField, type FileFieldLabels } from "./file-field";
+
+export type FieldValue = string | number | boolean | string[] | FileAnswer | undefined;
 
 /** Field types that carry no answer value (rendered as layout only). */
 export const LAYOUT_TYPES = [
@@ -33,14 +35,38 @@ interface FieldInputProps {
   onChange: (value: FieldValue) => void;
   invalid?: boolean;
   disabled?: boolean;
+  /** The form slug + labels — needed by file fields to drive uploads. */
+  slug: string;
+  fileLabels: FileFieldLabels;
 }
 
 /** Renders the interactive control for a single (non-layout) form field. */
-export function FieldInput({ field, value, onChange, invalid, disabled }: FieldInputProps) {
+export function FieldInput({
+  field,
+  value,
+  onChange,
+  invalid,
+  disabled,
+  slug,
+  fileLabels,
+}: FieldInputProps) {
   const id = field.id;
   const options = (field.options ?? []).map((o) => ({ value: o.value, label: o.label }));
 
   switch (field.type) {
+    case "file_upload":
+    case "image_upload":
+      return (
+        <FileField
+          slug={slug}
+          field={field}
+          value={value as FileAnswer | undefined}
+          onChange={onChange}
+          disabled={disabled}
+          labels={fileLabels}
+        />
+      );
+
     case "long_text":
       return (
         <Textarea

@@ -13,6 +13,7 @@
     "clean": "rm -rf .next .turbo dist"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.726.0",
     "@msk-forms/db": "workspace:*",
     "@msk-forms/shared": "workspace:*",
     "@msk-forms/ui": "workspace:*",

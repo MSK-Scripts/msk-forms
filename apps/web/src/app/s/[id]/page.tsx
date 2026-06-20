@@ -67,6 +67,7 @@ export default async function SubmissionStatusPage({
             spec={submission.spec}
             answers={answers}
             labels={{ notAnswered: t.notAnswered, yes: t.yes, no: t.no }}
+            files={submission.files}
           />
         </section>
       )}

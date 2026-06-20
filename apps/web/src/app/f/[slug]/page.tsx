@@ -77,6 +77,9 @@ export default async function PublicFormPage({
           required: t.required,
           submitFailed: t.submitFailed,
           captchaRequired: t.captchaRequired,
+          fileUploading: t.fileUploading,
+          fileRemove: t.fileRemove,
+          uploadFailed: t.uploadFailed,
         }}
       />
     </Shell>

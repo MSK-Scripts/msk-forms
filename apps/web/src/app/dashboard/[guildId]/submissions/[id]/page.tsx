@@ -72,6 +72,7 @@ export default async function SubmissionDetailPage({
                 spec={submission.spec}
                 answers={answers}
                 labels={{ notAnswered: dict.status.notAnswered, yes: dict.status.yes, no: dict.status.no }}
+                files={submission.files}
               />
             </section>
           )}

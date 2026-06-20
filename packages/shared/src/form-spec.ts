@@ -121,6 +121,22 @@ export const formSpecSchema = z.object({
 });
 export type FormSpec = z.infer<typeof formSpecSchema>;
 
+/** Field types whose answer is an uploaded file reference, not a scalar. */
+export const FILE_FIELD_TYPES = ["file_upload", "image_upload"] as const;
+
+/**
+ * The answer value for a file field: a reference to an object already uploaded
+ * (via the upload endpoint) to object storage. The bytes never travel in the
+ * submit JSON — only this descriptor does.
+ */
+export const fileAnswerSchema = z.object({
+  key: z.string().min(1).max(512),
+  name: z.string().min(1).max(255),
+  size: z.number().int().nonnegative(),
+  mime: z.string().min(1).max(255),
+});
+export type FileAnswer = z.infer<typeof fileAnswerSchema>;
+
 /** Builds a dynamic zod schema to validate a submission against a form spec. */
 export function buildAnswerSchema(spec: FormSpec): z.ZodTypeAny {
   const shape: Record<string, z.ZodTypeAny> = {};
@@ -136,6 +152,8 @@ export function buildAnswerSchema(spec: FormSpec): z.ZodTypeAny {
         base = z.array(z.string());
       } else if (field.type === "yes_no" || field.type === "consent" || field.type === "age_check") {
         base = z.boolean();
+      } else if ((FILE_FIELD_TYPES as readonly string[]).includes(field.type)) {
+        base = fileAnswerSchema;
       }
       shape[field.id] = field.validation.required ? base : base.optional();
     }
