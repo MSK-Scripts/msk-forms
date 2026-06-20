@@ -61,7 +61,7 @@ const en = {
     note: "Looks solid. Confirming your in-game name, then you’re in.",
   },
   dashboard: {
-    guilds: "Guilds", mySubmissions: "My Submissions", formsTab: "Forms", submissionsTab: "Submissions",
+    guilds: "Guilds", mySubmissions: "My Submissions", formsTab: "Forms", submissionsTab: "Submissions", brandingTab: "Branding",
     yourGuilds: "Your guilds",
     noGuilds: "You aren’t managing any guilds yet.",
     noGuildsHint:
@@ -89,6 +89,14 @@ const en = {
     statusChanged: "changed status", noteAdded: "added an internal note", messageSent: "sent a message",
     to: "to", saving: "Saving…", actionFailed: "Action failed.",
     noPermReview: "You don’t have permission to review submissions.",
+  },
+  branding: {
+    title: "Branding",
+    accentColor: "Accent color",
+    accentHint: "Applied to your public form and status pages.",
+    save: "Save", saving: "Saving…", saved: "Saved.", reset: "Reset",
+    errSave: "Could not save branding.",
+    noPerm: "You don’t have permission to edit branding.",
   },
   builder: {
     title: "Title", description: "Description", slug: "Slug", slugHint: "Public URL: /f/<slug>", auto: "Auto",
@@ -176,7 +184,7 @@ const de: Dictionary = {
     note: "Sieht gut aus. Wir bestätigen deinen In-Game-Namen, dann bist du dabei.",
   },
   dashboard: {
-    guilds: "Guilds", mySubmissions: "Meine Einreichungen", formsTab: "Formulare", submissionsTab: "Einreichungen",
+    guilds: "Guilds", mySubmissions: "Meine Einreichungen", formsTab: "Formulare", submissionsTab: "Einreichungen", brandingTab: "Branding",
     yourGuilds: "Deine Guilds",
     noGuilds: "Du verwaltest noch keine Guilds.",
     noGuildsHint:
@@ -204,6 +212,14 @@ const de: Dictionary = {
     statusChanged: "hat den Status geändert", noteAdded: "hat eine interne Notiz hinzugefügt", messageSent: "hat eine Nachricht gesendet",
     to: "zu", saving: "Wird gespeichert…", actionFailed: "Aktion fehlgeschlagen.",
     noPermReview: "Du hast keine Berechtigung, Einreichungen zu prüfen.",
+  },
+  branding: {
+    title: "Branding",
+    accentColor: "Akzentfarbe",
+    accentHint: "Wird auf deinen öffentlichen Formular- und Status-Seiten angewendet.",
+    save: "Speichern", saving: "Wird gespeichert…", saved: "Gespeichert.", reset: "Zurücksetzen",
+    errSave: "Branding konnte nicht gespeichert werden.",
+    noPerm: "Du hast keine Berechtigung, das Branding zu bearbeiten.",
   },
   builder: {
     title: "Titel", description: "Beschreibung", slug: "Slug", slugHint: "Öffentliche URL: /f/<slug>", auto: "Auto",
