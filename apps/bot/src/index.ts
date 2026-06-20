@@ -4,12 +4,16 @@ import { registerCommands } from "./commands.js";
 import { config } from "./config.js";
 import { handleFormsAutocomplete, handleFormsCommand } from "./forms.js";
 import { syncAllGuilds, syncGuild } from "./guilds.js";
+import { deliverPendingNotifications } from "./notifications.js";
 
 /**
  * MSK Forms Discord bot — multi-tenant (concept §11).
- * Slice 6a: links Discord guilds to MSK Forms on invite, and serves the
- * `/forms` command (list live forms, post a form to a channel, open setup).
+ * Links Discord guilds to MSK Forms on invite, serves the `/forms` command
+ * (6a), and delivers status/message DMs from the outbox (6b).
  */
+
+/** How often to drain the notification outbox. */
+const POLL_MS = 15_000;
 
 export function createClient(): Client {
   const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -17,6 +21,9 @@ export function createClient(): Client {
   client.once(Events.ClientReady, async (c) => {
     console.info(`[bot] Logged in as ${c.user.tag} — ${c.guilds.cache.size} guild(s).`);
     await syncAllGuilds(c);
+    // Drain the outbox now, then poll on an interval.
+    void deliverPendingNotifications(c);
+    setInterval(() => void deliverPendingNotifications(c), POLL_MS);
   });
 
   // The bot was added to a server → link it (owner becomes MSK Forms owner).
