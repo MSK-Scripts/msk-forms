@@ -1,4 +1,6 @@
+import type { Route } from "next";
 import { Card, StatusBadge } from "@msk-forms/ui";
+import Link from "next/link";
 
 import { getGuildSubmissions } from "@/lib/guild";
 import { resolveStatus } from "@/lib/forms";
@@ -15,6 +17,7 @@ export default async function GuildSubmissionsPage({
   const { guildId } = await params;
   const submissions = await getGuildSubmissions(guildId);
   const t = (await getDict()).dashboard;
+  const href = (id: string) => `/dashboard/${guildId}/submissions/${id}` as Route;
 
   if (submissions.length === 0) {
     return (
@@ -33,13 +36,17 @@ export default async function GuildSubmissionsPage({
             <th className="px-4 py-3 font-medium">{t.colForm}</th>
             <th className="px-4 py-3 font-medium">{t.colDate}</th>
             <th className="px-4 py-3 font-medium">{t.colStatus}</th>
+            <th className="px-4 py-3" />
           </tr>
         </thead>
         <tbody>
           {submissions.map((s) => {
             const status = resolveStatus(s.status, []);
             return (
-              <tr key={s.id} className="border-b border-border/50 last:border-0">
+              <tr
+                key={s.id}
+                className="border-b border-border/50 transition-colors last:border-0 hover:bg-muted/50"
+              >
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     {s.user?.avatar && (
@@ -54,6 +61,14 @@ export default async function GuildSubmissionsPage({
                 </td>
                 <td className="px-4 py-3">
                   <StatusBadge label={status.label} color={status.color} />
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <Link
+                    href={href(s.id)}
+                    className="text-sm font-medium text-primary transition-colors hover:underline"
+                  >
+                    {t.open}
+                  </Link>
                 </td>
               </tr>
             );
