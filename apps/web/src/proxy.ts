@@ -11,17 +11,22 @@ export function proxy(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const isDev = process.env.NODE_ENV === "development";
 
+  // Cloudflare Turnstile (captcha): loads api.js, opens an iframe challenge and
+  // calls back to challenges.cloudflare.com.
+  const TURNSTILE = "https://challenges.cloudflare.com";
+
   // Dev (Turbopack/HMR) needs eval + inline + a websocket; production stays on
   // the strict nonce + 'strict-dynamic' policy with no eval.
   const csp = [
     `default-src 'self'`,
     isDev
-      ? `script-src 'self' 'unsafe-eval' 'unsafe-inline'`
-      : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+      ? `script-src 'self' 'unsafe-eval' 'unsafe-inline' ${TURNSTILE}`
+      : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${TURNSTILE}`,
     `style-src 'self' 'unsafe-inline'`,
     `img-src 'self' data: https://cdn.discordapp.com`,
     `font-src 'self'`,
-    isDev ? `connect-src 'self' ws: wss:` : `connect-src 'self'`,
+    isDev ? `connect-src 'self' ws: wss: ${TURNSTILE}` : `connect-src 'self' ${TURNSTILE}`,
+    `frame-src ${TURNSTILE}`,
     `frame-ancestors 'none'`,
     `base-uri 'self'`,
     `form-action 'self'`,

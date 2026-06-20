@@ -1,7 +1,10 @@
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 
 import { FormRenderer } from "@/components/form/form-renderer";
 import { getCurrentUser } from "@/lib/auth";
+import { captchaSiteKey } from "@/lib/captcha";
 import { getLiveFormBySlug } from "@/lib/forms";
 import { getDict } from "@/i18n";
 
@@ -52,16 +55,28 @@ export default async function PublicFormPage({
     );
   }
 
+  const siteKey = captchaSiteKey();
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   return (
     <Shell guildName={form.guild.name} title={form.title} description={form.description}>
+      {siteKey && (
+        <Script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+          strategy="afterInteractive"
+          nonce={nonce}
+        />
+      )}
       <FormRenderer
         slug={form.slug}
         spec={form.spec}
+        captchaSiteKey={siteKey}
         labels={{
           submit: t.submit,
           submitting: t.submitting,
           required: t.required,
           submitFailed: t.submitFailed,
+          captchaRequired: t.captchaRequired,
         }}
       />
     </Shell>
