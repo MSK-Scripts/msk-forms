@@ -8,6 +8,7 @@ import { useState } from "react";
 
 import { FieldInput, LAYOUT_TYPES, type FieldValue } from "./field-input";
 import { LayoutBlock } from "./layout-block";
+import { TurnstileWidget } from "./turnstile-widget";
 
 type Answers = Record<string, FieldValue>;
 
@@ -28,22 +29,29 @@ export interface FormLabels {
   submitting: string;
   required: string;
   submitFailed: string;
+  captchaRequired: string;
 }
 
 export function FormRenderer({
   slug,
   spec,
   labels,
+  captchaSiteKey,
 }: {
   slug: string;
   spec: FormSpec;
   labels: FormLabels;
+  captchaSiteKey?: string | null;
 }) {
   const router = useRouter();
   const [answers, setAnswers] = useState<Answers>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  // Turnstile tokens are single-use; bump this to remount the widget (and get a
+  // fresh token) after a failed submit.
+  const [captchaNonce, setCaptchaNonce] = useState(0);
 
   const fields = spec.pages.flatMap((p) => p.fields);
 
@@ -73,13 +81,17 @@ export function FormRenderer({
     e.preventDefault();
     setSubmitError(null);
     if (!validate()) return;
+    if (captchaSiteKey && !captchaToken) {
+      setSubmitError(labels.captchaRequired);
+      return;
+    }
 
     setSubmitting(true);
     try {
       const res = await fetch(`/api/forms/${slug}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers }),
+        body: JSON.stringify({ answers, captchaToken }),
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => null)) as { error?: string } | null;
@@ -90,6 +102,11 @@ export function FormRenderer({
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : labels.submitFailed);
       setSubmitting(false);
+      // The consumed token can't be reused — force a fresh challenge.
+      if (captchaSiteKey) {
+        setCaptchaToken(null);
+        setCaptchaNonce((n) => n + 1);
+      }
     }
   }
 
@@ -116,6 +133,14 @@ export function FormRenderer({
             />
           </Field>
         ),
+      )}
+
+      {captchaSiteKey && (
+        <TurnstileWidget
+          key={captchaNonce}
+          siteKey={captchaSiteKey}
+          onToken={setCaptchaToken}
+        />
       )}
 
       {submitError && <p className="text-sm text-destructive">{submitError}</p>}

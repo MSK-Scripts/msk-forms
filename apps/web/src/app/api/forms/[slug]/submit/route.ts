@@ -3,6 +3,7 @@ import { buildAnswerSchema } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
+import { captchaEnabled, verifyCaptcha } from "@/lib/captcha";
 import { parseFormSpec } from "@/lib/forms";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 
@@ -23,9 +24,10 @@ export async function POST(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
+  const ip = clientIp(request.headers);
 
   // Throttle abusive clients before doing any work. Fails open if Redis is down.
-  const rl = await rateLimit(`submit:${clientIp(request.headers)}`, SUBMIT_LIMIT, SUBMIT_WINDOW_SECONDS);
+  const rl = await rateLimit(`submit:${ip}`, SUBMIT_LIMIT, SUBMIT_WINDOW_SECONDS);
   if (!rl.allowed) {
     return NextResponse.json(
       { error: "Too many submissions. Please try again in a moment." },
@@ -43,6 +45,18 @@ export async function POST(
   const answers = (body as { answers?: unknown })?.answers;
   if (typeof answers !== "object" || answers === null) {
     return NextResponse.json({ error: "Missing answers." }, { status: 400 });
+  }
+
+  // Captcha (only enforced when Turnstile keys are configured).
+  if (captchaEnabled()) {
+    const token = (body as { captchaToken?: unknown }).captchaToken;
+    const ok = await verifyCaptcha(typeof token === "string" ? token : undefined, ip);
+    if (!ok) {
+      return NextResponse.json(
+        { error: "Captcha verification failed. Please try again." },
+        { status: 400 },
+      );
+    }
   }
 
   const form = await prisma.form.findUnique({

@@ -46,6 +46,7 @@ const en = {
     accessRestricted: "This form uses an access restriction that isn’t supported yet.",
     submit: "Submit", submitting: "Submitting…", required: "This field is required.",
     submitFailed: "Submission failed.",
+    captchaRequired: "Please complete the captcha.",
   },
   status: {
     yourSubmission: "Your submission", activity: "Activity", yourAnswers: "Your answers",
@@ -158,6 +159,7 @@ const de: Dictionary = {
     accessRestricted: "Dieses Formular nutzt eine Zugangsbeschränkung, die noch nicht unterstützt wird.",
     submit: "Absenden", submitting: "Wird gesendet…", required: "Dieses Feld ist erforderlich.",
     submitFailed: "Senden fehlgeschlagen.",
+    captchaRequired: "Bitte das Captcha lösen.",
   },
   status: {
     yourSubmission: "Deine Einreichung", activity: "Aktivität", yourAnswers: "Deine Antworten",
