@@ -76,6 +76,9 @@ export const conditionRuleSchema = z.object({
   target: z.string().optional(),
 });
 
+/** Absolute server-side ceiling for a single upload, regardless of field config. */
+export const MAX_FILE_SIZE_MB = 25;
+
 export const fieldValidationSchema = z.object({
   required: z.boolean().default(false),
   min: z.number().optional(),
@@ -84,7 +87,8 @@ export const fieldValidationSchema = z.object({
   maxLength: z.number().optional(),
   pattern: z.string().optional(),
   allowedMimeTypes: z.array(z.string()).optional(),
-  maxFileSizeMb: z.number().optional(),
+  // Capped at the hard server limit so a crafted spec can't raise it.
+  maxFileSizeMb: z.number().positive().max(MAX_FILE_SIZE_MB).optional(),
 });
 
 export const fieldOptionSchema = z.object({

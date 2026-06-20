@@ -41,7 +41,9 @@ export async function GET(
     "Cache-Control": "private, max-age=0, no-store",
     "X-Content-Type-Options": "nosniff",
   });
-  if (object.contentLength) headers.set("Content-Length", String(object.contentLength));
+  if (object.contentLength !== undefined) {
+    headers.set("Content-Length", String(object.contentLength));
+  }
 
   return new NextResponse(object.body, { headers });
 }

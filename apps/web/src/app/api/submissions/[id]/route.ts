@@ -28,9 +28,12 @@ export async function DELETE(
   });
   if (!submission) return NextResponse.json({ error: "Not found." }, { status: 404 });
 
-  // Remove stored files first (best-effort), then the row (cascades events/files).
-  await Promise.all(submission.files.map((f) => deleteObject(f.storageKey)));
+  // Delete the row first (cascades events + file rows) so the erasure is durable
+  // even if object storage is down; then best-effort purge the stored objects.
+  // The storage keys were captured above before the row is gone.
+  const keys = submission.files.map((f) => f.storageKey);
   await prisma.submission.delete({ where: { id } });
+  await Promise.all(keys.map((key) => deleteObject(key)));
 
   return NextResponse.json({ ok: true });
 }

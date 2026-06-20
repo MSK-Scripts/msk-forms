@@ -23,22 +23,25 @@ export async function POST(
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
 
-  const submission = await prisma.submission.findUnique({
-    where: { id },
-    select: { status: true },
-  });
-  if (!submission) return NextResponse.json({ error: "Not found." }, { status: 404 });
+  // Read + guarded write in one transaction so two concurrent withdraws (or a
+  // withdraw racing a reviewer decision) can't both record the change. The
+  // `updateMany ... status = current` only succeeds while the status is still
+  // what we read; terminal statuses (incl. an existing withdrawal) are rejected.
+  const outcome = await prisma.$transaction(async (tx) => {
+    const submission = await tx.submission.findUnique({
+      where: { id },
+      select: { status: true },
+    });
+    if (!submission) return { code: 404 as const };
+    if (TERMINAL.has(submission.status)) return { code: 409 as const };
 
-  if (TERMINAL.has(submission.status)) {
-    return NextResponse.json(
-      { error: "This submission can no longer be withdrawn." },
-      { status: 409 },
-    );
-  }
+    const updated = await tx.submission.updateMany({
+      where: { id, status: submission.status },
+      data: { status: "withdrawn" },
+    });
+    if (updated.count === 0) return { code: 409 as const };
 
-  await prisma.$transaction([
-    prisma.submission.update({ where: { id }, data: { status: "withdrawn" } }),
-    prisma.submissionEvent.create({
+    await tx.submissionEvent.create({
       data: {
         submissionId: id,
         type: "status_change",
@@ -46,7 +49,18 @@ export async function POST(
         toStatus: "withdrawn",
         visibility: "public",
       },
-    }),
-  ]);
+    });
+    return { code: 200 as const };
+  });
+
+  if (outcome.code === 404) {
+    return NextResponse.json({ error: "Not found." }, { status: 404 });
+  }
+  if (outcome.code === 409) {
+    return NextResponse.json(
+      { error: "This submission can no longer be withdrawn." },
+      { status: 409 },
+    );
+  }
   return NextResponse.json({ ok: true });
 }

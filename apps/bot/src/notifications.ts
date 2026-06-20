@@ -65,11 +65,6 @@ function buildMessage(row: PendingRow): {
 }
 
 /**
- * Try to deliver one notification. Returns true when the row should be marked
- * read — on success, when there's no recipient, or on a permanent "can't DM"
- * error. Returns false for transient failures so the next tick retries.
- */
-/**
  * Post the "new submission" review embed to the guild's configured review
  * channel. Drops (marks read) when there's no guild, no configured channel, or
  * the channel is permanently unreachable; retries on transient errors.
@@ -128,6 +123,11 @@ async function deliverReview(client: Client, row: PendingRow): Promise<boolean> 
   }
 }
 
+/**
+ * Try to deliver one notification. Returns true when the row should be marked
+ * read — on success, when there's no recipient, or on a permanent "can't DM"
+ * error. Returns false for transient failures so the next tick retries.
+ */
 async function deliverOne(client: Client, row: PendingRow): Promise<boolean> {
   if (row.type === "submission_review") return deliverReview(client, row);
 
@@ -172,13 +172,21 @@ export async function deliverPendingNotifications(client: Client): Promise<void>
       },
     })) as PendingRow[];
 
+    // Deliver each row independently (one failure must not abort the batch),
+    // collect the ones to retire, then mark them all read in a single write.
+    const deliveredIds: string[] = [];
     for (const row of pending) {
-      if (await deliverOne(client, row)) {
-        await prisma.notification.update({
-          where: { id: row.id },
-          data: { readAt: new Date() },
-        });
+      try {
+        if (await deliverOne(client, row)) deliveredIds.push(row.id);
+      } catch (err) {
+        console.error(`[bot] delivery failed for notification ${row.id}:`, err);
       }
+    }
+    if (deliveredIds.length > 0) {
+      await prisma.notification.updateMany({
+        where: { id: { in: deliveredIds } },
+        data: { readAt: new Date() },
+      });
     }
   } catch (err) {
     console.error("[bot] notification delivery error:", err);
