@@ -28,6 +28,25 @@ export function resolveStatus(
   return { key, label: fallback?.label ?? key, color: fallback?.color ?? "#6b6b72" };
 }
 
+/**
+ * The full set of statuses a reviewer can move a submission to: the built-in
+ * default pipeline, with guild/form-specific definitions overriding the label
+ * and color of matching keys and appending any custom keys (ordered).
+ */
+export function statusOptions(
+  defs: { key: string; label: string; color: string; order?: number }[],
+): ResolvedStatus[] {
+  const base: ResolvedStatus[] = DEFAULT_STATUSES.map((s) => {
+    const override = defs.find((d) => d.key === s.key);
+    return { key: s.key, label: override?.label ?? s.label, color: override?.color ?? s.color };
+  });
+  const extra = defs
+    .filter((d) => !DEFAULT_STATUSES.some((s) => s.key === d.key))
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    .map((d) => ({ key: d.key, label: d.label, color: d.color }));
+  return [...base, ...extra];
+}
+
 /** Safely parse a stored Form.schema JSON blob into a typed FormSpec. */
 export function parseFormSpec(schema: unknown): FormSpec | null {
   const result = formSpecSchema.safeParse(schema);
@@ -115,5 +134,53 @@ export async function getSubmissionForStatus(id: string) {
     ...submission,
     spec: parseFormSpec(submission.form.schema),
     statusDefs,
+  };
+}
+
+/**
+ * Load a submission for the reviewer detail view, scoped to its guild (404s if
+ * the submission belongs to another guild). Includes the full event timeline
+ * (internal + public) with actor info and all of the guild's status defs.
+ */
+export async function getSubmissionForReview(id: string, guildId: string) {
+  const submission = await prisma.submission.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      guildId: true,
+      status: true,
+      answers: true,
+      submittedAt: true,
+      updatedAt: true,
+      form: { select: { title: true, schema: true } },
+      user: { select: { username: true, avatar: true } },
+      events: {
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          type: true,
+          fromStatus: true,
+          toStatus: true,
+          message: true,
+          visibility: true,
+          createdAt: true,
+          actor: { select: { username: true } },
+        },
+      },
+    },
+  });
+  if (!submission || submission.guildId !== guildId) return null;
+
+  const statusDefs = await prisma.formStatusDef.findMany({
+    where: { guildId },
+    orderBy: { order: "asc" },
+    select: { key: true, label: true, color: true, order: true },
+  });
+
+  return {
+    ...submission,
+    spec: parseFormSpec(submission.form.schema),
+    statusDefs,
+    options: statusOptions(statusDefs),
   };
 }

@@ -6,6 +6,9 @@ import { notFound } from "next/navigation";
 /** Roles allowed to create/edit/manage a guild's forms (concept §17). */
 export const MANAGER_ROLES = ["owner", "admin"] as const;
 
+/** Roles allowed to review submissions: act on status, add notes/messages. */
+export const REVIEWER_ROLES = ["owner", "admin", "reviewer"] as const;
+
 /** The user's role in a guild, or null if they aren't a member. */
 export async function getGuildRole(
   guildId: string,
@@ -22,6 +25,12 @@ export async function getGuildRole(
 export async function canManageForms(guildId: string, userId: string): Promise<boolean> {
   const role = await getGuildRole(guildId, userId);
   return role !== null && (MANAGER_ROLES as readonly string[]).includes(role);
+}
+
+/** True if the user may review submissions (act on status, add notes/messages). */
+export async function canReviewSubmissions(guildId: string, userId: string): Promise<boolean> {
+  const role = await getGuildRole(guildId, userId);
+  return role !== null && (REVIEWER_ROLES as readonly string[]).includes(role);
 }
 
 /** Guilds the user is a member of, with counts for the switcher cards. */

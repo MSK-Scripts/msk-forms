@@ -1,51 +1,12 @@
-import type { FormField, FormSpec } from "@msk-forms/shared";
 import { StatusBadge } from "@msk-forms/ui";
 import { notFound } from "next/navigation";
 
+import { AnswerSummary } from "@/components/submission/answer-summary";
 import { getSubmissionForStatus, resolveStatus } from "@/lib/forms";
-import { getDict, type Dictionary } from "@/i18n";
+import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-type StatusDict = Dictionary["status"];
-
-const LAYOUT = ["section_break", "heading", "paragraph", "image_block", "divider", "spacer"];
-
-function formatAnswer(field: FormField, value: unknown, t: StatusDict): string {
-  if (value === undefined || value === null || value === "") return t.notAnswered;
-  if (typeof value === "boolean") return value ? t.yes : t.no;
-
-  const labelFor = (v: string) => field.options?.find((o) => o.value === v)?.label ?? v;
-
-  if (Array.isArray(value)) return value.map((v) => labelFor(String(v))).join(", ");
-  if (field.options) return labelFor(String(value));
-  return String(value);
-}
-
-function AnswerSummary({
-  spec,
-  answers,
-  t,
-}: {
-  spec: FormSpec;
-  answers: Record<string, unknown>;
-  t: StatusDict;
-}) {
-  const fields = spec.pages.flatMap((p) => p.fields).filter((f) => !LAYOUT.includes(f.type));
-  return (
-    <dl className="flex flex-col divide-y divide-border">
-      {fields.map((field) => (
-        <div key={field.id} className="flex flex-col gap-1 py-3">
-          <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {field.label ?? field.id}
-          </dt>
-          <dd className="text-sm text-foreground">{formatAnswer(field, answers[field.id], t)}</dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
 
 export default async function SubmissionStatusPage({
   params,
@@ -102,7 +63,11 @@ export default async function SubmissionStatusPage({
           <h2 className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {t.yourAnswers}
           </h2>
-          <AnswerSummary spec={submission.spec} answers={answers} t={t} />
+          <AnswerSummary
+            spec={submission.spec}
+            answers={answers}
+            labels={{ notAnswered: t.notAnswered, yes: t.yes, no: t.no }}
+          />
         </section>
       )}
     </main>
