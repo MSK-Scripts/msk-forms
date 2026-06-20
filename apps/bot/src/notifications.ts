@@ -1,5 +1,10 @@
 import { prisma } from "@msk-forms/db";
-import type { MessageNotification, StatusChangeNotification } from "@msk-forms/shared";
+import {
+  parseBotConfig,
+  type MessageNotification,
+  type StatusChangeNotification,
+  type SubmissionReviewNotification,
+} from "@msk-forms/shared";
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -10,12 +15,14 @@ import {
 } from "discord.js";
 
 import { config } from "./config.js";
-import { statusUrl } from "./urls.js";
+import { dashboardSubmissionUrl, statusUrl } from "./urls.js";
 
 const MSK_GREEN = 0x00e676;
 const BATCH = 25;
 /** Discord error code: "Cannot send messages to this user" (DMs closed / no mutual guild). */
 const CANNOT_DM = 50007;
+/** Permanent channel errors: Unknown Channel / Missing Access / Missing Permissions. */
+const CHANNEL_GONE = [10003, 50001, 50013];
 
 /** Guards against overlapping ticks if a batch outlives the poll interval. */
 let running = false;
@@ -24,6 +31,7 @@ type PendingRow = {
   id: string;
   type: string;
   payload: unknown;
+  guildId: string | null;
   user: { discordId: string } | null;
 };
 
@@ -61,7 +69,60 @@ function buildMessage(row: PendingRow): {
  * read — on success, when there's no recipient, or on a permanent "can't DM"
  * error. Returns false for transient failures so the next tick retries.
  */
+/**
+ * Post the "new submission" review embed to the guild's configured review
+ * channel. Drops (marks read) when there's no guild, no configured channel, or
+ * the channel is permanently unreachable; retries on transient errors.
+ */
+async function deliverReview(client: Client, row: PendingRow): Promise<boolean> {
+  if (!row.guildId) return true;
+  const payload = row.payload as Partial<SubmissionReviewNotification>;
+  if (!payload?.submissionId) return true;
+
+  const guild = await prisma.guild.findUnique({
+    where: { id: row.guildId },
+    select: { botConfig: true },
+  });
+  const channelId = parseBotConfig(guild?.botConfig).reviewChannelId;
+  if (!channelId) return true; // no review channel configured → nothing to do
+
+  try {
+    const channel = await client.channels.fetch(channelId);
+    if (!channel?.isTextBased() || !channel.isSendable()) {
+      console.warn(`[bot] review channel ${channelId} not usable — dropping ${row.id}.`);
+      return true;
+    }
+
+    const url = dashboardSubmissionUrl(config.apiBaseUrl, row.guildId, payload.submissionId);
+    const lines = [`**Applicant:** ${payload.applicantName ?? "Anonymous"}`];
+    if (payload.preview?.length) lines.push("", ...payload.preview.map((l) => `• ${l}`));
+
+    const embed = new EmbedBuilder()
+      .setColor(MSK_GREEN)
+      .setTitle(`New submission — ${payload.formTitle ?? "form"}`)
+      .setURL(url)
+      .setDescription(lines.join("\n").slice(0, 4000))
+      .setFooter({ text: "MSK Forms" });
+
+    const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Open in dashboard").setURL(url),
+    );
+
+    await channel.send({ embeds: [embed], components: [buttons] });
+    return true;
+  } catch (err) {
+    if (err instanceof DiscordAPIError && CHANNEL_GONE.includes(Number(err.code))) {
+      console.warn(`[bot] review channel ${channelId} gone (${err.code}) — dropping ${row.id}.`);
+      return true;
+    }
+    console.error(`[bot] failed to post review embed to ${channelId}:`, err);
+    return false;
+  }
+}
+
 async function deliverOne(client: Client, row: PendingRow): Promise<boolean> {
+  if (row.type === "submission_review") return deliverReview(client, row);
+
   const discordId = row.user?.discordId;
   if (!discordId) return true;
 
@@ -91,13 +152,14 @@ export async function deliverPendingNotifications(client: Client): Promise<void>
   running = true;
   try {
     const pending = (await prisma.notification.findMany({
-      where: { readAt: null, type: { in: ["status_change", "message"] } },
+      where: { readAt: null, type: { in: ["status_change", "message", "submission_review"] } },
       orderBy: { createdAt: "asc" },
       take: BATCH,
       select: {
         id: true,
         type: true,
         payload: true,
+        guildId: true,
         user: { select: { discordId: true } },
       },
     })) as PendingRow[];

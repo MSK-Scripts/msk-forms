@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { dashboardUrl, formUrl, statusUrl } from "./urls.js";
+import { dashboardSubmissionUrl, dashboardUrl, formUrl, statusUrl } from "./urls.js";
 
 describe("url builders", () => {
   it("builds form and status links", () => {
@@ -15,6 +15,12 @@ describe("url builders", () => {
   it("scopes the dashboard link to a guild when given", () => {
     expect(dashboardUrl("https://x.de")).toBe("https://x.de/dashboard");
     expect(dashboardUrl("https://x.de", "g1")).toBe("https://x.de/dashboard/g1/forms");
+  });
+
+  it("builds a dashboard submission link", () => {
+    expect(dashboardSubmissionUrl("https://x.de", "g1", "s1")).toBe(
+      "https://x.de/dashboard/g1/submissions/s1",
+    );
   });
 
   it("normalises a trailing slash on the base", () => {

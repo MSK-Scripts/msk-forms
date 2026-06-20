@@ -16,3 +16,8 @@ export function statusUrl(base: string, submissionId: string): string {
 export function dashboardUrl(base: string, guildId?: string): string {
   return guildId ? `${trim(base)}/dashboard/${guildId}/forms` : `${trim(base)}/dashboard`;
 }
+
+/** Reviewer detail link for a submission in the dashboard. */
+export function dashboardSubmissionUrl(base: string, guildId: string, submissionId: string): string {
+  return `${trim(base)}/dashboard/${guildId}/submissions/${submissionId}`;
+}

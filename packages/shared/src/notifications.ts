@@ -5,7 +5,7 @@
  * discriminates which payload shape `payload` holds.
  */
 
-export const NOTIFICATION_TYPES = ["status_change", "message"] as const;
+export const NOTIFICATION_TYPES = ["status_change", "message", "submission_review"] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 
 interface BaseNotification {
@@ -26,4 +26,19 @@ export interface MessageNotification extends BaseNotification {
   message: string;
 }
 
-export type NotificationPayload = StatusChangeNotification | MessageNotification;
+/**
+ * A new submission to announce in the guild's review channel. Channel-targeted
+ * (the Notification carries `guildId`, not a recipient user).
+ */
+export interface SubmissionReviewNotification {
+  submissionId: string;
+  formTitle: string;
+  applicantName: string;
+  /** Short "Field: value" lines for an at-a-glance preview in the embed. */
+  preview: string[];
+}
+
+export type NotificationPayload =
+  | StatusChangeNotification
+  | MessageNotification
+  | SubmissionReviewNotification;
