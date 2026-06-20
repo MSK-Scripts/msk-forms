@@ -1,8 +1,13 @@
-import { prisma } from "@msk-forms/db";
-import { DEFAULT_STATUSES } from "@msk-forms/shared";
+import { Prisma, prisma } from "@msk-forms/db";
+import {
+  DEFAULT_STATUSES,
+  type MessageNotification,
+  type StatusChangeNotification,
+} from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
+import { resolveStatus } from "@/lib/forms";
 import { canReviewSubmissions } from "@/lib/guild";
 import { submissionActionSchema } from "@/lib/submission-action";
 
@@ -28,7 +33,12 @@ export async function POST(
 
   const submission = await prisma.submission.findUnique({
     where: { id },
-    select: { guildId: true, status: true },
+    select: {
+      guildId: true,
+      status: true,
+      userId: true,
+      form: { select: { title: true } },
+    },
   });
   if (!submission || submission.guildId !== guildId) {
     return NextResponse.json({ error: "Submission not found." }, { status: 404 });
@@ -50,19 +60,19 @@ export async function POST(
     }
 
     // Only allow statuses from the default pipeline or the guild's own defs.
-    const customKeys = await prisma.formStatusDef.findMany({
+    const defs = await prisma.formStatusDef.findMany({
       where: { guildId },
-      select: { key: true },
+      select: { key: true, label: true, color: true },
     });
     const allowed = new Set<string>([
       ...DEFAULT_STATUSES.map((s) => s.key),
-      ...customKeys.map((d) => d.key),
+      ...defs.map((d) => d.key),
     ]);
     if (!allowed.has(action.status)) {
       return NextResponse.json({ error: "Unknown status." }, { status: 422 });
     }
 
-    await prisma.$transaction([
+    const ops: Prisma.PrismaPromise<unknown>[] = [
       prisma.submission.update({
         where: { id },
         data: { status: action.status },
@@ -77,19 +87,72 @@ export async function POST(
           visibility: "public",
         },
       }),
-    ]);
+    ];
+    // Queue an outbox DM for the applicant (the bot delivers it). Skip
+    // anonymous submissions — there's no Discord user to notify.
+    if (submission.userId) {
+      const payload: StatusChangeNotification = {
+        submissionId: id,
+        formTitle: submission.form.title,
+        toStatus: action.status,
+        toStatusLabel: resolveStatus(action.status, defs).label,
+      };
+      ops.push(
+        prisma.notification.create({
+          data: {
+            userId: submission.userId,
+            type: "status_change",
+            payload: payload as unknown as Prisma.InputJsonValue,
+          },
+        }),
+      );
+    }
+    await prisma.$transaction(ops);
     return NextResponse.json({ ok: true });
   }
 
-  // note → internal, message → public
-  await prisma.submissionEvent.create({
-    data: {
+  if (action.kind === "note") {
+    // Internal note — team-only, no applicant notification.
+    await prisma.submissionEvent.create({
+      data: {
+        submissionId: id,
+        actorUserId: user.id,
+        type: "note",
+        message: action.message,
+        visibility: "internal",
+      },
+    });
+    return NextResponse.json({ ok: true });
+  }
+
+  // Public message — plus an outbox DM for the applicant (unless anonymous).
+  const ops: Prisma.PrismaPromise<unknown>[] = [
+    prisma.submissionEvent.create({
+      data: {
+        submissionId: id,
+        actorUserId: user.id,
+        type: "message",
+        message: action.message,
+        visibility: "public",
+      },
+    }),
+  ];
+  if (submission.userId) {
+    const payload: MessageNotification = {
       submissionId: id,
-      actorUserId: user.id,
-      type: action.kind === "note" ? "note" : "message",
+      formTitle: submission.form.title,
       message: action.message,
-      visibility: action.kind === "note" ? "internal" : "public",
-    },
-  });
+    };
+    ops.push(
+      prisma.notification.create({
+        data: {
+          userId: submission.userId,
+          type: "message",
+          payload: payload as unknown as Prisma.InputJsonValue,
+        },
+      }),
+    );
+  }
+  await prisma.$transaction(ops);
   return NextResponse.json({ ok: true });
 }
