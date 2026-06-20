@@ -1,7 +1,7 @@
 import { Client, Events, GatewayIntentBits, MessageFlags } from "discord.js";
 
 import { registerCommands } from "./commands.js";
-import { config } from "./config.js";
+import { assertConfig, config } from "./config.js";
 import { handleFormsAutocomplete, handleFormsCommand } from "./forms.js";
 import { syncAllGuilds, syncGuild } from "./guilds.js";
 import { deliverPendingNotifications } from "./notifications.js";
@@ -59,6 +59,7 @@ export function createClient(): Client {
 }
 
 async function main(): Promise<void> {
+  assertConfig();
   await registerCommands();
   const client = createClient();
   await client.login(config.token);
