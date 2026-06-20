@@ -137,6 +137,13 @@ const en = {
       consent: "Consent", heading: "Heading", paragraph: "Paragraph", divider: "Divider",
     },
   },
+  share: {
+    share: "Share",
+    link: "Public link",
+    copy: "Copy", copied: "Copied!",
+    qrCode: "QR code",
+    embedCode: "Embed code",
+  },
   authError: "Login failed. Please try again.",
 };
 
@@ -278,6 +285,13 @@ const de: Dictionary = {
       date: "Datum", file_upload: "Datei-Upload", image_upload: "Bild-Upload",
       consent: "Zustimmung", heading: "Überschrift", paragraph: "Absatz", divider: "Trenner",
     },
+  },
+  share: {
+    share: "Teilen",
+    link: "Öffentlicher Link",
+    copy: "Kopieren", copied: "Kopiert!",
+    qrCode: "QR-Code",
+    embedCode: "Embed-Code",
   },
   authError: "Anmeldung fehlgeschlagen. Bitte versuche es erneut.",
 };
