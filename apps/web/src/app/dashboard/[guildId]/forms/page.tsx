@@ -1,7 +1,9 @@
 import { Card, StatusBadge } from "@msk-forms/ui";
 import type { Route } from "next";
 import Link from "next/link";
+import QRCode from "qrcode";
 
+import { ShareButton } from "@/components/dashboard/share-button";
 import { appBaseUrl } from "@/lib/url";
 import { getGuildForms } from "@/lib/guild";
 import { getDict } from "@/i18n";
@@ -33,6 +35,16 @@ export default async function GuildFormsPage({
     archived: dict.builder.statusArchived,
   };
 
+  // Pre-render a QR code (server-side, no client dependency) for each live form.
+  const qrByForm: Record<string, string> = {};
+  await Promise.all(
+    forms
+      .filter((f) => f.status === "live")
+      .map(async (f) => {
+        qrByForm[f.id] = await QRCode.toDataURL(`${base}/f/${f.slug}`, { width: 220, margin: 1 });
+      }),
+  );
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -53,41 +65,49 @@ export default async function GuildFormsPage({
         </Card>
       ) : (
         <div className="flex flex-col gap-2">
-          {forms.map((form) => (
-            <Card key={form.id} className="flex items-center justify-between gap-4 p-4">
-              <div className="flex min-w-0 flex-col gap-1">
-                <div className="flex items-center gap-3">
-                  <span className="truncate font-medium text-foreground">{form.title}</span>
-                  <StatusBadge
-                    label={statusLabel[form.status] ?? form.status}
-                    color={FORM_STATUS_COLORS[form.status] ?? "#6b6b72"}
-                  />
+          {forms.map((form) => {
+            const qr = qrByForm[form.id];
+            return (
+              <Card key={form.id} className="flex flex-col gap-3 p-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex min-w-0 flex-col gap-1">
+                    <div className="flex items-center gap-3">
+                      <span className="truncate font-medium text-foreground">{form.title}</span>
+                      <StatusBadge
+                        label={statusLabel[form.status] ?? form.status}
+                        color={FORM_STATUS_COLORS[form.status] ?? "#6b6b72"}
+                      />
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {form._count.submissions} {t.countSubmissions}
+                      {form.status === "live" && (
+                        <>
+                          {" · "}
+                          <a
+                            href={`${base}/f/${form.slug}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-primary hover:underline"
+                          >
+                            /f/{form.slug}
+                          </a>
+                        </>
+                      )}
+                    </span>
+                  </div>
+                  <Link
+                    href={`/dashboard/${guildId}/forms/${form.id}/edit` as Route}
+                    className="shrink-0 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+                  >
+                    {t.edit}
+                  </Link>
                 </div>
-                <span className="text-xs text-muted-foreground">
-                  {form._count.submissions} {t.countSubmissions}
-                  {form.status === "live" && (
-                    <>
-                      {" · "}
-                      <a
-                        href={`${base}/f/${form.slug}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-primary hover:underline"
-                      >
-                        /f/{form.slug}
-                      </a>
-                    </>
-                  )}
-                </span>
-              </div>
-              <Link
-                href={`/dashboard/${guildId}/forms/${form.id}/edit` as Route}
-                className="shrink-0 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-              >
-                {t.edit}
-              </Link>
-            </Card>
-          ))}
+                {form.status === "live" && qr && (
+                  <ShareButton url={`${base}/f/${form.slug}`} qrDataUrl={qr} t={dict.share} />
+                )}
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
