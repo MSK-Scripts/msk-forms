@@ -5,7 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getDict } from "@/i18n";
 
-export async function Hero({ loggedIn }: { loggedIn: boolean }) {
+export async function Hero({
+  loggedIn,
+  botInvite,
+}: {
+  loggedIn: boolean;
+  botInvite: string;
+}) {
   const t = await getDict();
 
   return (
@@ -45,6 +51,12 @@ export async function Hero({ loggedIn }: { loggedIn: boolean }) {
             )}
             <Button asChild variant="outline" size="lg">
               <a href="/f/demo-whitelist">{t.hero.demo}</a>
+            </Button>
+            <Button asChild variant="ghost" size="lg">
+              <a href={botInvite} target="_blank" rel="noopener noreferrer">
+                <IconBrandDiscord size={16} stroke={1.75} />
+                {t.hero.inviteBot}
+              </a>
             </Button>
           </div>
         </div>

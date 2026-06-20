@@ -24,6 +24,16 @@ Communities simply invite the **Discord bot** to their server.
 
 > The full concept document is maintained internally.
 
+## Invite the Discord bot
+
+Add the MSK Forms bot to your server to list and post forms (`/forms`) and
+receive status updates as DMs:
+
+**[➕ Invite MSK Forms to your server](https://discord.com/oauth2/authorize?client_id=1517520313200676994&scope=bot%20applications.commands&permissions=19456)**
+
+The requested permissions (`19456`) cover View Channels, Send Messages and
+Embed Links — the minimum needed to post forms into a channel.
+
 ## Tech stack
 
 | Area | Technology |
