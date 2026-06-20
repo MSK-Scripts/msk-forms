@@ -52,7 +52,7 @@ export async function Hero({
             <Button asChild variant="outline" size="lg">
               <a href="/f/demo-whitelist">{t.hero.demo}</a>
             </Button>
-            <Button asChild variant="ghost" size="lg">
+            <Button asChild variant="discord" size="lg">
               <a href={botInvite} target="_blank" rel="noopener noreferrer">
                 <IconBrandDiscord size={16} stroke={1.75} />
                 {t.hero.inviteBot}

@@ -40,7 +40,7 @@ export async function CtaBand({
                 </a>
               </Button>
             )}
-            <Button asChild variant="outline" size="lg">
+            <Button asChild variant="discord" size="lg">
               <a href={botInvite} target="_blank" rel="noopener noreferrer">
                 <IconBrandDiscord size={16} stroke={1.75} />
                 {t.cta.inviteBot}

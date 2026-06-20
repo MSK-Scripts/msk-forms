@@ -10,6 +10,8 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        discord:
+          "bg-[#5865F2] text-white hover:bg-[#4752c4] focus-visible:ring-[#5865F2]",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         ghost: "hover:bg-accent hover:text-accent-foreground",
