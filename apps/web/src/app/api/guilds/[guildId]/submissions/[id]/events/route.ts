@@ -1,4 +1,4 @@
-import { Prisma, prisma } from "@msk-forms/db";
+import { changeSubmissionStatus, Prisma, prisma } from "@msk-forms/db";
 import {
   DEFAULT_STATUSES,
   type MessageNotification,
@@ -54,11 +54,6 @@ export async function POST(
   const action = parsed.data;
 
   if (action.kind === "status") {
-    // Nothing to do if the status is unchanged.
-    if (action.status === submission.status) {
-      return NextResponse.json({ ok: true });
-    }
-
     // Only allow statuses from the default pipeline or the guild's own defs.
     const defs = await prisma.formStatusDef.findMany({
       where: { guildId },
@@ -72,42 +67,24 @@ export async function POST(
       return NextResponse.json({ error: "Unknown status." }, { status: 422 });
     }
 
-    const ops: Prisma.PrismaPromise<unknown>[] = [
-      prisma.submission.update({
-        where: { id },
-        data: { status: action.status },
-      }),
-      prisma.submissionEvent.create({
-        data: {
+    // Idempotent, race-safe transition + event + applicant DM (skip anonymous).
+    const notify: StatusChangeNotification | null = submission.userId
+      ? {
           submissionId: id,
-          actorUserId: user.id,
-          type: "status_change",
-          fromStatus: submission.status,
+          formTitle: submission.form.title,
           toStatus: action.status,
-          visibility: "public",
-        },
-      }),
-    ];
-    // Queue an outbox DM for the applicant (the bot delivers it). Skip
-    // anonymous submissions — there's no Discord user to notify.
-    if (submission.userId) {
-      const payload: StatusChangeNotification = {
-        submissionId: id,
-        formTitle: submission.form.title,
-        toStatus: action.status,
-        toStatusLabel: resolveStatus(action.status, defs).label,
-      };
-      ops.push(
-        prisma.notification.create({
-          data: {
-            userId: submission.userId,
-            type: "status_change",
-            payload: payload as unknown as Prisma.InputJsonValue,
-          },
-        }),
-      );
-    }
-    await prisma.$transaction(ops);
+          toStatusLabel: resolveStatus(action.status, defs).label,
+        }
+      : null;
+    await changeSubmissionStatus({
+      submissionId: id,
+      toStatus: action.status,
+      actorUserId: user.id,
+      notify:
+        submission.userId && notify
+          ? { userId: submission.userId, type: "status_change", payload: notify }
+          : null,
+    });
     return NextResponse.json({ ok: true });
   }
 

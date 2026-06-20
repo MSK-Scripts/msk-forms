@@ -19,7 +19,7 @@ export async function GET(
 
   const file = await prisma.fileUpload.findUnique({
     where: { id },
-    select: { filename: true, mime: true, storageKey: true },
+    select: { filename: true, storageKey: true },
   });
   if (!file) {
     return NextResponse.json({ error: "File not found." }, { status: 404 });
@@ -30,10 +30,16 @@ export async function GET(
     return NextResponse.json({ error: "File not found." }, { status: 404 });
   }
 
+  // Serve as an opaque download, never inline. A user-uploaded file could be
+  // HTML/SVG that would execute script if rendered same-origin; forcing
+  // `attachment` + `application/octet-stream` makes the browser save it instead
+  // of interpreting it (nosniff is also set globally in proxy.ts). The filename
+  // is the applicant's display name only and never reaches the served body.
   const headers = new Headers({
-    "Content-Type": file.mime || object.contentType,
-    "Content-Disposition": `inline; filename*=UTF-8''${encodeURIComponent(file.filename)}`,
+    "Content-Type": "application/octet-stream",
+    "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(file.filename)}`,
     "Cache-Control": "private, max-age=0, no-store",
+    "X-Content-Type-Options": "nosniff",
   });
   if (object.contentLength) headers.set("Content-Length", String(object.contentLength));
 
