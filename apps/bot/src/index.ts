@@ -5,6 +5,7 @@ import { assertConfig, config } from "./config.js";
 import { handleFormsAutocomplete, handleFormsCommand } from "./forms.js";
 import { syncAllGuilds, syncGuild } from "./guilds.js";
 import { deliverPendingNotifications } from "./notifications.js";
+import { handleReviewButton, isReviewButton } from "./review-actions.js";
 
 /**
  * MSK Forms Discord bot — multi-tenant (concept §11).
@@ -37,6 +38,10 @@ export function createClient(): Client {
     try {
       if (interaction.isAutocomplete()) {
         await handleFormsAutocomplete(interaction);
+        return;
+      }
+      if (interaction.isButton() && isReviewButton(interaction.customId)) {
+        await handleReviewButton(interaction);
         return;
       }
       if (interaction.isChatInputCommand() && interaction.commandName === "forms") {

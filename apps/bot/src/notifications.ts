@@ -105,6 +105,14 @@ async function deliverReview(client: Client, row: PendingRow): Promise<boolean> 
       .setFooter({ text: "MSK Forms" });
 
     const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId(`sub:accept:${payload.submissionId}`)
+        .setStyle(ButtonStyle.Success)
+        .setLabel("Accept"),
+      new ButtonBuilder()
+        .setCustomId(`sub:reject:${payload.submissionId}`)
+        .setStyle(ButtonStyle.Danger)
+        .setLabel("Reject"),
       new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Open in dashboard").setURL(url),
     );
 
