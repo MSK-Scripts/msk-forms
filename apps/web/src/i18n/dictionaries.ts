@@ -47,6 +47,7 @@ const en = {
     submit: "Submit", submitting: "Submitting…", required: "This field is required.",
     submitFailed: "Submission failed.",
     captchaRequired: "Please complete the captcha.",
+    fileUploading: "Uploading…", fileRemove: "Remove", uploadFailed: "Upload failed.",
   },
   status: {
     yourSubmission: "Your submission", activity: "Activity", yourAnswers: "Your answers",
@@ -105,7 +106,8 @@ const en = {
     ft: {
       short_text: "Short text", long_text: "Long text", email: "Email", number: "Number", phone: "Phone", url: "URL",
       single_choice: "Single choice", dropdown: "Dropdown", multi_choice: "Multiple choice", yes_no: "Yes / No",
-      date: "Date", consent: "Consent", heading: "Heading", paragraph: "Paragraph", divider: "Divider",
+      date: "Date", file_upload: "File upload", image_upload: "Image upload",
+      consent: "Consent", heading: "Heading", paragraph: "Paragraph", divider: "Divider",
     },
   },
   authError: "Login failed. Please try again.",
@@ -160,6 +162,7 @@ const de: Dictionary = {
     submit: "Absenden", submitting: "Wird gesendet…", required: "Dieses Feld ist erforderlich.",
     submitFailed: "Senden fehlgeschlagen.",
     captchaRequired: "Bitte das Captcha lösen.",
+    fileUploading: "Wird hochgeladen…", fileRemove: "Entfernen", uploadFailed: "Upload fehlgeschlagen.",
   },
   status: {
     yourSubmission: "Deine Einreichung", activity: "Aktivität", yourAnswers: "Deine Antworten",
@@ -218,7 +221,8 @@ const de: Dictionary = {
     ft: {
       short_text: "Kurztext", long_text: "Langtext", email: "E-Mail", number: "Zahl", phone: "Telefon", url: "URL",
       single_choice: "Einfachauswahl", dropdown: "Dropdown", multi_choice: "Mehrfachauswahl", yes_no: "Ja / Nein",
-      date: "Datum", consent: "Zustimmung", heading: "Überschrift", paragraph: "Absatz", divider: "Trenner",
+      date: "Datum", file_upload: "Datei-Upload", image_upload: "Bild-Upload",
+      consent: "Zustimmung", heading: "Überschrift", paragraph: "Absatz", divider: "Trenner",
     },
   },
   authError: "Anmeldung fehlgeschlagen. Bitte versuche es erneut.",

@@ -1,5 +1,5 @@
 import { prisma, type Prisma } from "@msk-forms/db";
-import { buildAnswerSchema } from "@msk-forms/shared";
+import { buildAnswerSchema, FILE_FIELD_TYPES, type FileAnswer } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
@@ -82,6 +82,22 @@ export async function POST(
     );
   }
 
+  // Turn file-field answers into FileUpload rows. Keys must live under this
+  // form's upload prefix — that's what ties an uploaded object to this form.
+  const data = result.data as Record<string, unknown>;
+  const fileFields = spec.pages
+    .flatMap((p) => p.fields)
+    .filter((f) => (FILE_FIELD_TYPES as readonly string[]).includes(f.type));
+  const fileRows: { fieldId: string; filename: string; mime: string; size: number; storageKey: string }[] = [];
+  for (const f of fileFields) {
+    const v = data[f.id] as FileAnswer | undefined;
+    if (!v) continue;
+    if (!v.key.startsWith(`uploads/${form.id}/`)) {
+      return NextResponse.json({ error: "Invalid file reference." }, { status: 400 });
+    }
+    fileRows.push({ fieldId: f.id, filename: v.name, mime: v.mime, size: v.size, storageKey: v.key });
+  }
+
   const user = await getCurrentUser();
 
   const submission = await prisma.submission.create({
@@ -99,6 +115,7 @@ export async function POST(
           actorUserId: user?.id ?? null,
         },
       },
+      ...(fileRows.length > 0 ? { files: { create: fileRows } } : {}),
     },
     select: { id: true },
   });

@@ -13,6 +13,8 @@ export const BUILDER_FIELDS: { type: FieldType; label: string }[] = [
   { type: "multi_choice", label: "Multiple choice" },
   { type: "yes_no", label: "Yes / No" },
   { type: "date", label: "Date" },
+  { type: "file_upload", label: "File upload" },
+  { type: "image_upload", label: "Image upload" },
   { type: "consent", label: "Consent" },
   { type: "heading", label: "Heading" },
   { type: "paragraph", label: "Paragraph" },

@@ -30,6 +30,9 @@ export interface FormLabels {
   required: string;
   submitFailed: string;
   captchaRequired: string;
+  fileUploading: string;
+  fileRemove: string;
+  uploadFailed: string;
 }
 
 export function FormRenderer({
@@ -130,6 +133,12 @@ export function FormRenderer({
               onChange={(v) => setAnswer(field.id, v)}
               invalid={Boolean(errors[field.id])}
               disabled={submitting}
+              slug={slug}
+              fileLabels={{
+                uploading: labels.fileUploading,
+                remove: labels.fileRemove,
+                uploadFailed: labels.uploadFailed,
+              }}
             />
           </Field>
         ),

@@ -121,6 +121,9 @@ export async function getSubmissionForStatus(id: string) {
           createdAt: true,
         },
       },
+      files: {
+        select: { id: true, fieldId: true, filename: true },
+      },
     },
   });
   if (!submission) return null;
@@ -166,6 +169,9 @@ export async function getSubmissionForReview(id: string, guildId: string) {
           createdAt: true,
           actor: { select: { username: true } },
         },
+      },
+      files: {
+        select: { id: true, fieldId: true, filename: true },
       },
     },
   });
