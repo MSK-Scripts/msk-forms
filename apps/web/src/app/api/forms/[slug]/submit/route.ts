@@ -2,8 +2,9 @@ import { prisma, type Prisma } from "@msk-forms/db";
 import {
   buildAnswerSchema,
   FILE_FIELD_TYPES,
+  formatAnswerValue,
+  isLayoutField,
   type FileAnswer,
-  type FormField,
   type FormSpec,
   type SubmissionReviewNotification,
 } from "@msk-forms/shared";
@@ -22,29 +23,15 @@ export const dynamic = "force-dynamic";
 const SUBMIT_LIMIT = 8;
 const SUBMIT_WINDOW_SECONDS = 60;
 
-const LAYOUT_TYPES = ["section_break", "heading", "paragraph", "image_block", "divider", "spacer"];
+const PREVIEW_LABELS = { empty: "—", yes: "Yes", no: "No" } as const;
 
 /** Short "Label: value" lines for the bot's review embed (first few fields). */
 function buildPreview(spec: FormSpec, data: Record<string, unknown>): string[] {
-  const labelFor = (field: FormField, v: string) =>
-    field.options?.find((o) => o.value === v)?.label ?? v;
-  const valueOf = (field: FormField, value: unknown): string => {
-    if (value === undefined || value === null || value === "") return "—";
-    if (typeof value === "boolean") return value ? "Yes" : "No";
-    if (Array.isArray(value)) return value.map((v) => labelFor(field, String(v))).join(", ");
-    // null/undefined already returned above, so a plain object check suffices.
-    if (typeof value === "object" && "name" in value) {
-      return String((value as { name: unknown }).name);
-    }
-    if (field.options) return labelFor(field, String(value));
-    return String(value);
-  };
-
   return spec.pages
     .flatMap((p) => p.fields)
-    .filter((f) => !LAYOUT_TYPES.includes(f.type))
+    .filter((f) => !isLayoutField(f.type))
     .slice(0, 6)
-    .map((f) => `${f.label ?? f.id}: ${valueOf(f, data[f.id]).slice(0, 100)}`);
+    .map((f) => `${f.label ?? f.id}: ${formatAnswerValue(f, data[f.id], PREVIEW_LABELS).slice(0, 100)}`);
 }
 
 /**

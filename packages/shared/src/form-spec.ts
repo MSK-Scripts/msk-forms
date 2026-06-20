@@ -152,6 +152,39 @@ export function isLayoutField(type: FieldType): boolean {
   return (LAYOUT_FIELD_TYPES as readonly string[]).includes(type);
 }
 
+/** Caller-supplied labels for {@link formatAnswerValue} (lets each surface i18n). */
+export interface AnswerValueLabels {
+  /** Shown for an empty/missing answer. */
+  empty: string;
+  yes: string;
+  no: string;
+}
+
+/**
+ * Framework-agnostic, human-readable rendering of a single answer value: maps
+ * option values to their labels, joins arrays, formats booleans, and shows a
+ * file-descriptor answer by its filename. Shared by the reviewer/status answer
+ * summary and the bot's review-embed preview so they never drift.
+ */
+export function formatAnswerValue(
+  field: FormField,
+  value: unknown,
+  labels: AnswerValueLabels,
+): string {
+  if (value === undefined || value === null || value === "") return labels.empty;
+  if (typeof value === "boolean") return value ? labels.yes : labels.no;
+
+  const labelFor = (v: string) => field.options?.find((o) => o.value === v)?.label ?? v;
+
+  if (Array.isArray(value)) return value.map((v) => labelFor(String(v))).join(", ");
+  // File-descriptor answer ({ key, name, size, mime }) — show the filename.
+  if (typeof value === "object" && "name" in value) {
+    return String((value as { name: unknown }).name);
+  }
+  if (field.options) return labelFor(String(value));
+  return String(value);
+}
+
 const NUMBER_TYPES = ["number", "slider", "nps", "rating_stars"];
 const MULTI_TYPES = ["multi_choice", "multi_select", "ranking"];
 const BOOLEAN_TYPES = ["yes_no", "consent", "age_check"];

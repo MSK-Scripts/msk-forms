@@ -1,19 +1,19 @@
 "use client";
 
-import type { FormField, FormSpec } from "@msk-forms/shared";
+import { isLayoutField, type FormField, type FormSpec } from "@msk-forms/shared";
 import { Button, Field } from "@msk-forms/ui";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { FieldInput, LAYOUT_TYPES, type FieldValue } from "./field-input";
+import { FieldInput, type FieldValue } from "./field-input";
 import { LayoutBlock } from "./layout-block";
 import { TurnstileWidget } from "./turnstile-widget";
 
 type Answers = Record<string, FieldValue>;
 
 function isLayout(field: FormField): boolean {
-  return (LAYOUT_TYPES as readonly string[]).includes(field.type);
+  return isLayoutField(field.type);
 }
 
 /** True when a required field has no meaningful answer. */

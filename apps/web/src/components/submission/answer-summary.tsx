@@ -1,4 +1,10 @@
-import { FILE_FIELD_TYPES, type FormField, type FormSpec } from "@msk-forms/shared";
+import {
+  FILE_FIELD_TYPES,
+  formatAnswerValue,
+  isLayoutField,
+  type FormField,
+  type FormSpec,
+} from "@msk-forms/shared";
 
 /** Labels needed to format answers, shared by the public + reviewer views. */
 export interface AnswerLabels {
@@ -14,18 +20,8 @@ export interface SubmissionFile {
   filename: string;
 }
 
-/** Layout-only field types carry no answer and are skipped in the summary. */
-const LAYOUT = ["section_break", "heading", "paragraph", "image_block", "divider", "spacer"];
-
 function formatAnswer(field: FormField, value: unknown, t: AnswerLabels): string {
-  if (value === undefined || value === null || value === "") return t.notAnswered;
-  if (typeof value === "boolean") return value ? t.yes : t.no;
-
-  const labelFor = (v: string) => field.options?.find((o) => o.value === v)?.label ?? v;
-
-  if (Array.isArray(value)) return value.map((v) => labelFor(String(v))).join(", ");
-  if (field.options) return labelFor(String(value));
-  return String(value);
+  return formatAnswerValue(field, value, { empty: t.notAnswered, yes: t.yes, no: t.no });
 }
 
 /** Read-only definition list of a submission's answers, by form field. */
@@ -40,7 +36,7 @@ export function AnswerSummary({
   labels: AnswerLabels;
   files?: SubmissionFile[];
 }) {
-  const fields = spec.pages.flatMap((p) => p.fields).filter((f) => !LAYOUT.includes(f.type));
+  const fields = spec.pages.flatMap((p) => p.fields).filter((f) => !isLayoutField(f.type));
   const isFileField = (f: FormField) => (FILE_FIELD_TYPES as readonly string[]).includes(f.type);
 
   return (
