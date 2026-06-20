@@ -1,5 +1,12 @@
 import { prisma, type Prisma } from "@msk-forms/db";
-import { buildAnswerSchema, FILE_FIELD_TYPES, type FileAnswer } from "@msk-forms/shared";
+import {
+  buildAnswerSchema,
+  FILE_FIELD_TYPES,
+  type FileAnswer,
+  type FormField,
+  type FormSpec,
+  type SubmissionReviewNotification,
+} from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
@@ -13,6 +20,30 @@ export const dynamic = "force-dynamic";
 /** Per-IP submission cap: 8 submissions per minute (fails open without Redis). */
 const SUBMIT_LIMIT = 8;
 const SUBMIT_WINDOW_SECONDS = 60;
+
+const LAYOUT_TYPES = ["section_break", "heading", "paragraph", "image_block", "divider", "spacer"];
+
+/** Short "Label: value" lines for the bot's review embed (first few fields). */
+function buildPreview(spec: FormSpec, data: Record<string, unknown>): string[] {
+  const labelFor = (field: FormField, v: string) =>
+    field.options?.find((o) => o.value === v)?.label ?? v;
+  const valueOf = (field: FormField, value: unknown): string => {
+    if (value === undefined || value === null || value === "") return "—";
+    if (typeof value === "boolean") return value ? "Yes" : "No";
+    if (Array.isArray(value)) return value.map((v) => labelFor(field, String(v))).join(", ");
+    if (typeof value === "object" && value && "name" in value) {
+      return String((value as { name: unknown }).name);
+    }
+    if (field.options) return labelFor(field, String(value));
+    return String(value);
+  };
+
+  return spec.pages
+    .flatMap((p) => p.fields)
+    .filter((f) => !LAYOUT_TYPES.includes(f.type))
+    .slice(0, 6)
+    .map((f) => `${f.label ?? f.id}: ${valueOf(f, data[f.id]).slice(0, 100)}`);
+}
 
 /**
  * Public submission endpoint. Validates answers server-side against the form's
@@ -61,7 +92,7 @@ export async function POST(
 
   const form = await prisma.form.findUnique({
     where: { slug },
-    select: { id: true, guildId: true, status: true, schema: true },
+    select: { id: true, guildId: true, status: true, schema: true, title: true },
   });
 
   if (!form || form.status !== "live") {
@@ -119,6 +150,26 @@ export async function POST(
     },
     select: { id: true },
   });
+
+  // Outbox: announce the new submission in the guild's review channel (the bot
+  // delivers it). Best-effort — never fail the submit if this can't be queued.
+  try {
+    const payload: SubmissionReviewNotification = {
+      submissionId: submission.id,
+      formTitle: form.title,
+      applicantName: user?.username ?? "Anonymous",
+      preview: buildPreview(spec, data),
+    };
+    await prisma.notification.create({
+      data: {
+        guildId: form.guildId,
+        type: "submission_review",
+        payload: payload as unknown as Prisma.InputJsonValue,
+      },
+    });
+  } catch (err) {
+    console.error("[submit] failed to queue review notification:", (err as Error).message);
+  }
 
   return NextResponse.json({ submissionId: submission.id }, { status: 201 });
 }
