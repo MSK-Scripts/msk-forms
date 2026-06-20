@@ -1,10 +1,11 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext"
+    // The bot consumes @msk-forms/db, whose source uses extensionless relative
+    // imports (required for Next/Turbopack). Those only resolve under the base
+    // "Bundler" resolution — so we inherit it and run the bot through tsx
+    // (which resolves the same way) instead of `node dist`. Hence: no emit.
+    "noEmit": true
   },
   "include": ["src/**/*.ts"]
 }

@@ -34,9 +34,15 @@ module.exports = {
       max_memory_restart: "512M",
     },
     {
+      // Run the bot's TypeScript directly via tsx: it imports @msk-forms/db,
+      // a bundler-only (source) package that can't be consumed from a plain
+      // `node dist` build. tsx resolves it the same way Next does. tsx is a
+      // (dev)dependency installed by the non-prod `pnpm install` on deploy.
       name: "msk-forms-bot",
       cwd: "./apps/bot",
-      script: "dist/index.js",
+      script: "src/index.ts",
+      interpreter: "node",
+      interpreter_args: "--import tsx",
       env: {
         ...baseEnv,
         NODE_ENV: "production",
