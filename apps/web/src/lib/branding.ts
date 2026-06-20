@@ -8,6 +8,15 @@ export function parseBranding(json: unknown): Branding {
 }
 
 /**
+ * Public URL for a guild's logo, or null if none. The `v` query busts the
+ * browser cache when the logo changes (the served route looks up the key).
+ */
+export function logoUrl(guildId: string, branding: Branding): string | null {
+  if (!branding.logoKey) return null;
+  return `/api/guilds/${guildId}/logo?v=${branding.logoKey.slice(-8)}`;
+}
+
+/**
  * Convert `#rrggbb` to the `H S% L%` channel triplet used by the theme's HSL
  * tokens (e.g. `--primary: 161 94% 30%`). Returns null for malformed input.
  */

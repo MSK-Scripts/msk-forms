@@ -105,6 +105,9 @@ const en = {
     save: "Save", saving: "Saving…", saved: "Saved.", reset: "Reset",
     errSave: "Could not save branding.",
     noPerm: "You don’t have permission to edit branding.",
+    logo: "Logo",
+    logoHint: "PNG, JPEG or WebP, up to 1 MB. Shown on your public form and status pages.",
+    logoUploading: "Uploading…", logoRemove: "Remove logo", logoFailed: "Could not update the logo.",
   },
   botConfig: {
     title: "Bot settings",
@@ -254,6 +257,9 @@ const de: Dictionary = {
     save: "Speichern", saving: "Wird gespeichert…", saved: "Gespeichert.", reset: "Zurücksetzen",
     errSave: "Branding konnte nicht gespeichert werden.",
     noPerm: "Du hast keine Berechtigung, das Branding zu bearbeiten.",
+    logo: "Logo",
+    logoHint: "PNG, JPEG oder WebP, bis 1 MB. Wird auf deinen öffentlichen Formular- und Status-Seiten angezeigt.",
+    logoUploading: "Wird hochgeladen…", logoRemove: "Logo entfernen", logoFailed: "Logo konnte nicht aktualisiert werden.",
   },
   botConfig: {
     title: "Bot-Einstellungen",

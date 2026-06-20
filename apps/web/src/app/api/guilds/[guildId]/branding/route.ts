@@ -1,14 +1,15 @@
 import { Prisma, prisma } from "@msk-forms/db";
-import { brandingSchema } from "@msk-forms/shared";
+import { brandingColorSchema, type Branding } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
+import { parseBranding } from "@/lib/branding";
 import { canManageForms } from "@/lib/guild";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/** Update a guild's branding. Requires owner/admin. */
+/** Update a guild's accent color. Owner/admin only. Preserves the logo. */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ guildId: string }> },
@@ -21,7 +22,7 @@ export async function PATCH(
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
-  const parsed = brandingSchema.safeParse(await request.json().catch(() => null));
+  const parsed = brandingColorSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
       { error: parsed.error.issues[0]?.message ?? "Invalid branding." },
@@ -29,9 +30,18 @@ export async function PATCH(
     );
   }
 
+  // Read-merge-write so the separately-managed logo isn't clobbered.
+  const guild = await prisma.guild.findUnique({
+    where: { id: guildId },
+    select: { branding: true },
+  });
+  const next: Branding = { ...parseBranding(guild?.branding) };
+  if (parsed.data.accentColor) next.accentColor = parsed.data.accentColor;
+  else delete next.accentColor;
+
   await prisma.guild.update({
     where: { id: guildId },
-    data: { branding: parsed.data as Prisma.InputJsonValue },
+    data: { branding: next as Prisma.InputJsonValue },
   });
   return NextResponse.json({ ok: true });
 }
