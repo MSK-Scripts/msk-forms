@@ -1,10 +1,14 @@
+import { DEFAULT_STATUSES } from "@msk-forms/shared";
 import { StatusBadge } from "@msk-forms/ui";
 import { notFound } from "next/navigation";
 
 import { AnswerSummary } from "@/components/submission/answer-summary";
+import { SubmissionActions } from "@/components/submission/submission-actions";
 import { brandStyle, parseBranding } from "@/lib/branding";
 import { getSubmissionForStatus, resolveStatus } from "@/lib/forms";
 import { getDict } from "@/i18n";
+
+const TERMINAL = new Set<string>(DEFAULT_STATUSES.filter((s) => s.terminal).map((s) => s.key));
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -73,6 +77,23 @@ export default async function SubmissionStatusPage({
           />
         </section>
       )}
+
+      <section className="rounded-lg border border-border bg-card p-6 shadow-sm">
+        <SubmissionActions
+          id={submission.id}
+          canWithdraw={!TERMINAL.has(submission.status)}
+          t={{
+            yourData: t.yourData,
+            withdraw: t.withdraw,
+            withdrawConfirm: t.withdrawConfirm,
+            exportData: t.exportData,
+            deleteData: t.deleteData,
+            deleteConfirm: t.deleteConfirm,
+            deleted: t.deleted,
+            actionFailed: t.actionFailed,
+          }}
+        />
+      </section>
     </main>
   );
 }
