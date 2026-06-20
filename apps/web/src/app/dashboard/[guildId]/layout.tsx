@@ -3,6 +3,7 @@ import type { Route } from "next";
 import { NavTabs } from "@/components/dashboard/nav-tabs";
 import { requireUser } from "@/lib/auth";
 import { requireGuildMembership } from "@/lib/guild";
+import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,6 +18,7 @@ export default async function GuildLayout({
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/forms`);
   const guild = await requireGuildMembership(guildId, user.id);
+  const t = (await getDict()).dashboard;
 
   return (
     <div className="flex flex-col gap-6">
@@ -33,8 +35,8 @@ export default async function GuildLayout({
 
       <NavTabs
         tabs={[
-          { href: `/dashboard/${guildId}/forms` as Route, label: "Forms", prefix: true },
-          { href: `/dashboard/${guildId}/submissions` as Route, label: "Submissions", prefix: true },
+          { href: `/dashboard/${guildId}/forms` as Route, label: t.formsTab, prefix: true },
+          { href: `/dashboard/${guildId}/submissions` as Route, label: t.submissionsTab, prefix: true },
         ]}
       />
 

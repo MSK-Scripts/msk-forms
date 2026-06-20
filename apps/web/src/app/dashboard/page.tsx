@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { requireUser } from "@/lib/auth";
 import { getUserGuilds } from "@/lib/guild";
+import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,22 +12,18 @@ export const dynamic = "force-dynamic";
 export default async function GuildsPage() {
   const user = await requireUser("/dashboard");
   const guilds = await getUserGuilds(user.id);
+  const t = (await getDict()).dashboard;
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-heading text-2xl font-bold text-foreground">Your guilds</h1>
+        <h1 className="font-heading text-2xl font-bold text-foreground">{t.yourGuilds}</h1>
       </div>
 
       {guilds.length === 0 ? (
         <Card className="flex flex-col items-start gap-3 p-8">
-          <p className="text-muted-foreground">
-            You aren&apos;t managing any guilds yet.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Connecting a guild happens through the Discord bot invite. That flow
-            lands in a later slice. For now, an admin can add you to a guild.
-          </p>
+          <p className="text-muted-foreground">{t.noGuilds}</p>
+          <p className="text-sm text-muted-foreground">{t.noGuildsHint}</p>
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -48,9 +45,13 @@ export default async function GuildsPage() {
                     </p>
                   </div>
                 </div>
-                <div className="flex gap-4 font-mono text-xs text-muted-foreground">
-                  <span>{guild._count.forms} forms</span>
-                  <span>{guild._count.submissions} submissions</span>
+                <div className="flex gap-4 text-xs text-muted-foreground">
+                  <span>
+                    {guild._count.forms} {t.countForms}
+                  </span>
+                  <span>
+                    {guild._count.submissions} {t.countSubmissions}
+                  </span>
                 </div>
               </Card>
             </Link>

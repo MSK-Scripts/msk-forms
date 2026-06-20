@@ -3,7 +3,10 @@
 import type { FormField } from "@msk-forms/shared";
 import { Card, Checkbox, Field, Input } from "@msk-forms/ui";
 
-import { fieldTypeLabel, isLayoutType, needsOptions } from "@/lib/builder-fields";
+import { isLayoutType, needsOptions } from "@/lib/builder-fields";
+import type { Dictionary } from "@/i18n";
+
+type BuilderDict = Dictionary["builder"];
 
 interface FieldEditorProps {
   field: FormField;
@@ -13,6 +16,7 @@ interface FieldEditorProps {
   onChange: (field: FormField) => void;
   onRemove: () => void;
   onMove: (dir: -1 | 1) => void;
+  t: BuilderDict;
 }
 
 export function FieldEditor({
@@ -23,8 +27,10 @@ export function FieldEditor({
   onChange,
   onRemove,
   onMove,
+  t,
 }: FieldEditorProps) {
   const layout = isLayoutType(field.type);
+  const typeLabel = (t.ft as Record<string, string>)[field.type] ?? field.type;
 
   function patch(partial: Partial<FormField>) {
     onChange({ ...field, ...partial });
@@ -45,35 +51,35 @@ export function FieldEditor({
   return (
     <Card className="flex flex-col gap-3 p-4">
       <div className="flex items-center justify-between">
-        <span className="font-mono text-xs uppercase tracking-widest text-primary">
-          {index + 1}. {fieldTypeLabel(field.type)}
+        <span className="text-xs font-semibold uppercase tracking-wide text-primary">
+          {index + 1}. {typeLabel}
         </span>
         <div className="flex items-center gap-1">
-          <IconButton label="Move up" disabled={isFirst} onClick={() => onMove(-1)}>
+          <IconButton label={t.moveUp} disabled={isFirst} onClick={() => onMove(-1)}>
             ↑
           </IconButton>
-          <IconButton label="Move down" disabled={isLast} onClick={() => onMove(1)}>
+          <IconButton label={t.moveDown} disabled={isLast} onClick={() => onMove(1)}>
             ↓
           </IconButton>
-          <IconButton label="Remove" onClick={onRemove}>
+          <IconButton label={t.remove} onClick={onRemove}>
             ✕
           </IconButton>
         </div>
       </div>
 
       {field.type !== "divider" && (
-        <Field label={layout ? "Text" : "Label"}>
+        <Field label={layout ? t.fieldText : t.fieldLabel}>
           <Input
             value={field.label ?? ""}
             onChange={(e) => patch({ label: e.target.value })}
-            placeholder={layout ? "Section heading…" : "Question label…"}
+            placeholder={layout ? t.headingPh : t.labelPh}
           />
         </Field>
       )}
 
       {!layout && (
         <>
-          <Field label="Help text" hint="Optional, shown below the label.">
+          <Field label={t.helpText} hint={t.helpHint}>
             <Input
               value={field.description ?? ""}
               onChange={(e) => patch({ description: e.target.value })}
@@ -81,16 +87,16 @@ export function FieldEditor({
           </Field>
 
           {needsOptions(field.type) && (
-            <Field label="Options">
+            <Field label={t.options}>
               <div className="flex flex-col gap-2">
                 {(field.options ?? []).map((opt, i) => (
                   <div key={i} className="flex gap-2">
                     <Input
                       value={opt.label}
                       onChange={(e) => setOption(i, e.target.value)}
-                      placeholder={`Option ${i + 1}`}
+                      placeholder={`${t.optionPh} ${i + 1}`}
                     />
-                    <IconButton label="Remove option" onClick={() => removeOption(i)}>
+                    <IconButton label={t.removeOption} onClick={() => removeOption(i)}>
                       ✕
                     </IconButton>
                   </div>
@@ -98,16 +104,16 @@ export function FieldEditor({
                 <button
                   type="button"
                   onClick={addOption}
-                  className="self-start font-mono text-xs uppercase tracking-widest text-primary hover:underline"
+                  className="self-start text-sm font-medium text-primary hover:underline"
                 >
-                  + Add option
+                  + {t.addOption}
                 </button>
               </div>
             </Field>
           )}
 
           <Checkbox
-            label="Required"
+            label={t.required}
             checked={field.validation.required}
             onChange={(e) =>
               patch({ validation: { ...field.validation, required: e.target.checked } })
@@ -136,7 +142,7 @@ function IconButton({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="flex h-7 w-7 items-center justify-center rounded-sm border border-border text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
+      className="flex h-7 w-7 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
     >
       {children}
     </button>

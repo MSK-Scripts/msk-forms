@@ -8,6 +8,9 @@ import { useState } from "react";
 
 import { FieldEditor } from "@/components/builder/field-editor";
 import { BUILDER_FIELDS, needsOptions } from "@/lib/builder-fields";
+import type { Dictionary } from "@/i18n";
+
+type BuilderDict = Dictionary["builder"];
 
 export interface FormBuilderInitial {
   title: string;
@@ -37,10 +40,12 @@ export function FormBuilder({
   guildId,
   formId,
   initial,
+  t,
 }: {
   guildId: string;
   formId?: string;
   initial: FormBuilderInitial;
+  t: BuilderDict;
 }) {
   const router = useRouter();
   const [title, setTitle] = useState(initial.title);
@@ -74,9 +79,9 @@ export function FormBuilder({
 
   async function save() {
     setError(null);
-    if (!title.trim()) return setError("Title is required.");
-    if (!slug.trim()) return setError("Slug is required.");
-    if (fields.length === 0) return setError("Add at least one field.");
+    if (!title.trim()) return setError(t.errTitle);
+    if (!slug.trim()) return setError(t.errSlug);
+    if (fields.length === 0) return setError(t.errFields);
 
     const spec = { version: 1, pages: [{ id: "p1", fields }] };
     const payload = {
@@ -100,12 +105,12 @@ export function FormBuilder({
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => null)) as { error?: string } | null;
-        throw new Error(data?.error ?? "Could not save the form.");
+        throw new Error(data?.error ?? t.errSave);
       }
       router.push(`/dashboard/${guildId}/forms` as Route);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not save the form.");
+      setError(err instanceof Error ? err.message : t.errSave);
       setSaving(false);
     }
   }
@@ -113,44 +118,44 @@ export function FormBuilder({
   return (
     <div className="flex flex-col gap-6">
       <Card className="flex flex-col gap-4 p-5">
-        <Field label="Title" required>
+        <Field label={t.title} required>
           <Input value={title} onChange={(e) => setTitle(e.target.value)} />
         </Field>
-        <Field label="Description">
+        <Field label={t.description}>
           <Textarea value={description} onChange={(e) => setDescription(e.target.value)} />
         </Field>
         <div className="grid gap-4 sm:grid-cols-3">
-          <Field label="Slug" required hint="Public URL: /f/<slug>">
+          <Field label={t.slug} required hint={t.slugHint}>
             <div className="flex gap-2">
               <Input value={slug} onChange={(e) => setSlug(e.target.value)} />
               <button
                 type="button"
                 onClick={() => setSlug(slugify(title))}
-                className="shrink-0 rounded-sm border border-border px-2 font-mono text-xs uppercase text-muted-foreground hover:border-primary/40"
+                className="shrink-0 rounded-md border border-border px-2 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
               >
-                Auto
+                {t.auto}
               </button>
             </div>
           </Field>
-          <Field label="Status">
+          <Field label={t.status}>
             <Select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
               options={[
-                { value: "draft", label: "Draft" },
-                { value: "live", label: "Live" },
-                { value: "closed", label: "Closed" },
-                { value: "archived", label: "Archived" },
+                { value: "draft", label: t.statusDraft },
+                { value: "live", label: t.statusLive },
+                { value: "closed", label: t.statusClosed },
+                { value: "archived", label: t.statusArchived },
               ]}
             />
           </Field>
-          <Field label="Visibility">
+          <Field label={t.visibility}>
             <Select
               value={visibility}
               onChange={(e) => setVisibility(e.target.value)}
               options={[
-                { value: "public", label: "Public" },
-                { value: "authenticated", label: "Login required" },
+                { value: "public", label: t.visPublic },
+                { value: "authenticated", label: t.visAuth },
               ]}
             />
           </Field>
@@ -168,35 +173,39 @@ export function FormBuilder({
             onChange={(next) => updateField(i, next)}
             onRemove={() => removeField(i)}
             onMove={(dir) => moveField(i, dir)}
+            t={t}
           />
         ))}
       </div>
 
       <Card className="flex items-end gap-3 p-4">
-        <Field label="Add field">
+        <Field label={t.addField}>
           <Select
             value={addType}
             onChange={(e) => setAddType(e.target.value as FieldType)}
-            options={BUILDER_FIELDS.map((f) => ({ value: f.type, label: f.label }))}
+            options={BUILDER_FIELDS.map((f) => ({
+              value: f.type,
+              label: (t.ft as Record<string, string>)[f.type] ?? f.label,
+            }))}
           />
         </Field>
         <Button variant="ghost" type="button" onClick={addField}>
-          + Add
+          + {t.add}
         </Button>
       </Card>
 
-      {error && <p className="font-mono text-xs text-destructive">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       <div className="flex items-center gap-3">
         <Button type="button" onClick={save} disabled={saving}>
-          {saving ? "Saving…" : formId ? "Save changes" : "Create form"}
+          {saving ? t.saving : formId ? t.saveChanges : t.createForm}
         </Button>
         <button
           type="button"
           onClick={() => router.push(`/dashboard/${guildId}/forms` as Route)}
-          className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-muted-foreground"
+          className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
-          Cancel
+          {t.cancel}
         </button>
       </div>
     </div>
