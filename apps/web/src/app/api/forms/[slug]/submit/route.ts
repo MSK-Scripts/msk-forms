@@ -4,9 +4,14 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
 import { parseFormSpec } from "@/lib/forms";
+import { clientIp, rateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+/** Per-IP submission cap: 8 submissions per minute (fails open without Redis). */
+const SUBMIT_LIMIT = 8;
+const SUBMIT_WINDOW_SECONDS = 60;
 
 /**
  * Public submission endpoint. Validates answers server-side against the form's
@@ -18,6 +23,15 @@ export async function POST(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
+
+  // Throttle abusive clients before doing any work. Fails open if Redis is down.
+  const rl = await rateLimit(`submit:${clientIp(request.headers)}`, SUBMIT_LIMIT, SUBMIT_WINDOW_SECONDS);
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Too many submissions. Please try again in a moment." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfter) } },
+    );
+  }
 
   let body: unknown;
   try {
