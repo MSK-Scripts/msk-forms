@@ -11,9 +11,17 @@ import {
 } from "@msk-forms/ui";
 
 import { FileField, type FileFieldLabels } from "./file-field";
+import { MatrixField } from "./matrix-field";
 import { ScaleButtons, SliderInput, StarRating } from "./rating-fields";
 
-export type FieldValue = string | number | boolean | string[] | FileAnswer | undefined;
+export type FieldValue =
+  | string
+  | number
+  | boolean
+  | string[]
+  | FileAnswer
+  | Record<string, string>
+  | undefined;
 
 const YES_NO_OPTIONS = [
   { value: "yes", label: "Yes" },
@@ -130,6 +138,16 @@ export function FieldInput({
         />
       );
     }
+
+    case "matrix":
+      return (
+        <MatrixField
+          field={field}
+          value={value as Record<string, string> | undefined}
+          disabled={disabled}
+          onChange={onChange}
+        />
+      );
 
     case "single_choice":
       return (

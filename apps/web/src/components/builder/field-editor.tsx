@@ -6,6 +6,7 @@ import { Card, Checkbox, Field, Input } from "@msk-forms/ui";
 import {
   isLayoutType,
   needsOptions,
+  needsRows,
   needsSliderConfig,
   needsStarsConfig,
 } from "@/lib/builder-fields";
@@ -58,6 +59,18 @@ export function FieldEditor({
   /** Parse a numeric config input, treating an empty string as "unset". */
   const num = (s: string): number | undefined => (s === "" ? undefined : Number(s));
 
+  function setRow(i: number, label: string) {
+    const rows = [...(field.rows ?? [])];
+    rows[i] = { id: rows[i]?.id ?? crypto.randomUUID(), label };
+    patch({ rows });
+  }
+  function addRow() {
+    patch({ rows: [...(field.rows ?? []), { id: crypto.randomUUID(), label: "" }] });
+  }
+  function removeRow(i: number) {
+    patch({ rows: (field.rows ?? []).filter((_, j) => j !== i) });
+  }
+
   return (
     <Card className="flex flex-col gap-3 p-4">
       <div className="flex items-center justify-between">
@@ -97,7 +110,7 @@ export function FieldEditor({
           </Field>
 
           {needsOptions(field.type) && (
-            <Field label={t.options}>
+            <Field label={needsRows(field.type) ? t.columns : t.options}>
               <div className="flex flex-col gap-2">
                 {(field.options ?? []).map((opt, i) => (
                   <div key={i} className="flex gap-2">
@@ -117,6 +130,32 @@ export function FieldEditor({
                   className="self-start text-sm font-medium text-primary hover:underline"
                 >
                   + {t.addOption}
+                </button>
+              </div>
+            </Field>
+          )}
+
+          {needsRows(field.type) && (
+            <Field label={t.rows}>
+              <div className="flex flex-col gap-2">
+                {(field.rows ?? []).map((row, i) => (
+                  <div key={row.id} className="flex gap-2">
+                    <Input
+                      value={row.label}
+                      onChange={(e) => setRow(i, e.target.value)}
+                      placeholder={`${t.rowPh} ${i + 1}`}
+                    />
+                    <IconButton label={t.removeRow} onClick={() => removeRow(i)}>
+                      ✕
+                    </IconButton>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addRow}
+                  className="self-start text-sm font-medium text-primary hover:underline"
+                >
+                  + {t.addRow}
                 </button>
               </div>
             </Field>
