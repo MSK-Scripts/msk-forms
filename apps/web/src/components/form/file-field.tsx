@@ -7,6 +7,8 @@ export interface FileFieldLabels {
   uploading: string;
   remove: string;
   uploadFailed: string;
+  /** Used by the signature pad's clear button. */
+  clear: string;
 }
 
 function formatSize(bytes: number): string {

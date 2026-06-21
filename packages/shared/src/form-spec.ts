@@ -136,8 +136,12 @@ export const formSpecSchema = z.object({
 });
 export type FormSpec = z.infer<typeof formSpecSchema>;
 
-/** Field types whose answer is an uploaded file reference, not a scalar. */
-export const FILE_FIELD_TYPES = ["file_upload", "image_upload"] as const;
+/**
+ * Field types whose answer is an uploaded file reference, not a scalar.
+ * `signature` is included: the canvas drawing is uploaded as a PNG and stored
+ * exactly like any other file answer.
+ */
+export const FILE_FIELD_TYPES = ["file_upload", "image_upload", "signature"] as const;
 
 /**
  * The answer value for a file field: a reference to an object already uploaded

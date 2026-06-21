@@ -20,6 +20,7 @@ export const BUILDER_FIELDS: { type: FieldType; label: string }[] = [
   { type: "date", label: "Date" },
   { type: "file_upload", label: "File upload" },
   { type: "image_upload", label: "Image upload" },
+  { type: "signature", label: "Signature" },
   { type: "consent", label: "Consent" },
   { type: "heading", label: "Heading" },
   { type: "paragraph", label: "Paragraph" },
