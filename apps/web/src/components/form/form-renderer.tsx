@@ -21,6 +21,8 @@ function isEmpty(value: FieldValue): boolean {
   if (value === undefined || value === null || value === "") return true;
   if (Array.isArray(value)) return value.length === 0;
   if (value === false) return true; // unchecked consent/age_check
+  // Matrix answer ({ rowId: column }) with nothing picked yet.
+  if (typeof value === "object" && Object.keys(value).length === 0) return true;
   return false;
 }
 

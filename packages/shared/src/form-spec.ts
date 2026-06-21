@@ -99,6 +99,13 @@ export const fieldOptionSchema = z.object({
   score: z.number().optional(),
 });
 
+/** A matrix row (sub-question). Columns reuse the field's `options`. */
+export const matrixRowSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+});
+export type MatrixRow = z.infer<typeof matrixRowSchema>;
+
 export const formFieldSchema = z.object({
   id: z.string(),
   type: fieldTypeSchema,
@@ -108,6 +115,8 @@ export const formFieldSchema = z.object({
   width: z.enum(["full", "half", "third"]).default("full"),
   defaultValue: z.unknown().optional(),
   options: z.array(fieldOptionSchema).optional(),
+  // Matrix sub-questions (rows); the shared column choices live in `options`.
+  rows: z.array(matrixRowSchema).optional(),
   validation: fieldValidationSchema.default({ required: false }),
   conditional: z.array(conditionRuleSchema).default([]),
   translations: z.record(z.string(), z.record(z.string(), z.string())).optional(),
@@ -214,6 +223,15 @@ export function formatAnswerValue(
 
   const labelFor = (v: string) => field.options?.find((o) => o.value === v)?.label ?? v;
 
+  // Matrix answer: { rowId: columnValue } → "Row: Column; Row: Column".
+  if (field.type === "matrix" && typeof value === "object" && !Array.isArray(value)) {
+    const answers = value as Record<string, unknown>;
+    const lines = (field.rows ?? [])
+      .filter((row) => answers[row.id] != null && answers[row.id] !== "")
+      .map((row) => `${row.label}: ${labelFor(String(answers[row.id]))}`);
+    return lines.length > 0 ? lines.join("; ") : labels.empty;
+  }
+
   if (Array.isArray(value)) return value.map((v) => labelFor(String(v))).join(", ");
   // File-descriptor answer ({ key, name, size, mime }) — show the filename.
   if (typeof value === "object" && "name" in value) {
@@ -278,6 +296,14 @@ function buildFieldSchema(field: FormField): z.ZodTypeAny {
         : arr;
   } else if (BOOLEAN_TYPES.includes(field.type)) {
     base = z.boolean();
+  } else if (field.type === "matrix") {
+    // Answer is { rowId: columnValue }; each row picks one of the columns.
+    const col = optionValues.length > 0 ? z.enum(optionValues as [string, ...string[]]) : z.string();
+    const shape: Record<string, z.ZodTypeAny> = {};
+    for (const row of field.rows ?? []) {
+      shape[row.id] = v.required ? col : col.optional();
+    }
+    base = z.object(shape);
   } else if ((FILE_FIELD_TYPES as readonly string[]).includes(field.type)) {
     base = fileAnswerSchema;
   } else if (SINGLE_CHOICE_TYPES.includes(field.type)) {

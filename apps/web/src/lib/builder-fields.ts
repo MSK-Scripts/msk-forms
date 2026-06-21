@@ -16,6 +16,7 @@ export const BUILDER_FIELDS: { type: FieldType; label: string }[] = [
   { type: "nps", label: "NPS (0–10)" },
   { type: "slider", label: "Slider" },
   { type: "emoji_scale", label: "Emoji scale" },
+  { type: "matrix", label: "Matrix" },
   { type: "date", label: "Date" },
   { type: "file_upload", label: "File upload" },
   { type: "image_upload", label: "Image upload" },
@@ -25,7 +26,9 @@ export const BUILDER_FIELDS: { type: FieldType; label: string }[] = [
   { type: "divider", label: "Divider" },
 ];
 
-const CHOICE_TYPES: FieldType[] = ["single_choice", "dropdown", "multi_choice"];
+// `matrix` also needs an option editor — its options are the shared columns.
+const CHOICE_TYPES: FieldType[] = ["single_choice", "dropdown", "multi_choice", "matrix"];
+const ROWS_CONFIG_TYPES: FieldType[] = ["matrix"];
 // Distinct from shared LAYOUT_FIELD_TYPES: only the layout types the builder
 // currently offers (not every layout type the renderer can display).
 const BUILDER_LAYOUT_TYPES: FieldType[] = ["heading", "paragraph", "divider"];
@@ -42,3 +45,4 @@ export const needsOptions = (type: FieldType): boolean => CHOICE_TYPES.includes(
 export const isLayoutType = (type: FieldType): boolean => BUILDER_LAYOUT_TYPES.includes(type);
 export const needsStarsConfig = (type: FieldType): boolean => STARS_CONFIG_TYPES.includes(type);
 export const needsSliderConfig = (type: FieldType): boolean => SLIDER_CONFIG_TYPES.includes(type);
+export const needsRows = (type: FieldType): boolean => ROWS_CONFIG_TYPES.includes(type);

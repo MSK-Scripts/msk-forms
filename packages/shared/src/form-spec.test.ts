@@ -171,6 +171,32 @@ describe("buildAnswerSchema", () => {
     expect(s.safeParse({ s: 100 }).success).toBe(true);
     expect(s.safeParse({ s: 101 }).success).toBe(false);
   });
+
+  const matrixField = {
+    id: "m",
+    type: "matrix" as const,
+    options: [
+      { value: "y", label: "Yes" },
+      { value: "n", label: "No" },
+    ],
+    rows: [
+      { id: "r1", label: "Q1" },
+      { id: "r2", label: "Q2" },
+    ],
+  };
+
+  it("validates a required matrix against its rows and columns", () => {
+    const s = buildAnswerSchema(specWith({ ...matrixField, validation: { required: true } }));
+    expect(s.safeParse({ m: { r1: "y", r2: "n" } }).success).toBe(true);
+    expect(s.safeParse({ m: { r1: "y" } }).success).toBe(false); // r2 missing
+    expect(s.safeParse({ m: { r1: "x", r2: "n" } }).success).toBe(false); // bad column
+  });
+
+  it("allows a partial/empty matrix when optional", () => {
+    const s = buildAnswerSchema(specWith({ ...matrixField, validation: { required: false } }));
+    expect(s.safeParse({}).success).toBe(true);
+    expect(s.safeParse({ m: { r1: "y" } }).success).toBe(true);
+  });
 });
 
 describe("formatAnswerValue (rating family)", () => {
@@ -182,5 +208,25 @@ describe("formatAnswerValue (rating family)", () => {
     expect(formatAnswerValue(nps, 8, L)).toBe("8 / 10");
     expect(formatAnswerValue(stars, 4, L)).toBe("★ 4");
     expect(formatAnswerValue(emoji, 5, L)).toContain("5/5");
+  });
+
+  it("renders a matrix answer as row: column pairs", () => {
+    const matrix: FormField = {
+      id: "m",
+      type: "matrix",
+      width: "full",
+      validation: { required: false },
+      conditional: [],
+      options: [
+        { value: "y", label: "Yes" },
+        { value: "n", label: "No" },
+      ],
+      rows: [
+        { id: "r1", label: "Q1" },
+        { id: "r2", label: "Q2" },
+      ],
+    };
+    expect(formatAnswerValue(matrix, { r1: "y", r2: "n" }, L)).toBe("Q1: Yes; Q2: No");
+    expect(formatAnswerValue(matrix, {}, L)).toBe("—");
   });
 });
