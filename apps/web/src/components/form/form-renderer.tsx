@@ -1,6 +1,12 @@
 "use client";
 
-import { isLayoutField, type FormField, type FormSpec } from "@msk-forms/shared";
+import {
+  isFieldRequired,
+  isFieldVisible,
+  isLayoutField,
+  type FormField,
+  type FormSpec,
+} from "@msk-forms/shared";
 import { Button, Field } from "@msk-forms/ui";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
@@ -60,6 +66,8 @@ export function FormRenderer({
   const [captchaNonce, setCaptchaNonce] = useState(0);
 
   const fields = spec.pages.flatMap((p) => p.fields);
+  // Re-evaluated every render so show/hide/require react to the latest answers.
+  const visibleFields = fields.filter((field) => isFieldVisible(field, answers));
 
   function setAnswer(id: string, value: FieldValue) {
     setAnswers((prev) => ({ ...prev, [id]: value }));
@@ -73,9 +81,9 @@ export function FormRenderer({
 
   function validate(): boolean {
     const next: Record<string, string> = {};
-    for (const field of fields) {
+    for (const field of visibleFields) {
       if (isLayout(field)) continue;
-      if (field.validation.required && isEmpty(answers[field.id])) {
+      if (isFieldRequired(field, answers) && isEmpty(answers[field.id])) {
         next[field.id] = labels.required;
       }
     }
@@ -118,7 +126,7 @@ export function FormRenderer({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
-      {fields.map((field) =>
+      {visibleFields.map((field) =>
         isLayout(field) ? (
           <LayoutBlock key={field.id} field={field} />
         ) : (
@@ -126,7 +134,7 @@ export function FormRenderer({
             key={field.id}
             htmlFor={field.id}
             label={field.label}
-            required={field.validation.required}
+            required={isFieldRequired(field, answers)}
             hint={field.description}
             error={errors[field.id]}
           >

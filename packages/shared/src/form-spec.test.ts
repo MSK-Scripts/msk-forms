@@ -204,6 +204,41 @@ describe("buildAnswerSchema", () => {
     expect(s.safeParse(ok).success).toBe(true);
     expect(s.safeParse({ sig: "not-a-file" }).success).toBe(false);
   });
+
+  it("only requires conditionally-visible fields", () => {
+    const spec: FormSpec = {
+      version: 1,
+      pages: [
+        {
+          id: "p1",
+          fields: [
+            {
+              id: "q",
+              type: "single_choice",
+              width: "full",
+              validation: { required: true },
+              conditional: [],
+              options: [
+                { value: "yes", label: "Yes" },
+                { value: "no", label: "No" },
+              ],
+            },
+            {
+              id: "why",
+              type: "short_text",
+              width: "full",
+              validation: { required: true },
+              conditional: [{ action: "show", when: { field: "q", op: "equals", value: "yes" } }],
+            },
+          ],
+        },
+      ],
+    };
+    const s = buildAnswerSchema(spec);
+    expect(s.safeParse({ q: "no" }).success).toBe(true); // "why" hidden → not required
+    expect(s.safeParse({ q: "yes" }).success).toBe(false); // "why" shown & required
+    expect(s.safeParse({ q: "yes", why: "because" }).success).toBe(true);
+  });
 });
 
 describe("formatAnswerValue (rating family)", () => {

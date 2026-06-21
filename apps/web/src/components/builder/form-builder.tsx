@@ -167,6 +167,7 @@ export function FormBuilder({
           <FieldEditor
             key={field.id}
             field={field}
+            fields={fields}
             index={i}
             isFirst={i === 0}
             isLast={i === fields.length - 1}

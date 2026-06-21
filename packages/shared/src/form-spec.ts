@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { isBlankAnswer, isFieldRequired, isFieldVisible } from "./conditions";
+
 /**
  * Form spec — the JSON definition of a form (concept §6–§8).
  * Stored in Form.schema (JSONB) and validated against submissions at runtime.
@@ -75,6 +77,7 @@ export const conditionRuleSchema = z.object({
   action: z.enum(["show", "hide", "require", "skip_to"]),
   target: z.string().optional(),
 });
+export type ConditionRule = z.infer<typeof conditionRuleSchema>;
 
 /** Absolute server-side ceiling for a single upload, regardless of field config. */
 export const MAX_FILE_SIZE_MB = 25;
@@ -259,19 +262,40 @@ const SINGLE_CHOICE_TYPES = ["single_choice", "dropdown"];
 
 /**
  * Builds a dynamic zod schema to validate a submission against a form spec.
- * Enforces the full `field.validation` contract server-side — not just
- * `required` — so the API never trusts the client to honor min/max, lengths,
- * patterns, formats, or the allowed option set.
+ * Enforces the full `field.validation` contract server-side — min/max, lengths,
+ * patterns, formats, and the allowed option set — for any value that is present.
+ * Required-ness is enforced in a `superRefine` that honours conditional logic:
+ * only *visible* fields are required, and `require` rules can make an otherwise
+ * optional field mandatory. Hidden fields are never required.
  */
 export function buildAnswerSchema(spec: FormSpec): z.ZodTypeAny {
   const shape: Record<string, z.ZodTypeAny> = {};
+  const fields: FormField[] = [];
   for (const page of spec.pages) {
     for (const field of page.fields) {
       if (isLayoutField(field.type)) continue;
       shape[field.id] = buildFieldSchema(field);
+      fields.push(field);
     }
   }
-  return z.object(shape);
+
+  return z.object(shape).superRefine((data, ctx) => {
+    const answers = data as Record<string, unknown>;
+    for (const field of fields) {
+      if (!isFieldVisible(field, answers) || !isFieldRequired(field, answers)) continue;
+
+      const value = answers[field.id];
+      const missing =
+        field.type === "matrix"
+          ? (field.rows ?? []).length === 0 ||
+            (field.rows ?? []).some((row) => isBlankAnswer((value as Record<string, unknown>)?.[row.id]))
+          : isBlankAnswer(value);
+
+      if (missing) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: [field.id], message: "Required." });
+      }
+    }
+  });
 }
 
 function buildFieldSchema(field: FormField): z.ZodTypeAny {
@@ -305,7 +329,10 @@ function buildFieldSchema(field: FormField): z.ZodTypeAny {
     const col = optionValues.length > 0 ? z.enum(optionValues as [string, ...string[]]) : z.string();
     const shape: Record<string, z.ZodTypeAny> = {};
     for (const row of field.rows ?? []) {
-      shape[row.id] = v.required ? col : col.optional();
+      // Per-row completeness for required matrices is enforced in the schema's
+      // superRefine (so conditional visibility is respected); here each cell is
+      // optional but still validated against the column set when present.
+      shape[row.id] = col.optional();
     }
     base = z.object(shape);
   } else if ((FILE_FIELD_TYPES as readonly string[]).includes(field.type)) {
@@ -330,8 +357,7 @@ function buildFieldSchema(field: FormField): z.ZodTypeAny {
     base = s;
   }
 
-  if (!v.required) return base.optional();
-  // A required field must be present; for text, also reject the empty string.
-  if (base instanceof z.ZodString) return (base as z.ZodString).min(v.minLength ?? 1);
-  return base;
+  // Every field is optional at the shape level; presence/required-ness (and
+  // conditional visibility) is enforced in buildAnswerSchema's superRefine.
+  return base.optional();
 }

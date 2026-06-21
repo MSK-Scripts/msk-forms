@@ -1,8 +1,9 @@
 "use client";
 
-import type { FormField } from "@msk-forms/shared";
+import type { ConditionRule, FormField } from "@msk-forms/shared";
 import { Card, Checkbox, Field, Input } from "@msk-forms/ui";
 
+import { ConditionEditor } from "@/components/builder/condition-editor";
 import {
   isLayoutType,
   needsOptions,
@@ -16,6 +17,7 @@ type BuilderDict = Dictionary["builder"];
 
 interface FieldEditorProps {
   field: FormField;
+  fields: FormField[];
   index: number;
   isFirst: boolean;
   isLast: boolean;
@@ -27,6 +29,7 @@ interface FieldEditorProps {
 
 export function FieldEditor({
   field,
+  fields,
   index,
   isFirst,
   isLast,
@@ -210,6 +213,15 @@ export function FieldEditor({
               patch({ validation: { ...field.validation, required: e.target.checked } })
             }
           />
+
+          <Field label={t.cond.title}>
+            <ConditionEditor
+              field={field}
+              fields={fields}
+              onChange={(conditional: ConditionRule[]) => patch({ conditional })}
+              t={t.cond}
+            />
+          </Field>
         </>
       )}
     </Card>
