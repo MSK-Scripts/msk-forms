@@ -15,6 +15,7 @@ import {
 } from "discord.js";
 
 import { config } from "./config.js";
+import { postBranded } from "./posting.js";
 import { dashboardSubmissionUrl, statusUrl } from "./urls.js";
 
 const MSK_GREEN = 0x00e676;
@@ -111,7 +112,7 @@ async function deliverReview(client: Client, row: PendingRow): Promise<boolean> 
       new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Open in dashboard").setURL(url),
     );
 
-    await channel.send({ embeds: [embed], components: [buttons] });
+    await postBranded(channel, row.guildId, { embeds: [embed], components: [buttons] });
     return true;
   } catch (err) {
     if (err instanceof DiscordAPIError && CHANNEL_GONE.includes(Number(err.code))) {

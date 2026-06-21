@@ -11,6 +11,7 @@ import {
 } from "discord.js";
 
 import { config } from "./config.js";
+import { postBranded } from "./posting.js";
 import { dashboardUrl, formUrl } from "./urls.js";
 
 const MSK_GREEN = 0x00e676;
@@ -149,7 +150,7 @@ export async function handleFormsCommand(
       new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Open form").setURL(url),
     );
 
-    await channel.send({ embeds: [embed], components: [row] });
+    await postBranded(channel, guildId, { embeds: [embed], components: [row] });
     await interaction.reply({
       content: `✅ Posted **${form.title}** in <#${channel.id}>.`,
       flags: MessageFlags.Ephemeral,

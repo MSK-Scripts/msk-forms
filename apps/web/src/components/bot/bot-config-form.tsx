@@ -21,6 +21,7 @@ export function BotConfigForm({
   const router = useRouter();
   const [channel, setChannel] = useState(initial.reviewChannelId ?? "");
   const [role, setRole] = useState(initial.acceptedRoleId ?? "");
+  const [postName, setPostName] = useState(initial.postName ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -33,6 +34,7 @@ export function BotConfigForm({
       const body: Record<string, string> = {};
       if (channel.trim()) body.reviewChannelId = channel.trim();
       if (role.trim()) body.acceptedRoleId = role.trim();
+      if (postName.trim()) body.postName = postName.trim();
       const res = await fetch(`/api/guilds/${guildId}/bot-config`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -65,6 +67,10 @@ export function BotConfigForm({
         <Input value={role} placeholder="123456789012345678" onChange={onEdit(setRole)} />
       </Field>
       <p className="text-xs text-muted-foreground">{t.idHint}</p>
+
+      <Field label={t.postName} hint={t.postNameHint}>
+        <Input value={postName} placeholder="MSK Forms" onChange={onEdit(setPostName)} />
+      </Field>
 
       <div className="flex items-center gap-3">
         <Button type="button" onClick={save} disabled={saving}>
