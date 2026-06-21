@@ -197,6 +197,13 @@ describe("buildAnswerSchema", () => {
     expect(s.safeParse({}).success).toBe(true);
     expect(s.safeParse({ m: { r1: "y" } }).success).toBe(true);
   });
+
+  it("treats a signature as a file-reference answer", () => {
+    const s = buildAnswerSchema(specWith({ id: "sig", type: "signature", validation: { required: true } }));
+    const ok = { sig: { key: "uploads/f/abc", name: "signature.png", size: 120, mime: "image/png" } };
+    expect(s.safeParse(ok).success).toBe(true);
+    expect(s.safeParse({ sig: "not-a-file" }).success).toBe(false);
+  });
 });
 
 describe("formatAnswerValue (rating family)", () => {

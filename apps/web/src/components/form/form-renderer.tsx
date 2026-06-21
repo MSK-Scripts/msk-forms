@@ -35,6 +35,7 @@ export interface FormLabels {
   fileUploading: string;
   fileRemove: string;
   uploadFailed: string;
+  signatureClear: string;
 }
 
 export function FormRenderer({
@@ -140,6 +141,7 @@ export function FormRenderer({
                 uploading: labels.fileUploading,
                 remove: labels.fileRemove,
                 uploadFailed: labels.uploadFailed,
+                clear: labels.signatureClear,
               }}
             />
           </Field>

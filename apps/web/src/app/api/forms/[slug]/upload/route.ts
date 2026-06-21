@@ -72,9 +72,10 @@ export async function POST(
 
   const allowed = field.validation.allowedMimeTypes;
   const mime = file.type || "application/octet-stream";
+  const wantsImage = field.type === "image_upload" || field.type === "signature";
   const mimeOk = allowed?.length
     ? allowed.includes(mime)
-    : field.type === "image_upload"
+    : wantsImage
       ? mime.startsWith("image/")
       : true;
   if (!mimeOk) {

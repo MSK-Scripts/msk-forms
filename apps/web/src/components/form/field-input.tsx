@@ -13,6 +13,7 @@ import {
 import { FileField, type FileFieldLabels } from "./file-field";
 import { MatrixField } from "./matrix-field";
 import { ScaleButtons, SliderInput, StarRating } from "./rating-fields";
+import { SignatureField } from "./signature-field";
 
 export type FieldValue =
   | string
@@ -145,6 +146,18 @@ export function FieldInput({
           field={field}
           value={value as Record<string, string> | undefined}
           disabled={disabled}
+          onChange={onChange}
+        />
+      );
+
+    case "signature":
+      return (
+        <SignatureField
+          slug={slug}
+          field={field}
+          value={value as FileAnswer | undefined}
+          disabled={disabled}
+          labels={fileLabels}
           onChange={onChange}
         />
       );

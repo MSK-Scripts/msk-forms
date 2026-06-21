@@ -48,6 +48,7 @@ const en = {
     submitFailed: "Submission failed.",
     captchaRequired: "Please complete the captcha.",
     fileUploading: "Uploading…", fileRemove: "Remove", uploadFailed: "Upload failed.",
+    signatureClear: "Clear",
   },
   status: {
     yourSubmission: "Your submission", activity: "Activity", yourAnswers: "Your answers",
@@ -139,7 +140,7 @@ const en = {
       short_text: "Short text", long_text: "Long text", email: "Email", number: "Number", phone: "Phone", url: "URL",
       single_choice: "Single choice", dropdown: "Dropdown", multi_choice: "Multiple choice", yes_no: "Yes / No",
       rating_stars: "Star rating", nps: "NPS (0–10)", slider: "Slider", emoji_scale: "Emoji scale", matrix: "Matrix",
-      date: "Date", file_upload: "File upload", image_upload: "Image upload",
+      date: "Date", file_upload: "File upload", image_upload: "Image upload", signature: "Signature",
       consent: "Consent", heading: "Heading", paragraph: "Paragraph", divider: "Divider",
     },
   },
@@ -203,6 +204,7 @@ const de: Dictionary = {
     submitFailed: "Senden fehlgeschlagen.",
     captchaRequired: "Bitte das Captcha lösen.",
     fileUploading: "Wird hochgeladen…", fileRemove: "Entfernen", uploadFailed: "Upload fehlgeschlagen.",
+    signatureClear: "Löschen",
   },
   status: {
     yourSubmission: "Deine Einreichung", activity: "Aktivität", yourAnswers: "Deine Antworten",
@@ -294,7 +296,7 @@ const de: Dictionary = {
       short_text: "Kurztext", long_text: "Langtext", email: "E-Mail", number: "Zahl", phone: "Telefon", url: "URL",
       single_choice: "Einfachauswahl", dropdown: "Dropdown", multi_choice: "Mehrfachauswahl", yes_no: "Ja / Nein",
       rating_stars: "Sterne-Bewertung", nps: "NPS (0–10)", slider: "Schieberegler", emoji_scale: "Emoji-Skala", matrix: "Matrix",
-      date: "Datum", file_upload: "Datei-Upload", image_upload: "Bild-Upload",
+      date: "Datum", file_upload: "Datei-Upload", image_upload: "Bild-Upload", signature: "Unterschrift",
       consent: "Zustimmung", heading: "Überschrift", paragraph: "Absatz", divider: "Trenner",
     },
   },
