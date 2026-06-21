@@ -89,6 +89,8 @@ export const fieldValidationSchema = z.object({
   allowedMimeTypes: z.array(z.string()).optional(),
   // Capped at the hard server limit so a crafted spec can't raise it.
   maxFileSizeMb: z.number().positive().max(MAX_FILE_SIZE_MB).optional(),
+  // Step size for slider fields (defaults to 1 when unset).
+  step: z.number().positive().optional(),
 });
 
 export const fieldOptionSchema = z.object({
@@ -156,6 +158,38 @@ export function isLayoutField(type: FieldType): boolean {
   return (LAYOUT_FIELD_TYPES as readonly string[]).includes(type);
 }
 
+/** Emoji shown for an `emoji_scale` field, lowest → highest (value = index + 1). */
+export const EMOJI_SCALE = ["😡", "😕", "😐", "🙂", "😍"] as const;
+
+/** NPS is a fixed 0–10 scale. */
+export const NPS_MIN = 0;
+export const NPS_MAX = 10;
+
+/** Rating-family field types whose answer is a number on a bounded scale. */
+export const SCALE_FIELD_TYPES = ["rating_stars", "nps", "slider", "emoji_scale"] as const;
+
+/**
+ * Resolved scale bounds for a rating-family field. Per-type defaults: NPS is a
+ * fixed 0–10, emoji is 1–5, stars default to 1–5 (overridable via `max`), and a
+ * slider falls back to 0–100 step 1. Shared by the renderer widgets, the
+ * server-side validation, and the answer formatter so they can't drift.
+ */
+export function scaleBounds(field: FormField): { min: number; max: number; step: number } {
+  const v = field.validation;
+  switch (field.type) {
+    case "nps":
+      return { min: NPS_MIN, max: NPS_MAX, step: 1 };
+    case "emoji_scale":
+      return { min: 1, max: EMOJI_SCALE.length, step: 1 };
+    case "rating_stars":
+      return { min: 1, max: v.max ?? 5, step: 1 };
+    case "slider":
+      return { min: v.min ?? 0, max: v.max ?? 100, step: v.step ?? 1 };
+    default:
+      return { min: v.min ?? 0, max: v.max ?? 0, step: v.step ?? 1 };
+  }
+}
+
 /** Caller-supplied labels for {@link formatAnswerValue} (lets each surface i18n). */
 export interface AnswerValueLabels {
   /** Shown for an empty/missing answer. */
@@ -185,11 +219,18 @@ export function formatAnswerValue(
   if (typeof value === "object" && "name" in value) {
     return String((value as { name: unknown }).name);
   }
+  // Rating-family fields read better with their scale shown.
+  if (field.type === "emoji_scale") {
+    const emoji = EMOJI_SCALE[Math.round(Number(value)) - 1];
+    return emoji ? `${emoji} (${Number(value)}/${EMOJI_SCALE.length})` : String(value);
+  }
+  if (field.type === "nps") return `${value} / ${NPS_MAX}`;
+  if (field.type === "rating_stars") return `★ ${value}`;
   if (field.options) return labelFor(String(value));
   return String(value);
 }
 
-const NUMBER_TYPES = ["number", "slider", "nps", "rating_stars"];
+const NUMBER_TYPES = ["number", "slider", "nps", "rating_stars", "emoji_scale"];
 const MULTI_TYPES = ["multi_choice", "multi_select", "ranking"];
 const BOOLEAN_TYPES = ["yes_no", "consent", "age_check"];
 const SINGLE_CHOICE_TYPES = ["single_choice", "dropdown"];
@@ -218,8 +259,14 @@ function buildFieldSchema(field: FormField): z.ZodTypeAny {
 
   if (NUMBER_TYPES.includes(field.type)) {
     let n = z.number();
-    if (v.min !== undefined) n = n.min(v.min);
-    if (v.max !== undefined) n = n.max(v.max);
+    if ((SCALE_FIELD_TYPES as readonly string[]).includes(field.type)) {
+      // Rating-family: enforce the resolved scale bounds, not raw min/max.
+      const { min, max } = scaleBounds(field);
+      n = n.min(min).max(max);
+    } else {
+      if (v.min !== undefined) n = n.min(v.min);
+      if (v.max !== undefined) n = n.max(v.max);
+    }
     base = n;
   } else if (MULTI_TYPES.includes(field.type)) {
     let arr = z.array(z.string());

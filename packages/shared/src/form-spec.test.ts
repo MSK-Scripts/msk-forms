@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildAnswerSchema,
+  formatAnswerValue,
   formSpecSchema,
   isLayoutField,
   type FormField,
@@ -135,5 +136,51 @@ describe("buildAnswerSchema", () => {
       specWith({ id: "t", type: "short_text", validation: { required: true, pattern: "(" } }),
     );
     expect(s.safeParse({ t: "anything" }).success).toBe(true);
+  });
+
+  it("enforces the fixed NPS 0–10 scale (incl. 0)", () => {
+    const s = buildAnswerSchema(specWith({ id: "n", type: "nps", validation: { required: true } }));
+    expect(s.safeParse({ n: 0 }).success).toBe(true);
+    expect(s.safeParse({ n: 10 }).success).toBe(true);
+    expect(s.safeParse({ n: 11 }).success).toBe(false);
+    expect(s.safeParse({ n: -1 }).success).toBe(false);
+  });
+
+  it("defaults star rating to 1–5 and respects a custom max", () => {
+    const def = buildAnswerSchema(specWith({ id: "r", type: "rating_stars", validation: { required: true } }));
+    expect(def.safeParse({ r: 5 }).success).toBe(true);
+    expect(def.safeParse({ r: 6 }).success).toBe(false);
+    expect(def.safeParse({ r: 0 }).success).toBe(false);
+
+    const ten = buildAnswerSchema(
+      specWith({ id: "r", type: "rating_stars", validation: { required: true, max: 10 } }),
+    );
+    expect(ten.safeParse({ r: 10 }).success).toBe(true);
+  });
+
+  it("enforces the emoji scale 1–5", () => {
+    const s = buildAnswerSchema(specWith({ id: "e", type: "emoji_scale", validation: { required: true } }));
+    expect(s.safeParse({ e: 1 }).success).toBe(true);
+    expect(s.safeParse({ e: 5 }).success).toBe(true);
+    expect(s.safeParse({ e: 6 }).success).toBe(false);
+  });
+
+  it("enforces slider bounds (default 0–100)", () => {
+    const s = buildAnswerSchema(specWith({ id: "s", type: "slider", validation: { required: true } }));
+    expect(s.safeParse({ s: 0 }).success).toBe(true);
+    expect(s.safeParse({ s: 100 }).success).toBe(true);
+    expect(s.safeParse({ s: 101 }).success).toBe(false);
+  });
+});
+
+describe("formatAnswerValue (rating family)", () => {
+  const L = { empty: "—", yes: "Yes", no: "No" };
+  it("renders nps, stars and emoji with their scale", () => {
+    const nps: FormField = { id: "n", type: "nps", width: "full", validation: { required: false }, conditional: [] };
+    const stars: FormField = { id: "r", type: "rating_stars", width: "full", validation: { required: false }, conditional: [] };
+    const emoji: FormField = { id: "e", type: "emoji_scale", width: "full", validation: { required: false }, conditional: [] };
+    expect(formatAnswerValue(nps, 8, L)).toBe("8 / 10");
+    expect(formatAnswerValue(stars, 4, L)).toBe("★ 4");
+    expect(formatAnswerValue(emoji, 5, L)).toContain("5/5");
   });
 });
