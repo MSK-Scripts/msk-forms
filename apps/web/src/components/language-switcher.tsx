@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 const LOCALES = [
   { value: "en", short: "EN", label: "English" },
   { value: "de", short: "DE", label: "Deutsch" },
+  { value: "hu", short: "HU", label: "Magyar" },
 ] as const;
 
 export function LanguageSwitcher({ locale }: { locale: string }) {
