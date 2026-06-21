@@ -50,6 +50,7 @@ const en = {
     fileUploading: "Uploading…", fileRemove: "Remove", uploadFailed: "Upload failed.",
     signatureClear: "Clear",
     next: "Next", back: "Back", step: "Step",
+    dateToday: "Today", dateClear: "Clear",
   },
   status: {
     yourSubmission: "Your submission", activity: "Activity", yourAnswers: "Your answers",
@@ -244,6 +245,7 @@ const de: Dictionary = {
     fileUploading: "Wird hochgeladen…", fileRemove: "Entfernen", uploadFailed: "Upload fehlgeschlagen.",
     signatureClear: "Löschen",
     next: "Weiter", back: "Zurück", step: "Schritt",
+    dateToday: "Heute", dateClear: "Löschen",
   },
   status: {
     yourSubmission: "Deine Einreichung", activity: "Aktivität", yourAnswers: "Deine Antworten",
@@ -436,6 +438,7 @@ const hu: Dictionary = {
     fileUploading: "Feltöltés…", fileRemove: "Eltávolítás", uploadFailed: "A feltöltés sikertelen.",
     signatureClear: "Törlés",
     next: "Tovább", back: "Vissza", step: "Lépés",
+    dateToday: "Ma", dateClear: "Törlés",
   },
   status: {
     yourSubmission: "A beküldésed", activity: "Tevékenység", yourAnswers: "A válaszaid",

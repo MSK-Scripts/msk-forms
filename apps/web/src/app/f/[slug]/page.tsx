@@ -91,6 +91,8 @@ export default async function PublicFormPage({
           next: t.next,
           back: t.back,
           step: t.step,
+          dateToday: t.dateToday,
+          dateClear: t.dateClear,
         }}
       />
     </Shell>

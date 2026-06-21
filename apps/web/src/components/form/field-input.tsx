@@ -10,6 +10,7 @@ import {
   Textarea,
 } from "@msk-forms/ui";
 
+import { DateField, type DateFieldLabels } from "./date-field";
 import { FileField, type FileFieldLabels } from "./file-field";
 import { MatrixField } from "./matrix-field";
 import { ScaleButtons, SliderInput, StarRating } from "./rating-fields";
@@ -38,6 +39,7 @@ interface FieldInputProps {
   /** The form slug + labels — needed by file fields to drive uploads. */
   slug: string;
   fileLabels: FileFieldLabels;
+  dateLabels: DateFieldLabels;
 }
 
 /** Renders the interactive control for a single (non-layout) form field. */
@@ -49,6 +51,7 @@ export function FieldInput({
   disabled,
   slug,
   fileLabels,
+  dateLabels,
 }: FieldInputProps) {
   const id = field.id;
   const options = (field.options ?? []).map((o) => ({ value: o.value, label: o.label }));
@@ -222,10 +225,21 @@ export function FieldInput({
       );
 
     case "date":
+      return (
+        <DateField
+          id={id}
+          value={value as string | undefined}
+          onChange={onChange}
+          invalid={invalid}
+          disabled={disabled}
+          placeholder={field.placeholder}
+          labels={dateLabels}
+        />
+      );
+
     case "time":
     case "datetime": {
-      const inputType =
-        field.type === "date" ? "date" : field.type === "time" ? "time" : "datetime-local";
+      const inputType = field.type === "time" ? "time" : "datetime-local";
       return (
         <Input
           id={id}

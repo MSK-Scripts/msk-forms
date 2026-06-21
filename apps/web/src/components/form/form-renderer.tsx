@@ -46,6 +46,8 @@ export interface FormLabels {
   next: string;
   back: string;
   step: string;
+  dateToday: string;
+  dateClear: string;
 }
 
 export function FormRenderer({
@@ -209,6 +211,7 @@ export function FormRenderer({
                 uploadFailed: labels.uploadFailed,
                 clear: labels.signatureClear,
               }}
+              dateLabels={{ today: labels.dateToday, clear: labels.dateClear }}
             />
           </Field>
         ),
