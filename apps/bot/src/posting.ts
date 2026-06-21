@@ -6,6 +6,12 @@ import { config } from "./config.js";
 
 const WEBHOOK_NAME = "MSK Forms";
 
+/** Parse a `#rrggbb` branding accent colour to an int, or null if unset/invalid. */
+function accentColorInt(hex: string | undefined): number | null {
+  if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return null;
+  return parseInt(hex.slice(1), 16);
+}
+
 interface BrandedPayload {
   embeds: EmbedBuilder[];
   components?: ActionRowBuilder<ButtonBuilder>[];
@@ -30,16 +36,21 @@ export async function postBranded(
     where: { id: guildId },
     select: { botConfig: true, branding: true },
   });
+  const branding = (guild?.branding as { logoKey?: string; accentColor?: string } | null) ?? {};
   const postName = parseBotConfig(guild?.botConfig).postName;
 
-  // No per-guild appearance configured → post as the bot.
+  // Apply the guild's accent colour to every embed (independent of the webhook
+  // appearance — posted embeds should match the guild's branding either way).
+  const accent = accentColorInt(branding.accentColor);
+  if (accent !== null) for (const embed of payload.embeds) embed.setColor(accent);
+
+  // No per-guild appearance configured → post as the bot (with accent colour).
   if (!postName) {
     await channel.send(payload);
     return;
   }
 
-  const logoKey = (guild?.branding as { logoKey?: string } | null)?.logoKey;
-  const avatarURL = logoKey ? `${config.apiBaseUrl}/api/guilds/${guildId}/logo` : undefined;
+  const avatarURL = branding.logoKey ? `${config.apiBaseUrl}/api/guilds/${guildId}/logo` : undefined;
 
   try {
     // Webhooks only exist on standard text channels, not threads.
