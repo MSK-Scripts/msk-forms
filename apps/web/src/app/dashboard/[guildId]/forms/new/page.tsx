@@ -38,6 +38,7 @@ export default async function NewFormPage({
           slug: "",
           status: "draft",
           visibility: "public",
+          acceptedRoleId: "",
           pages: [{ id: "p1", title: "", fields: [] }],
         }}
       />

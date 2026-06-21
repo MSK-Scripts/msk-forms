@@ -49,6 +49,7 @@ export async function PATCH(
         status: input.status,
         visibility: input.visibility,
         schema: input.spec as Prisma.InputJsonValue,
+        settings: (input.settings ?? {}) as Prisma.InputJsonValue,
         version: { increment: 1 },
       },
     });

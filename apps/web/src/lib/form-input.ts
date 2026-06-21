@@ -1,4 +1,4 @@
-import { formSpecSchema } from "@msk-forms/shared";
+import { formSettingsSchema, formSpecSchema } from "@msk-forms/shared";
 import { z } from "zod";
 
 /**
@@ -17,6 +17,7 @@ export const formInputSchema = z.object({
   status: z.enum(["draft", "live", "closed", "archived"]),
   visibility: z.enum(["public", "authenticated", "password", "role_required"]),
   spec: formSpecSchema,
+  settings: formSettingsSchema.optional(),
 });
 
 export type FormInput = z.infer<typeof formInputSchema>;
