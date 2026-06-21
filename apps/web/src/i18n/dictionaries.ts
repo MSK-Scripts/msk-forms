@@ -71,7 +71,18 @@ const en = {
     note: "Looks solid. Confirming your in-game name, then you’re in.",
   },
   dashboard: {
-    guilds: "Guilds", mySubmissions: "My Submissions", formsTab: "Forms", submissionsTab: "Submissions", brandingTab: "Branding", botTab: "Bot",
+    guilds: "Guilds", mySubmissions: "My Submissions", formsTab: "Forms", submissionsTab: "Submissions", brandingTab: "Branding", botTab: "Bot", statusesTab: "Statuses",
+    statuses: {
+      title: "Custom statuses",
+      intro: "Add your own review statuses on top of the built-in pipeline. Reviewers can move submissions to any of them.",
+      defaultsTitle: "Built-in statuses",
+      key: "Key", label: "Label", color: "Color", terminal: "Terminal", visible: "Visible to applicant",
+      add: "Add status", remove: "Remove",
+      save: "Save statuses", saving: "Saving…", saved: "Saved!",
+      empty: "No custom statuses yet.",
+      errSave: "Could not save statuses.",
+      noPerm: "You don’t have permission to manage statuses.",
+    },
     yourGuilds: "Your guilds",
     noGuilds: "You aren’t managing any guilds yet.",
     noGuildsHint:
@@ -241,7 +252,18 @@ const de: Dictionary = {
     note: "Sieht gut aus. Wir bestätigen deinen In-Game-Namen, dann bist du dabei.",
   },
   dashboard: {
-    guilds: "Guilds", mySubmissions: "Meine Einreichungen", formsTab: "Formulare", submissionsTab: "Einreichungen", brandingTab: "Branding", botTab: "Bot",
+    guilds: "Guilds", mySubmissions: "Meine Einreichungen", formsTab: "Formulare", submissionsTab: "Einreichungen", brandingTab: "Branding", botTab: "Bot", statusesTab: "Status",
+    statuses: {
+      title: "Eigene Status",
+      intro: "Ergänze eigene Review-Status zusätzlich zur Standard-Pipeline. Reviewer können Einreichungen auf jeden davon setzen.",
+      defaultsTitle: "Standard-Status",
+      key: "Schlüssel", label: "Bezeichnung", color: "Farbe", terminal: "Endgültig", visible: "Für Bewerber sichtbar",
+      add: "Status hinzufügen", remove: "Entfernen",
+      save: "Status speichern", saving: "Wird gespeichert…", saved: "Gespeichert!",
+      empty: "Noch keine eigenen Status.",
+      errSave: "Status konnten nicht gespeichert werden.",
+      noPerm: "Du hast keine Berechtigung, Status zu verwalten.",
+    },
     yourGuilds: "Deine Guilds",
     noGuilds: "Du verwaltest noch keine Guilds.",
     noGuildsHint:

@@ -1,4 +1,5 @@
 import type { Route } from "next";
+import { prisma } from "@msk-forms/db";
 import { Card, StatusBadge } from "@msk-forms/ui";
 import Link from "next/link";
 
@@ -16,6 +17,10 @@ export default async function GuildSubmissionsPage({
 }) {
   const { guildId } = await params;
   const submissions = await getGuildSubmissions(guildId);
+  const statusDefs = await prisma.formStatusDef.findMany({
+    where: { guildId },
+    select: { key: true, label: true, color: true },
+  });
   const t = (await getDict()).dashboard;
   const href = (id: string) => `/dashboard/${guildId}/submissions/${id}` as Route;
 
@@ -41,7 +46,7 @@ export default async function GuildSubmissionsPage({
         </thead>
         <tbody>
           {submissions.map((s) => {
-            const status = resolveStatus(s.status, []);
+            const status = resolveStatus(s.status, statusDefs);
             return (
               <tr
                 key={s.id}
