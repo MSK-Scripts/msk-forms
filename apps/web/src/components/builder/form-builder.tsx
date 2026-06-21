@@ -18,6 +18,7 @@ export interface FormBuilderInitial {
   slug: string;
   status: string;
   visibility: string;
+  acceptedRoleId: string;
   pages: FormPage[];
 }
 
@@ -53,6 +54,7 @@ export function FormBuilder({
   const [slug, setSlug] = useState(initial.slug);
   const [status, setStatus] = useState(initial.status);
   const [visibility, setVisibility] = useState(initial.visibility);
+  const [acceptedRoleId, setAcceptedRoleId] = useState(initial.acceptedRoleId);
   const [pages, setPages] = useState<FormPage[]>(initial.pages);
   const [addType, setAddType] = useState<FieldType>("short_text");
   const [error, setError] = useState<string | null>(null);
@@ -122,6 +124,7 @@ export function FormBuilder({
       status,
       visibility,
       spec,
+      settings: acceptedRoleId.trim() ? { acceptedRoleId: acceptedRoleId.trim() } : {},
     };
 
     setSaving(true);
@@ -196,6 +199,13 @@ export function FormBuilder({
             />
           </Field>
         </div>
+        <Field label={t.acceptedRole} hint={t.acceptedRoleHint}>
+          <Input
+            value={acceptedRoleId}
+            placeholder="123456789012345678"
+            onChange={(e) => setAcceptedRoleId(e.target.value)}
+          />
+        </Field>
       </Card>
 
       {pages.map((page, pi) => (

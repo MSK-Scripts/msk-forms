@@ -2,6 +2,7 @@ import { changeSubmissionStatus, prisma } from "@msk-forms/db";
 import {
   DEFAULT_STATUSES,
   parseBotConfig,
+  parseFormSettings,
   type StatusChangeNotification,
 } from "@msk-forms/shared";
 import {
@@ -53,7 +54,7 @@ export async function handleReviewButton(interaction: ButtonInteraction): Promis
       status: true,
       userId: true,
       guildId: true,
-      form: { select: { title: true } },
+      form: { select: { title: true, settings: true } },
       guild: { select: { discordGuildId: true, botConfig: true } },
     },
   });
@@ -83,7 +84,10 @@ export async function handleReviewButton(interaction: ButtonInteraction): Promis
   });
 
   if (changed && action === "accept" && submission.userId) {
-    const roleId = parseBotConfig(submission.guild.botConfig).acceptedRoleId;
+    // Per-form accepted role overrides the guild-wide default.
+    const roleId =
+      parseFormSettings(submission.form.settings).acceptedRoleId ??
+      parseBotConfig(submission.guild.botConfig).acceptedRoleId;
     if (roleId) await grantRole(interaction, submission.userId, roleId);
   }
 

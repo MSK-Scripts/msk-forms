@@ -40,6 +40,7 @@ export async function POST(
         status: input.status,
         visibility: input.visibility,
         schema: input.spec as Prisma.InputJsonValue,
+        settings: (input.settings ?? {}) as Prisma.InputJsonValue,
         createdById: user.id,
       },
       select: { id: true },

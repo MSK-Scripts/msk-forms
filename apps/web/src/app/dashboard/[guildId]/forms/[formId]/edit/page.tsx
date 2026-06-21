@@ -1,6 +1,8 @@
 import { Card } from "@msk-forms/ui";
 import { notFound } from "next/navigation";
 
+import { parseFormSettings } from "@msk-forms/shared";
+
 import { FormBuilder } from "@/components/builder/form-builder";
 import { requireUser } from "@/lib/auth";
 import { getFormForEdit, parseFormSpec } from "@/lib/forms";
@@ -46,6 +48,7 @@ export default async function EditFormPage({
           slug: form.slug,
           status: form.status,
           visibility: form.visibility,
+          acceptedRoleId: parseFormSettings(form.settings).acceptedRoleId ?? "",
           pages: spec?.pages.length ? spec.pages : [{ id: "p1", title: "", fields: [] }],
         }}
       />

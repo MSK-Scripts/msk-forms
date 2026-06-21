@@ -66,6 +66,7 @@ export async function getFormForEdit(formId: string, guildId: string) {
       status: true,
       visibility: true,
       schema: true,
+      settings: true,
     },
   });
   if (!form || form.guildId !== guildId) return null;
