@@ -48,7 +48,8 @@ jobs:
             pnpm prisma migrate deploy
             pnpm prisma generate
 
-            echo "-> Build"
+            echo "-> Build (clean .next first to avoid stale standalone chunks)"
+            rm -rf apps/web/.next
             pnpm run build
 
             echo "-> Reload services via PM2 (zero-downtime)"
