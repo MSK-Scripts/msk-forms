@@ -55,7 +55,7 @@ export function LogoForm({
           <img
             src={logoUrl}
             alt=""
-            className="mb-2 h-16 w-auto rounded-md border border-border bg-background p-2"
+            className="mb-2 h-16 w-auto self-start max-w-full object-contain rounded-md border border-border bg-background p-2"
           />
         )}
         <input
