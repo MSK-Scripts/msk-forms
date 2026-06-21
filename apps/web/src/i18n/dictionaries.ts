@@ -133,9 +133,11 @@ const en = {
     options: "Options", optionPh: "Option", required: "Required", addOption: "Add option",
     moveUp: "Move up", moveDown: "Move down", remove: "Remove", removeOption: "Remove option",
     labelPh: "Question label…", headingPh: "Section heading…",
+    stars: "Stars", min: "Min", max: "Max", step: "Step",
     ft: {
       short_text: "Short text", long_text: "Long text", email: "Email", number: "Number", phone: "Phone", url: "URL",
       single_choice: "Single choice", dropdown: "Dropdown", multi_choice: "Multiple choice", yes_no: "Yes / No",
+      rating_stars: "Star rating", nps: "NPS (0–10)", slider: "Slider", emoji_scale: "Emoji scale",
       date: "Date", file_upload: "File upload", image_upload: "Image upload",
       consent: "Consent", heading: "Heading", paragraph: "Paragraph", divider: "Divider",
     },
@@ -285,9 +287,11 @@ const de: Dictionary = {
     options: "Optionen", optionPh: "Option", required: "Pflichtfeld", addOption: "Option hinzufügen",
     moveUp: "Nach oben", moveDown: "Nach unten", remove: "Entfernen", removeOption: "Option entfernen",
     labelPh: "Fragetext…", headingPh: "Abschnittsüberschrift…",
+    stars: "Sterne", min: "Min", max: "Max", step: "Schritt",
     ft: {
       short_text: "Kurztext", long_text: "Langtext", email: "E-Mail", number: "Zahl", phone: "Telefon", url: "URL",
       single_choice: "Einfachauswahl", dropdown: "Dropdown", multi_choice: "Mehrfachauswahl", yes_no: "Ja / Nein",
+      rating_stars: "Sterne-Bewertung", nps: "NPS (0–10)", slider: "Schieberegler", emoji_scale: "Emoji-Skala",
       date: "Datum", file_upload: "Datei-Upload", image_upload: "Bild-Upload",
       consent: "Zustimmung", heading: "Überschrift", paragraph: "Absatz", divider: "Trenner",
     },

@@ -3,7 +3,12 @@
 import type { FormField } from "@msk-forms/shared";
 import { Card, Checkbox, Field, Input } from "@msk-forms/ui";
 
-import { isLayoutType, needsOptions } from "@/lib/builder-fields";
+import {
+  isLayoutType,
+  needsOptions,
+  needsSliderConfig,
+  needsStarsConfig,
+} from "@/lib/builder-fields";
 import type { Dictionary } from "@/i18n";
 
 type BuilderDict = Dictionary["builder"];
@@ -47,6 +52,11 @@ export function FieldEditor({
   function removeOption(i: number) {
     patch({ options: (field.options ?? []).filter((_, j) => j !== i) });
   }
+  function setValidation(partial: Partial<FormField["validation"]>) {
+    patch({ validation: { ...field.validation, ...partial } });
+  }
+  /** Parse a numeric config input, treating an empty string as "unset". */
+  const num = (s: string): number | undefined => (s === "" ? undefined : Number(s));
 
   return (
     <Card className="flex flex-col gap-3 p-4">
@@ -110,6 +120,48 @@ export function FieldEditor({
                 </button>
               </div>
             </Field>
+          )}
+
+          {needsStarsConfig(field.type) && (
+            <Field label={t.stars}>
+              <Input
+                type="number"
+                min={1}
+                value={field.validation.max ?? ""}
+                placeholder="5"
+                onChange={(e) => setValidation({ max: num(e.target.value) })}
+              />
+            </Field>
+          )}
+
+          {needsSliderConfig(field.type) && (
+            <div className="grid grid-cols-3 gap-2">
+              <Field label={t.min}>
+                <Input
+                  type="number"
+                  value={field.validation.min ?? ""}
+                  placeholder="0"
+                  onChange={(e) => setValidation({ min: num(e.target.value) })}
+                />
+              </Field>
+              <Field label={t.max}>
+                <Input
+                  type="number"
+                  value={field.validation.max ?? ""}
+                  placeholder="100"
+                  onChange={(e) => setValidation({ max: num(e.target.value) })}
+                />
+              </Field>
+              <Field label={t.step}>
+                <Input
+                  type="number"
+                  min={1}
+                  value={field.validation.step ?? ""}
+                  placeholder="1"
+                  onChange={(e) => setValidation({ step: num(e.target.value) })}
+                />
+              </Field>
+            </div>
           )}
 
           <Checkbox

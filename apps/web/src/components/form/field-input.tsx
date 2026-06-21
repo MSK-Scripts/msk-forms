@@ -1,6 +1,6 @@
 "use client";
 
-import type { FileAnswer, FormField } from "@msk-forms/shared";
+import { EMOJI_SCALE, scaleBounds, type FileAnswer, type FormField } from "@msk-forms/shared";
 import {
   Checkbox,
   CheckboxGroup,
@@ -11,6 +11,7 @@ import {
 } from "@msk-forms/ui";
 
 import { FileField, type FileFieldLabels } from "./file-field";
+import { ScaleButtons, SliderInput, StarRating } from "./rating-fields";
 
 export type FieldValue = string | number | boolean | string[] | FileAnswer | undefined;
 
@@ -70,7 +71,6 @@ export function FieldInput({
       );
 
     case "number":
-    case "slider":
       return (
         <Input
           id={id}
@@ -82,6 +82,54 @@ export function FieldInput({
           onChange={(e) => onChange(e.target.value === "" ? undefined : Number(e.target.value))}
         />
       );
+
+    case "rating_stars": {
+      const { max } = scaleBounds(field);
+      return (
+        <StarRating value={value as number | undefined} max={max} disabled={disabled} onChange={onChange} />
+      );
+    }
+
+    case "nps": {
+      const { min, max } = scaleBounds(field);
+      return (
+        <ScaleButtons
+          value={value as number | undefined}
+          min={min}
+          max={max}
+          disabled={disabled}
+          onChange={onChange}
+        />
+      );
+    }
+
+    case "emoji_scale": {
+      const { min, max } = scaleBounds(field);
+      return (
+        <ScaleButtons
+          value={value as number | undefined}
+          min={min}
+          max={max}
+          renderLabel={(n) => EMOJI_SCALE[n - 1] ?? String(n)}
+          disabled={disabled}
+          onChange={onChange}
+        />
+      );
+    }
+
+    case "slider": {
+      const { min, max, step } = scaleBounds(field);
+      return (
+        <SliderInput
+          value={value as number | undefined}
+          min={min}
+          max={max}
+          step={step}
+          disabled={disabled}
+          onChange={onChange}
+        />
+      );
+    }
 
     case "single_choice":
       return (
