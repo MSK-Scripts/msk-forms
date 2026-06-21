@@ -95,12 +95,22 @@ export default async function GuildFormsPage({
                       )}
                     </span>
                   </div>
-                  <Link
-                    href={`/dashboard/${guildId}/forms/${form.id}/edit` as Route}
-                    className="shrink-0 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-                  >
-                    {t.edit}
-                  </Link>
+                  <div className="flex shrink-0 items-center gap-2">
+                    {form._count.submissions > 0 && (
+                      <a
+                        href={`/api/guilds/${guildId}/forms/${form.id}/export`}
+                        className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+                      >
+                        {t.exportCsv}
+                      </a>
+                    )}
+                    <Link
+                      href={`/dashboard/${guildId}/forms/${form.id}/edit` as Route}
+                      className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+                    >
+                      {t.edit}
+                    </Link>
+                  </div>
                 </div>
                 {form.status === "live" && qr && (
                   <ShareButton url={`${base}/f/${form.slug}`} qrDataUrl={qr} t={dict.share} />
