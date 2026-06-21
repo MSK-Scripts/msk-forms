@@ -63,6 +63,7 @@ const en = {
     deleteConfirm: "Permanently delete this submission and its uploaded files? This cannot be undone.",
     deleted: "Your submission has been deleted.",
     actionFailed: "Action failed. Please try again.",
+    cancel: "Cancel",
   },
   preview: {
     submission: "Your submission", title: "Whitelist application", inReview: "In review",
@@ -97,7 +98,7 @@ const en = {
       "Connecting a guild happens through the Discord bot invite. That flow lands in a later slice. For now, an admin can add you to a guild.",
     countForm: "form", countForms: "forms", countSubmissions: "submissions",
     newForm: "New form", noForms: "No forms yet. Create your first one.", edit: "Edit", exportCsv: "Export CSV",
-    deleteForm: "Delete", deleteFormConfirm: "Delete this form? All its submissions, files and activity will be permanently removed. This cannot be undone.", deleteFormFailed: "Could not delete the form.",
+    deleteForm: "Delete", deleteFormTitle: "Delete form?", deleteFormConfirm: "Delete this form? All its submissions, files and activity will be permanently removed. This cannot be undone.", deleteFormFailed: "Could not delete the form.", cancel: "Cancel",
     colApplicant: "Applicant", colForm: "Form", colDate: "Date", colStatus: "Status",
     anonymous: "Anonymous", noSubmissions: "No submissions yet.", open: "Open",
     mySubmissionsTitle: "My submissions", noMySubmissions: "You haven’t submitted any forms yet.",
@@ -253,6 +254,7 @@ const de: Dictionary = {
     deleteConfirm: "Diese Einreichung und alle hochgeladenen Dateien endgültig löschen? Das kann nicht rückgängig gemacht werden.",
     deleted: "Deine Einreichung wurde gelöscht.",
     actionFailed: "Aktion fehlgeschlagen. Bitte versuche es erneut.",
+    cancel: "Abbrechen",
   },
   preview: {
     submission: "Deine Einreichung", title: "Whitelist-Bewerbung", inReview: "In Prüfung",
@@ -287,7 +289,7 @@ const de: Dictionary = {
       "Eine Guild wird über die Discord-Bot-Einladung verbunden. Dieser Ablauf kommt in einem späteren Slice. Bis dahin kann dich ein Admin zu einer Guild hinzufügen.",
     countForm: "Formular", countForms: "Formulare", countSubmissions: "Einreichungen",
     newForm: "Neues Formular", noForms: "Noch keine Formulare. Erstelle dein erstes.", edit: "Bearbeiten", exportCsv: "CSV-Export",
-    deleteForm: "Löschen", deleteFormConfirm: "Dieses Formular löschen? Alle Einreichungen, Dateien und Aktivitäten werden unwiderruflich entfernt. Das kann nicht rückgängig gemacht werden.", deleteFormFailed: "Formular konnte nicht gelöscht werden.",
+    deleteForm: "Löschen", deleteFormTitle: "Formular löschen?", deleteFormConfirm: "Dieses Formular löschen? Alle Einreichungen, Dateien und Aktivitäten werden unwiderruflich entfernt. Das kann nicht rückgängig gemacht werden.", deleteFormFailed: "Formular konnte nicht gelöscht werden.", cancel: "Abbrechen",
     colApplicant: "Bewerber", colForm: "Formular", colDate: "Datum", colStatus: "Status",
     anonymous: "Anonym", noSubmissions: "Noch keine Einreichungen.", open: "Öffnen",
     mySubmissionsTitle: "Meine Einreichungen", noMySubmissions: "Du hast noch keine Formulare abgeschickt.",

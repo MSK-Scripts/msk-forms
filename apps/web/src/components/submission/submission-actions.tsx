@@ -4,6 +4,8 @@ import { Button } from "@msk-forms/ui";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { ConfirmDialog } from "@/components/confirm-dialog";
+
 export interface SubmissionActionLabels {
   yourData: string;
   withdraw: string;
@@ -13,6 +15,7 @@ export interface SubmissionActionLabels {
   deleteConfirm: string;
   deleted: string;
   actionFailed: string;
+  cancel: string;
 }
 
 /**
@@ -32,9 +35,10 @@ export function SubmissionActions({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deleted, setDeleted] = useState(false);
+  // Which destructive action is awaiting confirmation, if any.
+  const [confirming, setConfirming] = useState<null | "withdraw" | "delete">(null);
 
   async function withdraw() {
-    if (!window.confirm(t.withdrawConfirm)) return;
     setError(null);
     setBusy(true);
     try {
@@ -43,6 +47,7 @@ export function SubmissionActions({
         const data = (await res.json().catch(() => null)) as { error?: string } | null;
         throw new Error(data?.error ?? t.actionFailed);
       }
+      setConfirming(null);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : t.actionFailed);
@@ -52,7 +57,6 @@ export function SubmissionActions({
   }
 
   async function remove() {
-    if (!window.confirm(t.deleteConfirm)) return;
     setError(null);
     setBusy(true);
     try {
@@ -77,7 +81,14 @@ export function SubmissionActions({
       </h2>
       <div className="flex flex-wrap gap-3">
         {canWithdraw && (
-          <Button variant="ghost" onClick={withdraw} disabled={busy}>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setError(null);
+              setConfirming("withdraw");
+            }}
+            disabled={busy}
+          >
             {t.withdraw}
           </Button>
         )}
@@ -89,14 +100,40 @@ export function SubmissionActions({
         </a>
         <Button
           variant="ghost"
-          onClick={remove}
+          onClick={() => {
+            setError(null);
+            setConfirming("delete");
+          }}
           disabled={busy}
           className="text-destructive hover:text-destructive"
         >
           {t.deleteData}
         </Button>
       </div>
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && !confirming && <p className="text-sm text-destructive">{error}</p>}
+
+      <ConfirmDialog
+        open={confirming === "withdraw"}
+        title={t.withdraw}
+        message={t.withdrawConfirm}
+        confirmLabel={t.withdraw}
+        cancelLabel={t.cancel}
+        busy={busy}
+        error={confirming === "withdraw" ? error : null}
+        onConfirm={withdraw}
+        onCancel={() => setConfirming(null)}
+      />
+      <ConfirmDialog
+        open={confirming === "delete"}
+        title={t.deleteData}
+        message={t.deleteConfirm}
+        confirmLabel={t.deleteData}
+        cancelLabel={t.cancel}
+        busy={busy}
+        error={confirming === "delete" ? error : null}
+        onConfirm={remove}
+        onCancel={() => setConfirming(null)}
+      />
     </div>
   );
 }

@@ -96,6 +96,7 @@ export default async function SubmissionStatusPage({
             deleteConfirm: t.deleteConfirm,
             deleted: t.deleted,
             actionFailed: t.actionFailed,
+            cancel: t.cancel,
           }}
         />
       </section>
