@@ -120,7 +120,13 @@ export default async function GuildFormsPage({
                       <DeleteFormButton
                         guildId={guildId}
                         formId={form.id}
-                        t={{ delete: t.deleteForm, confirm: t.deleteFormConfirm, failed: t.deleteFormFailed }}
+                        t={{
+                          delete: t.deleteForm,
+                          title: t.deleteFormTitle,
+                          confirm: t.deleteFormConfirm,
+                          cancel: t.cancel,
+                          failed: t.deleteFormFailed,
+                        }}
                       />
                     )}
                   </div>
