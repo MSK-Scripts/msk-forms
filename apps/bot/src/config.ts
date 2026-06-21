@@ -9,6 +9,9 @@ export const config = {
   clientId: process.env.DISCORD_CLIENT_ID ?? "",
   apiBaseUrl: process.env.APP_URL ?? "http://localhost:3000",
   webhookSecret: process.env.INTERNAL_WEBHOOK_SECRET ?? "",
+  // Custom-status text shown under the bot in the member list (global to the
+  // bot). Override via BOT_ACTIVITY; empty string disables it.
+  activity: process.env.BOT_ACTIVITY ?? "📋 forms.msk-scripts.de",
 };
 
 /**
