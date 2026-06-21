@@ -46,7 +46,7 @@ export default async function EditFormPage({
           slug: form.slug,
           status: form.status,
           visibility: form.visibility,
-          fields: spec?.pages.flatMap((p) => p.fields) ?? [],
+          pages: spec?.pages.length ? spec.pages : [{ id: "p1", title: "", fields: [] }],
         }}
       />
     </div>

@@ -88,6 +88,9 @@ export default async function PublicFormPage({
           fileRemove: t.fileRemove,
           uploadFailed: t.uploadFailed,
           signatureClear: t.signatureClear,
+          next: t.next,
+          back: t.back,
+          step: t.step,
         }}
       />
     </Shell>

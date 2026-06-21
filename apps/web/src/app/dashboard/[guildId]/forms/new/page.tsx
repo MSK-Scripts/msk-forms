@@ -38,7 +38,7 @@ export default async function NewFormPage({
           slug: "",
           status: "draft",
           visibility: "public",
-          fields: [],
+          pages: [{ id: "p1", title: "", fields: [] }],
         }}
       />
     </div>

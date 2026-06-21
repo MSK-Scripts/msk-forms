@@ -5,6 +5,7 @@ import {
   isFieldVisible,
   isLayoutField,
   type FormField,
+  type FormPage,
   type FormSpec,
 } from "@msk-forms/shared";
 import { Button, Field } from "@msk-forms/ui";
@@ -42,6 +43,9 @@ export interface FormLabels {
   fileRemove: string;
   uploadFailed: string;
   signatureClear: string;
+  next: string;
+  back: string;
+  step: string;
 }
 
 export function FormRenderer({
@@ -58,6 +62,7 @@ export function FormRenderer({
   const router = useRouter();
   const [answers, setAnswers] = useState<Answers>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
@@ -65,9 +70,20 @@ export function FormRenderer({
   // fresh token) after a failed submit.
   const [captchaNonce, setCaptchaNonce] = useState(0);
 
-  const fields = spec.pages.flatMap((p) => p.fields);
-  // Re-evaluated every render so show/hide/require react to the latest answers.
-  const visibleFields = fields.filter((field) => isFieldVisible(field, answers));
+  const pages = spec.pages;
+  // A page is shown only if it has at least one currently-visible field, so a
+  // page whose fields are all hidden by conditions is skipped during paging.
+  const visibleFieldsOf = (page: FormPage) => page.fields.filter((f) => isFieldVisible(f, answers));
+  const shownPageIndices = pages
+    .map((_, i) => i)
+    .filter((i) => visibleFieldsOf(pages[i]!).length > 0);
+  // Fall back to the first shown page if the current step was hidden away.
+  const activeIndex = shownPageIndices.includes(step) ? step : (shownPageIndices[0] ?? 0);
+  const position = Math.max(0, shownPageIndices.indexOf(activeIndex));
+  const totalSteps = shownPageIndices.length;
+  const isFirst = position <= 0;
+  const isLast = position >= totalSteps - 1;
+  const activeFields = visibleFieldsOf(pages[activeIndex] ?? { id: "", fields: [] });
 
   function setAnswer(id: string, value: FieldValue) {
     setAnswers((prev) => ({ ...prev, [id]: value }));
@@ -79,22 +95,49 @@ export function FormRenderer({
     });
   }
 
-  function validate(): boolean {
-    const next: Record<string, string> = {};
-    for (const field of visibleFields) {
-      if (isLayout(field)) continue;
+  /** Required-field errors for a set of fields (visible ones only). */
+  function collectErrors(fields: FormField[]): Record<string, string> {
+    const out: Record<string, string> = {};
+    for (const field of fields) {
+      if (isLayout(field) || !isFieldVisible(field, answers)) continue;
       if (isFieldRequired(field, answers) && isEmpty(answers[field.id])) {
-        next[field.id] = labels.required;
+        out[field.id] = labels.required;
       }
     }
-    setErrors(next);
-    return Object.keys(next).length === 0;
+    return out;
+  }
+
+  function goNext() {
+    const pageErrors = collectErrors(activeFields);
+    if (Object.keys(pageErrors).length > 0) {
+      setErrors((prev) => ({ ...prev, ...pageErrors }));
+      return;
+    }
+    const nextIndex = shownPageIndices[position + 1];
+    if (nextIndex !== undefined) setStep(nextIndex);
+  }
+
+  function goBack() {
+    const prevIndex = shownPageIndices[position - 1];
+    if (prevIndex !== undefined) setStep(prevIndex);
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitError(null);
-    if (!validate()) return;
+
+    // Validate every visible field across all shown pages.
+    const allShownFields = shownPageIndices.flatMap((i) => visibleFieldsOf(pages[i]!));
+    const allErrors = collectErrors(allShownFields);
+    if (Object.keys(allErrors).length > 0) {
+      setErrors(allErrors);
+      // Jump to the first shown page that has an error.
+      const bad = shownPageIndices.find((i) =>
+        visibleFieldsOf(pages[i]!).some((f) => allErrors[f.id]),
+      );
+      if (bad !== undefined) setStep(bad);
+      return;
+    }
     if (captchaSiteKey && !captchaToken) {
       setSubmitError(labels.captchaRequired);
       return;
@@ -126,7 +169,22 @@ export function FormRenderer({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
-      {visibleFields.map((field) =>
+      {totalSteps > 1 && (
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {labels.step} {position + 1} / {totalSteps}
+            {pages[activeIndex]?.title ? ` — ${pages[activeIndex]!.title}` : ""}
+          </p>
+          <div className="h-1 w-full overflow-hidden rounded-full bg-secondary">
+            <div
+              className="h-full rounded-full bg-primary transition-all"
+              style={{ width: `${((position + 1) / totalSteps) * 100}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {activeFields.map((field) =>
         isLayout(field) ? (
           <LayoutBlock key={field.id} field={field} />
         ) : (
@@ -156,20 +214,27 @@ export function FormRenderer({
         ),
       )}
 
-      {captchaSiteKey && (
-        <TurnstileWidget
-          key={captchaNonce}
-          siteKey={captchaSiteKey}
-          onToken={setCaptchaToken}
-        />
+      {isLast && captchaSiteKey && (
+        <TurnstileWidget key={captchaNonce} siteKey={captchaSiteKey} onToken={setCaptchaToken} />
       )}
 
       {submitError && <p className="text-sm text-destructive">{submitError}</p>}
 
-      <div>
-        <Button type="submit" disabled={submitting}>
-          {submitting ? labels.submitting : labels.submit}
-        </Button>
+      <div className="flex items-center gap-3">
+        {!isFirst && (
+          <Button type="button" variant="ghost" onClick={goBack} disabled={submitting}>
+            {labels.back}
+          </Button>
+        )}
+        {isLast ? (
+          <Button type="submit" disabled={submitting}>
+            {submitting ? labels.submitting : labels.submit}
+          </Button>
+        ) : (
+          <Button type="button" onClick={goNext}>
+            {labels.next}
+          </Button>
+        )}
       </div>
     </form>
   );

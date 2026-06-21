@@ -1,6 +1,6 @@
 "use client";
 
-import type { FieldType, FormField } from "@msk-forms/shared";
+import type { FieldType, FormField, FormPage } from "@msk-forms/shared";
 import { Button, Card, Field, Input, Select, Textarea } from "@msk-forms/ui";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
@@ -18,7 +18,7 @@ export interface FormBuilderInitial {
   slug: string;
   status: string;
   visibility: string;
-  fields: FormField[];
+  pages: FormPage[];
 }
 
 const slugify = (s: string) =>
@@ -53,37 +53,68 @@ export function FormBuilder({
   const [slug, setSlug] = useState(initial.slug);
   const [status, setStatus] = useState(initial.status);
   const [visibility, setVisibility] = useState(initial.visibility);
-  const [fields, setFields] = useState<FormField[]>(initial.fields);
+  const [pages, setPages] = useState<FormPage[]>(initial.pages);
   const [addType, setAddType] = useState<FieldType>("short_text");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  function updateField(index: number, next: FormField) {
-    setFields((prev) => prev.map((f, i) => (i === index ? next : f)));
+  // Conditions can reference any field on any page, so offer the full list.
+  const allFields = pages.flatMap((p) => p.fields);
+
+  function mutatePage(pi: number, fn: (page: FormPage) => FormPage) {
+    setPages((prev) => prev.map((p, i) => (i === pi ? fn(p) : p)));
   }
-  function removeField(index: number) {
-    setFields((prev) => prev.filter((_, i) => i !== index));
+  function setPageTitle(pi: number, value: string) {
+    mutatePage(pi, (p) => ({ ...p, title: value }));
   }
-  function moveField(index: number, dir: -1 | 1) {
-    setFields((prev) => {
-      const target = index + dir;
+  function addPage() {
+    setPages((prev) => [...prev, { id: crypto.randomUUID(), title: "", fields: [] }]);
+  }
+  function removePage(pi: number) {
+    setPages((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== pi)));
+  }
+  function movePage(pi: number, dir: -1 | 1) {
+    setPages((prev) => {
+      const target = pi + dir;
       if (target < 0 || target >= prev.length) return prev;
       const next = [...prev];
-      [next[index], next[target]] = [next[target]!, next[index]!];
+      [next[pi], next[target]] = [next[target]!, next[pi]!];
       return next;
     });
   }
-  function addField() {
-    setFields((prev) => [...prev, newField(addType)]);
+  function updateField(pi: number, fi: number, next: FormField) {
+    mutatePage(pi, (p) => ({ ...p, fields: p.fields.map((f, i) => (i === fi ? next : f)) }));
+  }
+  function removeField(pi: number, fi: number) {
+    mutatePage(pi, (p) => ({ ...p, fields: p.fields.filter((_, i) => i !== fi) }));
+  }
+  function moveField(pi: number, fi: number, dir: -1 | 1) {
+    mutatePage(pi, (p) => {
+      const target = fi + dir;
+      if (target < 0 || target >= p.fields.length) return p;
+      const fields = [...p.fields];
+      [fields[fi], fields[target]] = [fields[target]!, fields[fi]!];
+      return { ...p, fields };
+    });
+  }
+  function addField(pi: number) {
+    mutatePage(pi, (p) => ({ ...p, fields: [...p.fields, newField(addType)] }));
   }
 
   async function save() {
     setError(null);
     if (!title.trim()) return setError(t.errTitle);
     if (!slug.trim()) return setError(t.errSlug);
-    if (fields.length === 0) return setError(t.errFields);
+    if (allFields.length === 0) return setError(t.errFields);
 
-    const spec = { version: 1, pages: [{ id: "p1", fields }] };
+    const spec = {
+      version: 1,
+      pages: pages.map((p) => ({
+        id: p.id,
+        title: p.title?.trim() || undefined,
+        fields: p.fields,
+      })),
+    };
     const payload = {
       title: title.trim(),
       description: description.trim() || null,
@@ -114,6 +145,11 @@ export function FormBuilder({
       setSaving(false);
     }
   }
+
+  const typeOptions = BUILDER_FIELDS.map((f) => ({
+    value: f.type,
+    label: (t.ft as Record<string, string>)[f.type] ?? f.label,
+  }));
 
   return (
     <div className="flex flex-col gap-6">
@@ -162,38 +198,71 @@ export function FormBuilder({
         </div>
       </Card>
 
-      <div className="flex flex-col gap-3">
-        {fields.map((field, i) => (
-          <FieldEditor
-            key={field.id}
-            field={field}
-            fields={fields}
-            index={i}
-            isFirst={i === 0}
-            isLast={i === fields.length - 1}
-            onChange={(next) => updateField(i, next)}
-            onRemove={() => removeField(i)}
-            onMove={(dir) => moveField(i, dir)}
-            t={t}
-          />
-        ))}
-      </div>
+      {pages.map((page, pi) => (
+        <Card key={page.id} className="flex flex-col gap-3 p-4">
+          <div className="flex items-center gap-2">
+            <span className="shrink-0 text-xs font-semibold uppercase tracking-wide text-primary">
+              {t.page} {pi + 1}
+            </span>
+            <Input
+              value={page.title ?? ""}
+              placeholder={t.pageTitlePh}
+              onChange={(e) => setPageTitle(pi, e.target.value)}
+            />
+            <PageButton label={t.moveUp} disabled={pi === 0} onClick={() => movePage(pi, -1)}>
+              ↑
+            </PageButton>
+            <PageButton
+              label={t.moveDown}
+              disabled={pi === pages.length - 1}
+              onClick={() => movePage(pi, 1)}
+            >
+              ↓
+            </PageButton>
+            <PageButton
+              label={t.removePage}
+              disabled={pages.length <= 1}
+              onClick={() => removePage(pi)}
+            >
+              ✕
+            </PageButton>
+          </div>
 
-      <Card className="flex items-end gap-3 p-4">
-        <Field label={t.addField}>
-          <Select
-            value={addType}
-            onChange={(e) => setAddType(e.target.value as FieldType)}
-            options={BUILDER_FIELDS.map((f) => ({
-              value: f.type,
-              label: (t.ft as Record<string, string>)[f.type] ?? f.label,
-            }))}
-          />
-        </Field>
-        <Button variant="ghost" type="button" onClick={addField}>
-          + {t.add}
+          {page.fields.map((field, fi) => (
+            <FieldEditor
+              key={field.id}
+              field={field}
+              fields={allFields}
+              index={fi}
+              isFirst={fi === 0}
+              isLast={fi === page.fields.length - 1}
+              onChange={(next) => updateField(pi, fi, next)}
+              onRemove={() => removeField(pi, fi)}
+              onMove={(dir) => moveField(pi, fi, dir)}
+              t={t}
+            />
+          ))}
+
+          <div className="flex items-end gap-3 border-t border-border pt-3">
+            <Field label={t.addField}>
+              <Select
+                value={addType}
+                onChange={(e) => setAddType(e.target.value as FieldType)}
+                options={typeOptions}
+              />
+            </Field>
+            <Button variant="ghost" type="button" onClick={() => addField(pi)}>
+              + {t.add}
+            </Button>
+          </div>
+        </Card>
+      ))}
+
+      <div>
+        <Button variant="ghost" type="button" onClick={addPage}>
+          + {t.addPage}
         </Button>
-      </Card>
+      </div>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
@@ -210,5 +279,29 @@ export function FormBuilder({
         </button>
       </div>
     </div>
+  );
+}
+
+function PageButton({
+  children,
+  label,
+  disabled,
+  onClick,
+}: {
+  children: React.ReactNode;
+  label: string;
+  disabled?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      disabled={disabled}
+      onClick={onClick}
+      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
+    >
+      {children}
+    </button>
   );
 }

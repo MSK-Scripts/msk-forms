@@ -49,6 +49,7 @@ const en = {
     captchaRequired: "Please complete the captcha.",
     fileUploading: "Uploading…", fileRemove: "Remove", uploadFailed: "Upload failed.",
     signatureClear: "Clear",
+    next: "Next", back: "Back", step: "Step",
   },
   status: {
     yourSubmission: "Your submission", activity: "Activity", yourAnswers: "Your answers",
@@ -127,6 +128,7 @@ const en = {
     statusDraft: "Draft", statusLive: "Live", statusClosed: "Closed", statusArchived: "Archived",
     visPublic: "Public", visAuth: "Login required",
     addField: "Add field", add: "Add",
+    page: "Page", addPage: "Add page", removePage: "Remove page", pageTitlePh: "Page title (optional)…",
     saving: "Saving…", saveChanges: "Save changes", createForm: "Create form", cancel: "Cancel",
     errTitle: "Title is required.", errSlug: "Slug is required.", errFields: "Add at least one field.",
     errSave: "Could not save the form.",
@@ -217,6 +219,7 @@ const de: Dictionary = {
     captchaRequired: "Bitte das Captcha lösen.",
     fileUploading: "Wird hochgeladen…", fileRemove: "Entfernen", uploadFailed: "Upload fehlgeschlagen.",
     signatureClear: "Löschen",
+    next: "Weiter", back: "Zurück", step: "Schritt",
   },
   status: {
     yourSubmission: "Deine Einreichung", activity: "Aktivität", yourAnswers: "Deine Antworten",
@@ -295,6 +298,7 @@ const de: Dictionary = {
     statusDraft: "Entwurf", statusLive: "Live", statusClosed: "Geschlossen", statusArchived: "Archiviert",
     visPublic: "Öffentlich", visAuth: "Anmeldung erforderlich",
     addField: "Feld hinzufügen", add: "Hinzufügen",
+    page: "Seite", addPage: "Seite hinzufügen", removePage: "Seite entfernen", pageTitlePh: "Seitentitel (optional)…",
     saving: "Wird gespeichert…", saveChanges: "Änderungen speichern", createForm: "Formular erstellen", cancel: "Abbrechen",
     errTitle: "Titel ist erforderlich.", errSlug: "Slug ist erforderlich.", errFields: "Füge mindestens ein Feld hinzu.",
     errSave: "Formular konnte nicht gespeichert werden.",
