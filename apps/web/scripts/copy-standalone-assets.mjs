@@ -8,7 +8,7 @@
 // "Could not load the sharp module … libvips-cpp.so… cannot open shared object
 // file". So we copy sharp + its platform `@img/*` binaries in explicitly.
 import { cpSync, existsSync, readdirSync, realpathSync, rmSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const webRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -48,6 +48,11 @@ function walkImgScope(scopeDir, destImg, seen) {
  * (platform module + libvips + colour) into the standalone bundle. Next 16's
  * Turbopack build keeps sharp external but doesn't trace these into
  * `output: standalone`, so the runtime require fails without this.
+ *
+ * Next actually loads sharp from the standalone ROOT pnpm store
+ * (`node_modules/.pnpm/sharp@<ver>/node_modules/sharp`), not from the app's
+ * own node_modules — so the @img closure must land *next to that copy*. We
+ * also drop it into `apps/web/node_modules/@img` as a belt-and-braces fallback.
  */
 function copySharp() {
   // Resolve via the filesystem symlink (not require.resolve — sharp's `exports`
@@ -62,17 +67,26 @@ function copySharp() {
   }
   // realpath → …/.pnpm/sharp@<ver>/node_modules/sharp
   const sharpDir = realpathSync(link);
-  const destNodeModules = join(standaloneWeb, "node_modules");
+  const sharpScope = join(dirname(sharpDir), "@img"); // sharp's direct @img deps
+  const pnpmSharpDir = basename(dirname(dirname(sharpDir))); // e.g. "sharp@0.35.2"
+  const standaloneRoot = join(webRoot, ".next", "standalone");
 
-  rmSync(join(destNodeModules, "sharp"), { recursive: true, force: true });
-  cpSync(sharpDir, join(destNodeModules, "sharp"), { recursive: true, dereference: true });
-  console.log("copied sharp");
+  // Every place a matching sharp lives in the bundle gets the @img closure next
+  // to it. The pnpm-store copy is the one Next loads; the app copy is a fallback.
+  const sharpHomes = [
+    join(standaloneRoot, "node_modules", ".pnpm", pnpmSharpDir, "node_modules"),
+    join(standaloneWeb, "node_modules"),
+  ];
 
-  // sharp's @img deps live next to it (…/sharp@ver/node_modules/@img); walk the
-  // whole closure so libvips comes along with the right version.
-  const destImg = join(destNodeModules, "@img");
-  rmSync(destImg, { recursive: true, force: true });
-  walkImgScope(join(dirname(sharpDir), "@img"), destImg, new Set());
+  for (const home of sharpHomes) {
+    if (!existsSync(home)) continue;
+    rmSync(join(home, "sharp"), { recursive: true, force: true });
+    cpSync(sharpDir, join(home, "sharp"), { recursive: true, dereference: true });
+    const destImg = join(home, "@img");
+    rmSync(destImg, { recursive: true, force: true });
+    walkImgScope(sharpScope, destImg, new Set());
+    console.log(`sharp + @img closure -> ${home}`);
+  }
 }
 
 if (!existsSync(standaloneWeb)) {
