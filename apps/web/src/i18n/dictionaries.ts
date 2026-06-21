@@ -96,7 +96,7 @@ const en = {
     noGuildsHint:
       "Connecting a guild happens through the Discord bot invite. That flow lands in a later slice. For now, an admin can add you to a guild.",
     countForm: "form", countForms: "forms", countSubmissions: "submissions",
-    newForm: "New form", noForms: "No forms yet. Create your first one.", edit: "Edit",
+    newForm: "New form", noForms: "No forms yet. Create your first one.", edit: "Edit", exportCsv: "Export CSV",
     colApplicant: "Applicant", colForm: "Form", colDate: "Date", colStatus: "Status",
     anonymous: "Anonymous", noSubmissions: "No submissions yet.", open: "Open",
     mySubmissionsTitle: "My submissions", noMySubmissions: "You haven’t submitted any forms yet.",
@@ -285,7 +285,7 @@ const de: Dictionary = {
     noGuildsHint:
       "Eine Guild wird über die Discord-Bot-Einladung verbunden. Dieser Ablauf kommt in einem späteren Slice. Bis dahin kann dich ein Admin zu einer Guild hinzufügen.",
     countForm: "Formular", countForms: "Formulare", countSubmissions: "Einreichungen",
-    newForm: "Neues Formular", noForms: "Noch keine Formulare. Erstelle dein erstes.", edit: "Bearbeiten",
+    newForm: "Neues Formular", noForms: "Noch keine Formulare. Erstelle dein erstes.", edit: "Bearbeiten", exportCsv: "CSV-Export",
     colApplicant: "Bewerber", colForm: "Formular", colDate: "Datum", colStatus: "Status",
     anonymous: "Anonym", noSubmissions: "Noch keine Einreichungen.", open: "Öffnen",
     mySubmissionsTitle: "Meine Einreichungen", noMySubmissions: "Du hast noch keine Formulare abgeschickt.",
