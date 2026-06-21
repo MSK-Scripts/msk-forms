@@ -79,6 +79,7 @@ const en = {
       saveFailed: "Could not update status.",
       noPerm: "You don’t have permission to review submissions.",
     },
+    bulk: { selected: "selected", apply: "Apply", applying: "Applying…", failed: "Bulk update failed." },
     statuses: {
       title: "Custom statuses",
       intro: "Add your own review statuses on top of the built-in pipeline. Reviewers can move submissions to any of them.",
@@ -267,6 +268,7 @@ const de: Dictionary = {
       saveFailed: "Status konnte nicht geändert werden.",
       noPerm: "Du hast keine Berechtigung, Einreichungen zu prüfen.",
     },
+    bulk: { selected: "ausgewählt", apply: "Anwenden", applying: "Wird angewendet…", failed: "Massenänderung fehlgeschlagen." },
     statuses: {
       title: "Eigene Status",
       intro: "Ergänze eigene Review-Status zusätzlich zur Standard-Pipeline. Reviewer können Einreichungen auf jeden davon setzen.",
