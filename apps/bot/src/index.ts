@@ -1,4 +1,4 @@
-import { Client, Events, GatewayIntentBits, MessageFlags } from "discord.js";
+import { ActivityType, Client, Events, GatewayIntentBits, MessageFlags } from "discord.js";
 
 import { registerCommands } from "./commands.js";
 import { assertConfig, config } from "./config.js";
@@ -21,6 +21,13 @@ export function createClient(): Client {
 
   client.once(Events.ClientReady, async (c) => {
     console.info(`[bot] Logged in as ${c.user.tag} — ${c.guilds.cache.size} guild(s).`);
+    // Member-list subtitle (custom status). Global to the bot; configurable via BOT_ACTIVITY.
+    if (config.activity) {
+      c.user.setPresence({
+        status: "online",
+        activities: [{ name: "MSK Forms", type: ActivityType.Custom, state: config.activity }],
+      });
+    }
     await syncAllGuilds(c);
     // Drain the outbox now, then poll on an interval.
     void deliverPendingNotifications(c);
