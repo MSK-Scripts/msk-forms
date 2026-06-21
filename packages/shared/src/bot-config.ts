@@ -12,6 +12,12 @@ export const botConfigSchema = z.object({
   reviewChannelId: snowflake.optional(),
   /** Role granted to the applicant when a submission is accepted. */
   acceptedRoleId: snowflake.optional(),
+  /**
+   * When set, the bot posts forms/embeds through a webhook using this display
+   * name and the guild's branding logo as the avatar (per-guild appearance).
+   * Empty/unset → posts as the bot itself.
+   */
+  postName: z.string().min(1).max(80).optional(),
 });
 
 export type BotConfig = z.infer<typeof botConfigSchema>;
