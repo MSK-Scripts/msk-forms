@@ -225,9 +225,12 @@ export function FieldInput({
       );
 
     case "date":
+    case "time":
+    case "datetime":
       return (
         <DateField
           id={id}
+          mode={field.type}
           value={value as string | undefined}
           onChange={onChange}
           invalid={invalid}
@@ -236,21 +239,6 @@ export function FieldInput({
           labels={dateLabels}
         />
       );
-
-    case "time":
-    case "datetime": {
-      const inputType = field.type === "time" ? "time" : "datetime-local";
-      return (
-        <Input
-          id={id}
-          type={inputType}
-          value={(value as string) ?? ""}
-          invalid={invalid}
-          disabled={disabled}
-          onChange={(e) => onChange(e.target.value)}
-        />
-      );
-    }
 
     // short_text, email, phone, url, password and any other single-line text.
     default: {
