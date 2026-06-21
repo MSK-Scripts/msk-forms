@@ -1,4 +1,4 @@
-import { changeSubmissionStatus, Prisma, prisma } from "@msk-forms/db";
+import { changeSubmissionStatus, notifySubmissionChange, Prisma, prisma } from "@msk-forms/db";
 import {
   DEFAULT_STATUSES,
   type MessageNotification,
@@ -131,5 +131,7 @@ export async function POST(
     );
   }
   await prisma.$transaction(ops);
+  // Realtime: a new public message is fresh activity on the status page.
+  await notifySubmissionChange(id);
   return NextResponse.json({ ok: true });
 }

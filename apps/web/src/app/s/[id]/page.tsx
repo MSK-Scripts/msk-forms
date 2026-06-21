@@ -3,6 +3,7 @@ import { StatusBadge } from "@msk-forms/ui";
 import { notFound } from "next/navigation";
 
 import { AnswerSummary } from "@/components/submission/answer-summary";
+import { StatusLive } from "@/components/submission/status-live";
 import { SubmissionActions } from "@/components/submission/submission-actions";
 import { brandStyle, logoUrl, parseBranding } from "@/lib/branding";
 import { getSubmissionForStatus, resolveStatus } from "@/lib/forms";
@@ -31,6 +32,7 @@ export default async function SubmissionStatusPage({
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12" style={brand}>
+      <StatusLive submissionId={submission.id} />
       <header className="flex flex-col gap-3">
         {logo && <img src={logo} alt="" className="h-12 w-auto self-start" />}
         <span className="text-sm font-medium text-primary">{t.yourSubmission}</span>
