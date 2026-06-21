@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { formInputSchema } from "@/lib/form-input";
 import { canManageForms } from "@/lib/guild";
+import { deleteObject } from "@/lib/s3";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -58,4 +59,41 @@ export async function PATCH(
     }
     throw err;
   }
+}
+
+/**
+ * Delete a form and everything under it (versions, submissions, events, files,
+ * status defs all cascade). Owner/admin only, form ∈ guild. Stored file objects
+ * are purged from object storage best-effort after the row is gone.
+ */
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ guildId: string; formId: string }> },
+) {
+  const { guildId, formId } = await params;
+
+  const user = await getCurrentUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  if (!(await canManageForms(guildId, user.id))) {
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+  }
+
+  const existing = await prisma.form.findUnique({
+    where: { id: formId },
+    select: { guildId: true },
+  });
+  if (!existing || existing.guildId !== guildId) {
+    return NextResponse.json({ error: "Form not found." }, { status: 404 });
+  }
+
+  // Collect stored object keys before the cascade removes the rows.
+  const files = await prisma.fileUpload.findMany({
+    where: { submission: { formId } },
+    select: { storageKey: true },
+  });
+
+  await prisma.form.delete({ where: { id: formId } });
+  await Promise.all(files.map((f) => deleteObject(f.storageKey)));
+
+  return NextResponse.json({ ok: true });
 }

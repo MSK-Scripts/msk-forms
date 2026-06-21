@@ -3,9 +3,11 @@ import type { Route } from "next";
 import Link from "next/link";
 import QRCode from "qrcode";
 
+import { DeleteFormButton } from "@/components/dashboard/delete-form-button";
 import { ShareButton } from "@/components/dashboard/share-button";
+import { requireUser } from "@/lib/auth";
 import { appBaseUrl } from "@/lib/url";
-import { getGuildForms } from "@/lib/guild";
+import { canManageForms, getGuildForms } from "@/lib/guild";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -24,7 +26,11 @@ export default async function GuildFormsPage({
   params: Promise<{ guildId: string }>;
 }) {
   const { guildId } = await params;
-  const forms = await getGuildForms(guildId);
+  const user = await requireUser(`/dashboard/${guildId}/forms`);
+  const [forms, canManage] = await Promise.all([
+    getGuildForms(guildId),
+    canManageForms(guildId, user.id),
+  ]);
   const base = appBaseUrl();
   const dict = await getDict();
   const t = dict.dashboard;
@@ -110,6 +116,13 @@ export default async function GuildFormsPage({
                     >
                       {t.edit}
                     </Link>
+                    {canManage && (
+                      <DeleteFormButton
+                        guildId={guildId}
+                        formId={form.id}
+                        t={{ delete: t.deleteForm, confirm: t.deleteFormConfirm, failed: t.deleteFormFailed }}
+                      />
+                    )}
                   </div>
                 </div>
                 {form.status === "live" && qr && (
