@@ -1,6 +1,6 @@
 import { NavTabs, type NavTab } from "@/components/dashboard/nav-tabs";
 import { requireUser } from "@/lib/auth";
-import { MANAGER_ROLES, requireGuildMembership } from "@/lib/guild";
+import { MANAGER_ROLES, REVIEWER_ROLES, requireGuildMembership } from "@/lib/guild";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -19,9 +19,13 @@ export default async function GuildLayout({
   const t = (await getDict()).dashboard;
 
   const canManage = (MANAGER_ROLES as readonly string[]).includes(guild.role);
+  const canReview = (REVIEWER_ROLES as readonly string[]).includes(guild.role);
   const tabs: NavTab[] = [
     { href: `/dashboard/${guildId}/forms`, label: t.formsTab, prefix: true },
     { href: `/dashboard/${guildId}/submissions`, label: t.submissionsTab, prefix: true },
+    ...(canReview
+      ? [{ href: `/dashboard/${guildId}/board`, label: t.boardTab, prefix: true }]
+      : []),
     ...(canManage
       ? [
           { href: `/dashboard/${guildId}/statuses`, label: t.statusesTab, prefix: true },

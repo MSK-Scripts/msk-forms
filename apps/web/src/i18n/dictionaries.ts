@@ -71,7 +71,14 @@ const en = {
     note: "Looks solid. Confirming your in-game name, then you’re in.",
   },
   dashboard: {
-    guilds: "Guilds", mySubmissions: "My Submissions", formsTab: "Forms", submissionsTab: "Submissions", brandingTab: "Branding", botTab: "Bot", statusesTab: "Statuses",
+    guilds: "Guilds", mySubmissions: "My Submissions", formsTab: "Forms", submissionsTab: "Submissions", boardTab: "Board", brandingTab: "Branding", botTab: "Bot", statusesTab: "Statuses",
+    board: {
+      title: "Board",
+      moveTo: "Move to",
+      columnEmpty: "Nothing here.",
+      saveFailed: "Could not update status.",
+      noPerm: "You don’t have permission to review submissions.",
+    },
     statuses: {
       title: "Custom statuses",
       intro: "Add your own review statuses on top of the built-in pipeline. Reviewers can move submissions to any of them.",
@@ -252,7 +259,14 @@ const de: Dictionary = {
     note: "Sieht gut aus. Wir bestätigen deinen In-Game-Namen, dann bist du dabei.",
   },
   dashboard: {
-    guilds: "Guilds", mySubmissions: "Meine Einreichungen", formsTab: "Formulare", submissionsTab: "Einreichungen", brandingTab: "Branding", botTab: "Bot", statusesTab: "Status",
+    guilds: "Guilds", mySubmissions: "Meine Einreichungen", formsTab: "Formulare", submissionsTab: "Einreichungen", boardTab: "Board", brandingTab: "Branding", botTab: "Bot", statusesTab: "Status",
+    board: {
+      title: "Board",
+      moveTo: "Verschieben nach",
+      columnEmpty: "Nichts hier.",
+      saveFailed: "Status konnte nicht geändert werden.",
+      noPerm: "Du hast keine Berechtigung, Einreichungen zu prüfen.",
+    },
     statuses: {
       title: "Eigene Status",
       intro: "Ergänze eigene Review-Status zusätzlich zur Standard-Pipeline. Reviewer können Einreichungen auf jeden davon setzen.",
