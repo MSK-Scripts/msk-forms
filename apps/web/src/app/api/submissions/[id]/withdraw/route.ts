@@ -1,4 +1,4 @@
-import { prisma } from "@msk-forms/db";
+import { notifySubmissionChange, prisma } from "@msk-forms/db";
 import { DEFAULT_STATUSES } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -62,5 +62,6 @@ export async function POST(
       { status: 409 },
     );
   }
+  await notifySubmissionChange(id); // realtime: reflect the withdrawal live
   return NextResponse.json({ ok: true });
 }

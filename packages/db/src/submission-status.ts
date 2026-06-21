@@ -78,6 +78,23 @@ export async function changeSubmissionStatus(
       });
     }
 
+    // Realtime: announce the change so the applicant's status page updates live
+    // (the realtime service LISTENs on this channel). Fires on commit.
+    await tx.$executeRaw`SELECT pg_notify('submission_change', ${submissionId})`;
+
     return { changed: true, fromStatus: current.status };
   });
+}
+
+/**
+ * Best-effort realtime ping for a submission change that didn't go through
+ * {@link changeSubmissionStatus} (e.g. a public message or a withdrawal). Never
+ * throws — a missing/failed notification must not fail the request.
+ */
+export async function notifySubmissionChange(submissionId: string): Promise<void> {
+  try {
+    await prisma.$executeRaw`SELECT pg_notify('submission_change', ${submissionId})`;
+  } catch (err) {
+    console.error("[notify] pg_notify failed:", (err as Error).message);
+  }
 }
