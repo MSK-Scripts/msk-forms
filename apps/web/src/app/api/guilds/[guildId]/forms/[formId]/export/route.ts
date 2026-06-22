@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
 import { getSubmissionsTable } from "@/lib/forms";
-import { canReviewSubmissions } from "@/lib/guild";
+import { canReviewForm } from "@/lib/guild";
 import { submissionsPdf } from "@/lib/pdf";
 import { isGuildPro } from "@/lib/plan";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
@@ -36,7 +36,7 @@ export async function GET(
 
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-  if (!(await canReviewSubmissions(guildId, user.id))) {
+  if (!(await canReviewForm(guildId, user.id, formId))) {
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 

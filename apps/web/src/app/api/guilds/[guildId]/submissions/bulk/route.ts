@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
 import { resolveStatus } from "@/lib/forms";
-import { canReviewSubmissions } from "@/lib/guild";
+import { getReviewScope } from "@/lib/guild";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -25,7 +25,8 @@ export async function POST(
 
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-  if (!(await canReviewSubmissions(guildId, user.id))) {
+  const scope = await getReviewScope(guildId, user.id);
+  if (!scope.all && scope.formIds.length === 0) {
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
@@ -46,9 +47,14 @@ export async function POST(
     return NextResponse.json({ error: "Unknown status." }, { status: 422 });
   }
 
-  // Scope to this guild — never touch submissions from another guild.
+  // Scope to this guild and to the forms the reviewer may review (per-form
+  // reviewers can only bulk-act on their own forms; others are silently skipped).
   const subs = await prisma.submission.findMany({
-    where: { id: { in: ids }, guildId },
+    where: {
+      id: { in: ids },
+      guildId,
+      ...(scope.all ? {} : { formId: { in: scope.formIds } }),
+    },
     select: { id: true, userId: true, form: { select: { title: true } } },
   });
   const label = resolveStatus(status, defs, (await getDict()).statusLabels).label;

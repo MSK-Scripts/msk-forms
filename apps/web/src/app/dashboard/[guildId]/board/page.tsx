@@ -4,7 +4,7 @@ import { Card } from "@msk-forms/ui";
 import { KanbanBoard, type BoardColumn } from "@/components/board/kanban-board";
 import { requireUser } from "@/lib/auth";
 import { resolveStatus, statusOptions } from "@/lib/forms";
-import { canReviewSubmissions, getGuildSubmissions } from "@/lib/guild";
+import { getGuildSubmissions, getReviewScope } from "@/lib/guild";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -20,7 +20,8 @@ export default async function BoardPage({
   const dict = await getDict();
   const t = dict.dashboard;
 
-  if (!(await canReviewSubmissions(guildId, user.id))) {
+  const scope = await getReviewScope(guildId, user.id);
+  if (!scope.all && scope.formIds.length === 0) {
     return (
       <Card className="p-8">
         <p className="text-muted-foreground">{t.board.noPerm}</p>
@@ -29,7 +30,7 @@ export default async function BoardPage({
   }
 
   const [submissions, defs] = await Promise.all([
-    getGuildSubmissions(guildId),
+    getGuildSubmissions(guildId, scope),
     prisma.formStatusDef.findMany({
       where: { guildId },
       orderBy: { order: "asc" },

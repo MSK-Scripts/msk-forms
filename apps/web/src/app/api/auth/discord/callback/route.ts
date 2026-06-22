@@ -2,7 +2,13 @@ import { prisma } from "@msk-forms/db";
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 
-import { discordAvatarUrl, exchangeCode, fetchDiscordUser, mapLocale } from "@/lib/discord";
+import {
+  discordAvatarUrl,
+  exchangeCode,
+  fetchDiscordGuildIds,
+  fetchDiscordUser,
+  mapLocale,
+} from "@/lib/discord";
 import { getSession } from "@/lib/session";
 import { absoluteUrl } from "@/lib/url";
 
@@ -50,6 +56,28 @@ export async function GET(request: NextRequest) {
         email: discordUser.email ?? null,
       },
     });
+
+    // Auto-provision membership: for every Discord guild the user is in that has
+    // MSK Forms installed, add them as a `viewer` (never downgrade an existing
+    // role). An owner/admin can then promote them on the members page.
+    try {
+      const guildIds = await fetchDiscordGuildIds(token.access_token);
+      if (guildIds.length > 0) {
+        const guilds = await prisma.guild.findMany({
+          where: { discordGuildId: { in: guildIds } },
+          select: { id: true },
+        });
+        for (const g of guilds) {
+          await prisma.guildMember.upsert({
+            where: { guildId_userId: { guildId: g.id, userId: user.id } },
+            update: {},
+            create: { guildId: g.id, userId: user.id, role: "viewer" },
+          });
+        }
+      }
+    } catch (err) {
+      console.error("[auth] guild auto-provision failed:", (err as Error).message);
+    }
 
     const session = await getSession();
     session.userId = user.id;

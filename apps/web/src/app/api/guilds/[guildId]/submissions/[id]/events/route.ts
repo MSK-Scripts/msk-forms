@@ -8,7 +8,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
 import { resolveStatus } from "@/lib/forms";
-import { canReviewSubmissions } from "@/lib/guild";
+import { canReviewForm } from "@/lib/guild";
 import { submissionActionSchema } from "@/lib/submission-action";
 import { getDict } from "@/i18n";
 
@@ -28,14 +28,12 @@ export async function POST(
 
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-  if (!(await canReviewSubmissions(guildId, user.id))) {
-    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
-  }
 
   const submission = await prisma.submission.findUnique({
     where: { id },
     select: {
       guildId: true,
+      formId: true,
       status: true,
       userId: true,
       form: { select: { title: true } },
@@ -43,6 +41,10 @@ export async function POST(
   });
   if (!submission || submission.guildId !== guildId) {
     return NextResponse.json({ error: "Submission not found." }, { status: 404 });
+  }
+  // Reviewer must be allowed to review this specific form.
+  if (!(await canReviewForm(guildId, user.id, submission.formId))) {
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
   const parsed = submissionActionSchema.safeParse(await request.json().catch(() => null));
