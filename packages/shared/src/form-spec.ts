@@ -346,6 +346,9 @@ function buildFieldSchema(field: FormField): z.ZodTypeAny {
     if (v.maxLength !== undefined) s = s.max(v.maxLength);
     if (field.type === "email") s = s.email();
     if (field.type === "url") s = s.url();
+    // Phone is entered via a country selector + digits; accept only a leading
+    // "+" and digits/spaces/usual separators so arbitrary text can't be stored.
+    if (field.type === "phone") s = s.regex(/^\+?[\d\s().-]{3,32}$/, "Invalid phone number.");
     if (v.pattern) {
       try {
         const re = new RegExp(v.pattern);
