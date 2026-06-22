@@ -3,7 +3,9 @@ import { StatusBadge } from "@msk-forms/ui";
 import { notFound } from "next/navigation";
 
 import { CustomCss } from "@/components/branding/custom-css";
+import { PoweredBy } from "@/components/public/powered-by";
 import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
+import { isGuildPro } from "@/lib/plan";
 import { AnswerSummary } from "@/components/submission/answer-summary";
 import { StatusLive } from "@/components/submission/status-live";
 import { SubmissionActions } from "@/components/submission/submission-actions";
@@ -38,6 +40,7 @@ export default async function SubmissionStatusPage({
   const answers = (submission.answers ?? {}) as Record<string, unknown>;
   const branding = parseBranding(submission.form.guild.branding);
   const brand = brandStyle(branding);
+  const showBadge = !(await isGuildPro(submission.form.guildId));
   const logo = logoUrl(submission.form.guildId, branding);
 
   return (
@@ -111,6 +114,8 @@ export default async function SubmissionStatusPage({
           }}
         />
       </section>
+
+      {showBadge && <PoweredBy label={t.poweredBy} />}
     </main>
   );
 }
