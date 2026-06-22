@@ -6,13 +6,14 @@ import Link from "next/link";
 import QRCode from "qrcode";
 
 import { ManageBillingButton } from "@/components/billing/manage-billing-button";
+import { UpgradeActions } from "@/components/billing/upgrade-button";
 import { DeleteFormButton } from "@/components/dashboard/delete-form-button";
 import { ShareButton } from "@/components/dashboard/share-button";
 import { requireUser } from "@/lib/auth";
 import { appBaseUrl } from "@/lib/url";
 import { canManageForms, getGuildForms } from "@/lib/guild";
-import { isGuildPro } from "@/lib/plan";
-import { stripeEnabled } from "@/lib/stripe";
+import { getGuildPlan } from "@/lib/plan";
+import { enterpriseEnabled, stripeEnabled } from "@/lib/stripe";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -32,15 +33,18 @@ export default async function GuildFormsPage({
 }) {
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/forms`);
-  const [forms, canManage, pro] = await Promise.all([
+  const [forms, canManage, plan] = await Promise.all([
     getGuildForms(guildId),
     canManageForms(guildId, user.id),
-    isGuildPro(guildId),
+    getGuildPlan(guildId),
   ]);
   const base = appBaseUrl();
   const dict = await getDict();
   const t = dict.dashboard;
-  const atFormLimit = !pro && forms.length >= FREE_FORM_LIMIT;
+  const atFormLimit = !plan.isPro && forms.length >= FREE_FORM_LIMIT;
+  // A Pro guild can still move up to Enterprise (Free guilds upgrade on the gated tabs).
+  const canUpgradeToEnterprise =
+    canManage && stripeEnabled() && enterpriseEnabled() && plan.tier === "pro";
   // Show "Manage subscription" only to guilds that actually pay (not grandfathered).
   const guildBilling =
     canManage && stripeEnabled()
@@ -73,6 +77,9 @@ export default async function GuildFormsPage({
           {forms.length} {forms.length === 1 ? t.countForm : t.countForms}
         </h2>
         <div className="flex items-center gap-2">
+        {canUpgradeToEnterprise && (
+          <UpgradeActions guildId={guildId} enterpriseLabel={dict.pro.upgradeEnterprise} />
+        )}
         {guildBilling?.stripeSubscriptionId && (
           <ManageBillingButton guildId={guildId} label={dict.pro.manage} />
         )}
