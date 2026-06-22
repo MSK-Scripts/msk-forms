@@ -218,7 +218,9 @@ export async function POST(
   // cascades through changeSubmissionStatus (event, DM, webhook, realtime).
   try {
     const { automations } = parseFormSettings(form.settings);
-    const target = automations.length > 0 ? evaluateAutomations(automations, data) : null;
+    // Expose the quiz score to rules under the reserved `__score` field.
+    const autoAnswers = score != null ? { ...data, __score: score } : data;
+    const target = automations.length > 0 ? evaluateAutomations(automations, autoAnswers) : null;
     if (target && target !== "submitted") {
       const defs = await prisma.formStatusDef.findMany({
         where: { guildId: form.guildId },

@@ -374,7 +374,7 @@ const en = {
       always: "Always (no conditions)",
       addCondition: "Add condition", addRule: "Add rule", removeRule: "Remove rule", removeCondition: "Remove",
       noFields: "Add fields first to build automations.",
-      valuePh: "Value",
+      valuePh: "Value", score: "Score",
     },
   },
   share: {
@@ -761,7 +761,7 @@ const de: Dictionary = {
       always: "Immer (ohne Bedingungen)",
       addCondition: "Bedingung hinzufügen", addRule: "Regel hinzufügen", removeRule: "Regel entfernen", removeCondition: "Entfernen",
       noFields: "Füge zuerst Felder hinzu, um Automatisierungen zu bauen.",
-      valuePh: "Wert",
+      valuePh: "Wert", score: "Punkte",
     },
   },
   share: {
@@ -1146,7 +1146,7 @@ const hu: Dictionary = {
       always: "Mindig (feltételek nélkül)",
       addCondition: "Feltétel hozzáadása", addRule: "Szabály hozzáadása", removeRule: "Szabály eltávolítása", removeCondition: "Eltávolítás",
       noFields: "Előbb adj hozzá mezőket az automatizálásokhoz.",
-      valuePh: "Érték",
+      valuePh: "Érték", score: "Pont",
     },
   },
   share: {

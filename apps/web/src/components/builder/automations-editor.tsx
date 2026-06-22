@@ -35,6 +35,11 @@ export function AutomationsEditor({
 }) {
   const usable = fields.filter((f) => !isLayoutField(f.type));
   const fallbackStatus = statusOptions[0]?.value ?? "accepted";
+  // Condition targets: the quiz score (reserved `__score`) plus the form's fields.
+  const fieldOptions = [
+    { value: "__score", label: t.autom.score },
+    ...usable.map((f) => ({ value: f.id, label: f.label || f.id })),
+  ];
 
   const opOptions = [
     { value: "equals", label: t.cond.opEquals },
@@ -60,7 +65,7 @@ export function AutomationsEditor({
     const rule = automations[ri]!;
     replaceRule(ri, {
       ...rule,
-      when: [...rule.when, { field: usable[0]!.id, op: "equals", value: "" }],
+      when: [...rule.when, { field: "__score", op: "greater_than", value: "" }],
     });
   }
   function replaceCondition(ri: number, ci: number, cond: AutomationCondition) {
@@ -117,7 +122,7 @@ export function AutomationsEditor({
               <Select
                 value={cond.field}
                 onChange={(e) => replaceCondition(ri, ci, { ...cond, field: e.target.value })}
-                options={usable.map((f) => ({ value: f.id, label: f.label || f.id }))}
+                options={fieldOptions}
               />
               <Select
                 value={cond.op}
