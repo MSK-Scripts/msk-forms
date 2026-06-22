@@ -27,10 +27,10 @@ export function NavTabs({ tabs }: { tabs: NavTab[] }) {
           <Link
             key={tab.href}
             href={tab.href as Route}
-            className={`rounded-sm px-3 py-1.5 font-mono text-xs uppercase tracking-widest transition-colors ${
+            className={`rounded-md px-3 py-1.5 font-mono text-xs uppercase tracking-widest transition-colors ${
               active
-                ? "bg-muted text-foreground"
-                : "text-muted-foreground hover:text-muted-foreground"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
             }`}
           >
             {tab.label}

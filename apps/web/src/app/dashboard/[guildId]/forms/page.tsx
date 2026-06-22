@@ -147,7 +147,8 @@ export default async function GuildFormsPage({
                       </span>
                     )}
                     <span className="text-xs text-muted-foreground">
-                      {form._count.submissions} {t.countSubmissions}
+                      {form._count.submissions}{" "}
+                      {form._count.submissions === 1 ? t.countSubmission : t.countSubmissions}
                       {form.status === "live" && (
                         <>
                           {" · "}

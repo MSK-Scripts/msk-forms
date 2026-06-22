@@ -39,7 +39,9 @@ export default async function GuildsPage() {
                     </div>
                   )}
                   <div className="min-w-0">
-                    <p translate="no" className="truncate font-medium text-foreground">{guild.name}</p>
+                    <p translate="no" className="truncate font-heading text-base font-semibold text-foreground">
+                      {guild.name}
+                    </p>
                     <p className="font-mono text-xs uppercase tracking-widest text-primary">
                       {guild.role}
                     </p>
@@ -47,10 +49,14 @@ export default async function GuildsPage() {
                 </div>
                 <div className="flex gap-4 text-xs text-muted-foreground">
                   <span>
-                    {guild._count.forms} {t.countForms}
+                    <span className="font-mono font-medium text-foreground">{guild._count.forms}</span>{" "}
+                    {guild._count.forms === 1 ? t.countForm : t.countForms}
                   </span>
                   <span>
-                    {guild._count.submissions} {t.countSubmissions}
+                    <span className="font-mono font-medium text-foreground">
+                      {guild._count.submissions}
+                    </span>{" "}
+                    {guild._count.submissions === 1 ? t.countSubmission : t.countSubmissions}
                   </span>
                 </div>
               </Card>
