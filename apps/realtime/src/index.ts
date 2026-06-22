@@ -1,3 +1,5 @@
+import { createHmac, timingSafeEqual } from "node:crypto";
+
 import pg from "pg";
 import { WebSocket, WebSocketServer } from "ws";
 
@@ -18,6 +20,34 @@ const HOST = process.env.REALTIME_HOST ?? "127.0.0.1";
 const CHANNEL = "submission_change";
 const MAX_TOPICS_PER_SOCKET = 20;
 const SUBMISSION_TOPIC = /^submission:[0-9a-fA-F-]{36}$/;
+const GUILD_TOPIC = /^guild:[0-9a-fA-F-]{36}$/;
+/** Shared HMAC secret for guild-topic tokens (must match the web app). */
+const TOKEN_SECRET = process.env.REALTIME_TOKEN_SECRET ?? "";
+
+/**
+ * Verify a guild realtime token: `<base64url(payload)>.<hex hmac>` where payload
+ * is `{ g: guildId, exp: epochSeconds }`. Guards the dashboard/board live feed so
+ * only a reviewer the web app signed a token for can subscribe to a guild topic.
+ */
+function verifyGuildToken(token: string, guildId: string): boolean {
+  if (!TOKEN_SECRET) return false;
+  const dot = token.indexOf(".");
+  if (dot < 0) return false;
+  const payload = token.slice(0, dot);
+  const sig = token.slice(dot + 1);
+  const expected = createHmac("sha256", TOKEN_SECRET).update(payload).digest("hex");
+  if (sig.length !== expected.length) return false;
+  if (!timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return false;
+  try {
+    const data = JSON.parse(Buffer.from(payload, "base64url").toString()) as {
+      g?: string;
+      exp?: number;
+    };
+    return data.g === guildId && typeof data.exp === "number" && data.exp > Date.now() / 1000;
+  } catch {
+    return false;
+  }
+}
 
 interface ClientState {
   alive: boolean;
@@ -72,9 +102,17 @@ export function createServer(port: number = PORT): WebSocketServer {
       } catch {
         return;
       }
-      const m = msg as { type?: string; topic?: string };
-      if (m.type === "subscribe" && typeof m.topic === "string" && SUBMISSION_TOPIC.test(m.topic)) {
-        subscribe(socket, m.topic);
+      const m = msg as { type?: string; topic?: string; token?: string };
+      if (m.type === "subscribe" && typeof m.topic === "string") {
+        if (SUBMISSION_TOPIC.test(m.topic)) {
+          // Submission topics are a UUID capability — knowing the id grants access.
+          subscribe(socket, m.topic);
+        } else if (GUILD_TOPIC.test(m.topic) && typeof m.token === "string") {
+          // Guild topics need a signed token from the web app (reviewer-gated).
+          if (verifyGuildToken(m.token, m.topic.slice("guild:".length))) {
+            subscribe(socket, m.topic);
+          }
+        }
       }
     });
 
@@ -121,7 +159,18 @@ async function listenForChanges(fanout: (topic: string) => void): Promise<void> 
   const connect = async (): Promise<void> => {
     const client = new pg.Client({ connectionString });
     client.on("notification", (msg) => {
-      if (msg.channel === CHANNEL && msg.payload) fanout(`submission:${msg.payload}`);
+      if (msg.channel !== CHANNEL || !msg.payload) return;
+      const submissionId = msg.payload;
+      // The applicant's status page (UUID capability).
+      fanout(`submission:${submissionId}`);
+      // The guild dashboard/board: resolve the submission's guild and fan out.
+      void client
+        .query("SELECT guild_id FROM submissions WHERE id = $1", [submissionId])
+        .then((res) => {
+          const guildId = res.rows[0]?.guild_id as string | undefined;
+          if (guildId) fanout(`guild:${guildId}`);
+        })
+        .catch(() => undefined);
     });
     client.on("error", (err) => {
       console.error("[realtime] pg listen error, reconnecting:", err.message);
