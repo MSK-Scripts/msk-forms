@@ -6,6 +6,7 @@ import { handleFormsAutocomplete, handleFormsCommand } from "./forms.js";
 import { syncAllGuilds, syncGuild } from "./guilds.js";
 import { deliverPendingNotifications } from "./notifications.js";
 import { handleReviewButton, isReviewButton } from "./review-actions.js";
+import { deliverPendingWebhooks } from "./webhooks.js";
 
 /**
  * MSK Forms Discord bot — multi-tenant (concept §11).
@@ -29,9 +30,12 @@ export function createClient(): Client {
       });
     }
     await syncAllGuilds(c);
-    // Drain the outbox now, then poll on an interval.
+    // Drain the outboxes now, then poll on an interval. Webhook delivery is pure
+    // HTTP (no Discord client needed) but shares the same Prisma-capable process.
     void deliverPendingNotifications(c);
+    void deliverPendingWebhooks();
     setInterval(() => void deliverPendingNotifications(c), POLL_MS);
+    setInterval(() => void deliverPendingWebhooks(), POLL_MS);
   });
 
   // The bot was added to a server → link it (owner becomes MSK Forms owner).

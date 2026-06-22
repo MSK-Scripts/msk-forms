@@ -1,4 +1,4 @@
-import { prisma, type Prisma } from "@msk-forms/db";
+import { enqueueWebhooks, prisma, type Prisma } from "@msk-forms/db";
 import {
   buildAnswerSchema,
   FILE_FIELD_TYPES,
@@ -171,6 +171,19 @@ export async function POST(
     });
   } catch (err) {
     console.error("[submit] failed to queue review notification:", (err as Error).message);
+  }
+
+  // Queue any subscribed webhook deliveries (best-effort — never fail the submit).
+  try {
+    await enqueueWebhooks(prisma, form.guildId, "submission.created", {
+      event: "submission.created",
+      guildId: form.guildId,
+      submissionId: submission.id,
+      formId: form.id,
+      at: new Date().toISOString(),
+    });
+  } catch (err) {
+    console.error("[submit] failed to queue webhooks:", (err as Error).message);
   }
 
   return NextResponse.json({ submissionId: submission.id }, { status: 201 });

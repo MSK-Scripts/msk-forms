@@ -1,4 +1,5 @@
 import { Prisma, prisma } from "./index";
+import { enqueueWebhooks } from "./webhooks";
 
 export interface StatusChangeOutboxNotification {
   /** Discord-linked applicant to DM (omit for anonymous submissions). */
@@ -42,7 +43,7 @@ export async function changeSubmissionStatus(
   return prisma.$transaction(async (tx) => {
     const current = await tx.submission.findUnique({
       where: { id: submissionId },
-      select: { status: true },
+      select: { status: true, guildId: true, formId: true },
     });
     if (!current || current.status === toStatus) {
       return { changed: false, fromStatus: current?.status ?? null };
@@ -77,6 +78,17 @@ export async function changeSubmissionStatus(
         },
       });
     }
+
+    // Queue any subscribed webhook deliveries (atomic with the transition).
+    await enqueueWebhooks(tx, current.guildId, "submission.status_changed", {
+      event: "submission.status_changed",
+      guildId: current.guildId,
+      submissionId,
+      formId: current.formId,
+      fromStatus: current.status,
+      toStatus,
+      at: new Date().toISOString(),
+    });
 
     // Realtime: announce the change so the applicant's status page updates live
     // (the realtime service LISTENs on this channel). Fires on commit.

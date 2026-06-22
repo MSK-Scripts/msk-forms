@@ -104,6 +104,7 @@ model Guild {
   formStatuses  FormStatusDef[]
   apiKeys       ApiKey[]
   notifications Notification[]
+  webhooks      Webhook[]
 
   @@map("guilds")
 }
@@ -268,4 +269,44 @@ model ApiKey {
   guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
 
   @@map("api_keys")
+}
+
+/// Outgoing webhook endpoint registered by a guild (concept §20). Fires on the
+/// subscribed events; deliveries are queued as WebhookDelivery rows and sent by
+/// the bot's outbox poller (HMAC-signed with `secret`).
+model Webhook {
+  id        String   @id @default(uuid()) @db.Uuid
+  guildId   String   @map("guild_id") @db.Uuid
+  url       String
+  secret    String
+  events    String[]
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  guild      Guild             @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  deliveries WebhookDelivery[]
+
+  @@index([guildId])
+  @@map("webhooks")
+}
+
+/// One queued delivery of an event to a webhook endpoint. The poller picks up
+/// `pending` rows whose `nextAttemptAt` is due, POSTs the signed payload, and
+/// marks them `success` or (after MAX_ATTEMPTS) `failed` with `lastError`.
+model WebhookDelivery {
+  id            String    @id @default(uuid()) @db.Uuid
+  webhookId     String    @map("webhook_id") @db.Uuid
+  event         String
+  payload       Json      @default("{}")
+  status        String    @default("pending")
+  attempts      Int       @default(0)
+  lastError     String?   @map("last_error")
+  nextAttemptAt DateTime  @default(now()) @map("next_attempt_at")
+  deliveredAt   DateTime? @map("delivered_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  webhook Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@index([status, nextAttemptAt])
+  @@map("webhook_deliveries")
 }
