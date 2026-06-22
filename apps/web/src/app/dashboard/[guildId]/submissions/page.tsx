@@ -67,6 +67,7 @@ export default async function GuildSubmissionsPage({
     id: s.id,
     applicant: s.user?.username ?? t.anonymous,
     avatar: s.user?.avatar ?? null,
+    formId: s.formId,
     formTitle: s.form.title,
     date: s.submittedAt.toISOString().slice(0, 10),
     status: s.status,
@@ -93,6 +94,7 @@ export default async function GuildSubmissionsPage({
           applying: t.bulk.applying,
           moveTo: t.board.moveTo,
           bulkFailed: t.bulk.failed,
+          allForms: t.allForms,
         }}
       />
     </>

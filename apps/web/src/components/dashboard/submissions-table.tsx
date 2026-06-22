@@ -10,6 +10,7 @@ export interface SubmissionRow {
   id: string;
   applicant: string;
   avatar: string | null;
+  formId: string;
   formTitle: string;
   date: string;
   status: string;
@@ -34,6 +35,7 @@ export interface SubmissionsTableLabels {
   applying: string;
   moveTo: string;
   bulkFailed: string;
+  allForms: string;
 }
 
 export function SubmissionsTable({
@@ -54,9 +56,22 @@ export function SubmissionsTable({
   const [bulkStatus, setBulkStatus] = useState(options[0]?.key ?? "");
   const [applying, setApplying] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [formFilter, setFormFilter] = useState("all");
 
-  const allSelected = rows.length > 0 && selected.size === rows.length;
-  const hasScores = rows.some((r) => r.score != null);
+  // Distinct forms present in the current submissions, for the filter dropdown.
+  const forms = [...new Map(rows.map((r) => [r.formId, r.formTitle])).entries()]
+    .map(([id, title]) => ({ id, title }))
+    .sort((a, b) => a.title.localeCompare(b.title));
+  const visibleRows = formFilter === "all" ? rows : rows.filter((r) => r.formId === formFilter);
+
+  const allSelected = visibleRows.length > 0 && visibleRows.every((r) => selected.has(r.id));
+  const hasScores = visibleRows.some((r) => r.score != null);
+
+  // Changing the filter clears the selection so bulk actions never touch hidden rows.
+  function changeFilter(value: string) {
+    setFormFilter(value);
+    setSelected(new Set());
+  }
   const resolve = (key: string) =>
     options.find((o) => o.key === key) ?? { key, label: key, color: "#6b6b72" };
 
@@ -69,7 +84,7 @@ export function SubmissionsTable({
     });
   }
   function toggleAll() {
-    setSelected(allSelected ? new Set() : new Set(rows.map((r) => r.id)));
+    setSelected(allSelected ? new Set() : new Set(visibleRows.map((r) => r.id)));
   }
 
   async function apply() {
@@ -93,6 +108,24 @@ export function SubmissionsTable({
 
   return (
     <div className="flex flex-col gap-3">
+      {forms.length > 1 && (
+        <div className="flex items-center gap-2">
+          <select
+            aria-label={labels.colForm}
+            value={formFilter}
+            onChange={(e) => changeFilter(e.target.value)}
+            className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+          >
+            <option value="all">{labels.allForms}</option>
+            {forms.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.title}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {canReview && selected.size > 0 && (
         <div className="flex flex-wrap items-center gap-3 rounded-md border border-border bg-card p-3">
           <span className="text-sm text-foreground">
@@ -141,7 +174,7 @@ export function SubmissionsTable({
             </tr>
           </thead>
           <tbody>
-            {rows.map((s) => {
+            {visibleRows.map((s) => {
               const status = resolve(s.status);
               return (
                 <tr
