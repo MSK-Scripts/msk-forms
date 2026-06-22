@@ -2,7 +2,7 @@ import { prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
 
-import { stripe, webhookSecret } from "@/lib/stripe";
+import { stripe, tierForPrice, webhookSecret } from "@/lib/stripe";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -71,10 +71,12 @@ export async function POST(request: NextRequest) {
         const sub = event.data.object as Stripe.Subscription;
         const guildId = await resolveGuildId(sub.metadata?.guildId, customerId(sub.customer));
         if (guildId) {
+          // Derive the tier from the subscription's price (pro vs enterprise).
+          const tier = tierForPrice(sub.items?.data?.[0]?.price?.id);
           await prisma.guild.update({
             where: { id: guildId },
             data: {
-              plan: ACTIVE.has(sub.status) ? "pro" : "free",
+              plan: ACTIVE.has(sub.status) ? tier : "free",
               stripeSubscriptionId: sub.id,
             },
           });

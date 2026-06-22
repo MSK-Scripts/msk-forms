@@ -17,6 +17,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { captchaEnabled, verifyCaptcha } from "@/lib/captcha";
 import { parseFormSpec, resolveStatus } from "@/lib/forms";
+import { getGuildPlan } from "@/lib/plan";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 import { headObject } from "@/lib/s3";
 import { getDict } from "@/i18n";
@@ -96,6 +97,23 @@ export async function POST(
   const spec = parseFormSpec(form.schema);
   if (!spec) {
     return NextResponse.json({ error: "Form is misconfigured." }, { status: 500 });
+  }
+
+  // Plan quota: cap submissions per calendar month per guild (Free 100 / Pro
+  // 5.000 / Enterprise unlimited, concept §21).
+  const { monthlySubmissionLimit } = await getGuildPlan(form.guildId);
+  if (monthlySubmissionLimit !== null) {
+    const now = new Date();
+    const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+    const used = await prisma.submission.count({
+      where: { guildId: form.guildId, submittedAt: { gte: monthStart } },
+    });
+    if (used >= monthlySubmissionLimit) {
+      return NextResponse.json(
+        { error: "This form isn’t accepting submissions right now." },
+        { status: 403 },
+      );
+    }
   }
 
   // Server-side validation against the form definition.
