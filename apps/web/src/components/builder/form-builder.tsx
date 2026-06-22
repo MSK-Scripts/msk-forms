@@ -2,6 +2,33 @@
 
 import { isLayoutField, parseIdList, type AutomationRule, type FieldType, type FormField, type FormPage } from "@msk-forms/shared";
 import { Button, Card, Field, Input, Select, Textarea } from "@msk-forms/ui";
+import {
+  IconAdjustmentsHorizontal,
+  IconAlignJustified,
+  IconAlignLeft,
+  IconAt,
+  IconCalendar,
+  IconChevronDown,
+  IconCircleCheck,
+  IconCircleDot,
+  IconForms,
+  IconHash,
+  IconHeading,
+  IconLetterT,
+  IconLineDashed,
+  IconLink,
+  IconMoodSmile,
+  IconNumbers,
+  IconPaperclip,
+  IconPhone,
+  IconPhoto,
+  IconSignature,
+  IconSquareCheck,
+  IconStar,
+  IconTable,
+  IconToggleRight,
+  type Icon,
+} from "@tabler/icons-react";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,6 +37,33 @@ import { AutomationsEditor } from "@/components/builder/automations-editor";
 import { FieldEditor } from "@/components/builder/field-editor";
 import { BUILDER_FIELDS, needsOptions } from "@/lib/builder-fields";
 import type { Dictionary } from "@/i18n";
+
+/** Icon per field type for the "Add field" picker grid. */
+const FIELD_ICONS: Partial<Record<FieldType, Icon>> = {
+  short_text: IconLetterT,
+  long_text: IconAlignLeft,
+  email: IconAt,
+  number: IconHash,
+  phone: IconPhone,
+  url: IconLink,
+  single_choice: IconCircleDot,
+  dropdown: IconChevronDown,
+  multi_choice: IconSquareCheck,
+  yes_no: IconToggleRight,
+  rating_stars: IconStar,
+  nps: IconNumbers,
+  slider: IconAdjustmentsHorizontal,
+  emoji_scale: IconMoodSmile,
+  matrix: IconTable,
+  date: IconCalendar,
+  file_upload: IconPaperclip,
+  image_upload: IconPhoto,
+  signature: IconSignature,
+  consent: IconCircleCheck,
+  heading: IconHeading,
+  paragraph: IconAlignJustified,
+  divider: IconLineDashed,
+};
 
 type BuilderDict = Dictionary["builder"];
 type StatusOption = { value: string; label: string };
@@ -88,7 +142,6 @@ export function FormBuilder({
   }, [initial.openAt, initial.closeAt]);
   const [pages, setPages] = useState<FormPage[]>(initial.pages);
   const [automations, setAutomations] = useState<AutomationRule[]>(initial.automations);
-  const [addType, setAddType] = useState<FieldType>("short_text");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -144,8 +197,8 @@ export function FormBuilder({
       return { ...p, fields };
     });
   }
-  function addField(pi: number) {
-    mutatePage(pi, (p) => ({ ...p, fields: [...p.fields, newField(addType)] }));
+  function addField(pi: number, type: FieldType) {
+    mutatePage(pi, (p) => ({ ...p, fields: [...p.fields, newField(type)] }));
   }
 
   async function save() {
@@ -201,10 +254,7 @@ export function FormBuilder({
     }
   }
 
-  const typeOptions = BUILDER_FIELDS.map((f) => ({
-    value: f.type,
-    label: (t.ft as Record<string, string>)[f.type] ?? f.label,
-  }));
+  const ftLabel = (type: FieldType) => (t.ft as Record<string, string>)[type] ?? type;
 
   return (
     <div className="flex flex-col gap-6">
@@ -323,17 +373,26 @@ export function FormBuilder({
             />
           ))}
 
-          <div className="flex items-end gap-3 border-t border-border pt-3">
-            <Field label={t.addField}>
-              <Select
-                value={addType}
-                onChange={(e) => setAddType(e.target.value as FieldType)}
-                options={typeOptions}
-              />
-            </Field>
-            <Button variant="ghost" type="button" onClick={() => addField(pi)}>
-              + {t.add}
-            </Button>
+          <div className="border-t border-border pt-3">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              {t.addField}
+            </p>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+              {BUILDER_FIELDS.map((f) => {
+                const FieldIcon = FIELD_ICONS[f.type] ?? IconForms;
+                return (
+                  <button
+                    key={f.type}
+                    type="button"
+                    onClick={() => addField(pi, f.type)}
+                    className="flex flex-col items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-2 py-3 text-center transition-colors hover:border-primary/40 hover:bg-muted/50"
+                  >
+                    <FieldIcon size={20} stroke={1.6} className="text-muted-foreground" />
+                    <span className="text-xs font-medium text-foreground">{ftLabel(f.type)}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </Card>
       ))}
