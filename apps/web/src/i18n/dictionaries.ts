@@ -214,7 +214,7 @@ const en = {
     noGuilds: "You aren’t managing any guilds yet.",
     noGuildsHint:
       "Connecting a guild happens through the Discord bot invite. That flow lands in a later slice. For now, an admin can add you to a guild.",
-    countForm: "form", countForms: "forms", countSubmissions: "submissions",
+    countForm: "form", countForms: "forms", countSubmission: "submission", countSubmissions: "submissions",
     newForm: "New form", noForms: "No forms yet. Create your first one.", edit: "Edit", exportCsv: "Export CSV", exportLabel: "Export",
     deleteForm: "Delete", deleteFormTitle: "Delete form?", deleteFormConfirm: "Delete this form? All its submissions, files and activity will be permanently removed. This cannot be undone.", deleteFormFailed: "Could not delete the form.", cancel: "Cancel",
     colApplicant: "Applicant", colForm: "Form", colDate: "Date", colStatus: "Status", colScore: "Score",
@@ -608,7 +608,7 @@ const de: Dictionary = {
     noGuilds: "Du verwaltest noch keine Guilds.",
     noGuildsHint:
       "Eine Guild wird über die Discord-Bot-Einladung verbunden. Dieser Ablauf kommt in einem späteren Slice. Bis dahin kann dich ein Admin zu einer Guild hinzufügen.",
-    countForm: "Formular", countForms: "Formulare", countSubmissions: "Einreichungen",
+    countForm: "Formular", countForms: "Formulare", countSubmission: "Einreichung", countSubmissions: "Einreichungen",
     newForm: "Neues Formular", noForms: "Noch keine Formulare. Erstelle dein erstes.", edit: "Bearbeiten", exportCsv: "CSV-Export", exportLabel: "Export",
     deleteForm: "Löschen", deleteFormTitle: "Formular löschen?", deleteFormConfirm: "Dieses Formular löschen? Alle Einreichungen, Dateien und Aktivitäten werden unwiderruflich entfernt. Das kann nicht rückgängig gemacht werden.", deleteFormFailed: "Formular konnte nicht gelöscht werden.", cancel: "Abbrechen",
     colApplicant: "Bewerber", colForm: "Formular", colDate: "Datum", colStatus: "Status", colScore: "Punkte",
@@ -1000,7 +1000,7 @@ const hu: Dictionary = {
     noGuilds: "Még nem kezelsz egyetlen szervert sem.",
     noGuildsHint:
       "Egy szerver összekapcsolása a Discord bot meghívásán keresztül történik. Ez a folyamat egy későbbi szakaszban érkezik. Egyelőre egy adminisztrátor hozzáadhat egy szerverhez.",
-    countForm: "űrlap", countForms: "űrlap", countSubmissions: "beküldés",
+    countForm: "űrlap", countForms: "űrlap", countSubmission: "beküldés", countSubmissions: "beküldés",
     newForm: "Új űrlap", noForms: "Még nincsenek űrlapok. Hozd létre az elsőt.", edit: "Szerkesztés", exportCsv: "CSV exportálás", exportLabel: "Export",
     deleteForm: "Törlés", deleteFormTitle: "Törlöd az űrlapot?", deleteFormConfirm: "Törlöd ezt az űrlapot? Az összes beküldése, fájlja és tevékenysége véglegesen törlődik. Ez nem vonható vissza.", deleteFormFailed: "Az űrlap törlése sikertelen.", cancel: "Mégse",
     colApplicant: "Jelentkező", colForm: "Űrlap", colDate: "Dátum", colStatus: "Állapot", colScore: "Pont",
