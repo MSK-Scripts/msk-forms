@@ -1,7 +1,7 @@
 import { Card } from "@msk-forms/ui";
 import { notFound } from "next/navigation";
 
-import { parseFormSettings } from "@msk-forms/shared";
+import { acceptedRoleIdsOf, parseFormSettings } from "@msk-forms/shared";
 
 import { FormBuilder } from "@/components/builder/form-builder";
 import { requireUser } from "@/lib/auth";
@@ -55,7 +55,8 @@ export default async function EditFormPage({
           slug: form.slug,
           status: form.status,
           visibility: form.visibility,
-          acceptedRoleId: settings.acceptedRoleId ?? "",
+          acceptedRoles: acceptedRoleIdsOf(settings).join(", "),
+          reviewChannelId: settings.reviewChannelId ?? "",
           pages: spec?.pages.length ? spec.pages : [{ id: "p1", title: "", fields: [] }],
           automations: settings.automations,
         }}

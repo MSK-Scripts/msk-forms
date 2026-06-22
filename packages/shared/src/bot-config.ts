@@ -10,8 +10,10 @@ const snowflake = z.string().regex(/^\d{17,20}$/, "Enter a valid Discord ID.");
 export const botConfigSchema = z.object({
   /** Channel that receives the "new submission" review embed. */
   reviewChannelId: snowflake.optional(),
-  /** Role granted to the applicant when a submission is accepted. */
+  /** Legacy single accepted role (still read for backward compatibility). */
   acceptedRoleId: snowflake.optional(),
+  /** Roles granted to the applicant when a submission is accepted. */
+  acceptedRoleIds: z.array(snowflake).max(20).optional(),
   /**
    * When set, the bot posts forms/embeds through a webhook using this display
    * name and the guild's branding logo as the avatar (per-guild appearance).
