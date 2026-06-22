@@ -23,12 +23,19 @@ const customCss = z.string().max(MAX_CUSTOM_CSS).optional();
  * `expression()` / `javascript:` JS-in-CSS vectors. Idempotent.
  */
 export function sanitizeCustomCss(css: string): string {
-  return css
-    .replace(/<\/?\s*style/gi, "")
-    .replace(/@import[^;]*;?/gi, "")
-    .replace(/expression\s*\(/gi, "")
-    .replace(/javascript\s*:/gi, "")
-    .slice(0, MAX_CUSTOM_CSS);
+  // Apply to a fixpoint: a single pass can let an interleaved copy reconstruct a
+  // forbidden token (e.g. `<st<styleyle` → `<style`), so repeat until stable.
+  let out = css.slice(0, MAX_CUSTOM_CSS);
+  let prev: string;
+  do {
+    prev = out;
+    out = out
+      .replace(/<\/?\s*style/gi, "")
+      .replace(/@import[^;]*;?/gi, "")
+      .replace(/expression\s*\(/gi, "")
+      .replace(/javascript\s*:/gi, "");
+  } while (out !== prev);
+  return out;
 }
 
 /** Stored branding shape (Guild.branding). `logoKey` is set server-side only. */

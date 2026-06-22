@@ -25,6 +25,11 @@ describe("sanitizeCustomCss", () => {
     expect(sanitizeCustomCss("a".repeat(MAX_CUSTOM_CSS + 500)).length).toBe(MAX_CUSTOM_CSS);
   });
 
+  it("resists interleaved reconstruction (fixpoint)", () => {
+    expect(sanitizeCustomCss("<st<styleyle>x")).not.toMatch(/<\s*style/i);
+    expect(sanitizeCustomCss("@imp@importort url(x);")).not.toMatch(/@import/i);
+  });
+
   it("is idempotent", () => {
     const once = sanitizeCustomCss("@import x; .a{}</style>");
     expect(sanitizeCustomCss(once)).toBe(once);
