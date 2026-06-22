@@ -15,30 +15,48 @@ export interface ResolvedStatus {
 }
 
 /**
+ * Localized labels for the built-in default statuses, keyed by status key
+ * (e.g. `dict.statusLabels`). Custom guild statuses keep their own label.
+ */
+export type StatusLabelMap = Record<string, string | undefined>;
+
+/**
  * Resolve a status key to its label/color, preferring guild/form-specific
- * definitions and falling back to the built-in default pipeline.
+ * definitions and falling back to the built-in default pipeline. When `labels`
+ * is provided, built-in statuses use the localized label.
  */
 export function resolveStatus(
   key: string,
   defs: { key: string; label: string; color: string }[],
+  labels?: StatusLabelMap,
 ): ResolvedStatus {
   const custom = defs.find((d) => d.key === key);
   if (custom) return { key, label: custom.label, color: custom.color };
   const fallback = DEFAULT_STATUSES.find((s) => s.key === key);
-  return { key, label: fallback?.label ?? key, color: fallback?.color ?? "#6b6b72" };
+  return {
+    key,
+    label: labels?.[key] ?? fallback?.label ?? key,
+    color: fallback?.color ?? "#6b6b72",
+  };
 }
 
 /**
  * The full set of statuses a reviewer can move a submission to: the built-in
  * default pipeline, with guild/form-specific definitions overriding the label
- * and color of matching keys and appending any custom keys (ordered).
+ * and color of matching keys and appending any custom keys (ordered). When
+ * `labels` is provided, non-overridden built-in statuses use the localized label.
  */
 export function statusOptions(
   defs: { key: string; label: string; color: string; order?: number }[],
+  labels?: StatusLabelMap,
 ): ResolvedStatus[] {
   const base: ResolvedStatus[] = DEFAULT_STATUSES.map((s) => {
     const override = defs.find((d) => d.key === s.key);
-    return { key: s.key, label: override?.label ?? s.label, color: override?.color ?? s.color };
+    return {
+      key: s.key,
+      label: override?.label ?? labels?.[s.key] ?? s.label,
+      color: override?.color ?? s.color,
+    };
   });
   const extra = defs
     .filter((d) => !DEFAULT_STATUSES.some((s) => s.key === d.key))
@@ -151,7 +169,11 @@ export async function getSubmissionForStatus(id: string) {
  * the submission belongs to another guild). Includes the full event timeline
  * (internal + public) with actor info and all of the guild's status defs.
  */
-export async function getSubmissionForReview(id: string, guildId: string) {
+export async function getSubmissionForReview(
+  id: string,
+  guildId: string,
+  labels?: StatusLabelMap,
+) {
   const submission = await prisma.submission.findUnique({
     where: { id },
     select: {
@@ -193,6 +215,6 @@ export async function getSubmissionForReview(id: string, guildId: string) {
     ...submission,
     spec: parseFormSpec(submission.form.schema),
     statusDefs,
-    options: statusOptions(statusDefs),
+    options: statusOptions(statusDefs, labels),
   };
 }

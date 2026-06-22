@@ -23,8 +23,9 @@ export default async function SubmissionStatusPage({
   const submission = await getSubmissionForStatus(id);
   if (!submission) notFound();
 
-  const t = (await getDict()).status;
-  const status = resolveStatus(submission.status, submission.statusDefs);
+  const dict = await getDict();
+  const t = dict.status;
+  const status = resolveStatus(submission.status, submission.statusDefs, dict.statusLabels);
   const answers = (submission.answers ?? {}) as Record<string, unknown>;
   const branding = parseBranding(submission.form.guild.branding);
   const brand = brandStyle(branding);
@@ -60,7 +61,7 @@ export default async function SubmissionStatusPage({
                 </span>
                 <span className="text-sm text-foreground">
                   {ev.type === "status_change" && ev.toStatus
-                    ? `${t.statusChangedTo} “${resolveStatus(ev.toStatus, submission.statusDefs).label}”`
+                    ? `${t.statusChangedTo} “${resolveStatus(ev.toStatus, submission.statusDefs, dict.statusLabels).label}”`
                     : (ev.message ?? t.update)}
                 </span>
               </li>

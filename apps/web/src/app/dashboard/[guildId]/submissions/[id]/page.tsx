@@ -27,11 +27,11 @@ export default async function SubmissionDetailPage({
   const dict = await getDict();
   const t = dict.review;
 
-  const submission = await getSubmissionForReview(id, guildId);
+  const submission = await getSubmissionForReview(id, guildId, dict.statusLabels);
   if (!submission) notFound();
 
   const canReview = await canReviewSubmissions(guildId, user.id);
-  const status = resolveStatus(submission.status, submission.statusDefs);
+  const status = resolveStatus(submission.status, submission.statusDefs, dict.statusLabels);
   const answers = (submission.answers ?? {}) as Record<string, unknown>;
 
   return (
@@ -90,7 +90,7 @@ export default async function SubmissionDetailPage({
                   const actor = ev.actor?.username ?? t.system;
                   const verb =
                     ev.type === "status_change"
-                      ? `${t.statusChanged} ${t.to} “${resolveStatus(ev.toStatus ?? "", submission.statusDefs).label}”`
+                      ? `${t.statusChanged} ${t.to} “${resolveStatus(ev.toStatus ?? "", submission.statusDefs, dict.statusLabels).label}”`
                       : ev.type === "note"
                         ? t.noteAdded
                         : t.messageSent;

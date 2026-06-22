@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { parseFormSpec, resolveStatus } from "@/lib/forms";
 import { canReviewSubmissions } from "@/lib/guild";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
+import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -66,6 +67,7 @@ export async function GET(
     }),
   ]);
 
+  const statusLabels = (await getDict()).statusLabels;
   const fields = spec.pages.flatMap((p) => p.fields).filter((f) => !isLayoutField(f.type));
   const labels = { empty: "", yes: "Yes", no: "No" };
 
@@ -76,7 +78,7 @@ export async function GET(
     const row = [
       s.id,
       s.submittedAt.toISOString(),
-      resolveStatus(s.status, defs).label,
+      resolveStatus(s.status, defs, statusLabels).label,
       s.user?.username ?? "Anonymous",
       ...fields.map((f) => formatAnswerValue(f, answers[f.id], labels)),
     ];

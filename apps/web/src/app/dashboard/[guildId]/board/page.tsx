@@ -17,7 +17,8 @@ export default async function BoardPage({
 }) {
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/board`);
-  const t = (await getDict()).dashboard;
+  const dict = await getDict();
+  const t = dict.dashboard;
 
   if (!(await canReviewSubmissions(guildId, user.id))) {
     return (
@@ -38,11 +39,11 @@ export default async function BoardPage({
 
   // Columns: the standard pipeline + custom defs, plus any status present on a
   // submission that isn't otherwise listed (so no card is ever orphaned).
-  const options = statusOptions(defs);
+  const options = statusOptions(defs, dict.statusLabels);
   const present = new Set(submissions.map((s) => s.status));
   const extra = [...present]
     .filter((k) => !options.some((o) => o.key === k))
-    .map((k) => resolveStatus(k, defs));
+    .map((k) => resolveStatus(k, defs, dict.statusLabels));
   const columns: BoardColumn[] = [...options, ...extra];
 
   const cards = submissions.map((s) => ({
