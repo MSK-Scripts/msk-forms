@@ -69,19 +69,24 @@ export function KanbanBoard({
         {columns.map((col) => {
           const cards = items.filter((s) => s.status === col.key);
           return (
-            <div key={col.key} className="flex w-72 shrink-0 flex-col gap-2">
-              <div className="flex items-center justify-between">
+            <div key={col.key} className="flex w-72 shrink-0 flex-col gap-2 rounded-xl bg-muted/30 p-2">
+              <div className="flex items-center justify-between px-1 pt-1">
                 <StatusBadge label={col.label} color={col.color} />
-                <span className="text-xs text-muted-foreground">{cards.length}</span>
+                <span className="rounded-full bg-background px-2 py-0.5 font-mono text-[11px] font-medium tabular-nums text-muted-foreground">
+                  {cards.length}
+                </span>
               </div>
               <div className="flex flex-col gap-2">
                 {cards.length === 0 && (
-                  <p className="rounded-md border border-dashed border-border px-3 py-6 text-center text-xs text-muted-foreground">
+                  <p className="rounded-lg border border-dashed border-border px-3 py-6 text-center text-xs text-muted-foreground">
                     {labels.empty}
                   </p>
                 )}
                 {cards.map((s) => (
-                  <div key={s.id} className="flex flex-col gap-2 rounded-md border border-border bg-card p-3">
+                  <div
+                    key={s.id}
+                    className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3 shadow-sm transition-colors hover:border-primary/40"
+                  >
                     <div className="flex flex-col gap-0.5">
                       <span className="text-sm font-medium text-foreground">{s.applicant}</span>
                       <span className="text-xs text-muted-foreground">{s.formTitle}</span>
