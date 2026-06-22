@@ -1,4 +1,4 @@
-import { resolveTxt } from "node:dns/promises";
+import { Resolver, resolveTxt } from "node:dns/promises";
 
 import { prisma } from "@msk-forms/db";
 import { verificationRecordName, verificationRecordValue } from "@msk-forms/shared";
@@ -9,6 +9,31 @@ import { canManageForms } from "@/lib/guild";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+/**
+ * Resolve TXT records for `name`. We query public resolvers (Cloudflare, then
+ * Google) directly before falling back to the host resolver: the host's
+ * systemd-resolved often negatively-caches the record from a Verify click made
+ * before DNS propagated, and would keep returning NXDOMAIN until that cache
+ * expires. Public resolvers give a fresh answer the moment the record is live.
+ */
+async function lookupTxt(name: string): Promise<string[][]> {
+  for (const servers of [["1.1.1.1", "1.0.0.1"], ["8.8.8.8", "8.8.4.4"]]) {
+    try {
+      const resolver = new Resolver({ timeout: 5000, tries: 2 });
+      resolver.setServers(servers);
+      const records = await resolver.resolveTxt(name);
+      if (records.length > 0) return records;
+    } catch {
+      // Try the next resolver group.
+    }
+  }
+  try {
+    return await resolveTxt(name); // Fallback: host resolver.
+  } catch {
+    return []; // NXDOMAIN / no TXT yet.
+  }
+}
 
 /** Verify domain ownership via the DNS TXT challenge. Owner/admin only. */
 export async function POST(
@@ -35,14 +60,9 @@ export async function POST(
   }
 
   const expected = verificationRecordValue(guild.customDomainToken);
-  let found = false;
-  try {
-    const records = await resolveTxt(verificationRecordName(guild.customDomain));
-    // Each record is an array of string chunks; join then compare.
-    found = records.some((chunks) => chunks.join("").trim() === expected);
-  } catch {
-    found = false; // NXDOMAIN / no TXT yet
-  }
+  const records = await lookupTxt(verificationRecordName(guild.customDomain));
+  // Each record is an array of string chunks; join then compare.
+  const found = records.some((chunks) => chunks.join("").trim() === expected);
 
   if (!found) {
     return NextResponse.json({ verified: false });
