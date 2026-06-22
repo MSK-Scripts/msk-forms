@@ -5,6 +5,8 @@ import { LogoutButton } from "@/components/logout-button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Wordmark } from "@/components/landing/wordmark";
 import { Button } from "@/components/ui/button";
+import { isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
+import { appBaseUrl } from "@/lib/url";
 import { getDict, getLocale } from "@/i18n";
 
 export interface HeaderUser {
@@ -15,6 +17,15 @@ export interface HeaderUser {
 export async function SiteHeader({ user }: { user: HeaderUser | null }) {
   const t = await getDict();
   const locale = await getLocale();
+
+  // Auth + dashboard live only on the primary domain (the OAuth state cookie and
+  // callback must be same-origin). On a guild's custom domain, point those links
+  // at the primary domain so login doesn't fail with a state mismatch.
+  const host = await requestHostname();
+  const onCustomDomain = Boolean(host) && !isPrimaryHostname(host!);
+  const base = onCustomDomain ? appBaseUrl() : "";
+  const loginHref = `${base}/api/auth/discord/login`;
+  const dashboardHref = `${base}/dashboard`;
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -40,13 +51,13 @@ export async function SiteHeader({ user }: { user: HeaderUser | null }) {
                 <img src={user.avatar} alt="" width={26} height={26} className="rounded-full" />
               )}
               <Button asChild variant="ghost" size="sm">
-                <a href="/dashboard">{t.header.dashboard}</a>
+                <a href={dashboardHref}>{t.header.dashboard}</a>
               </Button>
               <LogoutButton label={t.header.logout} />
             </>
           ) : (
             <Button asChild size="sm">
-              <a href="/api/auth/discord/login">
+              <a href={loginHref}>
                 <IconBrandDiscord size={16} stroke={1.75} />
                 {t.header.login}
               </a>
