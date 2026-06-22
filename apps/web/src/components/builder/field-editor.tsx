@@ -124,20 +124,24 @@ export function FieldEditor({
             <Field label={needsRows(field.type) ? t.columns : t.options}>
               <div className="flex flex-col gap-2">
                 {(field.options ?? []).map((opt, i) => (
-                  <div key={i} className="flex gap-2">
-                    <Input
-                      value={opt.label}
-                      onChange={(e) => setOption(i, e.target.value)}
-                      placeholder={`${t.optionPh} ${i + 1}`}
-                    />
-                    {!needsRows(field.type) && (
+                  <div key={i} className="flex items-center gap-2">
+                    <div className="flex-1">
                       <Input
-                        type="number"
-                        value={opt.score ?? ""}
-                        onChange={(e) => setOptionScore(i, e.target.value)}
-                        placeholder={t.points}
-                        className="w-24 shrink-0"
+                        value={opt.label}
+                        onChange={(e) => setOption(i, e.target.value)}
+                        placeholder={`${t.optionPh} ${i + 1}`}
                       />
+                    </div>
+                    {!needsRows(field.type) && (
+                      <div className="w-24 shrink-0">
+                        <Input
+                          type="number"
+                          value={opt.score ?? ""}
+                          onChange={(e) => setOptionScore(i, e.target.value)}
+                          placeholder={t.points}
+                          title={t.points}
+                        />
+                      </div>
                     )}
                     <IconButton label={t.removeOption} onClick={() => removeOption(i)}>
                       ✕
