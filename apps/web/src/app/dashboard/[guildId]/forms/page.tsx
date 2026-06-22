@@ -142,12 +142,31 @@ export default async function GuildFormsPage({
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     {form._count.submissions > 0 && (
-                      <a
-                        href={`/api/guilds/${guildId}/forms/${form.id}/export`}
-                        className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-                      >
-                        {t.exportCsv}
-                      </a>
+                      <div className="flex items-center gap-2.5 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground">
+                        <span className="text-xs uppercase tracking-wide">{t.exportLabel}</span>
+                        <a
+                          href={`/api/guilds/${guildId}/forms/${form.id}/export?format=csv`}
+                          className="transition-colors hover:text-foreground"
+                        >
+                          CSV
+                        </a>
+                        {plan.isPro && (
+                          <>
+                            <a
+                              href={`/api/guilds/${guildId}/forms/${form.id}/export?format=xlsx`}
+                              className="transition-colors hover:text-foreground"
+                            >
+                              XLSX
+                            </a>
+                            <a
+                              href={`/api/guilds/${guildId}/forms/${form.id}/export?format=json`}
+                              className="transition-colors hover:text-foreground"
+                            >
+                              JSON
+                            </a>
+                          </>
+                        )}
+                      </div>
                     )}
                     <Link
                       href={`/dashboard/${guildId}/forms/${form.id}/edit` as Route}

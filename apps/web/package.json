@@ -21,6 +21,7 @@
     "@tabler/icons-react": "^3.26.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "exceljs": "^4.4.0",
     "ioredis": "^5.4.2",
     "iron-session": "^8.0.4",
     "next": "^16.0.0",
