@@ -39,7 +39,7 @@ export default async function GuildsPage() {
                     </div>
                   )}
                   <div className="min-w-0">
-                    <p className="truncate font-medium text-foreground">{guild.name}</p>
+                    <p translate="no" className="truncate font-medium text-foreground">{guild.name}</p>
                     <p className="font-mono text-xs uppercase tracking-widest text-primary">
                       {guild.role}
                     </p>

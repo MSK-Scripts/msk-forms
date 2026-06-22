@@ -33,7 +33,7 @@ export function GuildDomainHome({
       <CustomCss css={branding.customCss} />
       <header className="flex flex-col gap-2">
         {logo && <img src={logo} alt="" className="mb-2 h-12 w-auto self-start" />}
-        <h1 className="font-heading text-3xl font-bold text-foreground">{guild.name}</h1>
+        <h1 translate="no" className="font-heading text-3xl font-bold text-foreground">{guild.name}</h1>
       </header>
 
       {forms.length === 0 ? (

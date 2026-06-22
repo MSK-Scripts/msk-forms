@@ -160,7 +160,7 @@ export function MembersManager({
                     {m.username.charAt(0).toUpperCase()}
                   </div>
                 )}
-                <span className="font-medium text-foreground">{m.username}</span>
+                <span translate="no" className="font-medium text-foreground">{m.username}</span>
               </div>
 
               {m.role === "owner" ? (
