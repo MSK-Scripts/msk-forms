@@ -8,3 +8,4 @@ export * from "./notifications";
 export * from "./branding";
 export * from "./bot-config";
 export * from "./status-defs";
+export * from "./webhooks";
