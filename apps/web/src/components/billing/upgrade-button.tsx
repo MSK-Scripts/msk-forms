@@ -19,26 +19,32 @@ function startCheckout(guildId: string, tier: "pro" | "enterprise", setBusy: (b:
     .catch(() => setBusy(false));
 }
 
-/** Upgrade buttons for the available paid tiers (Enterprise only when offered). */
+/**
+ * Upgrade buttons for the offered paid tiers. Pass whichever labels apply: a
+ * Free guild gets both (proLabel + enterpriseLabel); a Pro guild that can still
+ * move up gets only enterpriseLabel.
+ */
 export function UpgradeActions({
   guildId,
   proLabel,
   enterpriseLabel,
 }: {
   guildId: string;
-  proLabel: string;
+  proLabel?: string;
   enterpriseLabel?: string;
 }) {
   const [busy, setBusy] = useState(false);
   return (
     <div className="flex flex-wrap gap-2">
-      <Button type="button" disabled={busy} onClick={() => startCheckout(guildId, "pro", setBusy)}>
-        {proLabel}
-      </Button>
+      {proLabel && (
+        <Button type="button" disabled={busy} onClick={() => startCheckout(guildId, "pro", setBusy)}>
+          {proLabel}
+        </Button>
+      )}
       {enterpriseLabel && (
         <Button
           type="button"
-          variant="ghost"
+          variant={proLabel ? "ghost" : "primary"}
           disabled={busy}
           onClick={() => startCheckout(guildId, "enterprise", setBusy)}
         >
