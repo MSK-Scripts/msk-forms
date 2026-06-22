@@ -34,6 +34,7 @@ export async function SiteFooter() {
   const t = await getDict();
 
   const product: FooterLink[] = [
+    { label: t.pricing.nav, href: "/pricing" },
     { label: t.footer.demoForm, href: "/f/demo-whitelist" },
     { label: t.footer.documentation, href: "https://docu.msk-scripts.de" },
     { label: t.footer.github, href: "https://github.com/MSK-Scripts" },

@@ -19,9 +19,17 @@ export async function SiteHeader({ user }: { user: HeaderUser | null }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
-        <a href="/" aria-label="MSK Forms home">
-          <Wordmark />
-        </a>
+        <div className="flex items-center gap-6">
+          <a href="/" aria-label="MSK Forms home">
+            <Wordmark />
+          </a>
+          <a
+            href="/pricing"
+            className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:block"
+          >
+            {t.pricing.nav}
+          </a>
+        </div>
 
         <div className="flex items-center gap-2">
           <LanguageSwitcher locale={locale} />
