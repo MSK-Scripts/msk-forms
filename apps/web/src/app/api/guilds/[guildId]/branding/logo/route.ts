@@ -58,11 +58,15 @@ export async function POST(
 
   // 2) Decode + re-encode with sharp: this strips any hidden payload, EXIF,
   //    color profiles, or polyglot tricks — only pixels survive. Bounded
-  //    input pixels guard against decompression bombs.
+  //    input pixels guard against decompression bombs. Animated GIF/WebP logos
+  //    are re-encoded as animated WebP so they keep moving (read with
+  //    `animated: true`; skip EXIF auto-rotate, which doesn't apply to frames).
   let webp: Buffer;
   try {
-    webp = await sharp(input, { limitInputPixels: 24_000_000, failOn: "error" })
-      .rotate()
+    const animated = ((await sharp(input).metadata()).pages ?? 1) > 1;
+    const pipeline = sharp(input, { animated, limitInputPixels: 40_000_000, failOn: "error" });
+    if (!animated) pipeline.rotate();
+    webp = await pipeline
       .resize(MAX_DIM, MAX_DIM, { fit: "inside", withoutEnlargement: true })
       .webp({ quality: 88 })
       .toBuffer();
