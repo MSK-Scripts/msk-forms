@@ -33,6 +33,7 @@ export default async function GuildLayout({
           { href: `/dashboard/${guildId}/bot`, label: t.botTab, prefix: true },
           { href: `/dashboard/${guildId}/webhooks`, label: t.webhooksTab, prefix: true },
           { href: `/dashboard/${guildId}/domain`, label: t.domainTab, prefix: true },
+          { href: `/dashboard/${guildId}/api`, label: t.apiTab, prefix: true },
         ]
       : []),
   ];

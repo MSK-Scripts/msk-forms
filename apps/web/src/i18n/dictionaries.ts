@@ -135,7 +135,7 @@ const en = {
     note: "Looks solid. Confirming your in-game name, then you’re in.",
   },
   dashboard: {
-    guilds: "Guilds", mySubmissions: "My Submissions", formsTab: "Forms", submissionsTab: "Submissions", boardTab: "Board", brandingTab: "Branding", botTab: "Bot", statusesTab: "Statuses", webhooksTab: "Webhooks", domainTab: "Domain",
+    guilds: "Guilds", mySubmissions: "My Submissions", formsTab: "Forms", submissionsTab: "Submissions", boardTab: "Board", brandingTab: "Branding", botTab: "Bot", statusesTab: "Statuses", webhooksTab: "Webhooks", domainTab: "Domain", apiTab: "API",
     board: {
       title: "Board",
       moveTo: "Move to",
@@ -241,6 +241,21 @@ const en = {
     verifyFailed: "Could not verify yet. DNS changes can take a few minutes.",
     propagation: "After verifying, the certificate is issued automatically within a few minutes.",
     noPerm: "You don’t have permission to manage the domain.",
+  },
+  api: {
+    title: "API",
+    intro: "Programmatic access to your submissions. Authenticate requests with an API key.",
+    enterpriseTitle: "Enterprise feature",
+    enterpriseBody: "The REST API is available on the Enterprise plan.",
+    create: "Create key", creating: "Creating…", namePh: "Key name (e.g. CRM sync)",
+    yourKeys: "Your keys", empty: "No API keys yet.",
+    created: "created", lastUsed: "last used", never: "never",
+    revoke: "Revoke", revokeConfirm: "Revoke this key? Apps using it will stop working.", cancel: "Cancel",
+    secretTitle: "Your new API key", secretBody: "Copy it now — it won’t be shown again.",
+    copy: "Copy", copied: "Copied!", done: "Done",
+    errCreate: "Could not create the key.", errAction: "Action failed.",
+    docsTitle: "Using the API", docsExample: "List a form’s submissions as JSON:",
+    noPerm: "You don’t have permission to manage API keys.",
   },
   domainHome: { chooseForm: "Open application", noForms: "No open forms right now." },
   pro: {
@@ -442,7 +457,7 @@ const de: Dictionary = {
     note: "Sieht gut aus. Wir bestätigen deinen In-Game-Namen, dann bist du dabei.",
   },
   dashboard: {
-    guilds: "Guilds", mySubmissions: "Meine Einreichungen", formsTab: "Formulare", submissionsTab: "Einreichungen", boardTab: "Board", brandingTab: "Branding", botTab: "Bot", statusesTab: "Status", webhooksTab: "Webhooks", domainTab: "Domain",
+    guilds: "Guilds", mySubmissions: "Meine Einreichungen", formsTab: "Formulare", submissionsTab: "Einreichungen", boardTab: "Board", brandingTab: "Branding", botTab: "Bot", statusesTab: "Status", webhooksTab: "Webhooks", domainTab: "Domain", apiTab: "API",
     board: {
       title: "Board",
       moveTo: "Verschieben nach",
@@ -548,6 +563,21 @@ const de: Dictionary = {
     verifyFailed: "Verifizierung noch nicht möglich. DNS-Änderungen können einige Minuten dauern.",
     propagation: "Nach der Verifizierung wird das Zertifikat innerhalb weniger Minuten automatisch ausgestellt.",
     noPerm: "Du hast keine Berechtigung, die Domain zu verwalten.",
+  },
+  api: {
+    title: "API",
+    intro: "Programmatischer Zugriff auf deine Einreichungen. Anfragen werden per API-Key authentifiziert.",
+    enterpriseTitle: "Enterprise-Funktion",
+    enterpriseBody: "Die REST-API ist im Enterprise-Plan verfügbar.",
+    create: "Key erstellen", creating: "Wird erstellt…", namePh: "Key-Name (z. B. CRM-Sync)",
+    yourKeys: "Deine Keys", empty: "Noch keine API-Keys.",
+    created: "erstellt", lastUsed: "zuletzt verwendet", never: "nie",
+    revoke: "Widerrufen", revokeConfirm: "Diesen Key widerrufen? Apps, die ihn nutzen, funktionieren nicht mehr.", cancel: "Abbrechen",
+    secretTitle: "Dein neuer API-Key", secretBody: "Jetzt kopieren — er wird nicht erneut angezeigt.",
+    copy: "Kopieren", copied: "Kopiert!", done: "Fertig",
+    errCreate: "Key konnte nicht erstellt werden.", errAction: "Aktion fehlgeschlagen.",
+    docsTitle: "API nutzen", docsExample: "Einreichungen eines Formulars als JSON abrufen:",
+    noPerm: "Du hast keine Berechtigung, API-Keys zu verwalten.",
   },
   domainHome: { chooseForm: "Bewerbung öffnen", noForms: "Aktuell keine offenen Formulare." },
   pro: {
@@ -747,7 +777,7 @@ const hu: Dictionary = {
     note: "Jól néz ki. Megerősítjük a játékbeli neved, és bent vagy.",
   },
   dashboard: {
-    guilds: "Szerverek", mySubmissions: "Beküldéseim", formsTab: "Űrlapok", submissionsTab: "Beküldések", boardTab: "Tábla", brandingTab: "Arculat", botTab: "Bot", statusesTab: "Állapotok", webhooksTab: "Webhookok", domainTab: "Domain",
+    guilds: "Szerverek", mySubmissions: "Beküldéseim", formsTab: "Űrlapok", submissionsTab: "Beküldések", boardTab: "Tábla", brandingTab: "Arculat", botTab: "Bot", statusesTab: "Állapotok", webhooksTab: "Webhookok", domainTab: "Domain", apiTab: "API",
     board: {
       title: "Tábla",
       moveTo: "Áthelyezés ide",
@@ -853,6 +883,21 @@ const hu: Dictionary = {
     verifyFailed: "Még nem sikerült ellenőrizni. A DNS-változások néhány percig tarthatnak.",
     propagation: "Az ellenőrzés után a tanúsítvány néhány percen belül automatikusan kiállításra kerül.",
     noPerm: "Nincs jogosultságod a domain kezeléséhez.",
+  },
+  api: {
+    title: "API",
+    intro: "Programozott hozzáférés a beküldéseidhez. A kéréseket API-kulccsal hitelesítheted.",
+    enterpriseTitle: "Enterprise funkció",
+    enterpriseBody: "A REST API az Enterprise csomagban érhető el.",
+    create: "Kulcs létrehozása", creating: "Létrehozás…", namePh: "Kulcs neve (pl. CRM-szinkron)",
+    yourKeys: "Kulcsaid", empty: "Még nincs API-kulcs.",
+    created: "létrehozva", lastUsed: "utolsó használat", never: "soha",
+    revoke: "Visszavonás", revokeConfirm: "Visszavonod ezt a kulcsot? Az azt használó alkalmazások leállnak.", cancel: "Mégse",
+    secretTitle: "Az új API-kulcsod", secretBody: "Másold ki most — többé nem jelenik meg.",
+    copy: "Másol", copied: "Másolva!", done: "Kész",
+    errCreate: "A kulcs létrehozása sikertelen.", errAction: "A művelet sikertelen.",
+    docsTitle: "Az API használata", docsExample: "Egy űrlap beküldéseinek lekérése JSON-ként:",
+    noPerm: "Nincs jogosultságod az API-kulcsok kezeléséhez.",
   },
   domainHome: { chooseForm: "Jelentkezés megnyitása", noForms: "Jelenleg nincs nyitott űrlap." },
   pro: {

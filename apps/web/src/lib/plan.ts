@@ -35,3 +35,8 @@ export async function getGuildPlan(guildId: string): Promise<GuildPlan> {
 export async function isGuildPro(guildId: string): Promise<boolean> {
   return (await getGuildPlan(guildId)).isPro;
 }
+
+/** Convenience: is this guild on the Enterprise plan? */
+export async function isGuildEnterprise(guildId: string): Promise<boolean> {
+  return (await getGuildPlan(guildId)).tier === "enterprise";
+}

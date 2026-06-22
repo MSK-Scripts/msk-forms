@@ -3,7 +3,9 @@ import "server-only";
 import { prisma } from "@msk-forms/db";
 import {
   DEFAULT_STATUSES,
+  formatAnswerValue,
   formSpecSchema,
+  isLayoutField,
   type FormSpec,
 } from "@msk-forms/shared";
 
@@ -79,6 +81,74 @@ export async function getStatusOptionsForGuild(
     select: { key: true, label: true, color: true, order: true },
   });
   return statusOptions(defs, labels).map((s) => ({ value: s.key, label: s.label }));
+}
+
+/** A form's submissions flattened to a table, shared by exports and the REST API. */
+export interface SubmissionsTable {
+  formTitle: string;
+  columns: string[];
+  rows: string[][];
+}
+
+/**
+ * Build a form's submissions as a flat table (columns = id/date/status/applicant
+ * + each non-layout field; cells via the shared answer formatter). Scoped to the
+ * guild (returns null if the form belongs to another guild or is misconfigured).
+ * `statusLabels` localizes the built-in status labels (omit for English).
+ */
+export async function getSubmissionsTable(
+  formId: string,
+  guildId: string,
+  statusLabels?: StatusLabelMap,
+): Promise<SubmissionsTable | null> {
+  const form = await prisma.form.findUnique({
+    where: { id: formId },
+    select: { guildId: true, title: true, schema: true },
+  });
+  if (!form || form.guildId !== guildId) return null;
+
+  const spec = parseFormSpec(form.schema);
+  if (!spec) return null;
+
+  const [submissions, defs] = await Promise.all([
+    prisma.submission.findMany({
+      where: { formId, guildId },
+      orderBy: { submittedAt: "desc" },
+      select: {
+        id: true,
+        status: true,
+        answers: true,
+        submittedAt: true,
+        user: { select: { username: true } },
+      },
+    }),
+    prisma.formStatusDef.findMany({
+      where: { guildId },
+      select: { key: true, label: true, color: true },
+    }),
+  ]);
+
+  const fields = spec.pages.flatMap((p) => p.fields).filter((f) => !isLayoutField(f.type));
+  const labels = { empty: "", yes: "Yes", no: "No" };
+  const columns = [
+    "Submission ID",
+    "Submitted",
+    "Status",
+    "Applicant",
+    ...fields.map((f) => f.label ?? f.id),
+  ];
+  const rows = submissions.map((s) => {
+    const answers = (s.answers ?? {}) as Record<string, unknown>;
+    return [
+      s.id,
+      s.submittedAt.toISOString(),
+      resolveStatus(s.status, defs, statusLabels).label,
+      s.user?.username ?? "Anonymous",
+      ...fields.map((f) => formatAnswerValue(f, answers[f.id], labels)),
+    ];
+  });
+
+  return { formTitle: form.title, columns, rows };
 }
 
 /** Safely parse a stored Form.schema JSON blob into a typed FormSpec. */
