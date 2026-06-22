@@ -35,6 +35,7 @@ import { useEffect, useState } from "react";
 
 import { AutomationsEditor } from "@/components/builder/automations-editor";
 import { FieldEditor } from "@/components/builder/field-editor";
+import { DateField, type DateFieldLabels } from "@/components/form/date-field";
 import { BUILDER_FIELDS, needsOptions } from "@/lib/builder-fields";
 import type { Dictionary } from "@/i18n";
 
@@ -114,6 +115,7 @@ export function FormBuilder({
   statusOptions,
   isPro,
   automationsProBody,
+  dateLabels,
   t,
 }: {
   guildId: string;
@@ -122,6 +124,7 @@ export function FormBuilder({
   statusOptions: StatusOption[];
   isPro: boolean;
   automationsProBody: string;
+  dateLabels: DateFieldLabels;
   t: BuilderDict;
 }) {
   const router = useRouter();
@@ -319,10 +322,20 @@ export function FormBuilder({
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label={t.opensLabel} hint={t.scheduleHint}>
-            <Input type="datetime-local" value={openAt} onChange={(e) => setOpenAt(e.target.value)} />
+            <DateField
+              mode="datetime"
+              value={openAt}
+              onChange={(v) => setOpenAt(v ?? "")}
+              labels={dateLabels}
+            />
           </Field>
           <Field label={t.closesLabel} hint={t.scheduleHint}>
-            <Input type="datetime-local" value={closeAt} onChange={(e) => setCloseAt(e.target.value)} />
+            <DateField
+              mode="datetime"
+              value={closeAt}
+              onChange={(v) => setCloseAt(v ?? "")}
+              labels={dateLabels}
+            />
           </Field>
         </div>
       </Card>

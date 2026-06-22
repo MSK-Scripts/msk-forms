@@ -68,6 +68,7 @@ export default async function NewFormPage({
         statusOptions={statusOpts}
         isPro={pro}
         automationsProBody={t.pro.automationsBody}
+        dateLabels={{ today: t.form.dateToday, clear: t.form.dateClear, now: t.form.dateNow }}
         initial={{
           title: "",
           description: "",
