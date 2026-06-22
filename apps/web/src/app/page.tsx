@@ -31,7 +31,12 @@ export default async function HomePage({
       <GuildDomainHome
         guild={guild}
         forms={forms}
-        labels={{ chooseForm: t.domainHome.chooseForm, noForms: t.domainHome.noForms }}
+        labels={{
+          chooseForm: t.domainHome.chooseForm,
+          noForms: t.domainHome.noForms,
+          endingSoon: t.form.endingSoon,
+          opensAt: t.form.opensAt,
+        }}
       />
     );
   }

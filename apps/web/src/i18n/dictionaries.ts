@@ -145,6 +145,7 @@ const en = {
   },
   form: {
     notAccepting: "This form is not accepting responses right now.",
+    opensAt: "Opens", closesAt: "Closes", closedAt: "This form has closed.", endingSoon: "Ending soon!",
     needLogin: "You need to sign in to fill out this form.",
     loginDiscord: "Log in with Discord",
     accessRestricted: "This form uses an access restriction that isn’t supported yet.",
@@ -344,6 +345,7 @@ const en = {
     addField: "Add field", add: "Add",
     page: "Page", addPage: "Add page", removePage: "Remove page", pageTitlePh: "Page title (optional)…",
     markAllRequired: "Mark all required",
+    opensLabel: "Opens at", closesLabel: "Closes at", scheduleHint: "Optional. Your local time.",
     saving: "Saving…", saveChanges: "Save changes", createForm: "Create form", cancel: "Cancel",
     errTitle: "Title is required.", errSlug: "Slug is required.", errFields: "Add at least one field.",
     errSave: "Could not save the form.",
@@ -539,6 +541,7 @@ const de: Dictionary = {
   },
   form: {
     notAccepting: "Dieses Formular nimmt aktuell keine Antworten an.",
+    opensAt: "Öffnet", closesAt: "Schließt", closedAt: "Dieses Formular ist geschlossen.", endingSoon: "Endet bald!",
     needLogin: "Du musst dich anmelden, um dieses Formular auszufüllen.",
     loginDiscord: "Mit Discord anmelden",
     accessRestricted: "Dieses Formular nutzt eine Zugangsbeschränkung, die noch nicht unterstützt wird.",
@@ -736,6 +739,7 @@ const de: Dictionary = {
     addField: "Feld hinzufügen", add: "Hinzufügen",
     page: "Seite", addPage: "Seite hinzufügen", removePage: "Seite entfernen", pageTitlePh: "Seitentitel (optional)…",
     markAllRequired: "Alle als Pflicht",
+    opensLabel: "Öffnet am", closesLabel: "Schließt am", scheduleHint: "Optional. Deine lokale Zeit.",
     saving: "Wird gespeichert…", saveChanges: "Änderungen speichern", createForm: "Formular erstellen", cancel: "Abbrechen",
     errTitle: "Titel ist erforderlich.", errSlug: "Slug ist erforderlich.", errFields: "Füge mindestens ein Feld hinzu.",
     errSave: "Formular konnte nicht gespeichert werden.",
@@ -929,6 +933,7 @@ const hu: Dictionary = {
   },
   form: {
     notAccepting: "Ez az űrlap jelenleg nem fogad válaszokat.",
+    opensAt: "Nyit", closesAt: "Zár", closedAt: "Ez az űrlap lezárult.", endingSoon: "Hamarosan zár!",
     needLogin: "Az űrlap kitöltéséhez be kell jelentkezned.",
     loginDiscord: "Bejelentkezés Discorddal",
     accessRestricted: "Ez az űrlap olyan hozzáférési korlátozást használ, amely még nem támogatott.",
@@ -1126,6 +1131,7 @@ const hu: Dictionary = {
     addField: "Mező hozzáadása", add: "Hozzáadás",
     page: "Oldal", addPage: "Oldal hozzáadása", removePage: "Oldal eltávolítása", pageTitlePh: "Oldal címe (opcionális)…",
     markAllRequired: "Mind kötelező",
+    opensLabel: "Nyitás", closesLabel: "Zárás", scheduleHint: "Opcionális. A helyi időd.",
     saving: "Mentés…", saveChanges: "Módosítások mentése", createForm: "Űrlap létrehozása", cancel: "Mégse",
     errTitle: "A cím kötelező.", errSlug: "A slug kötelező.", errFields: "Adj hozzá legalább egy mezőt.",
     errSave: "Az űrlap mentése sikertelen.",

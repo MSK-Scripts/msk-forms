@@ -171,6 +171,8 @@ export async function getFormForEdit(formId: string, guildId: string) {
       visibility: true,
       schema: true,
       settings: true,
+      openAt: true,
+      closeAt: true,
     },
   });
   if (!form || form.guildId !== guildId) return null;
@@ -182,7 +184,7 @@ export async function getLiveFormsForGuild(guildId: string) {
   return prisma.form.findMany({
     where: { guildId, status: "live" },
     orderBy: { createdAt: "desc" },
-    select: { slug: true, title: true, description: true },
+    select: { slug: true, title: true, description: true, openAt: true, closeAt: true },
   });
 }
 
@@ -200,6 +202,8 @@ export async function getLiveFormBySlug(slug: string) {
       visibility: true,
       schema: true,
       settings: true,
+      openAt: true,
+      closeAt: true,
       guild: { select: { name: true, branding: true } },
     },
   });

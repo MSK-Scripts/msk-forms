@@ -4,7 +4,7 @@ import { isLayoutField, parseIdList, type AutomationRule, type FieldType, type F
 import { Button, Card, Field, Input, Select, Textarea } from "@msk-forms/ui";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { AutomationsEditor } from "@/components/builder/automations-editor";
 import { FieldEditor } from "@/components/builder/field-editor";
@@ -22,8 +22,20 @@ export interface FormBuilderInitial {
   visibility: string;
   acceptedRoles: string;
   reviewChannelId: string;
+  /** ISO 8601 open/close timestamps, or "" when unset. */
+  openAt: string;
+  closeAt: string;
   pages: FormPage[];
   automations: AutomationRule[];
+}
+
+/** ISO → `datetime-local` input value (YYYY-MM-DDTHH:MM) in the viewer's tz. */
+function isoToLocalInput(iso: string): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 const slugify = (s: string) =>
@@ -66,6 +78,14 @@ export function FormBuilder({
   const [visibility, setVisibility] = useState(initial.visibility);
   const [acceptedRoles, setAcceptedRoles] = useState(initial.acceptedRoles);
   const [reviewChannelId, setReviewChannelId] = useState(initial.reviewChannelId);
+  // Schedule inputs are localized on the client to avoid a hydration mismatch
+  // (the ISO→local conversion depends on the viewer's timezone).
+  const [openAt, setOpenAt] = useState("");
+  const [closeAt, setCloseAt] = useState("");
+  useEffect(() => {
+    setOpenAt(isoToLocalInput(initial.openAt));
+    setCloseAt(isoToLocalInput(initial.closeAt));
+  }, [initial.openAt, initial.closeAt]);
   const [pages, setPages] = useState<FormPage[]>(initial.pages);
   const [automations, setAutomations] = useState<AutomationRule[]>(initial.automations);
   const [addType, setAddType] = useState<FieldType>("short_text");
@@ -155,6 +175,8 @@ export function FormBuilder({
       visibility,
       spec,
       settings,
+      openAt: openAt ? new Date(openAt).toISOString() : null,
+      closeAt: closeAt ? new Date(closeAt).toISOString() : null,
     };
 
     setSaving(true);
@@ -243,6 +265,14 @@ export function FormBuilder({
               placeholder="123456789012345678"
               onChange={(e) => setReviewChannelId(e.target.value)}
             />
+          </Field>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label={t.opensLabel} hint={t.scheduleHint}>
+            <Input type="datetime-local" value={openAt} onChange={(e) => setOpenAt(e.target.value)} />
+          </Field>
+          <Field label={t.closesLabel} hint={t.scheduleHint}>
+            <Input type="datetime-local" value={closeAt} onChange={(e) => setCloseAt(e.target.value)} />
           </Field>
         </div>
       </Card>

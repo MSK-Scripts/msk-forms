@@ -141,6 +141,8 @@ export async function getGuildForms(guildId: string) {
       status: true,
       visibility: true,
       updatedAt: true,
+      openAt: true,
+      closeAt: true,
       _count: { select: { submissions: true } },
     },
   });

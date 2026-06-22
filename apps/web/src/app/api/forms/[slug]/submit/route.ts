@@ -5,6 +5,7 @@ import {
   evaluateAutomations,
   FILE_FIELD_TYPES,
   formatAnswerValue,
+  isFormOpenNow,
   isLayoutField,
   parseFormSettings,
   scoreSubmission,
@@ -88,11 +89,25 @@ export async function POST(
 
   const form = await prisma.form.findUnique({
     where: { slug },
-    select: { id: true, guildId: true, status: true, schema: true, title: true, settings: true },
+    select: {
+      id: true,
+      guildId: true,
+      status: true,
+      schema: true,
+      title: true,
+      settings: true,
+      openAt: true,
+      closeAt: true,
+    },
   });
 
   if (!form || form.status !== "live") {
     return NextResponse.json({ error: "Form not available." }, { status: 404 });
+  }
+
+  // Scheduling window: reject before it opens or after it closes.
+  if (!isFormOpenNow(form.openAt, form.closeAt, new Date())) {
+    return NextResponse.json({ error: "This form isn’t open right now." }, { status: 403 });
   }
 
   const spec = parseFormSpec(form.schema);
