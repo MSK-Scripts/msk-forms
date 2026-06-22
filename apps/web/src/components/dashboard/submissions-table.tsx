@@ -152,8 +152,8 @@ export function SubmissionsTable({
 
       <div className="overflow-hidden rounded-lg border border-border">
         <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border text-left text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <thead className="bg-muted/40">
+            <tr className="border-b border-border text-left font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
               {canReview && (
                 <th className="px-4 py-3">
                   <input
@@ -197,7 +197,7 @@ export function SubmissionsTable({
                       {s.avatar && (
                         <img src={s.avatar} alt="" width={24} height={24} className="rounded-full" />
                       )}
-                      <span className="text-foreground">{s.applicant}</span>
+                      <span className="font-medium text-foreground">{s.applicant}</span>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{s.formTitle}</td>
