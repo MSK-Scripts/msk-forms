@@ -4,7 +4,7 @@ import { Card } from "@msk-forms/ui";
 import { SubmissionsTable } from "@/components/dashboard/submissions-table";
 import { requireUser } from "@/lib/auth";
 import { resolveStatus, statusOptions } from "@/lib/forms";
-import { canReviewSubmissions, getGuildSubmissions } from "@/lib/guild";
+import { getGuildSubmissions, getReviewScope } from "@/lib/guild";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -17,17 +17,28 @@ export default async function GuildSubmissionsPage({
 }) {
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/submissions`);
-  const [submissions, defs, canReview] = await Promise.all([
-    getGuildSubmissions(guildId),
+  const dict = await getDict();
+  const t = dict.dashboard;
+
+  // Reviewers see only the submissions of forms they're allowed to review.
+  const scope = await getReviewScope(guildId, user.id);
+  const canReview = scope.all || scope.formIds.length > 0;
+  if (!canReview) {
+    return (
+      <Card className="p-8">
+        <p className="text-muted-foreground">{t.board.noPerm}</p>
+      </Card>
+    );
+  }
+
+  const [submissions, defs] = await Promise.all([
+    getGuildSubmissions(guildId, scope),
     prisma.formStatusDef.findMany({
       where: { guildId },
       orderBy: { order: "asc" },
       select: { key: true, label: true, color: true, order: true },
     }),
-    canReviewSubmissions(guildId, user.id),
   ]);
-  const dict = await getDict();
-  const t = dict.dashboard;
 
   if (submissions.length === 0) {
     return (

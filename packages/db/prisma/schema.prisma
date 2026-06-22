@@ -81,6 +81,7 @@ model User {
   createdForms  Form[]              @relation("FormCreatedBy")
   events        SubmissionEvent[]
   notifications Notification[]
+  formReviews   FormReviewer[]
 
   @@map("users")
 }
@@ -127,6 +128,21 @@ model GuildMember {
   @@map("guild_members")
 }
 
+/// Per-form reviewer grant: lets a member (typically a viewer) review a specific
+/// form's submissions without being a guild-wide reviewer.
+model FormReviewer {
+  formId    String   @map("form_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  form Form @relation(fields: [formId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([formId, userId])
+  @@index([userId])
+  @@map("form_reviewers")
+}
+
 model Form {
   id          String         @id @default(uuid()) @db.Uuid
   guildId     String         @map("guild_id") @db.Uuid
@@ -151,6 +167,7 @@ model Form {
   versions     FormVersion[]
   submissions  Submission[]
   formStatuses FormStatusDef[]
+  reviewers    FormReviewer[]
 
   @@index([guildId, status])
   @@map("forms")

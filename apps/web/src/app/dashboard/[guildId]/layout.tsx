@@ -1,6 +1,8 @@
+import { Card } from "@msk-forms/ui";
+
 import { NavTabs, type NavTab } from "@/components/dashboard/nav-tabs";
 import { requireUser } from "@/lib/auth";
-import { MANAGER_ROLES, REVIEWER_ROLES, requireGuildMembership } from "@/lib/guild";
+import { getReviewScope, MANAGER_ROLES, requireGuildMembership } from "@/lib/guild";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -19,12 +21,17 @@ export default async function GuildLayout({
   const t = (await getDict()).dashboard;
 
   const canManage = (MANAGER_ROLES as readonly string[]).includes(guild.role);
-  const canReview = (REVIEWER_ROLES as readonly string[]).includes(guild.role);
+  const scope = await getReviewScope(guildId, user.id);
+  const canReview = scope.all || scope.formIds.length > 0;
   const tabs: NavTab[] = [
-    { href: `/dashboard/${guildId}/forms`, label: t.formsTab, prefix: true },
-    { href: `/dashboard/${guildId}/submissions`, label: t.submissionsTab, prefix: true },
+    ...(canManage || canReview
+      ? [{ href: `/dashboard/${guildId}/forms`, label: t.formsTab, prefix: true }]
+      : []),
     ...(canReview
-      ? [{ href: `/dashboard/${guildId}/board`, label: t.boardTab, prefix: true }]
+      ? [
+          { href: `/dashboard/${guildId}/submissions`, label: t.submissionsTab, prefix: true },
+          { href: `/dashboard/${guildId}/board`, label: t.boardTab, prefix: true },
+        ]
       : []),
     ...(canManage
       ? [
@@ -34,6 +41,7 @@ export default async function GuildLayout({
           { href: `/dashboard/${guildId}/webhooks`, label: t.webhooksTab, prefix: true },
           { href: `/dashboard/${guildId}/domain`, label: t.domainTab, prefix: true },
           { href: `/dashboard/${guildId}/api`, label: t.apiTab, prefix: true },
+          { href: `/dashboard/${guildId}/members`, label: t.membersTab, prefix: true },
         ]
       : []),
   ];
@@ -51,9 +59,16 @@ export default async function GuildLayout({
         <h1 className="font-heading text-2xl font-bold text-foreground">{guild.name}</h1>
       </div>
 
-      <NavTabs tabs={tabs} />
-
-      <div>{children}</div>
+      {canManage || canReview ? (
+        <>
+          <NavTabs tabs={tabs} />
+          <div>{children}</div>
+        </>
+      ) : (
+        <Card className="p-8">
+          <p className="text-muted-foreground">{t.pendingAccess}</p>
+        </Card>
+      )}
     </div>
   );
 }

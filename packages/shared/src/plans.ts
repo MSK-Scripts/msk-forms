@@ -20,6 +20,17 @@ export const MONTHLY_SUBMISSION_LIMITS: Record<PlanTier, number | null> = {
   enterprise: null,
 };
 
+/**
+ * Max team members per tier (null = unlimited). Counts everyone who can review
+ * or manage: owners/admins/guild-wide reviewers plus anyone granted a per-form
+ * reviewer role. Plain viewers with no grants don't count.
+ */
+export const MEMBER_LIMITS: Record<PlanTier, number | null> = {
+  free: 2,
+  pro: 15,
+  enterprise: null,
+};
+
 /** Features gated to Pro (and above). Free guilds get a notice instead. */
 export const PRO_FEATURES = [
   "custom_domain",

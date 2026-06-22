@@ -83,18 +83,19 @@ export default async function GuildFormsPage({
         {guildBilling?.stripeSubscriptionId && (
           <ManageBillingButton guildId={guildId} label={dict.pro.manage} />
         )}
-        {atFormLimit ? (
-          <span className="cursor-not-allowed rounded-md bg-muted px-4 py-2 text-sm font-medium text-muted-foreground">
-            + {t.newForm}
-          </span>
-        ) : (
-          <Link
-            href={`/dashboard/${guildId}/forms/new` as Route}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            + {t.newForm}
-          </Link>
-        )}
+        {canManage &&
+          (atFormLimit ? (
+            <span className="cursor-not-allowed rounded-md bg-muted px-4 py-2 text-sm font-medium text-muted-foreground">
+              + {t.newForm}
+            </span>
+          ) : (
+            <Link
+              href={`/dashboard/${guildId}/forms/new` as Route}
+              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              + {t.newForm}
+            </Link>
+          ))}
         </div>
       </div>
 
@@ -174,12 +175,14 @@ export default async function GuildFormsPage({
                         )}
                       </div>
                     )}
-                    <Link
-                      href={`/dashboard/${guildId}/forms/${form.id}/edit` as Route}
-                      className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-                    >
-                      {t.edit}
-                    </Link>
+                    {canManage && (
+                      <Link
+                        href={`/dashboard/${guildId}/forms/${form.id}/edit` as Route}
+                        className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+                      >
+                        {t.edit}
+                      </Link>
+                    )}
                     {canManage && (
                       <DeleteFormButton
                         guildId={guildId}

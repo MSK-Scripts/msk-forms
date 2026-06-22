@@ -7,7 +7,7 @@ import { AnswerSummary } from "@/components/submission/answer-summary";
 import { ReviewPanel } from "@/components/review/review-panel";
 import { requireUser } from "@/lib/auth";
 import { getSubmissionForReview, resolveStatus } from "@/lib/forms";
-import { canReviewSubmissions } from "@/lib/guild";
+import { getReviewScope } from "@/lib/guild";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -30,7 +30,10 @@ export default async function SubmissionDetailPage({
   const submission = await getSubmissionForReview(id, guildId, dict.statusLabels);
   if (!submission) notFound();
 
-  const canReview = await canReviewSubmissions(guildId, user.id);
+  // Reviewers may only open submissions of forms they're allowed to review.
+  const scope = await getReviewScope(guildId, user.id);
+  const canReview = scope.all || scope.formIds.includes(submission.formId);
+  if (!canReview) notFound();
   const status = resolveStatus(submission.status, submission.statusDefs, dict.statusLabels);
   const answers = (submission.answers ?? {}) as Record<string, unknown>;
 

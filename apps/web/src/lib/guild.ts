@@ -27,10 +27,65 @@ export async function canManageForms(guildId: string, userId: string): Promise<b
   return role !== null && (MANAGER_ROLES as readonly string[]).includes(role);
 }
 
-/** True if the user may review submissions (act on status, add notes/messages). */
-export async function canReviewSubmissions(guildId: string, userId: string): Promise<boolean> {
+/**
+ * Which of a guild's forms a user may review. `all` = guild-wide reviewer
+ * (owner/admin/reviewer); otherwise `formIds` lists the per-form grants. A
+ * non-member or a viewer with no grants resolves to `{ all: false, formIds: [] }`.
+ */
+export interface ReviewScope {
+  all: boolean;
+  formIds: string[];
+}
+
+export async function getReviewScope(guildId: string, userId: string): Promise<ReviewScope> {
   const role = await getGuildRole(guildId, userId);
-  return role !== null && (REVIEWER_ROLES as readonly string[]).includes(role);
+  if (role === null) return { all: false, formIds: [] };
+  if ((REVIEWER_ROLES as readonly string[]).includes(role)) return { all: true, formIds: [] };
+
+  // Per-form reviewer grants, scoped to this guild's forms.
+  const grants = await prisma.formReviewer.findMany({
+    where: { userId, form: { guildId } },
+    select: { formId: true },
+  });
+  return { all: false, formIds: grants.map((g) => g.formId) };
+}
+
+/** True if the user may review at least one of the guild's forms. */
+export async function canReviewSubmissions(guildId: string, userId: string): Promise<boolean> {
+  const scope = await getReviewScope(guildId, userId);
+  return scope.all || scope.formIds.length > 0;
+}
+
+/** True if the user may review this specific form's submissions. */
+export async function canReviewForm(
+  guildId: string,
+  userId: string,
+  formId: string,
+): Promise<boolean> {
+  const scope = await getReviewScope(guildId, userId);
+  return scope.all || scope.formIds.includes(formId);
+}
+
+/**
+ * Count a guild's "team" against the plan member limit: everyone who is a
+ * manager/guild-wide reviewer, plus any member granted a per-form reviewer role.
+ * Plain viewers with no grants don't count.
+ */
+export async function countTeamMembers(guildId: string): Promise<number> {
+  const [roleMembers, perFormUserIds] = await Promise.all([
+    prisma.guildMember.findMany({
+      where: { guildId, role: { in: [...REVIEWER_ROLES] } },
+      select: { userId: true },
+    }),
+    prisma.formReviewer.findMany({
+      where: { form: { guildId } },
+      select: { userId: true },
+      distinct: ["userId"],
+    }),
+  ]);
+  const ids = new Set(roleMembers.map((m) => m.userId));
+  perFormUserIds.forEach((g) => ids.add(g.userId));
+  return ids.size;
 }
 
 /** Guilds the user is a member of, with counts for the switcher cards. */
@@ -87,10 +142,15 @@ export async function getGuildForms(guildId: string) {
   });
 }
 
-/** Submissions across a guild's forms, for the "Guild Submissions" tab. */
-export async function getGuildSubmissions(guildId: string) {
+/**
+ * Submissions across a guild's forms, scoped to what the viewer may review.
+ * Pass a {@link ReviewScope}: `all` returns everything; otherwise only the
+ * granted forms' submissions (empty grants → no rows).
+ */
+export async function getGuildSubmissions(guildId: string, scope: ReviewScope) {
+  if (!scope.all && scope.formIds.length === 0) return [];
   return prisma.submission.findMany({
-    where: { guildId },
+    where: { guildId, ...(scope.all ? {} : { formId: { in: scope.formIds } }) },
     orderBy: { submittedAt: "desc" },
     take: 100,
     select: {

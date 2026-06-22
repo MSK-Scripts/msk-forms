@@ -274,6 +274,7 @@ export async function getSubmissionForReview(
     select: {
       id: true,
       guildId: true,
+      formId: true,
       status: true,
       answers: true,
       submittedAt: true,

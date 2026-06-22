@@ -80,6 +80,24 @@ export async function fetchDiscordUser(accessToken: string): Promise<DiscordUser
   return res.json() as Promise<DiscordUser>;
 }
 
+/**
+ * Fetch the Discord guild ids the authenticated user is a member of (via the
+ * `guilds` scope). Best-effort — returns [] on any error so login never fails.
+ */
+export async function fetchDiscordGuildIds(accessToken: string): Promise<string[]> {
+  try {
+    const res = await fetch(`${DISCORD_API}/users/@me/guilds`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const guilds = (await res.json()) as { id: string }[];
+    return Array.isArray(guilds) ? guilds.map((g) => g.id) : [];
+  } catch {
+    return [];
+  }
+}
+
 /** Resolve the full CDN avatar URL, or null to let the UI fall back. */
 export function discordAvatarUrl(user: DiscordUser): string | null {
   if (!user.avatar) return null;

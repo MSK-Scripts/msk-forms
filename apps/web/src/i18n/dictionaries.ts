@@ -135,7 +135,7 @@ const en = {
     note: "Looks solid. Confirming your in-game name, then you’re in.",
   },
   dashboard: {
-    guilds: "Guilds", mySubmissions: "My Submissions", formsTab: "Forms", submissionsTab: "Submissions", boardTab: "Board", brandingTab: "Branding", botTab: "Bot", statusesTab: "Statuses", webhooksTab: "Webhooks", domainTab: "Domain", apiTab: "API",
+    guilds: "Guilds", mySubmissions: "My Submissions", formsTab: "Forms", submissionsTab: "Submissions", boardTab: "Board", brandingTab: "Branding", botTab: "Bot", statusesTab: "Statuses", webhooksTab: "Webhooks", domainTab: "Domain", apiTab: "API", membersTab: "Members",
     board: {
       title: "Board",
       moveTo: "Move to",
@@ -168,6 +168,17 @@ const en = {
     newFormTitle: "New form", editFormTitle: "Edit form",
     noPermCreate: "You don’t have permission to create forms.",
     noPermEdit: "You don’t have permission to edit forms.",
+    pendingAccess: "Your access is pending — an admin can grant you a role to start reviewing.",
+  },
+  members: {
+    title: "Members",
+    intro: "Manage who can review submissions. Reviewers can be limited to specific forms.",
+    noPerm: "You don’t have permission to manage members.",
+    team: "Team", of: "of", unlimited: "unlimited",
+    roleOwner: "Owner", roleAdmin: "Admin", roleReviewer: "Reviewer", roleViewer: "Viewer",
+    formAccess: "Form access", formAccessHint: "Choose which forms this member can review.",
+    remove: "Remove", removeConfirm: "Remove this member from the guild?", cancel: "Cancel",
+    errAction: "Action failed.", limitReached: "Member limit reached — upgrade your plan for more.",
   },
   review: {
     back: "Back to submissions",
@@ -457,7 +468,7 @@ const de: Dictionary = {
     note: "Sieht gut aus. Wir bestätigen deinen In-Game-Namen, dann bist du dabei.",
   },
   dashboard: {
-    guilds: "Guilds", mySubmissions: "Meine Einreichungen", formsTab: "Formulare", submissionsTab: "Einreichungen", boardTab: "Board", brandingTab: "Branding", botTab: "Bot", statusesTab: "Status", webhooksTab: "Webhooks", domainTab: "Domain", apiTab: "API",
+    guilds: "Guilds", mySubmissions: "Meine Einreichungen", formsTab: "Formulare", submissionsTab: "Einreichungen", boardTab: "Board", brandingTab: "Branding", botTab: "Bot", statusesTab: "Status", webhooksTab: "Webhooks", domainTab: "Domain", apiTab: "API", membersTab: "Mitglieder",
     board: {
       title: "Board",
       moveTo: "Verschieben nach",
@@ -490,6 +501,17 @@ const de: Dictionary = {
     newFormTitle: "Neues Formular", editFormTitle: "Formular bearbeiten",
     noPermCreate: "Du hast keine Berechtigung, Formulare zu erstellen.",
     noPermEdit: "Du hast keine Berechtigung, Formulare zu bearbeiten.",
+    pendingAccess: "Dein Zugang ist ausstehend — ein Admin kann dir eine Rolle geben, damit du reviewen kannst.",
+  },
+  members: {
+    title: "Mitglieder",
+    intro: "Verwalte, wer Einreichungen reviewen darf. Reviewer können auf bestimmte Formulare beschränkt werden.",
+    noPerm: "Du hast keine Berechtigung, Mitglieder zu verwalten.",
+    team: "Team", of: "von", unlimited: "unbegrenzt",
+    roleOwner: "Owner", roleAdmin: "Admin", roleReviewer: "Reviewer", roleViewer: "Viewer",
+    formAccess: "Formular-Zugriff", formAccessHint: "Wähle, welche Formulare dieses Mitglied reviewen darf.",
+    remove: "Entfernen", removeConfirm: "Dieses Mitglied aus der Guild entfernen?", cancel: "Abbrechen",
+    errAction: "Aktion fehlgeschlagen.", limitReached: "Mitglieder-Limit erreicht — upgrade deinen Plan für mehr.",
   },
   review: {
     back: "Zurück zu den Einreichungen",
@@ -777,7 +799,7 @@ const hu: Dictionary = {
     note: "Jól néz ki. Megerősítjük a játékbeli neved, és bent vagy.",
   },
   dashboard: {
-    guilds: "Szerverek", mySubmissions: "Beküldéseim", formsTab: "Űrlapok", submissionsTab: "Beküldések", boardTab: "Tábla", brandingTab: "Arculat", botTab: "Bot", statusesTab: "Állapotok", webhooksTab: "Webhookok", domainTab: "Domain", apiTab: "API",
+    guilds: "Szerverek", mySubmissions: "Beküldéseim", formsTab: "Űrlapok", submissionsTab: "Beküldések", boardTab: "Tábla", brandingTab: "Arculat", botTab: "Bot", statusesTab: "Állapotok", webhooksTab: "Webhookok", domainTab: "Domain", apiTab: "API", membersTab: "Tagok",
     board: {
       title: "Tábla",
       moveTo: "Áthelyezés ide",
@@ -810,6 +832,17 @@ const hu: Dictionary = {
     newFormTitle: "Új űrlap", editFormTitle: "Űrlap szerkesztése",
     noPermCreate: "Nincs jogosultságod űrlapok létrehozásához.",
     noPermEdit: "Nincs jogosultságod űrlapok szerkesztéséhez.",
+    pendingAccess: "A hozzáférésed függőben van — egy admin szerepkört adhat, hogy bírálhass.",
+  },
+  members: {
+    title: "Tagok",
+    intro: "Kezeld, ki bírálhatja a beküldéseket. A bírálók adott űrlapokra korlátozhatók.",
+    noPerm: "Nincs jogosultságod a tagok kezeléséhez.",
+    team: "Csapat", of: "/", unlimited: "korlátlan",
+    roleOwner: "Tulajdonos", roleAdmin: "Admin", roleReviewer: "Bíráló", roleViewer: "Megtekintő",
+    formAccess: "Űrlap-hozzáférés", formAccessHint: "Válaszd ki, mely űrlapokat bírálhatja ez a tag.",
+    remove: "Eltávolítás", removeConfirm: "Eltávolítod ezt a tagot a szerverről?", cancel: "Mégse",
+    errAction: "A művelet sikertelen.", limitReached: "Tagsági limit elérve — válts magasabb csomagra a többért.",
   },
   review: {
     back: "Vissza a beküldésekhez",

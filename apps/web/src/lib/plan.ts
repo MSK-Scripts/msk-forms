@@ -1,7 +1,7 @@
 import "server-only";
 
 import { prisma } from "@msk-forms/db";
-import { MONTHLY_SUBMISSION_LIMITS, type PlanTier } from "@msk-forms/shared";
+import { MEMBER_LIMITS, MONTHLY_SUBMISSION_LIMITS, type PlanTier } from "@msk-forms/shared";
 
 export interface GuildPlan {
   /** Effective tier (grandfathered guilds resolve to at least "pro"). */
@@ -10,6 +10,8 @@ export interface GuildPlan {
   isPro: boolean;
   /** Submissions allowed per calendar month, or null for unlimited. */
   monthlySubmissionLimit: number | null;
+  /** Team members (reviewers/managers) allowed, or null for unlimited. */
+  memberLimit: number | null;
 }
 
 /**
@@ -28,6 +30,7 @@ export async function getGuildPlan(guildId: string): Promise<GuildPlan> {
     tier,
     isPro: tier === "pro" || tier === "enterprise",
     monthlySubmissionLimit: MONTHLY_SUBMISSION_LIMITS[tier],
+    memberLimit: MEMBER_LIMITS[tier],
   };
 }
 
