@@ -23,14 +23,16 @@ const customCss = z.string().max(MAX_CUSTOM_CSS).optional();
  * `expression()` / `javascript:` JS-in-CSS vectors. Idempotent.
  */
 export function sanitizeCustomCss(css: string): string {
-  // Apply to a fixpoint: a single pass can let an interleaved copy reconstruct a
-  // forbidden token (e.g. `<st<styleyle` → `<style`), so repeat until stable.
-  let out = css.slice(0, MAX_CUSTOM_CSS);
+  // Remove every `<` so an HTML tag breakout (e.g. `</style>`) is impossible.
+  // CSS has no legitimate use for `<`, and single-character removal is complete
+  // — it can't be reconstructed the way a multi-character replace can.
+  let out = css.slice(0, MAX_CUSTOM_CSS).replace(/</g, "");
+  // Then strip remote @import (exfiltration) and the legacy JS-in-CSS vectors,
+  // to a fixpoint so interleaved copies can't reconstruct the token.
   let prev: string;
   do {
     prev = out;
     out = out
-      .replace(/<\/?\s*style/gi, "")
       .replace(/@import[^;]*;?/gi, "")
       .replace(/expression\s*\(/gi, "")
       .replace(/javascript\s*:/gi, "");

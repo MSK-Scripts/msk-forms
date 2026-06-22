@@ -8,8 +8,8 @@ describe("sanitizeCustomCss", () => {
     expect(sanitizeCustomCss(css)).toBe(css);
   });
 
-  it("strips style-tag breakouts", () => {
-    expect(sanitizeCustomCss("a{}</style><script>x()</script>")).not.toMatch(/style/i);
+  it("makes a tag breakout impossible by removing every '<'", () => {
+    expect(sanitizeCustomCss("a{}</style><script>x()</script>")).not.toContain("<");
   });
 
   it("strips @import, expression() and javascript:", () => {
@@ -26,7 +26,7 @@ describe("sanitizeCustomCss", () => {
   });
 
   it("resists interleaved reconstruction (fixpoint)", () => {
-    expect(sanitizeCustomCss("<st<styleyle>x")).not.toMatch(/<\s*style/i);
+    expect(sanitizeCustomCss("<st<styleyle>x")).not.toContain("<");
     expect(sanitizeCustomCss("@imp@importort url(x);")).not.toMatch(/@import/i);
   });
 
