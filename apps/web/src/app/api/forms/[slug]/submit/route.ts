@@ -7,6 +7,7 @@ import {
   formatAnswerValue,
   isLayoutField,
   parseFormSettings,
+  scoreSubmission,
   type FileAnswer,
   type FormSpec,
   type StatusChangeNotification,
@@ -155,6 +156,8 @@ export async function POST(
   }
 
   const user = await getCurrentUser();
+  // Quiz score (null when the form has no scored options).
+  const score = scoreSubmission(spec, data);
 
   const submission = await prisma.submission.create({
     data: {
@@ -162,6 +165,7 @@ export async function POST(
       guildId: form.guildId,
       userId: user?.id ?? null,
       answers: result.data as Prisma.InputJsonValue,
+      score,
       status: "submitted",
       events: {
         create: {

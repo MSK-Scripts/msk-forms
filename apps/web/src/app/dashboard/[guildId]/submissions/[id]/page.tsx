@@ -51,6 +51,11 @@ export default async function SubmissionDetailPage({
             {submission.form.title}
           </h1>
           <StatusBadge label={status.label} color={status.color} />
+          {submission.score != null && (
+            <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+              {dict.dashboard.colScore}: {submission.score}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           {submission.user?.avatar && (

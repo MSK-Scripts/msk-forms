@@ -49,7 +49,13 @@ export function FieldEditor({
 
   function setOption(i: number, value: string) {
     const options = [...(field.options ?? [])];
-    options[i] = { value, label: value };
+    options[i] = { ...options[i], value, label: value };
+    patch({ options });
+  }
+  function setOptionScore(i: number, raw: string) {
+    const options = [...(field.options ?? [])];
+    const n = raw === "" ? undefined : Number(raw);
+    options[i] = { ...options[i]!, score: n !== undefined && Number.isFinite(n) ? n : undefined };
     patch({ options });
   }
   function addOption() {
@@ -124,6 +130,15 @@ export function FieldEditor({
                       onChange={(e) => setOption(i, e.target.value)}
                       placeholder={`${t.optionPh} ${i + 1}`}
                     />
+                    {!needsRows(field.type) && (
+                      <Input
+                        type="number"
+                        value={opt.score ?? ""}
+                        onChange={(e) => setOptionScore(i, e.target.value)}
+                        placeholder={t.points}
+                        className="w-24 shrink-0"
+                      />
+                    )}
                     <IconButton label={t.removeOption} onClick={() => removeOption(i)}>
                       ✕
                     </IconButton>

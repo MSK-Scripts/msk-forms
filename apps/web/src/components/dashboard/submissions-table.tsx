@@ -13,6 +13,7 @@ export interface SubmissionRow {
   formTitle: string;
   date: string;
   status: string;
+  score: number | null;
 }
 
 export interface StatusOption {
@@ -26,6 +27,7 @@ export interface SubmissionsTableLabels {
   colForm: string;
   colDate: string;
   colStatus: string;
+  colScore: string;
   open: string;
   selected: string;
   apply: string;
@@ -54,6 +56,7 @@ export function SubmissionsTable({
   const [error, setError] = useState<string | null>(null);
 
   const allSelected = rows.length > 0 && selected.size === rows.length;
+  const hasScores = rows.some((r) => r.score != null);
   const resolve = (key: string) =>
     options.find((o) => o.key === key) ?? { key, label: key, color: "#6b6b72" };
 
@@ -132,6 +135,7 @@ export function SubmissionsTable({
               <th className="px-4 py-3 font-medium">{labels.colApplicant}</th>
               <th className="px-4 py-3 font-medium">{labels.colForm}</th>
               <th className="px-4 py-3 font-medium">{labels.colDate}</th>
+              {hasScores && <th className="px-4 py-3 font-medium">{labels.colScore}</th>}
               <th className="px-4 py-3 font-medium">{labels.colStatus}</th>
               <th className="px-4 py-3" />
             </tr>
@@ -165,6 +169,17 @@ export function SubmissionsTable({
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{s.formTitle}</td>
                   <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{s.date}</td>
+                  {hasScores && (
+                    <td className="px-4 py-3">
+                      {s.score != null ? (
+                        <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                          {s.score}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </td>
+                  )}
                   <td className="px-4 py-3">
                     <StatusBadge label={status.label} color={status.color} />
                   </td>
