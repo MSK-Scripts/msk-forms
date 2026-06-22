@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { CtaBand } from "@/components/landing/cta";
+import { FeatureGrid } from "@/components/landing/feature-grid";
 import { Features } from "@/components/landing/features";
 import { GuildDomainHome } from "@/components/landing/guild-domain-home";
 import { Hero } from "@/components/landing/hero";
@@ -51,6 +52,7 @@ export default async function HomePage({
 
       <Hero loggedIn={Boolean(user)} botInvite={botInvite} />
       <Features />
+      <FeatureGrid />
       <Steps />
       <CtaBand loggedIn={Boolean(user)} botInvite={botInvite} />
     </>
