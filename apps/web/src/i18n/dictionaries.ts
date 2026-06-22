@@ -211,6 +211,7 @@ const en = {
       noPerm: "You don’t have permission to manage statuses.",
     },
     yourGuilds: "Your guilds",
+    yourGuildsHint: "Discord servers where MSK Forms is installed.",
     noGuilds: "You aren’t managing any guilds yet.",
     noGuildsHint:
       "Connecting a guild happens through the Discord bot invite. That flow lands in a later slice. For now, an admin can add you to a guild.",
@@ -605,6 +606,7 @@ const de: Dictionary = {
       noPerm: "Du hast keine Berechtigung, Status zu verwalten.",
     },
     yourGuilds: "Deine Guilds",
+    yourGuildsHint: "Discord-Server, auf denen MSK Forms installiert ist.",
     noGuilds: "Du verwaltest noch keine Guilds.",
     noGuildsHint:
       "Eine Guild wird über die Discord-Bot-Einladung verbunden. Dieser Ablauf kommt in einem späteren Slice. Bis dahin kann dich ein Admin zu einer Guild hinzufügen.",
@@ -997,6 +999,7 @@ const hu: Dictionary = {
       noPerm: "Nincs jogosultságod az állapotok kezeléséhez.",
     },
     yourGuilds: "A szervereid",
+    yourGuildsHint: "Discord-szerverek, ahol az MSK Forms telepítve van.",
     noGuilds: "Még nem kezelsz egyetlen szervert sem.",
     noGuildsHint:
       "Egy szerver összekapcsolása a Discord bot meghívásán keresztül történik. Ez a folyamat egy későbbi szakaszban érkezik. Egyelőre egy adminisztrátor hozzáadhat egy szerverhez.",
