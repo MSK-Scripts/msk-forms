@@ -197,6 +197,7 @@ const en = {
     cssBody: "Custom CSS is available on the Pro plan.",
     automationsBody: "Automations are available on the Pro plan.",
     formLimit: "Free plan: up to 3 forms. Upgrade to Pro for unlimited forms.",
+    upgrade: "Upgrade to Pro", manage: "Manage subscription",
   },
   builder: {
     title: "Title", description: "Description", slug: "Slug", slugHint: "Public URL: /f/<slug>", auto: "Auto",
@@ -451,6 +452,7 @@ const de: Dictionary = {
     cssBody: "Eigenes CSS ist im Pro-Plan verfügbar.",
     automationsBody: "Automatisierungen sind im Pro-Plan verfügbar.",
     formLimit: "Free-Plan: bis zu 3 Formulare. Upgrade auf Pro für unbegrenzte Formulare.",
+    upgrade: "Auf Pro upgraden", manage: "Abo verwalten",
   },
   builder: {
     title: "Titel", description: "Beschreibung", slug: "Slug", slugHint: "Öffentliche URL: /f/<slug>", auto: "Auto",
@@ -703,6 +705,7 @@ const hu: Dictionary = {
     cssBody: "Az egyéni CSS a Pro csomagban érhető el.",
     automationsBody: "Az automatizálások a Pro csomagban érhetők el.",
     formLimit: "Free csomag: legfeljebb 3 űrlap. Frissíts Pro csomagra a korlátlan űrlapokért.",
+    upgrade: "Frissítés Pro-ra", manage: "Előfizetés kezelése",
   },
   builder: {
     title: "Cím", description: "Leírás", slug: "Slug", slugHint: "Nyilvános URL: /f/<slug>", auto: "Auto",

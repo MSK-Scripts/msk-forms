@@ -2,12 +2,14 @@ import { prisma } from "@msk-forms/db";
 import { FREE_FORM_LIMIT } from "@msk-forms/shared";
 import { Card } from "@msk-forms/ui";
 
+import { UpgradeButton } from "@/components/billing/upgrade-button";
 import { FormBuilder } from "@/components/builder/form-builder";
 import { ProNotice } from "@/components/pro-notice";
 import { requireUser } from "@/lib/auth";
 import { getStatusOptionsForGuild } from "@/lib/forms";
 import { canManageForms } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
+import { stripeEnabled } from "@/lib/stripe";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -36,7 +38,11 @@ export default async function NewFormPage({
         <h2 className="font-heading text-xl font-semibold text-foreground">
           {t.dashboard.newFormTitle}
         </h2>
-        <ProNotice title={t.pro.title} body={t.pro.formLimit} />
+        <ProNotice
+          title={t.pro.title}
+          body={t.pro.formLimit}
+          action={stripeEnabled() ? <UpgradeButton guildId={guildId} label={t.pro.upgrade} /> : undefined}
+        />
       </div>
     );
   }

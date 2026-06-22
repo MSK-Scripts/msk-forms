@@ -1,12 +1,14 @@
 import { prisma } from "@msk-forms/db";
 import { Card } from "@msk-forms/ui";
 
+import { UpgradeButton } from "@/components/billing/upgrade-button";
 import { DomainForm } from "@/components/domain/domain-form";
 import { ProNotice } from "@/components/pro-notice";
 import { requireUser } from "@/lib/auth";
 import { primaryHostname } from "@/lib/custom-domain";
 import { canManageForms } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
+import { stripeEnabled } from "@/lib/stripe";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -34,7 +36,11 @@ export default async function DomainPage({
     return (
       <div className="flex flex-col gap-4">
         <h2 className="font-heading text-xl font-semibold text-foreground">{t.title}</h2>
-        <ProNotice title={dict.pro.title} body={dict.pro.body} />
+        <ProNotice
+          title={dict.pro.title}
+          body={dict.pro.body}
+          action={stripeEnabled() ? <UpgradeButton guildId={guildId} label={dict.pro.upgrade} /> : undefined}
+        />
       </div>
     );
   }

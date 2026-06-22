@@ -1,15 +1,18 @@
+import { prisma } from "@msk-forms/db";
 import { FREE_FORM_LIMIT } from "@msk-forms/shared";
 import { Card, StatusBadge } from "@msk-forms/ui";
 import type { Route } from "next";
 import Link from "next/link";
 import QRCode from "qrcode";
 
+import { ManageBillingButton } from "@/components/billing/manage-billing-button";
 import { DeleteFormButton } from "@/components/dashboard/delete-form-button";
 import { ShareButton } from "@/components/dashboard/share-button";
 import { requireUser } from "@/lib/auth";
 import { appBaseUrl } from "@/lib/url";
 import { canManageForms, getGuildForms } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
+import { stripeEnabled } from "@/lib/stripe";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -38,6 +41,14 @@ export default async function GuildFormsPage({
   const dict = await getDict();
   const t = dict.dashboard;
   const atFormLimit = !pro && forms.length >= FREE_FORM_LIMIT;
+  // Show "Manage subscription" only to guilds that actually pay (not grandfathered).
+  const guildBilling =
+    canManage && stripeEnabled()
+      ? await prisma.guild.findUnique({
+          where: { id: guildId },
+          select: { stripeSubscriptionId: true },
+        })
+      : null;
   const statusLabel: Record<string, string> = {
     draft: dict.builder.statusDraft,
     live: dict.builder.statusLive,
@@ -61,6 +72,10 @@ export default async function GuildFormsPage({
         <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
           {forms.length} {forms.length === 1 ? t.countForm : t.countForms}
         </h2>
+        <div className="flex items-center gap-2">
+        {guildBilling?.stripeSubscriptionId && (
+          <ManageBillingButton guildId={guildId} label={dict.pro.manage} />
+        )}
         {atFormLimit ? (
           <span className="cursor-not-allowed rounded-md bg-muted px-4 py-2 text-sm font-medium text-muted-foreground">
             + {t.newForm}
@@ -73,6 +88,7 @@ export default async function GuildFormsPage({
             + {t.newForm}
           </Link>
         )}
+        </div>
       </div>
 
       {atFormLimit && (
