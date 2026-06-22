@@ -13,6 +13,7 @@ import {
 import { DateField, type DateFieldLabels } from "./date-field";
 import { FileField, type FileFieldLabels } from "./file-field";
 import { MatrixField } from "./matrix-field";
+import { PhoneField } from "./phone-field";
 import { ScaleButtons, SliderInput, StarRating } from "./rating-fields";
 import { SignatureField } from "./signature-field";
 
@@ -240,18 +241,28 @@ export function FieldInput({
         />
       );
 
-    // short_text, email, phone, url, password and any other single-line text.
+    case "phone":
+      return (
+        <PhoneField
+          id={id}
+          value={value as string | undefined}
+          onChange={onChange}
+          invalid={invalid}
+          disabled={disabled}
+          placeholder={field.placeholder}
+        />
+      );
+
+    // short_text, email, url, password and any other single-line text.
     default: {
       const inputType =
         field.type === "email"
           ? "email"
-          : field.type === "phone"
-            ? "tel"
-            : field.type === "url"
-              ? "url"
-              : field.type === "password"
-                ? "password"
-                : "text";
+          : field.type === "url"
+            ? "url"
+            : field.type === "password"
+              ? "password"
+              : "text";
       return (
         <Input
           id={id}
