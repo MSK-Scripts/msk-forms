@@ -18,7 +18,7 @@ export function NavTabs({ tabs }: { tabs: NavTab[] }) {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-1 overflow-x-auto border-b border-border">
+    <nav className="flex gap-1 overflow-x-auto overflow-y-hidden border-b border-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {tabs.map((tab) => {
         const active = tab.prefix
           ? pathname.startsWith(tab.href)
