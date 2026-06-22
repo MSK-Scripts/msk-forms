@@ -1,6 +1,7 @@
 import { prisma } from "@msk-forms/db";
 import {
   parseBotConfig,
+  parseFormSettings,
   type MessageNotification,
   type StatusChangeNotification,
   type SubmissionReviewNotification,
@@ -79,11 +80,15 @@ async function deliverReview(client: Client, row: PendingRow): Promise<boolean> 
   const payload = row.payload as Partial<SubmissionReviewNotification>;
   if (!payload?.submissionId) return true;
 
-  const guild = await prisma.guild.findUnique({
-    where: { id: row.guildId },
-    select: { botConfig: true },
+  // Resolve the review channel: the per-form override wins over the guild's
+  // bot config. Look both up via the submission this notification is about.
+  const sub = await prisma.submission.findUnique({
+    where: { id: payload.submissionId },
+    select: { form: { select: { settings: true } }, guild: { select: { botConfig: true } } },
   });
-  const channelId = parseBotConfig(guild?.botConfig).reviewChannelId;
+  const channelId =
+    parseFormSettings(sub?.form.settings).reviewChannelId ??
+    parseBotConfig(sub?.guild.botConfig).reviewChannelId;
   if (!channelId) return true; // no review channel configured → nothing to do
 
   try {

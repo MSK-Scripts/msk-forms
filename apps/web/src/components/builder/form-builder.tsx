@@ -1,6 +1,6 @@
 "use client";
 
-import type { AutomationRule, FieldType, FormField, FormPage } from "@msk-forms/shared";
+import { parseIdList, type AutomationRule, type FieldType, type FormField, type FormPage } from "@msk-forms/shared";
 import { Button, Card, Field, Input, Select, Textarea } from "@msk-forms/ui";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
@@ -20,7 +20,8 @@ export interface FormBuilderInitial {
   slug: string;
   status: string;
   visibility: string;
-  acceptedRoleId: string;
+  acceptedRoles: string;
+  reviewChannelId: string;
   pages: FormPage[];
   automations: AutomationRule[];
 }
@@ -63,7 +64,8 @@ export function FormBuilder({
   const [slug, setSlug] = useState(initial.slug);
   const [status, setStatus] = useState(initial.status);
   const [visibility, setVisibility] = useState(initial.visibility);
-  const [acceptedRoleId, setAcceptedRoleId] = useState(initial.acceptedRoleId);
+  const [acceptedRoles, setAcceptedRoles] = useState(initial.acceptedRoles);
+  const [reviewChannelId, setReviewChannelId] = useState(initial.reviewChannelId);
   const [pages, setPages] = useState<FormPage[]>(initial.pages);
   const [automations, setAutomations] = useState<AutomationRule[]>(initial.automations);
   const [addType, setAddType] = useState<FieldType>("short_text");
@@ -130,7 +132,9 @@ export function FormBuilder({
       })),
     };
     const settings: Record<string, unknown> = {};
-    if (acceptedRoleId.trim()) settings.acceptedRoleId = acceptedRoleId.trim();
+    const roleIds = parseIdList(acceptedRoles);
+    if (roleIds.length > 0) settings.acceptedRoleIds = roleIds;
+    if (reviewChannelId.trim()) settings.reviewChannelId = reviewChannelId.trim();
     if (automations.length > 0) settings.automations = automations;
     const payload = {
       title: title.trim(),
@@ -214,13 +218,22 @@ export function FormBuilder({
             />
           </Field>
         </div>
-        <Field label={t.acceptedRole} hint={t.acceptedRoleHint}>
-          <Input
-            value={acceptedRoleId}
-            placeholder="123456789012345678"
-            onChange={(e) => setAcceptedRoleId(e.target.value)}
-          />
-        </Field>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label={t.acceptedRole} hint={t.acceptedRoleHint}>
+            <Input
+              value={acceptedRoles}
+              placeholder="123456789012345678, 987654321098765432"
+              onChange={(e) => setAcceptedRoles(e.target.value)}
+            />
+          </Field>
+          <Field label={t.reviewChannel} hint={t.reviewChannelHint}>
+            <Input
+              value={reviewChannelId}
+              placeholder="123456789012345678"
+              onChange={(e) => setReviewChannelId(e.target.value)}
+            />
+          </Field>
+        </div>
       </Card>
 
       {pages.map((page, pi) => (

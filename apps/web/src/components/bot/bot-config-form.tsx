@@ -1,6 +1,6 @@
 "use client";
 
-import type { BotConfig } from "@msk-forms/shared";
+import { acceptedRoleIdsOf, parseIdList, type BotConfig } from "@msk-forms/shared";
 import { Button, Card, Field, Input } from "@msk-forms/ui";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -20,7 +20,7 @@ export function BotConfigForm({
 }) {
   const router = useRouter();
   const [channel, setChannel] = useState(initial.reviewChannelId ?? "");
-  const [role, setRole] = useState(initial.acceptedRoleId ?? "");
+  const [role, setRole] = useState(acceptedRoleIdsOf(initial).join(", "));
   const [postName, setPostName] = useState(initial.postName ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,9 +31,10 @@ export function BotConfigForm({
     setSaved(false);
     setSaving(true);
     try {
-      const body: Record<string, string> = {};
+      const body: Record<string, unknown> = {};
       if (channel.trim()) body.reviewChannelId = channel.trim();
-      if (role.trim()) body.acceptedRoleId = role.trim();
+      const roleIds = parseIdList(role);
+      if (roleIds.length > 0) body.acceptedRoleIds = roleIds;
       if (postName.trim()) body.postName = postName.trim();
       const res = await fetch(`/api/guilds/${guildId}/bot-config`, {
         method: "PATCH",

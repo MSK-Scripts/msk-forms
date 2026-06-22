@@ -30,8 +30,12 @@ export const automationRuleSchema = z.object({
 export type AutomationRule = z.infer<typeof automationRuleSchema>;
 
 export const formSettingsSchema = z.object({
-  /** Role granted on acceptance for THIS form (overrides the guild default). */
+  /** Legacy single accepted role (still read for backward compatibility). */
   acceptedRoleId: snowflake.optional(),
+  /** Roles granted on acceptance for THIS form (override the guild default). */
+  acceptedRoleIds: z.array(snowflake).max(20).optional(),
+  /** Review channel for THIS form (overrides the guild's bot config channel). */
+  reviewChannelId: snowflake.optional(),
   /** When-then rules evaluated on submission creation. */
   automations: z.array(automationRuleSchema).max(20).default([]),
 });
@@ -42,6 +46,25 @@ export type FormSettings = z.infer<typeof formSettingsSchema>;
 export function parseFormSettings(json: unknown): FormSettings {
   const result = formSettingsSchema.safeParse(json);
   return result.success ? result.data : { automations: [] };
+}
+
+/**
+ * Effective accepted-role ids for a settings/bot-config object: the new
+ * `acceptedRoleIds` array when present, otherwise the legacy single
+ * `acceptedRoleId`, otherwise empty. Works for both form settings and guild
+ * bot config (same field names).
+ */
+export function acceptedRoleIdsOf(s: {
+  acceptedRoleIds?: string[];
+  acceptedRoleId?: string;
+}): string[] {
+  if (s.acceptedRoleIds && s.acceptedRoleIds.length > 0) return s.acceptedRoleIds;
+  return s.acceptedRoleId ? [s.acceptedRoleId] : [];
+}
+
+/** Split a free-text list of Discord ids (comma / whitespace / newline separated), de-duped. */
+export function parseIdList(raw: string): string[] {
+  return [...new Set(raw.split(/[\s,]+/).map((s) => s.trim()).filter(Boolean))];
 }
 
 /**

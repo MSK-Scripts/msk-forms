@@ -74,7 +74,8 @@ export default async function NewFormPage({
           slug: "",
           status: "draft",
           visibility: "public",
-          acceptedRoleId: "",
+          acceptedRoles: "",
+          reviewChannelId: "",
           pages: [{ id: "p1", title: "", fields: [] }],
           automations: [],
         }}
