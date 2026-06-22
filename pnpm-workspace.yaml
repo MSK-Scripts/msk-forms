@@ -20,3 +20,6 @@ overrides:
   # GHSA-92pp-h63x-v22m — serveStatic middleware bypass via repeated slashes
   # (transitive via prisma -> @prisma/dev). Dev-only, but kept patched.
   "@hono/node-server@<1.19.13": ">=1.19.13 <2"
+  # GHSA-w5hq-g745-h8pq — uuid missing buffer bounds check in v3/v5/v6 (transitive
+  # via exceljs, which only uses v4). Force the patched line; v4 API is unchanged.
+  "uuid@<11.1.1": ">=11.1.1"
