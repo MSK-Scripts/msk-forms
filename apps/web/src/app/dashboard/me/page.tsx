@@ -13,7 +13,8 @@ export const dynamic = "force-dynamic";
 export default async function MySubmissionsPage() {
   const user = await requireUser("/dashboard/me");
   const submissions = await getUserSubmissions(user.id);
-  const t = (await getDict()).dashboard;
+  const dict = await getDict();
+  const t = dict.dashboard;
 
   return (
     <div className="flex flex-col gap-4">
@@ -26,7 +27,7 @@ export default async function MySubmissionsPage() {
       ) : (
         <div className="flex flex-col gap-2">
           {submissions.map((s) => {
-            const status = resolveStatus(s.status, []);
+            const status = resolveStatus(s.status, [], dict.statusLabels);
             return (
               <Link key={s.id} href={`/s/${s.id}` as Route}>
                 <Card className="flex items-center justify-between gap-4 p-4 transition-colors hover:border-primary/40">

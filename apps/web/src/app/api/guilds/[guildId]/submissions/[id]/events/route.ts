@@ -10,6 +10,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { resolveStatus } from "@/lib/forms";
 import { canReviewSubmissions } from "@/lib/guild";
 import { submissionActionSchema } from "@/lib/submission-action";
+import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -68,12 +69,13 @@ export async function POST(
     }
 
     // Idempotent, race-safe transition + event + applicant DM (skip anonymous).
+    const labels = (await getDict()).statusLabels;
     const notify: StatusChangeNotification | null = submission.userId
       ? {
           submissionId: id,
           formTitle: submission.form.title,
           toStatus: action.status,
-          toStatusLabel: resolveStatus(action.status, defs).label,
+          toStatusLabel: resolveStatus(action.status, defs, labels).label,
         }
       : null;
     await changeSubmissionStatus({

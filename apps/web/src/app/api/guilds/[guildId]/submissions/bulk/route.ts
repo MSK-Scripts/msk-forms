@@ -5,6 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { resolveStatus } from "@/lib/forms";
 import { canReviewSubmissions } from "@/lib/guild";
+import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -50,7 +51,7 @@ export async function POST(
     where: { id: { in: ids }, guildId },
     select: { id: true, userId: true, form: { select: { title: true } } },
   });
-  const label = resolveStatus(status, defs).label;
+  const label = resolveStatus(status, defs, (await getDict()).statusLabels).label;
 
   let changed = 0;
   for (const sub of subs) {

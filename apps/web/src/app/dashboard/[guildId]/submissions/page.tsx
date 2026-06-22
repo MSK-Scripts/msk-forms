@@ -26,7 +26,8 @@ export default async function GuildSubmissionsPage({
     }),
     canReviewSubmissions(guildId, user.id),
   ]);
-  const t = (await getDict()).dashboard;
+  const dict = await getDict();
+  const t = dict.dashboard;
 
   if (submissions.length === 0) {
     return (
@@ -37,11 +38,11 @@ export default async function GuildSubmissionsPage({
   }
 
   // Columns include any status present on a submission but not in the defs.
-  const options = statusOptions(defs);
+  const options = statusOptions(defs, dict.statusLabels);
   const present = new Set(submissions.map((s) => s.status));
   const extra = [...present]
     .filter((k) => !options.some((o) => o.key === k))
-    .map((k) => resolveStatus(k, defs));
+    .map((k) => resolveStatus(k, defs, dict.statusLabels));
 
   const rows = submissions.map((s) => ({
     id: s.id,

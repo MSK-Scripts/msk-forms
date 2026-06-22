@@ -17,7 +17,8 @@ export default async function StatusesPage({
 }) {
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/statuses`);
-  const t = (await getDict()).dashboard;
+  const dict = await getDict();
+  const t = dict.dashboard;
 
   if (!(await canManageForms(guildId, user.id))) {
     return (
@@ -46,7 +47,7 @@ export default async function StatusesPage({
         </h3>
         <div className="flex flex-wrap gap-2">
           {DEFAULT_STATUSES.map((s) => (
-            <StatusBadge key={s.key} label={s.label} color={s.color} />
+            <StatusBadge key={s.key} label={dict.statusLabels[s.key] ?? s.label} color={s.color} />
           ))}
         </div>
       </Card>

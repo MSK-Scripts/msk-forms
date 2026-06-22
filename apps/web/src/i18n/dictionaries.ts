@@ -66,6 +66,16 @@ const en = {
     actionFailed: "Action failed. Please try again.",
     cancel: "Cancel",
   },
+  // Labels for the built-in default status pipeline (keys from DEFAULT_STATUSES).
+  // Custom guild statuses keep their own label and are never translated.
+  statusLabels: {
+    submitted: "Submitted",
+    in_review: "In review",
+    on_hold: "On hold",
+    accepted: "Accepted",
+    rejected: "Rejected",
+    withdrawn: "Withdrawn",
+  },
   preview: {
     submission: "Your submission", title: "Whitelist application", inReview: "In review",
     submitted: "Submitted", pickedUp: "Picked up by a reviewer", decision: "Decision",
@@ -261,6 +271,14 @@ const de: Dictionary = {
     actionFailed: "Aktion fehlgeschlagen. Bitte versuche es erneut.",
     cancel: "Abbrechen",
   },
+  statusLabels: {
+    submitted: "Eingereicht",
+    in_review: "In Prüfung",
+    on_hold: "Zurückgestellt",
+    accepted: "Angenommen",
+    rejected: "Abgelehnt",
+    withdrawn: "Zurückgezogen",
+  },
   preview: {
     submission: "Deine Einreichung", title: "Whitelist-Bewerbung", inReview: "In Prüfung",
     submitted: "Eingereicht", pickedUp: "Von einem Reviewer übernommen", decision: "Entscheidung",
@@ -453,6 +471,14 @@ const hu: Dictionary = {
     deleted: "A beküldésed törölve lett.",
     actionFailed: "A művelet sikertelen. Kérjük, próbáld újra.",
     cancel: "Mégse",
+  },
+  statusLabels: {
+    submitted: "Beküldve",
+    in_review: "Elbírálás alatt",
+    on_hold: "Várakozik",
+    accepted: "Elfogadva",
+    rejected: "Elutasítva",
+    withdrawn: "Visszavonva",
   },
   preview: {
     submission: "A beküldésed", title: "Whitelist jelentkezés", inReview: "Elbírálás alatt",
