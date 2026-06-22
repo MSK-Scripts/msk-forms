@@ -19,9 +19,22 @@ DATABASE_URL="$(grep -E '^DATABASE_URL=' "$ENV_FILE" | head -n1 | cut -d= -f2-)"
 DATABASE_URL="${DATABASE_URL%\"}"; DATABASE_URL="${DATABASE_URL#\"}"
 export PGCONNECT_TIMEOUT=5
 
-# Verified custom domains only.
-mapfile -t DOMAINS < <(psql "$DATABASE_URL" -tAc \
-  "SELECT custom_domain FROM guilds WHERE custom_domain IS NOT NULL AND custom_domain_verified_at IS NOT NULL ORDER BY custom_domain")
+# Prisma URLs carry a `?schema=` query param that libpq (psql) rejects. Extract
+# the schema for search_path and drop the whole query string for the connection.
+SCHEMA="$(printf '%s' "$DATABASE_URL" | sed -n 's/.*[?&]schema=\([^&]*\).*/\1/p')"
+PSQL_URL="${DATABASE_URL%%\?*}"
+export PGOPTIONS="-c search_path=${SCHEMA:-public}"
+
+# Verified custom domains only. Abort on a query/connection error so a failed
+# lookup can never write an empty config (which would drop every domain's vhost).
+if ! DOMAINS_RAW="$(psql "$PSQL_URL" -tAc \
+  "SELECT custom_domain FROM guilds WHERE custom_domain IS NOT NULL AND custom_domain_verified_at IS NOT NULL ORDER BY custom_domain")"; then
+  echo "DB query failed — leaving Apache config unchanged." >&2
+  exit 1
+fi
+mapfile -t RAW <<< "$DOMAINS_RAW"
+DOMAINS=()
+for d in "${RAW[@]}"; do [ -n "$d" ] && DOMAINS+=("$d"); done
 
 TMP="$(mktemp)"
 trap 'rm -f "$TMP"' EXIT
