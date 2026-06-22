@@ -1,15 +1,9 @@
 import { changeSubmissionStatus, prisma } from "@msk-forms/db";
-import {
-  DEFAULT_STATUSES,
-  parseBotConfig,
-  parseFormSettings,
-  type StatusChangeNotification,
-} from "@msk-forms/shared";
+import { DEFAULT_STATUSES, type StatusChangeNotification } from "@msk-forms/shared";
 import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  DiscordAPIError,
   EmbedBuilder,
   MessageFlags,
   PermissionFlagsBits,
@@ -17,6 +11,7 @@ import {
 } from "discord.js";
 
 import { config } from "./config.js";
+import { grantAcceptedRole } from "./roles.js";
 import { dashboardSubmissionUrl } from "./urls.js";
 
 const ACTION_STATUS = { accept: "accepted", reject: "rejected" } as const;
@@ -54,8 +49,8 @@ export async function handleReviewButton(interaction: ButtonInteraction): Promis
       status: true,
       userId: true,
       guildId: true,
-      form: { select: { title: true, settings: true } },
-      guild: { select: { discordGuildId: true, botConfig: true } },
+      form: { select: { title: true } },
+      guild: { select: { discordGuildId: true } },
     },
   });
   if (!submission || submission.guild.discordGuildId !== interaction.guildId) {
@@ -83,35 +78,12 @@ export async function handleReviewButton(interaction: ButtonInteraction): Promis
         : null,
   });
 
-  if (changed && action === "accept" && submission.userId) {
-    // Per-form accepted role overrides the guild-wide default.
-    const roleId =
-      parseFormSettings(submission.form.settings).acceptedRoleId ??
-      parseBotConfig(submission.guild.botConfig).acceptedRoleId;
-    if (roleId) await grantRole(interaction, submission.userId, roleId);
+  if (changed && action === "accept") {
+    // Grant the accepted role via the shared path (per-form role → guild default).
+    await grantAcceptedRole(interaction.client, submissionId);
   }
 
   await updateMessage(interaction, submission.guildId, submissionId, toStatus);
-}
-
-/** Grant the accepted role to the applicant. Best-effort — never throws. */
-async function grantRole(
-  interaction: ButtonInteraction,
-  applicantUserId: string,
-  roleId: string,
-): Promise<void> {
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: applicantUserId },
-      select: { discordId: true },
-    });
-    if (!user?.discordId || !interaction.guild) return;
-    const member = await interaction.guild.members.fetch(user.discordId);
-    await member.roles.add(roleId);
-  } catch (err) {
-    const code = err instanceof DiscordAPIError ? ` (${err.code})` : "";
-    console.error(`[bot] could not grant role ${roleId}${code}:`, (err as Error).message);
-  }
 }
 
 /** Edit the review message: show the decision and disable the action buttons. */

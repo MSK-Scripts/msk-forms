@@ -16,6 +16,7 @@ import {
 
 import { config } from "./config.js";
 import { postBranded } from "./posting.js";
+import { grantAcceptedRole } from "./roles.js";
 import { dashboardSubmissionUrl, statusUrl } from "./urls.js";
 
 const MSK_GREEN = 0x00e676;
@@ -139,6 +140,16 @@ async function deliverOne(client: Client, row: PendingRow): Promise<boolean> {
   if (!message) {
     console.warn(`[bot] notification ${row.id} has an unrecognised payload — dropping.`);
     return true;
+  }
+
+  // Grant the accepted role on acceptance — this covers every non-button path
+  // (web review, bulk actions, automations). The Accept button grants directly;
+  // roles.add is idempotent, so a double grant here is harmless.
+  if (row.type === "status_change") {
+    const payload = row.payload as Partial<StatusChangeNotification>;
+    if (payload?.toStatus === "accepted" && payload.submissionId) {
+      await grantAcceptedRole(client, payload.submissionId);
+    }
   }
 
   try {
