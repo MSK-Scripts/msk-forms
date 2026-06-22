@@ -13,7 +13,7 @@
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {
-    "pg": "^8.13.1",
+    "pg": "^8.22.0",
     "ws": "^8.18.0"
   },
   "devDependencies": {
