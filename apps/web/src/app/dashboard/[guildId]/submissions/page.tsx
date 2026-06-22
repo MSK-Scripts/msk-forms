@@ -70,6 +70,7 @@ export default async function GuildSubmissionsPage({
     formTitle: s.form.title,
     date: s.submittedAt.toISOString().slice(0, 10),
     status: s.status,
+    score: s.score,
   }));
 
   return (
@@ -85,6 +86,7 @@ export default async function GuildSubmissionsPage({
           colForm: t.colForm,
           colDate: t.colDate,
           colStatus: t.colStatus,
+          colScore: t.colScore,
           open: t.open,
           selected: t.bulk.selected,
           apply: t.bulk.apply,

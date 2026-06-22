@@ -160,6 +160,7 @@ export async function getGuildSubmissions(guildId: string, scope: ReviewScope) {
     select: {
       id: true,
       status: true,
+      score: true,
       submittedAt: true,
       form: { select: { title: true } },
       user: { select: { username: true, avatar: true } },

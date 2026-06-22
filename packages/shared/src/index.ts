@@ -11,3 +11,4 @@ export * from "./status-defs";
 export * from "./webhooks";
 export * from "./domains";
 export * from "./plans";
+export * from "./scoring";
