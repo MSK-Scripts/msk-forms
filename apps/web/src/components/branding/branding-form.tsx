@@ -1,7 +1,7 @@
 "use client";
 
 import type { Branding } from "@msk-forms/shared";
-import { Button, Card, Field, Input } from "@msk-forms/ui";
+import { Button, Card, Field, Input, Textarea } from "@msk-forms/ui";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -23,6 +23,7 @@ export function BrandingForm({
 }) {
   const router = useRouter();
   const [color, setColor] = useState(initial.accentColor ?? "");
+  const [css, setCss] = useState(initial.customCss ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -32,7 +33,9 @@ export function BrandingForm({
     setSaved(false);
     setSaving(true);
     try {
-      const body = color.trim() ? { accentColor: color.trim() } : {};
+      const body: { accentColor?: string; customCss?: string } = {};
+      if (color.trim()) body.accentColor = color.trim();
+      if (css.trim()) body.customCss = css;
       const res = await fetch(`/api/guilds/${guildId}/branding`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -90,6 +93,20 @@ export function BrandingForm({
             </button>
           )}
         </div>
+      </Field>
+
+      <Field label={t.customCss} hint={t.customCssHint}>
+        <Textarea
+          value={css}
+          rows={6}
+          spellCheck={false}
+          placeholder=".msk-form { ... }"
+          className="font-mono text-xs"
+          onChange={(e) => {
+            setCss(e.target.value);
+            setSaved(false);
+          }}
+        />
       </Field>
 
       <div className="flex items-center gap-3">
