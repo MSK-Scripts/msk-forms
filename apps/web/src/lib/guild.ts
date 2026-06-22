@@ -3,11 +3,16 @@ import "server-only";
 import { prisma } from "@msk-forms/db";
 import { notFound } from "next/navigation";
 
-/** Roles allowed to create/edit/manage a guild's forms (concept §17). */
-export const MANAGER_ROLES = ["owner", "admin"] as const;
+import {
+  isGlobalReviewerRole,
+  isManagerRole,
+  REVIEWER_ROLES,
+  scopeFromRole,
+  type ReviewScope as PureReviewScope,
+} from "./access";
 
-/** Roles allowed to review submissions: act on status, add notes/messages. */
-export const REVIEWER_ROLES = ["owner", "admin", "reviewer"] as const;
+// Re-export the pure constants/types so existing importers (`@/lib/guild`) keep working.
+export { MANAGER_ROLES, REVIEWER_ROLES } from "./access";
 
 /** The user's role in a guild, or null if they aren't a member. */
 export async function getGuildRole(
@@ -21,33 +26,32 @@ export async function getGuildRole(
   return membership?.role ?? null;
 }
 
+/** A user's review scope in a guild (re-exported from the pure access module). */
+export type ReviewScope = PureReviewScope;
+
 /** True if the user may manage (create/edit) the guild's forms. */
 export async function canManageForms(guildId: string, userId: string): Promise<boolean> {
-  const role = await getGuildRole(guildId, userId);
-  return role !== null && (MANAGER_ROLES as readonly string[]).includes(role);
+  return isManagerRole(await getGuildRole(guildId, userId));
 }
 
 /**
- * Which of a guild's forms a user may review. `all` = guild-wide reviewer
- * (owner/admin/reviewer); otherwise `formIds` lists the per-form grants. A
- * non-member or a viewer with no grants resolves to `{ all: false, formIds: [] }`.
+ * Which of a guild's forms a user may review. Guild-wide reviewers (owner/admin/
+ * reviewer) get `all`; others get their per-form grants; a non-member or a viewer
+ * with no grants gets nothing. Decision logic lives in `scopeFromRole`.
  */
-export interface ReviewScope {
-  all: boolean;
-  formIds: string[];
-}
-
 export async function getReviewScope(guildId: string, userId: string): Promise<ReviewScope> {
   const role = await getGuildRole(guildId, userId);
-  if (role === null) return { all: false, formIds: [] };
-  if ((REVIEWER_ROLES as readonly string[]).includes(role)) return { all: true, formIds: [] };
-
-  // Per-form reviewer grants, scoped to this guild's forms.
-  const grants = await prisma.formReviewer.findMany({
-    where: { userId, form: { guildId } },
-    select: { formId: true },
-  });
-  return { all: false, formIds: grants.map((g) => g.formId) };
+  // Only viewers need their per-form grants loaded.
+  const grants =
+    role === null || isGlobalReviewerRole(role)
+      ? []
+      : (
+          await prisma.formReviewer.findMany({
+            where: { userId, form: { guildId } },
+            select: { formId: true },
+          })
+        ).map((g) => g.formId);
+  return scopeFromRole(role, grants);
 }
 
 /** True if the user may review at least one of the guild's forms. */

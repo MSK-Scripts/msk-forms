@@ -1,14 +1,13 @@
 import { prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { countsTowardTeam } from "@/lib/access";
 import { getCurrentUser } from "@/lib/auth";
-import { canManageForms, countTeamMembers, REVIEWER_ROLES } from "@/lib/guild";
+import { canManageForms, countTeamMembers } from "@/lib/guild";
 import { getGuildPlan } from "@/lib/plan";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-const isCountingRole = (role: string) => (REVIEWER_ROLES as readonly string[]).includes(role);
 
 /**
  * Replace a member's per-form reviewer grants for this guild. Manager-only.
@@ -49,8 +48,8 @@ export async function PUT(
 
   // Plan member cap: only when this grant newly adds the user to the team.
   const currentGrants = await prisma.formReviewer.count({ where: { userId, form: { guildId } } });
-  const countedBefore = isCountingRole(member.role) || currentGrants > 0;
-  const countsAfter = isCountingRole(member.role) || formIds.length > 0;
+  const countedBefore = countsTowardTeam(member.role, currentGrants > 0);
+  const countsAfter = countsTowardTeam(member.role, formIds.length > 0);
   if (countsAfter && !countedBefore) {
     const { memberLimit } = await getGuildPlan(guildId);
     if (memberLimit !== null && (await countTeamMembers(guildId)) >= memberLimit) {

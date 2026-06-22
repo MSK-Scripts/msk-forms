@@ -1,8 +1,9 @@
 import { prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { countsTowardTeam } from "@/lib/access";
 import { getCurrentUser } from "@/lib/auth";
-import { canManageForms, countTeamMembers, REVIEWER_ROLES } from "@/lib/guild";
+import { canManageForms, countTeamMembers } from "@/lib/guild";
 import { getGuildPlan } from "@/lib/plan";
 
 export const runtime = "nodejs";
@@ -11,8 +12,6 @@ export const dynamic = "force-dynamic";
 /** Roles a manager may assign (never `owner` — that's set on bot invite). */
 const ASSIGNABLE = ["viewer", "reviewer", "admin"] as const;
 type AssignableRole = (typeof ASSIGNABLE)[number];
-
-const isCountingRole = (role: string) => (REVIEWER_ROLES as readonly string[]).includes(role);
 
 /** Change a member's guild role. Manager-only; can't touch the owner. */
 export async function PATCH(
@@ -44,8 +43,8 @@ export async function PATCH(
 
   // Plan member cap: only block when this change newly adds someone to the team.
   const grants = await prisma.formReviewer.count({ where: { userId, form: { guildId } } });
-  const countedBefore = isCountingRole(member.role) || grants > 0;
-  const countsAfter = isCountingRole(role) || grants > 0;
+  const countedBefore = countsTowardTeam(member.role, grants > 0);
+  const countsAfter = countsTowardTeam(role, grants > 0);
   if (countsAfter && !countedBefore) {
     const { memberLimit } = await getGuildPlan(guildId);
     if (memberLimit !== null && (await countTeamMembers(guildId)) >= memberLimit) {
