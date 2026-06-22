@@ -164,6 +164,12 @@ export default async function GuildFormsPage({
                             >
                               JSON
                             </a>
+                            <a
+                              href={`/api/guilds/${guildId}/forms/${form.id}/export?format=pdf`}
+                              className="transition-colors hover:text-foreground"
+                            >
+                              PDF
+                            </a>
                           </>
                         )}
                       </div>

@@ -5,6 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { getSubmissionsTable } from "@/lib/forms";
 import { canReviewSubmissions } from "@/lib/guild";
+import { submissionsPdf } from "@/lib/pdf";
 import { isGuildPro } from "@/lib/plan";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 import { getDict } from "@/i18n";
@@ -13,7 +14,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** Supported export formats. Free guilds get CSV only; the rest are Pro+. */
-const FORMATS = ["csv", "json", "xlsx"] as const;
+const FORMATS = ["csv", "json", "xlsx", "pdf"] as const;
 type ExportFormat = (typeof FORMATS)[number];
 
 /** Quote a CSV cell when it contains a delimiter, quote, or newline. */
@@ -81,6 +82,11 @@ export async function GET(
   if (format === "json") {
     const data = rows.map((r) => Object.fromEntries(columns.map((c, i) => [c, r[i]])));
     return download(JSON.stringify(data, null, 2), "application/json; charset=utf-8", "json");
+  }
+
+  if (format === "pdf") {
+    const pdf = await submissionsPdf(table);
+    return download(Buffer.from(pdf), "application/pdf", "pdf");
   }
 
   if (format === "xlsx") {
