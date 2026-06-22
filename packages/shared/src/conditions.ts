@@ -1,4 +1,4 @@
-import type { ConditionRule, FormField } from "./form-spec";
+import type { ConditionRule, FormField, FormPage } from "./form-spec";
 
 /** Answers keyed by field id (values are scalars, arrays, or objects). */
 export type AnswerMap = Record<string, unknown>;
@@ -65,4 +65,43 @@ export function isFieldRequired(field: FormField, answers: AnswerMap): boolean {
   return (field.conditional ?? []).some(
     (r) => r.action === "require" && evaluateCondition(r.when, answers),
   );
+}
+
+/**
+ * The page id a `skip_to` rule on this page jumps to given the current answers,
+ * or null. The first matching rule wins.
+ */
+export function resolvePageSkip(page: FormPage, answers: AnswerMap): string | null {
+  for (const field of page.fields) {
+    for (const rule of field.conditional ?? []) {
+      if (rule.action === "skip_to" && rule.target && evaluateCondition(rule.when, answers)) {
+        return rule.target;
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * The ordered list of page indices the user actually traverses for the current
+ * answers, starting at page 0 and following `skip_to` jumps. A cycle guard stops
+ * the walk if a page is revisited. Pages not on this path are never shown or
+ * validated, so an explicit skip removes them from the flow entirely.
+ */
+export function computePagePath(pages: FormPage[], answers: AnswerMap): number[] {
+  const path: number[] = [];
+  const seen = new Set<number>();
+  let i = 0;
+  while (i >= 0 && i < pages.length && !seen.has(i)) {
+    seen.add(i);
+    path.push(i);
+    const target = resolvePageSkip(pages[i]!, answers);
+    if (target) {
+      const idx = pages.findIndex((p) => p.id === target);
+      i = idx >= 0 ? idx : i + 1;
+    } else {
+      i += 1;
+    }
+  }
+  return path;
 }

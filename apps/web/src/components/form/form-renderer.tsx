@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  computePagePath,
   isFieldRequired,
   isFieldVisible,
   isLayoutField,
@@ -74,12 +75,13 @@ export function FormRenderer({
   const [captchaNonce, setCaptchaNonce] = useState(0);
 
   const pages = spec.pages;
-  // A page is shown only if it has at least one currently-visible field, so a
-  // page whose fields are all hidden by conditions is skipped during paging.
   const visibleFieldsOf = (page: FormPage) => page.fields.filter((f) => isFieldVisible(f, answers));
-  const shownPageIndices = pages
-    .map((_, i) => i)
-    .filter((i) => visibleFieldsOf(pages[i]!).length > 0);
+  // The flow follows `skip_to` jumps from page 0, then within that path a page is
+  // shown only if it still has a visible field. Pages off the path or fully
+  // hidden are skipped for navigation, progress and validation alike.
+  const shownPageIndices = computePagePath(pages, answers).filter(
+    (i) => visibleFieldsOf(pages[i]!).length > 0,
+  );
   // Fall back to the first shown page if the current step was hidden away.
   const activeIndex = shownPageIndices.includes(step) ? step : (shownPageIndices[0] ?? 0);
   const position = Math.max(0, shownPageIndices.indexOf(activeIndex));
