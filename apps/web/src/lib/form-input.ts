@@ -18,6 +18,8 @@ export const formInputSchema = z.object({
   visibility: z.enum(["public", "authenticated", "password", "role_required"]),
   spec: formSpecSchema,
   settings: formSettingsSchema.optional(),
+  openAt: z.string().datetime().nullish(),
+  closeAt: z.string().datetime().nullish(),
 });
 
 export type FormInput = z.infer<typeof formInputSchema>;

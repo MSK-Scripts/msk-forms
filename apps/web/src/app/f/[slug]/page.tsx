@@ -4,8 +4,11 @@ import Script from "next/script";
 
 import type { CSSProperties } from "react";
 
+import { formScheduleStatus } from "@msk-forms/shared";
+
 import { CustomCss } from "@/components/branding/custom-css";
 import { FormRenderer } from "@/components/form/form-renderer";
+import { LocalDateTime } from "@/components/public/local-datetime";
 import { PoweredBy } from "@/components/public/powered-by";
 import { getCurrentUser } from "@/lib/auth";
 import { brandStyle, logoUrl, parseBranding } from "@/lib/branding";
@@ -49,6 +52,25 @@ export default async function PublicFormPage({
     );
   }
 
+  // Scheduling: a live form may not be open yet, or may already have closed.
+  const schedule = formScheduleStatus(form.openAt, form.closeAt, new Date());
+  if (schedule.state === "scheduled") {
+    return (
+      <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
+        <p className="text-sm text-muted-foreground">
+          {t.opensAt} <LocalDateTime iso={form.openAt!.toISOString()} />
+        </p>
+      </Shell>
+    );
+  }
+  if (schedule.state === "closed") {
+    return (
+      <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
+        <p className="text-sm text-muted-foreground">{t.closedAt}</p>
+      </Shell>
+    );
+  }
+
   if (form.visibility === "authenticated") {
     const user = await getCurrentUser();
     if (!user) {
@@ -85,6 +107,18 @@ export default async function PublicFormPage({
           strategy="afterInteractive"
           nonce={nonce}
         />
+      )}
+      {form.closeAt && (
+        <p
+          className={`rounded-md border px-3 py-2 text-sm ${
+            schedule.endingSoon
+              ? "border-amber-500/40 bg-amber-500/10 font-medium text-amber-600 dark:text-amber-400"
+              : "border-border bg-muted/40 text-muted-foreground"
+          }`}
+        >
+          {schedule.endingSoon ? `⏳ ${t.endingSoon} ` : `${t.closesAt} `}
+          <LocalDateTime iso={form.closeAt.toISOString()} />
+        </p>
       )}
       <FormRenderer
         slug={form.slug}

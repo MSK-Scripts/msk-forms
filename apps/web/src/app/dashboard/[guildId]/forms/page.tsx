@@ -1,5 +1,5 @@
 import { prisma } from "@msk-forms/db";
-import { FREE_FORM_LIMIT } from "@msk-forms/shared";
+import { FREE_FORM_LIMIT, formScheduleStatus } from "@msk-forms/shared";
 import { Card, StatusBadge } from "@msk-forms/ui";
 import type { Route } from "next";
 import Link from "next/link";
@@ -9,6 +9,7 @@ import { ManageBillingButton } from "@/components/billing/manage-billing-button"
 import { UpgradeActions } from "@/components/billing/upgrade-button";
 import { DeleteFormButton } from "@/components/dashboard/delete-form-button";
 import { ShareButton } from "@/components/dashboard/share-button";
+import { LocalDateTime } from "@/components/public/local-datetime";
 import { requireUser } from "@/lib/auth";
 import { appBaseUrl } from "@/lib/url";
 import { canManageForms, getGuildForms } from "@/lib/guild";
@@ -113,6 +114,7 @@ export default async function GuildFormsPage({
         <div className="flex flex-col gap-2">
           {forms.map((form) => {
             const qr = qrByForm[form.id];
+            const sched = formScheduleStatus(form.openAt, form.closeAt, new Date());
             return (
               <Card key={form.id} className="flex flex-col gap-3 p-4">
                 <div className="flex items-center justify-between gap-4">
@@ -123,7 +125,27 @@ export default async function GuildFormsPage({
                         label={statusLabel[form.status] ?? form.status}
                         color={FORM_STATUS_COLORS[form.status] ?? "#6b6b72"}
                       />
+                      {form.status === "live" && sched.endingSoon && (
+                        <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-600 dark:text-amber-400">
+                          ⏳ {dict.form.endingSoon}
+                        </span>
+                      )}
                     </div>
+                    {(form.openAt || form.closeAt) && (
+                      <span className="text-xs text-muted-foreground">
+                        {form.openAt && (
+                          <>
+                            {dict.form.opensAt} <LocalDateTime iso={form.openAt.toISOString()} />
+                          </>
+                        )}
+                        {form.openAt && form.closeAt && " · "}
+                        {form.closeAt && (
+                          <>
+                            {dict.form.closesAt} <LocalDateTime iso={form.closeAt.toISOString()} />
+                          </>
+                        )}
+                      </span>
+                    )}
                     <span className="text-xs text-muted-foreground">
                       {form._count.submissions} {t.countSubmissions}
                       {form.status === "live" && (

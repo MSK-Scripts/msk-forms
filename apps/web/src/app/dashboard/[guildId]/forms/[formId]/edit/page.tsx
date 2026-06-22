@@ -57,6 +57,8 @@ export default async function EditFormPage({
           visibility: form.visibility,
           acceptedRoles: acceptedRoleIdsOf(settings).join(", "),
           reviewChannelId: settings.reviewChannelId ?? "",
+          openAt: form.openAt?.toISOString() ?? "",
+          closeAt: form.closeAt?.toISOString() ?? "",
           pages: spec?.pages.length ? spec.pages : [{ id: "p1", title: "", fields: [] }],
           automations: settings.automations,
         }}

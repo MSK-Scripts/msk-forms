@@ -58,6 +58,8 @@ export async function POST(
         visibility: input.visibility,
         schema: input.spec as Prisma.InputJsonValue,
         settings: settings as Prisma.InputJsonValue,
+        openAt: input.openAt ? new Date(input.openAt) : null,
+        closeAt: input.closeAt ? new Date(input.closeAt) : null,
         createdById: user.id,
       },
       select: { id: true },
