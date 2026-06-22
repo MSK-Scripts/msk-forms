@@ -2,6 +2,7 @@ import { Card } from "@msk-forms/ui";
 
 import { FormBuilder } from "@/components/builder/form-builder";
 import { requireUser } from "@/lib/auth";
+import { getStatusOptionsForGuild } from "@/lib/forms";
 import { canManageForms } from "@/lib/guild";
 import { getDict } from "@/i18n";
 
@@ -24,6 +25,8 @@ export default async function NewFormPage({
     );
   }
 
+  const statusOpts = await getStatusOptionsForGuild(guildId, t.statusLabels);
+
   return (
     <div className="flex flex-col gap-4">
       <h2 className="font-heading text-xl font-semibold text-foreground">
@@ -32,6 +35,7 @@ export default async function NewFormPage({
       <FormBuilder
         guildId={guildId}
         t={t.builder}
+        statusOptions={statusOpts}
         initial={{
           title: "",
           description: "",
@@ -40,6 +44,7 @@ export default async function NewFormPage({
           visibility: "public",
           acceptedRoleId: "",
           pages: [{ id: "p1", title: "", fields: [] }],
+          automations: [],
         }}
       />
     </div>

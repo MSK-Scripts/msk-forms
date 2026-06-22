@@ -5,7 +5,7 @@ import { parseFormSettings } from "@msk-forms/shared";
 
 import { FormBuilder } from "@/components/builder/form-builder";
 import { requireUser } from "@/lib/auth";
-import { getFormForEdit, parseFormSpec } from "@/lib/forms";
+import { getFormForEdit, getStatusOptionsForGuild, parseFormSpec } from "@/lib/forms";
 import { canManageForms } from "@/lib/guild";
 import { getDict } from "@/i18n";
 
@@ -32,6 +32,8 @@ export default async function EditFormPage({
   if (!form) notFound();
 
   const spec = parseFormSpec(form.schema);
+  const settings = parseFormSettings(form.settings);
+  const statusOpts = await getStatusOptionsForGuild(guildId, t.statusLabels);
 
   return (
     <div className="flex flex-col gap-4">
@@ -42,14 +44,16 @@ export default async function EditFormPage({
         guildId={guildId}
         formId={form.id}
         t={t.builder}
+        statusOptions={statusOpts}
         initial={{
           title: form.title,
           description: form.description ?? "",
           slug: form.slug,
           status: form.status,
           visibility: form.visibility,
-          acceptedRoleId: parseFormSettings(form.settings).acceptedRoleId ?? "",
+          acceptedRoleId: settings.acceptedRoleId ?? "",
           pages: spec?.pages.length ? spec.pages : [{ id: "p1", title: "", fields: [] }],
+          automations: settings.automations,
         }}
       />
     </div>
