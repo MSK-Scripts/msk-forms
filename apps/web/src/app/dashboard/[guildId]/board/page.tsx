@@ -2,9 +2,11 @@ import { prisma } from "@msk-forms/db";
 import { Card } from "@msk-forms/ui";
 
 import { KanbanBoard, type BoardColumn } from "@/components/board/kanban-board";
+import { DashboardLive } from "@/components/dashboard/dashboard-live";
 import { requireUser } from "@/lib/auth";
 import { resolveStatus, statusOptions } from "@/lib/forms";
 import { getGuildSubmissions, getReviewScope } from "@/lib/guild";
+import { signGuildRealtimeToken } from "@/lib/realtime-token";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -55,8 +57,11 @@ export default async function BoardPage({
     date: s.submittedAt.toISOString().slice(0, 10),
   }));
 
+  const liveToken = signGuildRealtimeToken(guildId);
+
   return (
     <div className="flex flex-col gap-4">
+      {liveToken && <DashboardLive guildId={guildId} token={liveToken} />}
       <h2 className="font-heading text-xl font-semibold text-foreground">{t.board.title}</h2>
       {cards.length === 0 ? (
         <Card className="p-8">
