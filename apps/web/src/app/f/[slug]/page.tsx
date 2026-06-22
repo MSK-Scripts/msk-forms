@@ -4,6 +4,7 @@ import Script from "next/script";
 
 import type { CSSProperties } from "react";
 
+import { CustomCss } from "@/components/branding/custom-css";
 import { FormRenderer } from "@/components/form/form-renderer";
 import { getCurrentUser } from "@/lib/auth";
 import { brandStyle, logoUrl, parseBranding } from "@/lib/branding";
@@ -31,7 +32,7 @@ export default async function PublicFormPage({
 
   if (form.status !== "live") {
     return (
-      <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo}>
+      <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss}>
         <p className="text-sm text-muted-foreground">{t.notAccepting}</p>
       </Shell>
     );
@@ -41,7 +42,7 @@ export default async function PublicFormPage({
     const user = await getCurrentUser();
     if (!user) {
       return (
-        <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo}>
+        <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss}>
           <p className="text-sm text-muted-foreground">{t.needLogin}</p>
           <a
             href={`/api/auth/discord/login?returnTo=/f/${slug}`}
@@ -56,7 +57,7 @@ export default async function PublicFormPage({
 
   if (form.visibility === "password" || form.visibility === "role_required") {
     return (
-      <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo}>
+      <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss}>
         <p className="text-sm text-muted-foreground">{t.accessRestricted}</p>
       </Shell>
     );
@@ -66,7 +67,7 @@ export default async function PublicFormPage({
   const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
-    <Shell guildName={form.guild.name} title={form.title} description={form.description} style={brand} logoSrc={logo}>
+    <Shell guildName={form.guild.name} title={form.title} description={form.description} style={brand} logoSrc={logo} customCss={branding.customCss}>
       {siteKey && (
         <Script
           src="https://challenges.cloudflare.com/turnstile/v0/api.js"
@@ -107,6 +108,7 @@ function Shell({
   children,
   style,
   logoSrc,
+  customCss,
 }: {
   guildName: string;
   title: string;
@@ -114,9 +116,11 @@ function Shell({
   children: React.ReactNode;
   style?: CSSProperties;
   logoSrc?: string | null;
+  customCss?: string;
 }) {
   return (
-    <main className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12" style={style}>
+    <main className="msk-form mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12" style={style}>
+      <CustomCss css={customCss} />
       <header className="flex flex-col gap-1">
         {logoSrc && <img src={logoSrc} alt="" className="mb-2 h-12 w-auto self-start" />}
         <span className="text-sm font-medium text-primary">{guildName}</span>

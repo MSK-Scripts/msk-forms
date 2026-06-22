@@ -1,5 +1,5 @@
 import { Prisma, prisma } from "@msk-forms/db";
-import { brandingColorSchema, type Branding } from "@msk-forms/shared";
+import { brandingColorSchema, sanitizeCustomCss, type Branding } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
@@ -9,7 +9,7 @@ import { canManageForms } from "@/lib/guild";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/** Update a guild's accent color. Owner/admin only. Preserves the logo. */
+/** Update a guild's accent color + custom CSS. Owner/admin only. Preserves the logo. */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ guildId: string }> },
@@ -38,6 +38,11 @@ export async function PATCH(
   const next: Branding = { ...parseBranding(guild?.branding) };
   if (parsed.data.accentColor) next.accentColor = parsed.data.accentColor;
   else delete next.accentColor;
+
+  // Store the CSS already sanitized (defence in depth — it's sanitized again on render).
+  const css = parsed.data.customCss ? sanitizeCustomCss(parsed.data.customCss).trim() : "";
+  if (css) next.customCss = css;
+  else delete next.customCss;
 
   await prisma.guild.update({
     where: { id: guildId },

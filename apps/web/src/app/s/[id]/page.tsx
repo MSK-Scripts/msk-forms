@@ -2,6 +2,7 @@ import { DEFAULT_STATUSES } from "@msk-forms/shared";
 import { StatusBadge } from "@msk-forms/ui";
 import { notFound } from "next/navigation";
 
+import { CustomCss } from "@/components/branding/custom-css";
 import { AnswerSummary } from "@/components/submission/answer-summary";
 import { StatusLive } from "@/components/submission/status-live";
 import { SubmissionActions } from "@/components/submission/submission-actions";
@@ -32,7 +33,8 @@ export default async function SubmissionStatusPage({
   const logo = logoUrl(submission.form.guildId, branding);
 
   return (
-    <main className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12" style={brand}>
+    <main className="msk-form mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12" style={brand}>
+      <CustomCss css={branding.customCss} />
       <StatusLive submissionId={submission.id} />
       <header className="flex flex-col gap-3">
         {logo && <img src={logo} alt="" className="h-12 w-auto self-start" />}

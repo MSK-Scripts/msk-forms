@@ -142,6 +142,8 @@ const en = {
     logo: "Logo",
     logoHint: "PNG, JPEG or WebP, up to 1 MB. Shown on your public form and status pages.",
     logoUploading: "Uploading…", logoRemove: "Remove logo", logoFailed: "Could not update the logo.",
+    customCss: "Custom CSS",
+    customCssHint: "Applied to your public form and status pages. Style classes like .msk-form or override CSS variables. Scripts and @import are stripped.",
   },
   botConfig: {
     title: "Bot settings",
@@ -371,6 +373,8 @@ const de: Dictionary = {
     logo: "Logo",
     logoHint: "PNG, JPEG oder WebP, bis 1 MB. Wird auf deinen öffentlichen Formular- und Status-Seiten angezeigt.",
     logoUploading: "Wird hochgeladen…", logoRemove: "Logo entfernen", logoFailed: "Logo konnte nicht aktualisiert werden.",
+    customCss: "Eigenes CSS",
+    customCssHint: "Wird auf deinen öffentlichen Formular- und Status-Seiten angewendet. Style Klassen wie .msk-form oder überschreibe CSS-Variablen. Skripte und @import werden entfernt.",
   },
   botConfig: {
     title: "Bot-Einstellungen",
@@ -598,6 +602,8 @@ const hu: Dictionary = {
     logo: "Logó",
     logoHint: "PNG, JPEG vagy WebP, legfeljebb 1 MB. A nyilvános űrlap- és állapotoldalakon jelenik meg.",
     logoUploading: "Feltöltés…", logoRemove: "Logó eltávolítása", logoFailed: "A logó frissítése sikertelen.",
+    customCss: "Egyéni CSS",
+    customCssHint: "A nyilvános űrlap- és állapotoldalakon érvényesül. Stílusozz osztályokat, pl. .msk-form, vagy írj felül CSS-változókat. A szkriptek és az @import eltávolításra kerülnek.",
   },
   botConfig: {
     title: "Bot beállítások",
