@@ -1,6 +1,6 @@
 "use client";
 
-import { parseIdList, type AutomationRule, type FieldType, type FormField, type FormPage } from "@msk-forms/shared";
+import { isLayoutField, parseIdList, type AutomationRule, type FieldType, type FormField, type FormPage } from "@msk-forms/shared";
 import { Button, Card, Field, Input, Select, Textarea } from "@msk-forms/ui";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
@@ -85,6 +85,17 @@ export function FormBuilder({
   }
   function addPage() {
     setPages((prev) => [...prev, { id: crypto.randomUUID(), title: "", fields: [] }]);
+  }
+  /** Mark every input field (across all pages) as required in one click. */
+  function markAllRequired() {
+    setPages((prev) =>
+      prev.map((p) => ({
+        ...p,
+        fields: p.fields.map((f) =>
+          isLayoutField(f.type) ? f : { ...f, validation: { ...f.validation, required: true } },
+        ),
+      })),
+    );
   }
   function removePage(pi: number) {
     setPages((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== pi)));
@@ -297,10 +308,15 @@ export function FormBuilder({
         </Card>
       ))}
 
-      <div>
+      <div className="flex flex-wrap items-center gap-2">
         <Button variant="ghost" type="button" onClick={addPage}>
           + {t.addPage}
         </Button>
+        {allFields.length > 0 && (
+          <Button variant="ghost" type="button" onClick={markAllRequired}>
+            {t.markAllRequired}
+          </Button>
+        )}
       </div>
 
       <Card className="flex flex-col gap-3 p-5">
