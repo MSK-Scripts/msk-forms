@@ -209,6 +209,15 @@ const en = {
       date: "Date", file_upload: "File upload", image_upload: "Image upload", signature: "Signature",
       consent: "Consent", heading: "Heading", paragraph: "Paragraph", divider: "Divider",
     },
+    autom: {
+      title: "Automations",
+      intro: "When a new submission matches a rule, set its status automatically.",
+      whenAll: "When all match", thenSet: "then set status to",
+      always: "Always (no conditions)",
+      addCondition: "Add condition", addRule: "Add rule", removeRule: "Remove rule", removeCondition: "Remove",
+      noFields: "Add fields first to build automations.",
+      valuePh: "Value",
+    },
   },
   share: {
     share: "Share",
@@ -429,6 +438,15 @@ const de: Dictionary = {
       date: "Datum", file_upload: "Datei-Upload", image_upload: "Bild-Upload", signature: "Unterschrift",
       consent: "Zustimmung", heading: "Überschrift", paragraph: "Absatz", divider: "Trenner",
     },
+    autom: {
+      title: "Automatisierungen",
+      intro: "Wenn eine neue Einreichung zu einer Regel passt, wird ihr Status automatisch gesetzt.",
+      whenAll: "Wenn alles zutrifft", thenSet: "dann Status setzen auf",
+      always: "Immer (ohne Bedingungen)",
+      addCondition: "Bedingung hinzufügen", addRule: "Regel hinzufügen", removeRule: "Regel entfernen", removeCondition: "Entfernen",
+      noFields: "Füge zuerst Felder hinzu, um Automatisierungen zu bauen.",
+      valuePh: "Wert",
+    },
   },
   share: {
     share: "Teilen",
@@ -646,6 +664,15 @@ const hu: Dictionary = {
       rating_stars: "Csillagos értékelés", nps: "NPS (0–10)", slider: "Csúszka", emoji_scale: "Emoji skála", matrix: "Mátrix",
       date: "Dátum", file_upload: "Fájlfeltöltés", image_upload: "Képfeltöltés", signature: "Aláírás",
       consent: "Hozzájárulás", heading: "Címsor", paragraph: "Bekezdés", divider: "Elválasztó",
+    },
+    autom: {
+      title: "Automatizálások",
+      intro: "Ha egy új beküldés megfelel egy szabálynak, az állapota automatikusan beállítódik.",
+      whenAll: "Ha minden teljesül", thenSet: "akkor állapot beállítása erre",
+      always: "Mindig (feltételek nélkül)",
+      addCondition: "Feltétel hozzáadása", addRule: "Szabály hozzáadása", removeRule: "Szabály eltávolítása", removeCondition: "Eltávolítás",
+      noFields: "Előbb adj hozzá mezőket az automatizálásokhoz.",
+      valuePh: "Érték",
     },
   },
   share: {

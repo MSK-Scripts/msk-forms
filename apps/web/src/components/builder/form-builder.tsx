@@ -1,16 +1,18 @@
 "use client";
 
-import type { FieldType, FormField, FormPage } from "@msk-forms/shared";
+import type { AutomationRule, FieldType, FormField, FormPage } from "@msk-forms/shared";
 import { Button, Card, Field, Input, Select, Textarea } from "@msk-forms/ui";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { AutomationsEditor } from "@/components/builder/automations-editor";
 import { FieldEditor } from "@/components/builder/field-editor";
 import { BUILDER_FIELDS, needsOptions } from "@/lib/builder-fields";
 import type { Dictionary } from "@/i18n";
 
 type BuilderDict = Dictionary["builder"];
+type StatusOption = { value: string; label: string };
 
 export interface FormBuilderInitial {
   title: string;
@@ -20,6 +22,7 @@ export interface FormBuilderInitial {
   visibility: string;
   acceptedRoleId: string;
   pages: FormPage[];
+  automations: AutomationRule[];
 }
 
 const slugify = (s: string) =>
@@ -41,11 +44,13 @@ export function FormBuilder({
   guildId,
   formId,
   initial,
+  statusOptions,
   t,
 }: {
   guildId: string;
   formId?: string;
   initial: FormBuilderInitial;
+  statusOptions: StatusOption[];
   t: BuilderDict;
 }) {
   const router = useRouter();
@@ -56,6 +61,7 @@ export function FormBuilder({
   const [visibility, setVisibility] = useState(initial.visibility);
   const [acceptedRoleId, setAcceptedRoleId] = useState(initial.acceptedRoleId);
   const [pages, setPages] = useState<FormPage[]>(initial.pages);
+  const [automations, setAutomations] = useState<AutomationRule[]>(initial.automations);
   const [addType, setAddType] = useState<FieldType>("short_text");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -117,6 +123,9 @@ export function FormBuilder({
         fields: p.fields,
       })),
     };
+    const settings: Record<string, unknown> = {};
+    if (acceptedRoleId.trim()) settings.acceptedRoleId = acceptedRoleId.trim();
+    if (automations.length > 0) settings.automations = automations;
     const payload = {
       title: title.trim(),
       description: description.trim() || null,
@@ -124,7 +133,7 @@ export function FormBuilder({
       status,
       visibility,
       spec,
-      settings: acceptedRoleId.trim() ? { acceptedRoleId: acceptedRoleId.trim() } : {},
+      settings,
     };
 
     setSaving(true);
@@ -273,6 +282,20 @@ export function FormBuilder({
           + {t.addPage}
         </Button>
       </div>
+
+      <Card className="flex flex-col gap-3 p-5">
+        <div className="flex flex-col gap-1">
+          <h3 className="font-heading text-sm font-semibold text-foreground">{t.autom.title}</h3>
+          <p className="text-xs text-muted-foreground">{t.autom.intro}</p>
+        </div>
+        <AutomationsEditor
+          automations={automations}
+          fields={allFields}
+          statusOptions={statusOptions}
+          onChange={setAutomations}
+          t={t}
+        />
+      </Card>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 

@@ -65,6 +65,22 @@ export function statusOptions(
   return [...base, ...extra];
 }
 
+/**
+ * Resolve a guild's full status option set (built-in pipeline + custom defs) for
+ * pickers like the automations editor. Returns `{ value, label }` entries.
+ */
+export async function getStatusOptionsForGuild(
+  guildId: string,
+  labels?: StatusLabelMap,
+): Promise<{ value: string; label: string }[]> {
+  const defs = await prisma.formStatusDef.findMany({
+    where: { guildId },
+    orderBy: { order: "asc" },
+    select: { key: true, label: true, color: true, order: true },
+  });
+  return statusOptions(defs, labels).map((s) => ({ value: s.key, label: s.label }));
+}
+
 /** Safely parse a stored Form.schema JSON blob into a typed FormSpec. */
 export function parseFormSpec(schema: unknown): FormSpec | null {
   const result = formSpecSchema.safeParse(schema);

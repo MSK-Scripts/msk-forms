@@ -1,20 +1,25 @@
-import { enqueueWebhooks, prisma, type Prisma } from "@msk-forms/db";
+import { changeSubmissionStatus, enqueueWebhooks, prisma, type Prisma } from "@msk-forms/db";
 import {
   buildAnswerSchema,
+  DEFAULT_STATUSES,
+  evaluateAutomations,
   FILE_FIELD_TYPES,
   formatAnswerValue,
   isLayoutField,
+  parseFormSettings,
   type FileAnswer,
   type FormSpec,
+  type StatusChangeNotification,
   type SubmissionReviewNotification,
 } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
 import { captchaEnabled, verifyCaptcha } from "@/lib/captcha";
-import { parseFormSpec } from "@/lib/forms";
+import { parseFormSpec, resolveStatus } from "@/lib/forms";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 import { headObject } from "@/lib/s3";
+import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -81,7 +86,7 @@ export async function POST(
 
   const form = await prisma.form.findUnique({
     where: { slug },
-    select: { id: true, guildId: true, status: true, schema: true, title: true },
+    select: { id: true, guildId: true, status: true, schema: true, title: true, settings: true },
   });
 
   if (!form || form.status !== "live") {
@@ -184,6 +189,42 @@ export async function POST(
     });
   } catch (err) {
     console.error("[submit] failed to queue webhooks:", (err as Error).message);
+  }
+
+  // Automations: move the submission per the first matching when-then rule
+  // (concept §20). Best-effort — never fail the submit. The status change
+  // cascades through changeSubmissionStatus (event, DM, webhook, realtime).
+  try {
+    const { automations } = parseFormSettings(form.settings);
+    const target = automations.length > 0 ? evaluateAutomations(automations, data) : null;
+    if (target && target !== "submitted") {
+      const defs = await prisma.formStatusDef.findMany({
+        where: { guildId: form.guildId },
+        select: { key: true, label: true, color: true },
+      });
+      const allowed = new Set<string>([
+        ...DEFAULT_STATUSES.map((s) => s.key),
+        ...defs.map((d) => d.key),
+      ]);
+      if (allowed.has(target)) {
+        const notify: StatusChangeNotification | null = user?.id
+          ? {
+              submissionId: submission.id,
+              formTitle: form.title,
+              toStatus: target,
+              toStatusLabel: resolveStatus(target, defs, (await getDict()).statusLabels).label,
+            }
+          : null;
+        await changeSubmissionStatus({
+          submissionId: submission.id,
+          toStatus: target,
+          actorUserId: null,
+          notify: user?.id && notify ? { userId: user.id, type: "status_change", payload: notify } : null,
+        });
+      }
+    }
+  } catch (err) {
+    console.error("[submit] automation failed:", (err as Error).message);
   }
 
   return NextResponse.json({ submissionId: submission.id }, { status: 201 });
