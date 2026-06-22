@@ -45,16 +45,23 @@ export async function SiteHeader({ user }: { user: HeaderUser | null }) {
         <div className="flex items-center gap-2">
           <LanguageSwitcher locale={locale} />
           <ThemeToggle />
+          <span className="mx-1 hidden h-5 w-px bg-border sm:block" aria-hidden />
           {user ? (
-            <>
+            <div className="flex items-center gap-2">
               {user.avatar && (
-                <img src={user.avatar} alt="" width={26} height={26} className="rounded-full" />
+                <img
+                  src={user.avatar}
+                  alt=""
+                  width={28}
+                  height={28}
+                  className="rounded-full ring-1 ring-border"
+                />
               )}
               <Button asChild variant="ghost" size="sm">
                 <a href={dashboardHref}>{t.header.dashboard}</a>
               </Button>
               <LogoutButton label={t.header.logout} />
-            </>
+            </div>
           ) : (
             <Button asChild size="sm">
               <a href={loginHref}>
