@@ -1,17 +1,78 @@
-import { IconBrandDiscord, IconCheck, IconUsersGroup } from "@tabler/icons-react";
+import { IconBrandDiscord, IconCheck, IconMinus, IconUsersGroup } from "@tabler/icons-react";
 import type { Metadata } from "next";
+import { Fragment } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { botInviteUrl } from "@/lib/url";
-import { getDict } from "@/i18n";
+import { getDict, getLocale } from "@/i18n";
 
 export const metadata: Metadata = { title: "Pricing — MSK Forms" };
 
+type Cell = boolean | string;
+
 export default async function PricingPage() {
-  const t = (await getDict()).pricing;
+  const dict = await getDict();
+  const t = dict.pricing;
+  const c = t.compare;
   const invite = botInviteUrl();
+  const nf = new Intl.NumberFormat(await getLocale());
+
+  // The comparison matrix reflects what's actually enforced (single source).
+  const groups: { name: string; rows: { label: string; vals: [Cell, Cell, Cell] }[] }[] = [
+    {
+      name: c.groups.build,
+      rows: [
+        { label: c.rows.builder, vals: [true, true, true] },
+        { label: c.rows.logic, vals: [true, true, true] },
+        { label: c.rows.forms, vals: ["3", c.unlimited, c.unlimited] },
+        { label: c.rows.submissions, vals: [nf.format(100), nf.format(5000), c.unlimited] },
+        { label: c.rows.realtime, vals: [true, true, true] },
+      ],
+    },
+    {
+      name: c.groups.discord,
+      rows: [
+        { label: c.rows.bot, vals: [true, true, true] },
+        { label: c.rows.acceptRole, vals: [true, true, true] },
+      ],
+    },
+    {
+      name: c.groups.branding,
+      rows: [
+        { label: c.rows.colorLogo, vals: [true, true, true] },
+        { label: c.rows.domain, vals: [false, true, true] },
+        { label: c.rows.css, vals: [false, true, true] },
+        { label: c.rows.badge, vals: [c.shown, c.removed, c.removed] },
+      ],
+    },
+    {
+      name: c.groups.workflow,
+      rows: [
+        { label: c.rows.statuses, vals: [true, true, true] },
+        { label: c.rows.webhooks, vals: [false, true, true] },
+        { label: c.rows.automations, vals: [false, true, true] },
+        { label: c.rows.exports, vals: [c.rows.exportsFree, c.rows.exportsPaid, c.rows.exportsEnt] },
+      ],
+    },
+    {
+      name: c.groups.team,
+      rows: [
+        { label: c.rows.members, vals: ["2", "15", c.unlimited] },
+        { label: c.rows.perForm, vals: [true, true, true] },
+      ],
+    },
+  ];
+
+  const renderCell = (v: Cell) =>
+    typeof v === "string" ? (
+      <span className="text-sm text-foreground">{v}</span>
+    ) : v ? (
+      <IconCheck size={18} stroke={2} className="mx-auto text-primary" />
+    ) : (
+      <IconMinus size={16} stroke={2} className="mx-auto text-muted-foreground/40" />
+    );
 
   const tiers = [
     { key: "free" as const, data: t.tiers.free, highlight: false, href: invite, cta: t.ctaFree, external: true },
@@ -86,6 +147,46 @@ export default async function PricingPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Full feature comparison */}
+      <section className="mt-20">
+        <h2 className="text-center font-heading text-2xl font-bold tracking-tight md:text-3xl">
+          {c.title}
+        </h2>
+        <div className="mx-auto mt-8 max-w-4xl overflow-x-auto">
+          <table className="w-full border-collapse text-left">
+            <thead>
+              <tr className="border-b border-border">
+                <th className="py-3 pr-4 text-sm font-semibold text-foreground">{c.feature}</th>
+                <th className="w-28 py-3 text-center text-sm font-semibold text-foreground">{c.free}</th>
+                <th className="w-28 py-3 text-center text-sm font-semibold text-primary">{c.pro}</th>
+                <th className="w-28 py-3 text-center text-sm font-semibold text-foreground">{c.enterprise}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {groups.map((g) => (
+                <Fragment key={g.name}>
+                  <tr className="bg-muted/40">
+                    <td colSpan={4} className="px-1 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {g.name}
+                    </td>
+                  </tr>
+                  {g.rows.map((row) => (
+                    <tr key={row.label} className="border-b border-border/60">
+                      <td className="py-3 pr-4 text-sm text-muted-foreground">{row.label}</td>
+                      {row.vals.map((v, i) => (
+                        <td key={i} className="py-3 text-center">
+                          {renderCell(v)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </Fragment>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </main>
   );
 }
