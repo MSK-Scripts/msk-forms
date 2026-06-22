@@ -9,7 +9,8 @@ const nextConfig: NextConfig = {
   // typedRoutes graduated out of `experimental` in Next.js 16.
   typedRoutes: true,
   // sharp is a native module (logo re-encoding) — keep it external, don't bundle.
-  serverExternalPackages: ["sharp"],
+  // stripe is a heavy server-only SDK — keep it external too.
+  serverExternalPackages: ["sharp", "stripe"],
   // Note: Next.js 16 removed `next lint` — linting runs centrally via the
   // flat config (eslint.config.mjs) at the monorepo root.
 };

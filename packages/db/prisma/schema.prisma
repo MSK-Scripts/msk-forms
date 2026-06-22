@@ -93,6 +93,8 @@ model Guild {
   ownerUserId    String   @map("owner_user_id") @db.Uuid
   plan           Plan     @default(free)
   grandfathered  Boolean  @default(false)
+  stripeCustomerId     String? @unique @map("stripe_customer_id")
+  stripeSubscriptionId String? @map("stripe_subscription_id")
   branding       Json     @default("{}")
   botConfig      Json     @default("{}") @map("bot_config")
   customDomain           String?   @unique @map("custom_domain")
