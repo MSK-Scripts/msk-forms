@@ -15,6 +15,7 @@ import {
 } from "discord.js";
 
 import { config } from "./config.js";
+import { dmStrings, localizedStatus } from "./i18n.js";
 import { postBranded } from "./posting.js";
 import { grantAcceptedRole } from "./roles.js";
 import { dashboardSubmissionUrl, statusUrl } from "./urls.js";
@@ -34,10 +35,10 @@ type PendingRow = {
   type: string;
   payload: unknown;
   guildId: string | null;
-  user: { discordId: string } | null;
+  user: { discordId: string; locale: string } | null;
 };
 
-/** A status-change or message DM, ready to send. */
+/** A status-change or message DM, localized to the applicant's locale. */
 function buildMessage(row: PendingRow): {
   embeds: EmbedBuilder[];
   components: ActionRowBuilder<ButtonBuilder>[];
@@ -45,23 +46,25 @@ function buildMessage(row: PendingRow): {
   const payload = row.payload as Partial<StatusChangeNotification & MessageNotification>;
   if (!payload?.submissionId) return null;
 
+  const locale = row.user?.locale;
+  const s = dmStrings(locale);
   const url = statusUrl(config.apiBaseUrl, payload.submissionId);
   const embed = new EmbedBuilder()
     .setColor(MSK_GREEN)
-    .setTitle(payload.formTitle ?? "Your submission")
+    .setTitle(payload.formTitle ?? s.title)
     .setURL(url)
     .setFooter({ text: "MSK Forms" });
 
   if (row.type === "status_change") {
-    embed.setDescription(`Your status is now **${payload.toStatusLabel ?? payload.toStatus}**.`);
+    embed.setDescription(s.statusNow(localizedStatus(locale, payload.toStatus, payload.toStatusLabel)));
   } else if (row.type === "message" && payload.message) {
-    embed.setDescription(`New message from the team:\n\n> ${payload.message}`);
+    embed.setDescription(s.newMessage(payload.message));
   } else {
     return null;
   }
 
   const button = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("View status").setURL(url),
+    new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel(s.viewStatus).setURL(url),
   );
   return { embeds: [embed], components: [button] };
 }
@@ -180,7 +183,7 @@ export async function deliverPendingNotifications(client: Client): Promise<void>
         type: true,
         payload: true,
         guildId: true,
-        user: { select: { discordId: true } },
+        user: { select: { discordId: true, locale: true } },
       },
     })) as PendingRow[];
 
