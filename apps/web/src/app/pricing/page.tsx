@@ -39,7 +39,9 @@ export default async function PricingPage() {
             }
           >
             {highlight && (
-              <Badge className="absolute -top-3 left-6">{t.badgePopular}</Badge>
+              <Badge className="absolute -top-3 left-6 border-transparent bg-primary text-primary-foreground shadow-sm">
+                {t.badgePopular}
+              </Badge>
             )}
             <CardContent className="flex h-full flex-col gap-6 p-7">
               <div>
