@@ -5,6 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { parseBranding } from "@/lib/branding";
 import { canManageForms } from "@/lib/guild";
+import { isGuildPro } from "@/lib/plan";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -39,8 +40,9 @@ export async function PATCH(
   if (parsed.data.accentColor) next.accentColor = parsed.data.accentColor;
   else delete next.accentColor;
 
-  // Store the CSS already sanitized (defence in depth — it's sanitized again on render).
-  const css = parsed.data.customCss ? sanitizeCustomCss(parsed.data.customCss).trim() : "";
+  // Custom CSS is a Pro feature — ignore it for Free guilds (accent + logo stay free).
+  const pro = await isGuildPro(guildId);
+  const css = pro && parsed.data.customCss ? sanitizeCustomCss(parsed.data.customCss).trim() : "";
   if (css) next.customCss = css;
   else delete next.customCss;
 

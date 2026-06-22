@@ -7,6 +7,7 @@ import { FormBuilder } from "@/components/builder/form-builder";
 import { requireUser } from "@/lib/auth";
 import { getFormForEdit, getStatusOptionsForGuild, parseFormSpec } from "@/lib/forms";
 import { canManageForms } from "@/lib/guild";
+import { isGuildPro } from "@/lib/plan";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -34,6 +35,7 @@ export default async function EditFormPage({
   const spec = parseFormSpec(form.schema);
   const settings = parseFormSettings(form.settings);
   const statusOpts = await getStatusOptionsForGuild(guildId, t.statusLabels);
+  const pro = await isGuildPro(guildId);
 
   return (
     <div className="flex flex-col gap-4">
@@ -45,6 +47,8 @@ export default async function EditFormPage({
         formId={form.id}
         t={t.builder}
         statusOptions={statusOpts}
+        isPro={pro}
+        automationsProBody={t.pro.automationsBody}
         initial={{
           title: form.title,
           description: form.description ?? "",

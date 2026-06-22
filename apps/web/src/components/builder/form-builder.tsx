@@ -45,12 +45,16 @@ export function FormBuilder({
   formId,
   initial,
   statusOptions,
+  isPro,
+  automationsProBody,
   t,
 }: {
   guildId: string;
   formId?: string;
   initial: FormBuilderInitial;
   statusOptions: StatusOption[];
+  isPro: boolean;
+  automationsProBody: string;
   t: BuilderDict;
 }) {
   const router = useRouter();
@@ -288,13 +292,19 @@ export function FormBuilder({
           <h3 className="font-heading text-sm font-semibold text-foreground">{t.autom.title}</h3>
           <p className="text-xs text-muted-foreground">{t.autom.intro}</p>
         </div>
-        <AutomationsEditor
-          automations={automations}
-          fields={allFields}
-          statusOptions={statusOptions}
-          onChange={setAutomations}
-          t={t}
-        />
+        {isPro ? (
+          <AutomationsEditor
+            automations={automations}
+            fields={allFields}
+            statusOptions={statusOptions}
+            onChange={setAutomations}
+            t={t}
+          />
+        ) : (
+          <p className="rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
+            ★ {automationsProBody}
+          </p>
+        )}
       </Card>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
