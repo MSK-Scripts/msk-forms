@@ -18,6 +18,7 @@ type BuilderDict = Dictionary["builder"];
 interface FieldEditorProps {
   field: FormField;
   fields: FormField[];
+  pages: { id: string; title: string }[];
   index: number;
   isFirst: boolean;
   isLast: boolean;
@@ -30,6 +31,7 @@ interface FieldEditorProps {
 export function FieldEditor({
   field,
   fields,
+  pages,
   index,
   isFirst,
   isLast,
@@ -218,6 +220,7 @@ export function FieldEditor({
             <ConditionEditor
               field={field}
               fields={fields}
+              pages={pages}
               onChange={(conditional: ConditionRule[]) => patch({ conditional })}
               t={t.cond}
             />

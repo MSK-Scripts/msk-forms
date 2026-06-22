@@ -7,18 +7,20 @@ import type { Dictionary } from "@/i18n";
 
 type CondDict = Dictionary["builder"]["cond"];
 
-const ACTIONS = ["show", "hide", "require"] as const;
+const ACTIONS = ["show", "hide", "require", "skip_to"] as const;
 const NO_VALUE_OPS = ["is_empty", "is_not_empty"];
 
-/** Per-field conditional-logic editor (show / hide / require based on another field). */
+/** Per-field conditional-logic editor (show / hide / require / skip-to-page). */
 export function ConditionEditor({
   field,
   fields,
+  pages,
   onChange,
   t,
 }: {
   field: FormField;
   fields: FormField[];
+  pages: { id: string; title: string }[];
   onChange: (rules: ConditionRule[]) => void;
   t: CondDict;
 }) {
@@ -29,6 +31,7 @@ export function ConditionEditor({
     show: t.actShow,
     hide: t.actHide,
     require: t.actRequire,
+    skip_to: t.actSkipTo,
   };
   const opOptions = [
     { value: "equals", label: t.opEquals },
@@ -78,7 +81,11 @@ export function ConditionEditor({
         <div key={i} className="flex flex-wrap items-center gap-2 rounded-md border border-border p-2">
           <Select
             value={rule.action}
-            onChange={(e) => replace(i, { ...rule, action: e.target.value as ConditionRule["action"] })}
+            onChange={(e) => {
+              const action = e.target.value as ConditionRule["action"];
+              const target = action === "skip_to" ? (rule.target ?? pages[0]?.id) : undefined;
+              replace(i, { ...rule, action, target });
+            }}
             options={ACTIONS.map((a) => ({ value: a, label: actionLabel[a]! }))}
           />
           <Select
@@ -100,6 +107,13 @@ export function ConditionEditor({
               onChange={(e) =>
                 replace(i, { ...rule, when: { ...rule.when, value: setValue(rule, e.target.value) } })
               }
+            />
+          )}
+          {rule.action === "skip_to" && (
+            <Select
+              value={rule.target ?? pages[0]?.id ?? ""}
+              onChange={(e) => replace(i, { ...rule, target: e.target.value })}
+              options={pages.map((p) => ({ value: p.id, label: p.title }))}
             />
           )}
           <button

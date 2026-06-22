@@ -72,6 +72,8 @@ export function FormBuilder({
 
   // Conditions can reference any field on any page, so offer the full list.
   const allFields = pages.flatMap((p) => p.fields);
+  // Page targets for `skip_to` conditions (fall back to "Page N" when untitled).
+  const pageOptions = pages.map((p, i) => ({ id: p.id, title: p.title?.trim() || `${t.page} ${i + 1}` }));
 
   function mutatePage(pi: number, fn: (page: FormPage) => FormPage) {
     setPages((prev) => prev.map((p, i) => (i === pi ? fn(p) : p)));
@@ -256,6 +258,7 @@ export function FormBuilder({
               key={field.id}
               field={field}
               fields={allFields}
+              pages={pageOptions}
               index={fi}
               isFirst={fi === 0}
               isLast={fi === page.fields.length - 1}
