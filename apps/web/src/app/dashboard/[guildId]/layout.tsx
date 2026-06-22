@@ -56,7 +56,7 @@ export default async function GuildLayout({
             {guild.name.charAt(0)}
           </div>
         )}
-        <h1 className="font-heading text-2xl font-bold text-foreground">{guild.name}</h1>
+        <h1 translate="no" className="font-heading text-2xl font-bold text-foreground">{guild.name}</h1>
       </div>
 
       {canManage || canReview ? (

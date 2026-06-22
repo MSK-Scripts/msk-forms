@@ -32,9 +32,9 @@ export default async function MySubmissionsPage() {
               <Link key={s.id} href={`/s/${s.id}` as Route}>
                 <Card className="flex items-center justify-between gap-4 p-4 transition-colors hover:border-primary/40">
                   <div className="flex min-w-0 flex-col gap-1">
-                    <span className="truncate font-medium text-foreground">{s.form.title}</span>
+                    <span translate="no" className="truncate font-medium text-foreground">{s.form.title}</span>
                     <span className="font-mono text-xs text-muted-foreground">
-                      {s.guild.name} · {s.submittedAt.toISOString().slice(0, 10)}
+                      <span translate="no">{s.guild.name}</span> · {s.submittedAt.toISOString().slice(0, 10)}
                     </span>
                   </div>
                   <StatusBadge label={status.label} color={status.color} />

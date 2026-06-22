@@ -136,7 +136,7 @@ function Shell({
       <CustomCss css={customCss} />
       <header className="flex flex-col gap-1">
         {logoSrc && <img src={logoSrc} alt="" className="mb-2 h-12 w-auto self-start" />}
-        <span className="text-sm font-medium text-primary">{guildName}</span>
+        <span translate="no" className="text-sm font-medium text-primary">{guildName}</span>
         <h1 className="font-heading text-3xl font-bold text-foreground">{title}</h1>
         {description && <p className="text-muted-foreground">{description}</p>}
       </header>
