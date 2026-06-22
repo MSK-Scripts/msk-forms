@@ -94,7 +94,9 @@ model Guild {
   plan           Plan     @default(free)
   branding       Json     @default("{}")
   botConfig      Json     @default("{}") @map("bot_config")
-  customDomain   String?  @unique @map("custom_domain")
+  customDomain           String?   @unique @map("custom_domain")
+  customDomainToken      String?   @map("custom_domain_token")
+  customDomainVerifiedAt DateTime? @map("custom_domain_verified_at")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 

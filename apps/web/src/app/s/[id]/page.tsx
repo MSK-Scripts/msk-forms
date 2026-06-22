@@ -3,6 +3,7 @@ import { StatusBadge } from "@msk-forms/ui";
 import { notFound } from "next/navigation";
 
 import { CustomCss } from "@/components/branding/custom-css";
+import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 import { AnswerSummary } from "@/components/submission/answer-summary";
 import { StatusLive } from "@/components/submission/status-live";
 import { SubmissionActions } from "@/components/submission/submission-actions";
@@ -23,6 +24,13 @@ export default async function SubmissionStatusPage({
   const { id } = await params;
   const submission = await getSubmissionForStatus(id);
   if (!submission) notFound();
+
+  // On a custom domain, only serve submissions owned by that domain's guild.
+  const host = await requestHostname();
+  if (host && !isPrimaryHostname(host)) {
+    const domainGuild = await getGuildByDomain(host);
+    if (!domainGuild || domainGuild.id !== submission.form.guildId) notFound();
+  }
 
   const dict = await getDict();
   const t = dict.status;

@@ -8,6 +8,7 @@ import { CustomCss } from "@/components/branding/custom-css";
 import { FormRenderer } from "@/components/form/form-renderer";
 import { getCurrentUser } from "@/lib/auth";
 import { brandStyle, logoUrl, parseBranding } from "@/lib/branding";
+import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 import { captchaSiteKey } from "@/lib/captcha";
 import { getLiveFormBySlug } from "@/lib/forms";
 import { getDict } from "@/i18n";
@@ -25,6 +26,13 @@ export default async function PublicFormPage({
   const t = (await getDict()).form;
 
   if (!form || !form.spec) notFound();
+
+  // On a custom domain, only serve forms owned by the guild that owns the domain.
+  const host = await requestHostname();
+  if (host && !isPrimaryHostname(host)) {
+    const domainGuild = await getGuildByDomain(host);
+    if (!domainGuild || domainGuild.id !== form.guildId) notFound();
+  }
 
   const branding = parseBranding(form.guild.branding);
   const brand = brandStyle(branding);
