@@ -107,6 +107,15 @@ export async function getFormForEdit(formId: string, guildId: string) {
   return form;
 }
 
+/** Live (published) forms for a guild, for the custom-domain landing index. */
+export async function getLiveFormsForGuild(guildId: string) {
+  return prisma.form.findMany({
+    where: { guildId, status: "live" },
+    orderBy: { createdAt: "desc" },
+    select: { slug: true, title: true, description: true },
+  });
+}
+
 /** Load a live (published) form by slug for the public submission page. */
 export async function getLiveFormBySlug(slug: string) {
   const form = await prisma.form.findUnique({
