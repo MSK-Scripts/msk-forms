@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, Checkbox, Select } from "@msk-forms/ui";
+import { Button, Card, Checkbox, Field, Input, Select } from "@msk-forms/ui";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -36,6 +36,8 @@ export function MembersManager({
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [confirmRemove, setConfirmRemove] = useState<MemberRow | null>(null);
+  const [addId, setAddId] = useState("");
+  const [addRole, setAddRole] = useState("viewer");
   // Local per-user form selection, seeded from props.
   const [grants, setGrants] = useState<Record<string, Set<string>>>(
     () => Object.fromEntries(members.map((m) => [m.userId, new Set(m.formIds)])),
@@ -65,6 +67,19 @@ export function MembersManager({
     } finally {
       setBusy(null);
     }
+  }
+
+  async function addMember() {
+    const ok = await call(
+      `/api/guilds/${guildId}/members`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ discordId: addId.trim(), role: addRole }),
+      },
+      "add",
+    );
+    if (ok) setAddId("");
   }
 
   function setRole(m: MemberRow, role: string) {
@@ -99,6 +114,36 @@ export function MembersManager({
 
   return (
     <div className="flex flex-col gap-4">
+      <Card className="flex flex-col gap-4 p-5">
+        <div className="flex flex-col gap-1">
+          <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {t.addTitle}
+          </h3>
+          <p className="text-xs text-muted-foreground">{t.idHint}</p>
+        </div>
+        <div className="flex flex-wrap items-end gap-2">
+          <Field label={t.discordId}>
+            <Input
+              value={addId}
+              placeholder="123456789012345678"
+              onChange={(e) => setAddId(e.target.value)}
+            />
+          </Field>
+          <Select
+            value={addRole}
+            onChange={(e) => setAddRole(e.target.value)}
+            options={[
+              { value: "viewer", label: t.roleViewer },
+              { value: "reviewer", label: t.roleReviewer },
+              { value: "admin", label: t.roleAdmin },
+            ]}
+          />
+          <Button type="button" onClick={addMember} disabled={busy === "add" || !addId.trim()}>
+            {busy === "add" ? t.adding : t.add}
+          </Button>
+        </div>
+      </Card>
+
       <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
         {t.team}: {teamCount} {t.of} {memberLimit === null ? t.unlimited : memberLimit}
       </p>
