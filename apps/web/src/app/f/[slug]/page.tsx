@@ -11,6 +11,7 @@ import { FormRenderer } from "@/components/form/form-renderer";
 import { LocalDateTime } from "@/components/public/local-datetime";
 import { PoweredBy } from "@/components/public/powered-by";
 import { getCurrentUser } from "@/lib/auth";
+import { appBaseUrl } from "@/lib/url";
 import { brandStyle, logoUrl, parseBranding } from "@/lib/branding";
 import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 import { isGuildPro } from "@/lib/plan";
@@ -34,10 +35,16 @@ export default async function PublicFormPage({
 
   // On a custom domain, only serve forms owned by the guild that owns the domain.
   const host = await requestHostname();
-  if (host && !isPrimaryHostname(host)) {
-    const domainGuild = await getGuildByDomain(host);
+  const onCustomDomain = Boolean(host) && !isPrimaryHostname(host!);
+  if (onCustomDomain) {
+    const domainGuild = await getGuildByDomain(host!);
     if (!domainGuild || domainGuild.id !== form.guildId) notFound();
   }
+  // Auth must happen on the primary domain (same-origin OAuth state/callback);
+  // from a custom domain, send the login there and return to the primary copy.
+  const loginHref = onCustomDomain
+    ? `${appBaseUrl()}/api/auth/discord/login?returnTo=/f/${slug}`
+    : `/api/auth/discord/login?returnTo=/f/${slug}`;
 
   const branding = parseBranding(form.guild.branding);
   const brand = brandStyle(branding);
@@ -78,7 +85,7 @@ export default async function PublicFormPage({
         <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
           <p className="text-sm text-muted-foreground">{t.needLogin}</p>
           <a
-            href={`/api/auth/discord/login?returnTo=/f/${slug}`}
+            href={loginHref}
             className="mt-4 inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
             {t.loginDiscord}
