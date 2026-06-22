@@ -1,9 +1,13 @@
+import { prisma } from "@msk-forms/db";
+import { FREE_FORM_LIMIT } from "@msk-forms/shared";
 import { Card } from "@msk-forms/ui";
 
 import { FormBuilder } from "@/components/builder/form-builder";
+import { ProNotice } from "@/components/pro-notice";
 import { requireUser } from "@/lib/auth";
 import { getStatusOptionsForGuild } from "@/lib/forms";
 import { canManageForms } from "@/lib/guild";
+import { isGuildPro } from "@/lib/plan";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -25,6 +29,18 @@ export default async function NewFormPage({
     );
   }
 
+  const pro = await isGuildPro(guildId);
+  if (!pro && (await prisma.form.count({ where: { guildId } })) >= FREE_FORM_LIMIT) {
+    return (
+      <div className="flex flex-col gap-4">
+        <h2 className="font-heading text-xl font-semibold text-foreground">
+          {t.dashboard.newFormTitle}
+        </h2>
+        <ProNotice title={t.pro.title} body={t.pro.formLimit} />
+      </div>
+    );
+  }
+
   const statusOpts = await getStatusOptionsForGuild(guildId, t.statusLabels);
 
   return (
@@ -36,6 +52,8 @@ export default async function NewFormPage({
         guildId={guildId}
         t={t.builder}
         statusOptions={statusOpts}
+        isPro={pro}
+        automationsProBody={t.pro.automationsBody}
         initial={{
           title: "",
           description: "",

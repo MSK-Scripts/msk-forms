@@ -1,9 +1,11 @@
 import { Prisma, prisma } from "@msk-forms/db";
+import { FREE_FORM_LIMIT } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
 import { formInputSchema } from "@/lib/form-input";
 import { canManageForms } from "@/lib/guild";
+import { isGuildPro } from "@/lib/plan";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,6 +32,21 @@ export async function POST(
   }
   const input = parsed.data;
 
+  // Plan limits: Free guilds are capped at FREE_FORM_LIMIT forms and can't use
+  // automations. Strip automations rather than failing the whole save.
+  const pro = await isGuildPro(guildId);
+  if (!pro) {
+    const count = await prisma.form.count({ where: { guildId } });
+    if (count >= FREE_FORM_LIMIT) {
+      return NextResponse.json(
+        { error: "Free plan form limit reached.", code: "pro_required" },
+        { status: 402 },
+      );
+    }
+  }
+  const settings = { ...(input.settings ?? {}) };
+  if (!pro && "automations" in settings) delete (settings as { automations?: unknown }).automations;
+
   try {
     const form = await prisma.form.create({
       data: {
@@ -40,7 +57,7 @@ export async function POST(
         status: input.status,
         visibility: input.visibility,
         schema: input.spec as Prisma.InputJsonValue,
-        settings: (input.settings ?? {}) as Prisma.InputJsonValue,
+        settings: settings as Prisma.InputJsonValue,
         createdById: user.id,
       },
       select: { id: true },

@@ -92,6 +92,7 @@ model Guild {
   icon           String?
   ownerUserId    String   @map("owner_user_id") @db.Uuid
   plan           Plan     @default(free)
+  grandfathered  Boolean  @default(false)
   branding       Json     @default("{}")
   botConfig      Json     @default("{}") @map("bot_config")
   customDomain           String?   @unique @map("custom_domain")

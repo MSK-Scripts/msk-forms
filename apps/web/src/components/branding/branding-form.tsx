@@ -15,10 +15,14 @@ const HEX = /^#[0-9a-fA-F]{6}$/;
 export function BrandingForm({
   guildId,
   initial,
+  canCss,
+  cssProBody,
   t,
 }: {
   guildId: string;
   initial: Branding;
+  canCss: boolean;
+  cssProBody: string;
   t: BrandingDict;
 }) {
   const router = useRouter();
@@ -95,19 +99,27 @@ export function BrandingForm({
         </div>
       </Field>
 
-      <Field label={t.customCss} hint={t.customCssHint}>
-        <Textarea
-          value={css}
-          rows={6}
-          spellCheck={false}
-          placeholder=".msk-form { ... }"
-          className="font-mono text-xs"
-          onChange={(e) => {
-            setCss(e.target.value);
-            setSaved(false);
-          }}
-        />
-      </Field>
+      {canCss ? (
+        <Field label={t.customCss} hint={t.customCssHint}>
+          <Textarea
+            value={css}
+            rows={6}
+            spellCheck={false}
+            placeholder=".msk-form { ... }"
+            className="font-mono text-xs"
+            onChange={(e) => {
+              setCss(e.target.value);
+              setSaved(false);
+            }}
+          />
+        </Field>
+      ) : (
+        <Field label={t.customCss}>
+          <p className="rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
+            ★ {cssProBody}
+          </p>
+        </Field>
+      )}
 
       <div className="flex items-center gap-3">
         <Button type="button" onClick={save} disabled={saving}>

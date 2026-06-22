@@ -191,6 +191,13 @@ const en = {
     noPerm: "You don’t have permission to manage the domain.",
   },
   domainHome: { chooseForm: "Open application", noForms: "No open forms right now." },
+  pro: {
+    title: "Pro feature",
+    body: "Upgrade your guild to Pro to use this.",
+    cssBody: "Custom CSS is available on the Pro plan.",
+    automationsBody: "Automations are available on the Pro plan.",
+    formLimit: "Free plan: up to 3 forms. Upgrade to Pro for unlimited forms.",
+  },
   builder: {
     title: "Title", description: "Description", slug: "Slug", slugHint: "Public URL: /f/<slug>", auto: "Auto",
     status: "Status", visibility: "Visibility",
@@ -438,6 +445,13 @@ const de: Dictionary = {
     noPerm: "Du hast keine Berechtigung, die Domain zu verwalten.",
   },
   domainHome: { chooseForm: "Bewerbung öffnen", noForms: "Aktuell keine offenen Formulare." },
+  pro: {
+    title: "Pro-Funktion",
+    body: "Upgrade deine Guild auf Pro, um das zu nutzen.",
+    cssBody: "Eigenes CSS ist im Pro-Plan verfügbar.",
+    automationsBody: "Automatisierungen sind im Pro-Plan verfügbar.",
+    formLimit: "Free-Plan: bis zu 3 Formulare. Upgrade auf Pro für unbegrenzte Formulare.",
+  },
   builder: {
     title: "Titel", description: "Beschreibung", slug: "Slug", slugHint: "Öffentliche URL: /f/<slug>", auto: "Auto",
     status: "Status", visibility: "Sichtbarkeit",
@@ -683,6 +697,13 @@ const hu: Dictionary = {
     noPerm: "Nincs jogosultságod a domain kezeléséhez.",
   },
   domainHome: { chooseForm: "Jelentkezés megnyitása", noForms: "Jelenleg nincs nyitott űrlap." },
+  pro: {
+    title: "Pro funkció",
+    body: "Frissíts Pro csomagra a szerveredhez ennek használatához.",
+    cssBody: "Az egyéni CSS a Pro csomagban érhető el.",
+    automationsBody: "Az automatizálások a Pro csomagban érhetők el.",
+    formLimit: "Free csomag: legfeljebb 3 űrlap. Frissíts Pro csomagra a korlátlan űrlapokért.",
+  },
   builder: {
     title: "Cím", description: "Leírás", slug: "Slug", slugHint: "Nyilvános URL: /f/<slug>", auto: "Auto",
     status: "Állapot", visibility: "Láthatóság",

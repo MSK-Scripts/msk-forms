@@ -1,3 +1,4 @@
+import { FREE_FORM_LIMIT } from "@msk-forms/shared";
 import { Card, StatusBadge } from "@msk-forms/ui";
 import type { Route } from "next";
 import Link from "next/link";
@@ -8,6 +9,7 @@ import { ShareButton } from "@/components/dashboard/share-button";
 import { requireUser } from "@/lib/auth";
 import { appBaseUrl } from "@/lib/url";
 import { canManageForms, getGuildForms } from "@/lib/guild";
+import { isGuildPro } from "@/lib/plan";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -27,13 +29,15 @@ export default async function GuildFormsPage({
 }) {
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/forms`);
-  const [forms, canManage] = await Promise.all([
+  const [forms, canManage, pro] = await Promise.all([
     getGuildForms(guildId),
     canManageForms(guildId, user.id),
+    isGuildPro(guildId),
   ]);
   const base = appBaseUrl();
   const dict = await getDict();
   const t = dict.dashboard;
+  const atFormLimit = !pro && forms.length >= FREE_FORM_LIMIT;
   const statusLabel: Record<string, string> = {
     draft: dict.builder.statusDraft,
     live: dict.builder.statusLive,
@@ -57,13 +61,25 @@ export default async function GuildFormsPage({
         <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
           {forms.length} {forms.length === 1 ? t.countForm : t.countForms}
         </h2>
-        <Link
-          href={`/dashboard/${guildId}/forms/new` as Route}
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-        >
-          + {t.newForm}
-        </Link>
+        {atFormLimit ? (
+          <span className="cursor-not-allowed rounded-md bg-muted px-4 py-2 text-sm font-medium text-muted-foreground">
+            + {t.newForm}
+          </span>
+        ) : (
+          <Link
+            href={`/dashboard/${guildId}/forms/new` as Route}
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            + {t.newForm}
+          </Link>
+        )}
       </div>
+
+      {atFormLimit && (
+        <p className="rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
+          ★ {dict.pro.formLimit}
+        </p>
+      )}
 
       {forms.length === 0 ? (
         <Card className="p-8">

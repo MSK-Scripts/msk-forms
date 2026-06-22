@@ -6,6 +6,7 @@ import { LogoForm } from "@/components/branding/logo-form";
 import { requireUser } from "@/lib/auth";
 import { logoUrl, parseBranding } from "@/lib/branding";
 import { canManageForms } from "@/lib/guild";
+import { isGuildPro } from "@/lib/plan";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -33,11 +34,18 @@ export default async function BrandingPage({
     select: { branding: true },
   });
   const branding = parseBranding(guild?.branding);
+  const pro = await isGuildPro(guildId);
 
   return (
     <div className="flex flex-col gap-4">
       <h2 className="font-heading text-xl font-semibold text-foreground">{t.branding.title}</h2>
-      <BrandingForm guildId={guildId} initial={branding} t={t.branding} />
+      <BrandingForm
+        guildId={guildId}
+        initial={branding}
+        canCss={pro}
+        cssProBody={t.pro.cssBody}
+        t={t.branding}
+      />
       <LogoForm guildId={guildId} logoUrl={logoUrl(guildId, branding)} t={t.branding} />
     </div>
   );

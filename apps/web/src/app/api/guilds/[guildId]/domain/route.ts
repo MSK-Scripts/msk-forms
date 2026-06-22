@@ -7,6 +7,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { primaryHostname } from "@/lib/custom-domain";
 import { canManageForms } from "@/lib/guild";
+import { isGuildPro } from "@/lib/plan";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,6 +23,9 @@ export async function PATCH(
   if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   if (!(await canManageForms(guildId, user.id))) {
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+  }
+  if (!(await isGuildPro(guildId))) {
+    return NextResponse.json({ error: "Pro plan required.", code: "pro_required" }, { status: 402 });
   }
 
   const parsed = customDomainSchema.safeParse(await request.json().catch(() => null));

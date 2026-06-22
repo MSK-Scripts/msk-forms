@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { formInputSchema } from "@/lib/form-input";
 import { canManageForms } from "@/lib/guild";
+import { isGuildPro } from "@/lib/plan";
 import { deleteObject } from "@/lib/s3";
 
 export const runtime = "nodejs";
@@ -39,6 +40,12 @@ export async function PATCH(
   }
   const input = parsed.data;
 
+  // Automations are a Pro feature — strip them for Free guilds.
+  const settings = { ...(input.settings ?? {}) };
+  if (!(await isGuildPro(guildId)) && "automations" in settings) {
+    delete (settings as { automations?: unknown }).automations;
+  }
+
   try {
     await prisma.form.update({
       where: { id: formId },
@@ -49,7 +56,7 @@ export async function PATCH(
         status: input.status,
         visibility: input.visibility,
         schema: input.spec as Prisma.InputJsonValue,
-        settings: (input.settings ?? {}) as Prisma.InputJsonValue,
+        settings: settings as Prisma.InputJsonValue,
         version: { increment: 1 },
       },
     });
