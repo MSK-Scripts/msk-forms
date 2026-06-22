@@ -233,6 +233,8 @@ const en = {
     formAccess: "Form access", formAccessHint: "Choose which forms this member can review.",
     remove: "Remove", removeConfirm: "Remove this member from the guild?", cancel: "Cancel",
     errAction: "Action failed.", limitReached: "Member limit reached — upgrade your plan for more.",
+    addTitle: "Add a member", discordId: "Discord ID", add: "Add", adding: "Adding…",
+    idHint: "Add someone by their Discord user ID — they don’t need to have logged in yet. Enable Developer Mode in Discord, then right-click the user → Copy User ID.",
   },
   review: {
     back: "Back to submissions",
@@ -620,6 +622,8 @@ const de: Dictionary = {
     formAccess: "Formular-Zugriff", formAccessHint: "Wähle, welche Formulare dieses Mitglied reviewen darf.",
     remove: "Entfernen", removeConfirm: "Dieses Mitglied aus der Guild entfernen?", cancel: "Abbrechen",
     errAction: "Aktion fehlgeschlagen.", limitReached: "Mitglieder-Limit erreicht — upgrade deinen Plan für mehr.",
+    addTitle: "Mitglied hinzufügen", discordId: "Discord-ID", add: "Hinzufügen", adding: "Wird hinzugefügt…",
+    idHint: "Jemanden per Discord-User-ID hinzufügen — die Person muss sich noch nicht eingeloggt haben. Aktiviere den Entwicklermodus in Discord, dann Rechtsklick auf den User → ID kopieren.",
   },
   review: {
     back: "Zurück zu den Einreichungen",
@@ -1005,6 +1009,8 @@ const hu: Dictionary = {
     formAccess: "Űrlap-hozzáférés", formAccessHint: "Válaszd ki, mely űrlapokat bírálhatja ez a tag.",
     remove: "Eltávolítás", removeConfirm: "Eltávolítod ezt a tagot a szerverről?", cancel: "Mégse",
     errAction: "A művelet sikertelen.", limitReached: "Tagsági limit elérve — válts magasabb csomagra a többért.",
+    addTitle: "Tag hozzáadása", discordId: "Discord ID", add: "Hozzáadás", adding: "Hozzáadás…",
+    idHint: "Adj hozzá valakit a Discord felhasználói azonosítója alapján — még nem kell bejelentkeznie. Kapcsold be a Fejlesztői módot a Discordban, majd jobb klikk a felhasználóra → Felhasználói azonosító másolása.",
   },
   review: {
     back: "Vissza a beküldésekhez",

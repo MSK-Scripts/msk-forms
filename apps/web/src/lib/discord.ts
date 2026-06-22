@@ -98,6 +98,26 @@ export async function fetchDiscordGuildIds(accessToken: string): Promise<string[
   }
 }
 
+/**
+ * Look up a Discord user by id using the bot token (for adding members by ID
+ * before they've logged in). Returns null without a token or on any error — the
+ * caller falls back to the raw id as a placeholder username.
+ */
+export async function fetchDiscordUserById(userId: string): Promise<DiscordUser | null> {
+  const token = process.env.DISCORD_BOT_TOKEN;
+  if (!token) return null;
+  try {
+    const res = await fetch(`${DISCORD_API}/users/${userId}`, {
+      headers: { Authorization: `Bot ${token}` },
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as DiscordUser;
+  } catch {
+    return null;
+  }
+}
+
 /** Resolve the full CDN avatar URL, or null to let the UI fall back. */
 export function discordAvatarUrl(user: DiscordUser): string | null {
   if (!user.avatar) return null;
