@@ -103,7 +103,10 @@ export default async function PublicFormPage({
     );
   }
 
-  const siteKey = captchaSiteKey();
+  // The global Turnstile sitekey is bound to the primary host's allowlist, so it
+  // can't render on customer custom domains. Skip the widget there — those forms
+  // stay protected by the per-IP rate limit on submit (see the submit route).
+  const siteKey = onCustomDomain ? null : captchaSiteKey();
   const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
