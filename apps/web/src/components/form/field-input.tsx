@@ -58,6 +58,15 @@ export function FieldInput({
   const options = (field.options ?? []).map((o) => ({ value: o.value, label: o.label }));
 
   switch (field.type) {
+    // Calculated: read-only, derived from other answers. The value is computed
+    // by the renderer and passed in; the applicant never edits it.
+    case "calculated":
+      return (
+        <div className="flex min-h-10 items-center rounded-md border border-input bg-muted px-3 py-2 text-sm font-medium text-foreground">
+          {value === undefined || value === "" ? "—" : String(value)}
+        </div>
+      );
+
     case "file_upload":
     case "image_upload":
       return (

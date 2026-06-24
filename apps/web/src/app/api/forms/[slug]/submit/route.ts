@@ -3,8 +3,10 @@ import {
   buildAnswerSchema,
   DEFAULT_STATUSES,
   evaluateAutomations,
+  evaluateFormula,
   FILE_FIELD_TYPES,
   formatAnswerValue,
+  isComputedField,
   isFormOpenNow,
   isLayoutField,
   parseFormSettings,
@@ -153,6 +155,15 @@ export async function POST(
   // size/type (via HEAD), not the client-supplied descriptor; only the display
   // filename comes from the client (and is never used to address the object).
   const data = result.data as Record<string, unknown>;
+
+  // Compute calculated fields server-side (authoritative — the client preview is
+  // never trusted). In document order, so a calculated field may reference an
+  // earlier one. The result is stored alongside the entered answers.
+  const fieldsById = new Map(spec.pages.flatMap((p) => p.fields).map((f) => [f.id, f]));
+  for (const f of fieldsById.values()) {
+    if (isComputedField(f.type)) data[f.id] = evaluateFormula(f.formula, fieldsById, data);
+  }
+
   const fileFields = spec.pages
     .flatMap((p) => p.fields)
     .filter((f) => (FILE_FIELD_TYPES as readonly string[]).includes(f.type));

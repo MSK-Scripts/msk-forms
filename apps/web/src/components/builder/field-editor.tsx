@@ -1,11 +1,12 @@
 "use client";
 
-import type { ConditionRule, FormField } from "@msk-forms/shared";
-import { Card, Checkbox, Field, Input } from "@msk-forms/ui";
+import { isComputedField, isLayoutField, type ConditionRule, type FormField } from "@msk-forms/shared";
+import { Card, Checkbox, Field, Input, Textarea } from "@msk-forms/ui";
 
 import { ConditionEditor } from "@/components/builder/condition-editor";
 import {
   isLayoutType,
+  needsFormula,
   needsOptions,
   needsRows,
   needsSliderConfig,
@@ -185,6 +186,48 @@ export function FieldEditor({
             </Field>
           )}
 
+          {needsFormula(field.type) && (
+            <Field label={t.formula} hint={t.formulaHint}>
+              <div className="flex flex-col gap-2">
+                <Textarea
+                  value={field.formula ?? ""}
+                  onChange={(e) => patch({ formula: e.target.value })}
+                  placeholder="{a} + {b} * 2"
+                  rows={2}
+                  className="font-mono"
+                />
+                {(() => {
+                  const refs = fields.filter(
+                    (f) => f.id !== field.id && !isLayoutField(f.type) && !isComputedField(f.type),
+                  );
+                  if (refs.length === 0) return null;
+                  return (
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs text-muted-foreground">{t.formulaFields}</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {refs.map((f) => (
+                          <button
+                            key={f.id}
+                            type="button"
+                            onClick={() =>
+                              patch({
+                                formula: `${field.formula ? `${field.formula} ` : ""}{${f.id}}`,
+                              })
+                            }
+                            className="rounded bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground"
+                            title={`{${f.id}}`}
+                          >
+                            {f.label || f.id}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            </Field>
+          )}
+
           {needsStarsConfig(field.type) && (
             <Field label={t.stars}>
               <Input
@@ -227,13 +270,15 @@ export function FieldEditor({
             </div>
           )}
 
-          <Checkbox
-            label={t.required}
-            checked={field.validation.required}
-            onChange={(e) =>
-              patch({ validation: { ...field.validation, required: e.target.checked } })
-            }
-          />
+          {!needsFormula(field.type) && (
+            <Checkbox
+              label={t.required}
+              checked={field.validation.required}
+              onChange={(e) =>
+                patch({ validation: { ...field.validation, required: e.target.checked } })
+              }
+            />
+          )}
 
           <Field label={t.cond.title}>
             <ConditionEditor

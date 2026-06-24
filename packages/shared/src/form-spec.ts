@@ -45,6 +45,8 @@ export const FIELD_TYPES = [
   "age_check",
   "consent",
   "captcha",
+  // Computed (value derived from other answers, never entered by the applicant)
+  "calculated",
   // Layout
   "section_break",
   "heading",
@@ -120,6 +122,9 @@ export const formFieldSchema = z.object({
   options: z.array(fieldOptionSchema).optional(),
   // Matrix sub-questions (rows); the shared column choices live in `options`.
   rows: z.array(matrixRowSchema).optional(),
+  // Arithmetic expression for a `calculated` field, referencing other fields via
+  // `{fieldId}` placeholders (e.g. "{price} * {qty}"). Evaluated server-side.
+  formula: z.string().max(2000).optional(),
   validation: fieldValidationSchema.default({ required: false }),
   conditional: z.array(conditionRuleSchema).default([]),
   translations: z.record(z.string(), z.record(z.string(), z.string())).optional(),
@@ -172,6 +177,15 @@ export const LAYOUT_FIELD_TYPES = [
 /** True for layout-only fields, which never produce a submission answer. */
 export function isLayoutField(type: FieldType): boolean {
   return (LAYOUT_FIELD_TYPES as readonly string[]).includes(type);
+}
+
+/**
+ * True for fields whose value is derived, not entered: the applicant never
+ * provides them, the server computes them on submit. Excluded from the client
+ * answer schema and from required-ness, like layout fields.
+ */
+export function isComputedField(type: FieldType): boolean {
+  return type === "calculated";
 }
 
 /** Emoji shown for an `emoji_scale` field, lowest → highest (value = index + 1). */
@@ -273,7 +287,9 @@ export function buildAnswerSchema(spec: FormSpec): z.ZodTypeAny {
   const fields: FormField[] = [];
   for (const page of spec.pages) {
     for (const field of page.fields) {
-      if (isLayoutField(field.type)) continue;
+      // Layout has no value; computed fields are filled in server-side, never
+      // by the client — so neither belongs in the submitted answer schema.
+      if (isLayoutField(field.type) || isComputedField(field.type)) continue;
       shape[field.id] = buildFieldSchema(field);
       fields.push(field);
     }

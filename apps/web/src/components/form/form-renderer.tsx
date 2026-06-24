@@ -2,6 +2,8 @@
 
 import {
   computePagePath,
+  evaluateFormula,
+  isComputedField,
   isFieldRequired,
   isFieldVisible,
   isLayoutField,
@@ -75,6 +77,8 @@ export function FormRenderer({
   const [captchaNonce, setCaptchaNonce] = useState(0);
 
   const pages = spec.pages;
+  // For resolving {fieldId} references in calculated fields.
+  const fieldsById = new Map(pages.flatMap((p) => p.fields).map((f) => [f.id, f]));
   const visibleFieldsOf = (page: FormPage) => page.fields.filter((f) => isFieldVisible(f, answers));
   // The flow follows `skip_to` jumps from page 0, then within that path a page is
   // shown only if it still has a visible field. Pages off the path or fully
@@ -104,7 +108,8 @@ export function FormRenderer({
   function collectErrors(fields: FormField[]): Record<string, string> {
     const out: Record<string, string> = {};
     for (const field of fields) {
-      if (isLayout(field) || !isFieldVisible(field, answers)) continue;
+      // Layout has no value; calculated fields are derived, never entered.
+      if (isLayout(field) || isComputedField(field.type) || !isFieldVisible(field, answers)) continue;
       if (isFieldRequired(field, answers) && isEmpty(answers[field.id])) {
         out[field.id] = labels.required;
       }
@@ -211,7 +216,11 @@ export function FormRenderer({
           >
             <FieldInput
               field={field}
-              value={answers[field.id]}
+              value={
+                isComputedField(field.type)
+                  ? (evaluateFormula(field.formula, fieldsById, answers) ?? undefined)
+                  : answers[field.id]
+              }
               onChange={(v) => setAnswer(field.id, v)}
               invalid={Boolean(errors[field.id])}
               disabled={submitting}

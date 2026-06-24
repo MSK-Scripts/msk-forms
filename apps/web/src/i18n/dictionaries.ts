@@ -369,6 +369,7 @@ const en = {
     labelPh: "Question label…", headingPh: "Section heading…",
     stars: "Stars", min: "Min", max: "Max", step: "Step",
     columns: "Columns", rows: "Rows", rowPh: "Row", addRow: "Add row", removeRow: "Remove row",
+    formula: "Formula", formulaHint: "Use {field} references with + - * / and ( ). Computed automatically.", formulaFields: "Insert a field:",
     cond: {
       title: "Logic",
       addRule: "Add rule",
@@ -384,7 +385,7 @@ const en = {
     ft: {
       short_text: "Short text", long_text: "Long text", email: "Email", number: "Number", phone: "Phone", url: "URL",
       single_choice: "Single choice", dropdown: "Dropdown", multi_choice: "Multiple choice", yes_no: "Yes / No",
-      rating_stars: "Star rating", nps: "NPS (0–10)", slider: "Slider", emoji_scale: "Emoji scale", matrix: "Matrix",
+      rating_stars: "Star rating", nps: "NPS (0–10)", slider: "Slider", emoji_scale: "Emoji scale", matrix: "Matrix", calculated: "Calculated",
       date: "Date", file_upload: "File upload", image_upload: "Image upload", signature: "Signature",
       consent: "Consent", heading: "Heading", paragraph: "Paragraph", divider: "Divider",
     },
@@ -777,6 +778,7 @@ const de: Dictionary = {
     labelPh: "Fragetext…", headingPh: "Abschnittsüberschrift…",
     stars: "Sterne", min: "Min", max: "Max", step: "Schritt",
     columns: "Spalten", rows: "Zeilen", rowPh: "Zeile", addRow: "Zeile hinzufügen", removeRow: "Zeile entfernen",
+    formula: "Formel", formulaHint: "{feld}-Referenzen mit + - * / und ( ) verwenden. Wird automatisch berechnet.", formulaFields: "Feld einfügen:",
     cond: {
       title: "Logik",
       addRule: "Regel hinzufügen",
@@ -792,7 +794,7 @@ const de: Dictionary = {
     ft: {
       short_text: "Kurztext", long_text: "Langtext", email: "E-Mail", number: "Zahl", phone: "Telefon", url: "URL",
       single_choice: "Einfachauswahl", dropdown: "Dropdown", multi_choice: "Mehrfachauswahl", yes_no: "Ja / Nein",
-      rating_stars: "Sterne-Bewertung", nps: "NPS (0–10)", slider: "Schieberegler", emoji_scale: "Emoji-Skala", matrix: "Matrix",
+      rating_stars: "Sterne-Bewertung", nps: "NPS (0–10)", slider: "Schieberegler", emoji_scale: "Emoji-Skala", matrix: "Matrix", calculated: "Berechnet",
       date: "Datum", file_upload: "Datei-Upload", image_upload: "Bild-Upload", signature: "Unterschrift",
       consent: "Zustimmung", heading: "Überschrift", paragraph: "Absatz", divider: "Trenner",
     },
@@ -1183,6 +1185,7 @@ const hu: Dictionary = {
     labelPh: "Kérdés címkéje…", headingPh: "Szakasz címe…",
     stars: "Csillagok", min: "Min", max: "Max", step: "Lépés",
     columns: "Oszlopok", rows: "Sorok", rowPh: "Sor", addRow: "Sor hozzáadása", removeRow: "Sor eltávolítása",
+    formula: "Képlet", formulaHint: "Használj {mező}-hivatkozásokat + - * / és ( ) jelekkel. Automatikusan kiszámítódik.", formulaFields: "Mező beszúrása:",
     cond: {
       title: "Logika",
       addRule: "Szabály hozzáadása",
@@ -1198,7 +1201,7 @@ const hu: Dictionary = {
     ft: {
       short_text: "Rövid szöveg", long_text: "Hosszú szöveg", email: "E-mail", number: "Szám", phone: "Telefon", url: "URL",
       single_choice: "Egy választás", dropdown: "Legördülő", multi_choice: "Több választás", yes_no: "Igen / Nem",
-      rating_stars: "Csillagos értékelés", nps: "NPS (0–10)", slider: "Csúszka", emoji_scale: "Emoji skála", matrix: "Mátrix",
+      rating_stars: "Csillagos értékelés", nps: "NPS (0–10)", slider: "Csúszka", emoji_scale: "Emoji skála", matrix: "Mátrix", calculated: "Számított",
       date: "Dátum", file_upload: "Fájlfeltöltés", image_upload: "Képfeltöltés", signature: "Aláírás",
       consent: "Hozzájárulás", heading: "Címsor", paragraph: "Bekezdés", divider: "Elválasztó",
     },

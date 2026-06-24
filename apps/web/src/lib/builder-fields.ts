@@ -17,6 +17,7 @@ export const BUILDER_FIELDS: { type: FieldType; label: string }[] = [
   { type: "slider", label: "Slider" },
   { type: "emoji_scale", label: "Emoji scale" },
   { type: "matrix", label: "Matrix" },
+  { type: "calculated", label: "Calculated" },
   { type: "date", label: "Date" },
   { type: "file_upload", label: "File upload" },
   { type: "image_upload", label: "Image upload" },
@@ -44,6 +45,8 @@ const SLIDER_CONFIG_TYPES: FieldType[] = ["slider"];
 
 export const needsOptions = (type: FieldType): boolean => CHOICE_TYPES.includes(type);
 export const isLayoutType = (type: FieldType): boolean => BUILDER_LAYOUT_TYPES.includes(type);
+/** Calculated fields configure an arithmetic formula instead of an input. */
+export const needsFormula = (type: FieldType): boolean => type === "calculated";
 export const needsStarsConfig = (type: FieldType): boolean => STARS_CONFIG_TYPES.includes(type);
 export const needsSliderConfig = (type: FieldType): boolean => SLIDER_CONFIG_TYPES.includes(type);
 export const needsRows = (type: FieldType): boolean => ROWS_CONFIG_TYPES.includes(type);
