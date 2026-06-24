@@ -241,11 +241,26 @@ export function FormRenderer({
           </Button>
         )}
         {isLast ? (
-          <Button type="submit" disabled={submitting}>
+          // Distinct keys so React mounts a fresh node instead of reusing the
+          // "Next" button and morphing its `type` to "submit". Without this, a
+          // "Next" click's setStep flushes synchronously (discrete event), the
+          // same <button> node becomes type="submit", and the click's default
+          // action submits the form — skipping the remaining pages. (Masked on
+          // the primary host by the captcha gate; visible on custom domains.)
+          <Button key="step-submit" type="submit" disabled={submitting}>
             {submitting ? labels.submitting : labels.submit}
           </Button>
         ) : (
-          <Button type="button" onClick={goNext}>
+          <Button
+            key="step-next"
+            type="button"
+            onClick={(e) => {
+              // Belt-and-suspenders: prevent any default form submission from
+              // this click even if the node still morphs mid-flush.
+              e.preventDefault();
+              goNext();
+            }}
+          >
             {labels.next}
           </Button>
         )}
