@@ -13,6 +13,15 @@ export interface WebhookRow {
   secret: string;
   events: string[];
   active: boolean;
+  /** "manual" (added here) or an integration provider ("zapier"/"make"). */
+  source: string;
+}
+
+/** Badge label for an integration-managed hook; brand names stay verbatim. */
+function sourceLabel(source: string, t: WebhooksDict): string {
+  if (source === "zapier") return "Zapier";
+  if (source === "make") return "Make";
+  return t.managedBadge;
 }
 
 type WebhooksDict = Dictionary["webhooks"];
@@ -65,7 +74,8 @@ export function WebhooksManager({
         | { webhook?: WebhookRow; error?: string }
         | null;
       if (!res.ok || !data?.webhook) throw new Error(data?.error ?? t.errAdd);
-      setWebhooks((prev) => [...prev, data.webhook!]);
+      // Hooks added here are always manually managed.
+      setWebhooks((prev) => [...prev, { ...data.webhook!, source: "manual" }]);
       setUrl("");
       setEvents(new Set(WEBHOOK_EVENTS));
     } catch (err) {
@@ -162,15 +172,25 @@ export function WebhooksManager({
               <li key={hook.id} className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="break-all font-mono text-sm text-foreground">{hook.url}</span>
-                  <span
-                    className={`shrink-0 rounded px-2 py-0.5 text-xs font-medium ${
-                      hook.active
-                        ? "bg-primary/10 text-primary"
-                        : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {hook.active ? t.active : t.inactive}
-                  </span>
+                  <div className="flex shrink-0 items-center gap-1.5">
+                    {hook.source !== "manual" && (
+                      <span
+                        className="rounded bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground"
+                        title={t.managedHint}
+                      >
+                        {sourceLabel(hook.source, t)}
+                      </span>
+                    )}
+                    <span
+                      className={`rounded px-2 py-0.5 text-xs font-medium ${
+                        hook.active
+                          ? "bg-primary/10 text-primary"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {hook.active ? t.active : t.inactive}
+                    </span>
+                  </div>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {hook.events.map((event) => (

@@ -55,7 +55,7 @@ export default async function WebhooksPage({
   const webhooks = (await prisma.webhook.findMany({
     where: { guildId },
     orderBy: { createdAt: "asc" },
-    select: { id: true, url: true, secret: true, events: true, active: true },
+    select: { id: true, url: true, secret: true, events: true, active: true, source: true },
   })) as WebhookRow[];
 
   return (
