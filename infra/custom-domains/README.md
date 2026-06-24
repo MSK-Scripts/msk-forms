@@ -18,10 +18,20 @@ TXT _msk-forms.apply.x.com      to 127.0.0.1:3008                      and serve
 
 1. The guild owner adds the **CNAME** + **TXT** records shown in the dashboard
    (Dashboard → Domain).
-2. They click **Verify** — the app checks the TXT record and marks the domain
-   verified.
-3. Within a few minutes the sync timer writes the Apache config and reloads;
-   `mod_md` obtains the certificate (ACME `http-01` on port 80).
+2. They click **Verify** — the app checks the TXT record, marks the domain
+   verified, and **touches a trigger file** so the sync runs immediately.
+3. A systemd `.path` unit sees the trigger and runs the sync within ~1s: it
+   writes the Apache config, reloads, and `mod_md` obtains the certificate (ACME
+   `http-01` on port 80). When the cert is installed, `MDMessageCmd` reloads
+   Apache again so it goes live within seconds — no waiting for the next cycle.
+
+> **Latency:** the periodic timer (every 3 min) is only a safety net. The normal
+> path is event-driven (verify → trigger file → `.path` unit → sync), and the
+> cert is activated the moment it's issued (`MDMessageCmd`). Verify-to-live is
+> typically ~10–30s (the ACME round-trip), not minutes. Without the `.path` unit
+> and `MDMessageCmd` a domain can show **503 + a fallback/foreign certificate**
+> for up to several minutes while it waits for the timer and the next mod_md
+> maintenance cycle.
 
 ## One-time server setup (run as root)
 
@@ -29,7 +39,9 @@ TXT _msk-forms.apply.x.com      to 127.0.0.1:3008                      and serve
 # 1. Modules
 a2enmod md ssl proxy proxy_http proxy_wstunnel headers rewrite
 
-# 2. mod_md base config
+# 2. mod_md base config + instant-activation hook
+install -m 0755 /opt/msk-forms/infra/custom-domains/md-message.sh \
+  /usr/local/sbin/msk-forms-md-message.sh
 cat >/etc/apache2/conf-available/msk-forms-md.conf <<'EOF'
 MDCertificateAgreement accepted
 MDContactEmail admin@msk-scripts.de
@@ -37,6 +49,9 @@ MDContactEmail admin@msk-scripts.de
 MDChallengeDns01 off
 # Keep certs across reloads; renew well before expiry.
 MDRenewWindow 33%
+# Reload Apache the instant a cert is obtained/renewed so the domain goes live
+# in seconds instead of waiting for the next maintenance cycle.
+MDMessageCmd /usr/local/sbin/msk-forms-md-message.sh
 EOF
 a2enconf msk-forms-md
 
@@ -54,9 +69,12 @@ cat >/etc/apache2/sites-available/msk-forms-acme.conf <<'EOF'
 EOF
 a2ensite msk-forms-acme
 
-# 4. Install the sync script + a systemd timer (runs every 3 min).
+# 4. Install the sync script + systemd units (event-driven .path + safety-net timer).
 install -m 0755 /opt/msk-forms/infra/custom-domains/sync-custom-domains.sh \
   /usr/local/sbin/sync-custom-domains.sh
+
+# Trigger directory the app (user musiker15) writes to on verify/remove.
+install -d -o musiker15 -g musiker15 /opt/msk-forms/var
 
 cat >/etc/systemd/system/msk-forms-domains.service <<'EOF'
 [Unit]
@@ -68,9 +86,13 @@ Type=oneshot
 ExecStart=/usr/local/sbin/sync-custom-domains.sh
 EOF
 
+# Event-driven: run the sync within ~1s of the app touching the trigger file.
+install -m 0644 /opt/msk-forms/infra/custom-domains/msk-forms-domains.path \
+  /etc/systemd/system/msk-forms-domains.path
+
 cat >/etc/systemd/system/msk-forms-domains.timer <<'EOF'
 [Unit]
-Description=Periodically sync MSK Forms custom domains
+Description=Periodically sync MSK Forms custom domains (safety net)
 
 [Timer]
 OnBootSec=2min
@@ -82,7 +104,7 @@ WantedBy=timers.target
 EOF
 
 systemctl daemon-reload
-systemctl enable --now msk-forms-domains.timer
+systemctl enable --now msk-forms-domains.path msk-forms-domains.timer
 
 # 5. First run + reload
 apache2ctl configtest && systemctl reload apache2
@@ -90,7 +112,10 @@ apache2ctl configtest && systemctl reload apache2
 ```
 
 Requirements: `psql` available (it is, Postgres is local), UFW allows 80 + 443,
-and `/opt/msk-forms/.env` contains `DATABASE_URL` (it does).
+and `/opt/msk-forms/.env` contains `DATABASE_URL` (it does). The app writes the
+trigger file at `/opt/msk-forms/var/domain-sync.request` (override with the
+`DOMAIN_SYNC_TRIGGER` env var) — the directory must be writable by the app user
+and watched by `msk-forms-domains.path` at the same location.
 
 ## What the script does
 

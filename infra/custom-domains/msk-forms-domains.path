@@ -1,0 +1,12 @@
+[Unit]
+Description=Watch for MSK Forms custom-domain changes and sync immediately
+
+[Path]
+# The web app (user musiker15) touches this file right after a domain is verified
+# or removed. systemd starts msk-forms-domains.service within ~1s, so a customer's
+# domain is provisioned almost immediately instead of waiting for the timer.
+PathModified=/opt/msk-forms/var/domain-sync.request
+Unit=msk-forms-domains.service
+
+[Install]
+WantedBy=paths.target

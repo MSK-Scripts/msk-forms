@@ -5,6 +5,7 @@ import { verificationRecordName, verificationRecordValue } from "@msk-forms/shar
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
+import { requestDomainSync } from "@/lib/domain-sync";
 import { canManageForms } from "@/lib/guild";
 
 export const runtime = "nodejs";
@@ -72,5 +73,10 @@ export async function POST(
     where: { id: guildId },
     data: { customDomainVerifiedAt: new Date() },
   });
+
+  // Provision the Apache vhost + TLS certificate immediately instead of waiting
+  // up to 3 minutes for the periodic sync timer (best-effort).
+  await requestDomainSync();
+
   return NextResponse.json({ verified: true });
 }
