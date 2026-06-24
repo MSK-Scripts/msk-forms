@@ -68,6 +68,7 @@ export default async function NewFormPage({
         statusOptions={statusOpts}
         isPro={pro}
         automationsProBody={t.pro.automationsBody}
+        experimentProBody={t.pro.experimentBody}
         dateLabels={{ today: t.form.dateToday, clear: t.form.dateClear, now: t.form.dateNow }}
         initial={{
           title: "",
@@ -81,6 +82,7 @@ export default async function NewFormPage({
           closeAt: "",
           pages: [{ id: "p1", title: "", fields: [] }],
           automations: [],
+          experiment: { enabled: false, variants: [] },
         }}
       />
     </div>

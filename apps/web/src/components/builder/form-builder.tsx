@@ -1,6 +1,6 @@
 "use client";
 
-import { isLayoutField, parseIdList, type AutomationRule, type FieldType, type FormField, type FormPage } from "@msk-forms/shared";
+import { isLayoutField, parseIdList, type AutomationRule, type Experiment, type FieldType, type FormField, type FormPage } from "@msk-forms/shared";
 import { Button, Card, Field, Input, Select, Textarea } from "@msk-forms/ui";
 import {
   IconAdjustmentsHorizontal,
@@ -35,6 +35,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { AutomationsEditor } from "@/components/builder/automations-editor";
+import { ExperimentEditor } from "@/components/builder/experiment-editor";
 import { FieldEditor } from "@/components/builder/field-editor";
 import { DateField, type DateFieldLabels } from "@/components/form/date-field";
 import { BUILDER_FIELDS, needsOptions } from "@/lib/builder-fields";
@@ -84,6 +85,7 @@ export interface FormBuilderInitial {
   closeAt: string;
   pages: FormPage[];
   automations: AutomationRule[];
+  experiment: Experiment;
 }
 
 /** ISO → `datetime-local` input value (YYYY-MM-DDTHH:MM) in the viewer's tz. */
@@ -117,6 +119,7 @@ export function FormBuilder({
   statusOptions,
   isPro,
   automationsProBody,
+  experimentProBody,
   dateLabels,
   t,
 }: {
@@ -126,6 +129,7 @@ export function FormBuilder({
   statusOptions: StatusOption[];
   isPro: boolean;
   automationsProBody: string;
+  experimentProBody: string;
   dateLabels: DateFieldLabels;
   t: BuilderDict;
 }) {
@@ -147,6 +151,7 @@ export function FormBuilder({
   }, [initial.openAt, initial.closeAt]);
   const [pages, setPages] = useState<FormPage[]>(initial.pages);
   const [automations, setAutomations] = useState<AutomationRule[]>(initial.automations);
+  const [experiment, setExperiment] = useState<Experiment>(initial.experiment);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -225,6 +230,7 @@ export function FormBuilder({
     if (roleIds.length > 0) settings.acceptedRoleIds = roleIds;
     if (reviewChannelId.trim()) settings.reviewChannelId = reviewChannelId.trim();
     if (automations.length > 0) settings.automations = automations;
+    if (experiment.enabled) settings.experiment = experiment;
     const payload = {
       title: title.trim(),
       description: description.trim() || null,
@@ -439,6 +445,20 @@ export function FormBuilder({
         ) : (
           <p className="rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
             ★ {automationsProBody}
+          </p>
+        )}
+      </Card>
+
+      <Card className="flex flex-col gap-3 p-5">
+        <div className="flex flex-col gap-1">
+          <h3 className="font-heading text-sm font-semibold text-foreground">{t.exp.title}</h3>
+          <p className="text-xs text-muted-foreground">{t.exp.intro}</p>
+        </div>
+        {isPro ? (
+          <ExperimentEditor experiment={experiment} onChange={setExperiment} t={t.exp} />
+        ) : (
+          <p className="rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
+            ★ {experimentProBody}
           </p>
         )}
       </Card>

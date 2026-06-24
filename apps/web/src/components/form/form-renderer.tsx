@@ -59,11 +59,14 @@ export function FormRenderer({
   spec,
   labels,
   captchaSiteKey,
+  experimentVariant,
 }: {
   slug: string;
   spec: FormSpec;
   labels: FormLabels;
   captchaSiteKey?: string | null;
+  /** Assigned A/B-test variant, sent with the submission for conversion tracking. */
+  experimentVariant?: string;
 }) {
   const router = useRouter();
   const [answers, setAnswers] = useState<Answers>({});
@@ -166,7 +169,7 @@ export function FormRenderer({
       const res = await fetch(`/api/forms/${slug}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers, captchaToken }),
+        body: JSON.stringify({ answers, captchaToken, experimentVariant }),
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => null)) as { error?: string } | null;

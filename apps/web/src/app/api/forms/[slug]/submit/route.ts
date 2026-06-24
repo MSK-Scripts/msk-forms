@@ -4,6 +4,7 @@ import {
   DEFAULT_STATUSES,
   evaluateAutomations,
   evaluateFormula,
+  experimentActive,
   FILE_FIELD_TYPES,
   formatAnswerValue,
   isComputedField,
@@ -21,6 +22,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { captchaEnabled, verifyCaptcha } from "@/lib/captcha";
 import { isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
+import { recordExperimentConversion } from "@/lib/experiment";
 import { parseFormSpec, resolveStatus } from "@/lib/forms";
 import { getGuildPlan } from "@/lib/plan";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
@@ -211,6 +213,15 @@ export async function POST(
     },
     select: { id: true },
   });
+
+  // A/B test: attribute this conversion to the assigned variant (best-effort).
+  const variant = (body as { experimentVariant?: unknown }).experimentVariant;
+  if (typeof variant === "string") {
+    const exp = parseFormSettings(form.settings).experiment;
+    if (experimentActive(exp) && exp!.variants.some((v) => v.id === variant)) {
+      await recordExperimentConversion(form.id, variant);
+    }
+  }
 
   // Outbox: announce the new submission in the guild's review channel (the bot
   // delivers it). Best-effort — never fail the submit if this can't be queued.

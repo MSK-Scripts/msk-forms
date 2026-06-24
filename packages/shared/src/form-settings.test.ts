@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { evaluateAutomations, parseFormSettings, type AutomationRule } from "./form-settings.js";
+import {
+  evaluateAutomations,
+  experimentActive,
+  parseFormSettings,
+  pickVariant,
+  type AutomationRule,
+  type ExperimentVariant,
+} from "./form-settings.js";
 
 describe("evaluateAutomations", () => {
   const answers = { score: 85, age: 16, country: "de" };
@@ -43,5 +50,40 @@ describe("parseFormSettings", () => {
     });
     expect(parsed.automations).toHaveLength(1);
     expect(parseFormSettings({ automations: [{ setStatus: "" }] }).automations).toEqual([]);
+  });
+});
+
+describe("experiment helpers", () => {
+  const variants: ExperimentVariant[] = [
+    { id: "a", name: "A", weight: 1 },
+    { id: "b", name: "B", weight: 3 },
+  ];
+
+  it("experimentActive needs enabled + at least two variants", () => {
+    expect(experimentActive(undefined)).toBe(false);
+    expect(experimentActive({ enabled: false, variants })).toBe(false);
+    expect(experimentActive({ enabled: true, variants: [variants[0]!] })).toBe(false);
+    expect(experimentActive({ enabled: true, variants })).toBe(true);
+  });
+
+  it("pickVariant respects weights across the [0,1) range", () => {
+    // total weight 4: a covers [0, 0.25), b covers [0.25, 1).
+    expect(pickVariant(variants, 0)).toBe("a");
+    expect(pickVariant(variants, 0.24)).toBe("a");
+    expect(pickVariant(variants, 0.25)).toBe("b");
+    expect(pickVariant(variants, 0.99)).toBe("b");
+  });
+
+  it("pickVariant skips zero-weight variants and returns null when all are zero", () => {
+    expect(pickVariant([{ id: "x", name: "X", weight: 0 }], 0.5)).toBeNull();
+    expect(
+      pickVariant(
+        [
+          { id: "x", name: "X", weight: 0 },
+          { id: "y", name: "Y", weight: 5 },
+        ],
+        0.5,
+      ),
+    ).toBe("y");
   });
 });

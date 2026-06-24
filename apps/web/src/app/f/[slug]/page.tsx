@@ -1,15 +1,17 @@
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { notFound } from "next/navigation";
 import Script from "next/script";
 
 import type { CSSProperties } from "react";
 
-import { formScheduleStatus } from "@msk-forms/shared";
+import { experimentActive, formScheduleStatus, parseFormSettings, pickVariant } from "@msk-forms/shared";
 
 import { CustomCss } from "@/components/branding/custom-css";
 import { FormRenderer } from "@/components/form/form-renderer";
+import { ExperimentView } from "@/components/public/experiment-view";
 import { LocalDateTime } from "@/components/public/local-datetime";
 import { PoweredBy } from "@/components/public/powered-by";
+import { experimentCookieName } from "@/lib/experiment";
 import { getCurrentUser } from "@/lib/auth";
 import { appBaseUrl } from "@/lib/url";
 import { brandStyle, logoUrl, parseBranding } from "@/lib/branding";
@@ -109,8 +111,26 @@ export default async function PublicFormPage({
   const siteKey = onCustomDomain ? null : captchaSiteKey();
   const nonce = (await headers()).get("x-nonce") ?? undefined;
 
+  // A/B test: assign a variant (sticky cookie, else weighted-random) and show
+  // its copy. The variant is tracked client-side (view) and sent with the
+  // submission (conversion). Inactive experiment → the form's own copy.
+  const experiment = parseFormSettings(form.settings).experiment;
+  let variantId: string | null = null;
+  let title = form.title;
+  let description = form.description;
+  if (experimentActive(experiment)) {
+    const cookieVal = (await cookies()).get(experimentCookieName(form.id))?.value;
+    variantId = experiment!.variants.some((v) => v.id === cookieVal)
+      ? cookieVal!
+      : pickVariant(experiment!.variants, Math.random());
+    const variant = experiment!.variants.find((v) => v.id === variantId);
+    if (variant?.title) title = variant.title;
+    if (variant?.description) description = variant.description;
+  }
+
   return (
-    <Shell guildName={form.guild.name} title={form.title} description={form.description} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
+    <Shell guildName={form.guild.name} title={title} description={description} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
+      {variantId && <ExperimentView slug={form.slug} variant={variantId} />}
       {siteKey && (
         <Script
           src="https://challenges.cloudflare.com/turnstile/v0/api.js"
@@ -134,6 +154,7 @@ export default async function PublicFormPage({
         slug={form.slug}
         spec={form.spec}
         captchaSiteKey={siteKey}
+        experimentVariant={variantId ?? undefined}
         labels={{
           submit: t.submit,
           submitting: t.submitting,
