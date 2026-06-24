@@ -68,7 +68,7 @@ export default async function SubmissionStatusPage({
           </h2>
           <ol className="flex flex-col gap-4">
             {submission.events.map((ev) => (
-              <li key={ev.id} className="flex flex-col gap-1 border-l-2 border-primary pl-3">
+              <li key={ev.id} className="flex flex-col gap-1 border-s-2 border-primary ps-3">
                 <span className="text-xs text-muted-foreground">
                   {ev.createdAt.toISOString().slice(0, 16).replace("T", " ")}
                 </span>

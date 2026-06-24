@@ -186,7 +186,7 @@ export function DateField({
       {open && (
         <div
           role="dialog"
-          className="absolute left-0 z-50 mt-1.5 w-72 rounded-lg border border-border bg-popover p-3 text-popover-foreground shadow-md"
+          className="absolute start-0 z-50 mt-1.5 w-72 rounded-lg border border-border bg-popover p-3 text-popover-foreground shadow-md"
         >
           {showCalendar && (
             <>

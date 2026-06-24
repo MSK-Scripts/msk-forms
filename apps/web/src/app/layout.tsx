@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { getCurrentUser } from "@/lib/auth";
+import { getDirection, getLocale } from "@/i18n";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -42,10 +43,12 @@ export default async function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const nonce = (await headers()).get("x-nonce") ?? undefined;
   const user = await getCurrentUser();
+  const locale = await getLocale();
 
   return (
     <html
-      lang="en"
+      lang={locale}
+      dir={getDirection(locale)}
       suppressHydrationWarning
       className={`${outfit.variable} ${notoSans.variable} ${spaceMono.variable}`}
     >

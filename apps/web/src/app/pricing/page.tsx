@@ -100,7 +100,7 @@ export default async function PricingPage() {
             }
           >
             {highlight && (
-              <Badge className="absolute -top-3 left-6 border-transparent bg-primary text-primary-foreground shadow-sm">
+              <Badge className="absolute -top-3 start-6 border-transparent bg-primary text-primary-foreground shadow-sm">
                 {t.badgePopular}
               </Badge>
             )}
@@ -154,10 +154,10 @@ export default async function PricingPage() {
           {c.title}
         </h2>
         <div className="mx-auto mt-8 max-w-4xl overflow-x-auto">
-          <table className="w-full border-collapse text-left">
+          <table className="w-full border-collapse text-start">
             <thead>
               <tr className="border-b border-border">
-                <th className="py-3 pr-4 text-sm font-semibold text-foreground">{c.feature}</th>
+                <th className="py-3 pe-4 text-sm font-semibold text-foreground">{c.feature}</th>
                 <th className="w-28 py-3 text-center text-sm font-semibold text-foreground">{c.free}</th>
                 <th className="w-28 py-3 text-center text-sm font-semibold text-primary">{c.pro}</th>
                 <th className="w-28 py-3 text-center text-sm font-semibold text-foreground">{c.enterprise}</th>
@@ -173,7 +173,7 @@ export default async function PricingPage() {
                   </tr>
                   {g.rows.map((row) => (
                     <tr key={row.label} className="border-b border-border/60">
-                      <td className="py-3 pr-4 text-sm text-muted-foreground">{row.label}</td>
+                      <td className="py-3 pe-4 text-sm text-muted-foreground">{row.label}</td>
                       {row.vals.map((v, i) => (
                         <td key={i} className="py-3 text-center">
                           {renderCell(v)}

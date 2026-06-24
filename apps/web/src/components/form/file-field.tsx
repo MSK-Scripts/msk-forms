@@ -100,7 +100,7 @@ export function FileField({
         accept={accept}
         disabled={disabled || uploading}
         onChange={onSelect}
-        className="block w-full text-sm text-muted-foreground file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-secondary-foreground hover:file:bg-secondary/80 disabled:opacity-50"
+        className="block w-full text-sm text-muted-foreground file:me-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-secondary-foreground hover:file:bg-secondary/80 disabled:opacity-50"
       />
       {uploading && <p className="text-xs text-muted-foreground">{labels.uploading}</p>}
       {error && <p className="text-xs text-destructive">{error}</p>}

@@ -61,7 +61,7 @@ export function PhoneField({
           onClick={() => setOpen((o) => !o)}
           aria-haspopup="listbox"
           aria-expanded={open}
-          className="flex shrink-0 items-center gap-1.5 border-r border-input bg-muted/40 px-2.5 text-sm text-foreground outline-none transition-colors hover:bg-muted/70 disabled:opacity-50"
+          className="flex shrink-0 items-center gap-1.5 border-e border-input bg-muted/40 px-2.5 text-sm text-foreground outline-none transition-colors hover:bg-muted/70 disabled:opacity-50"
         >
           <span className="text-base leading-none">{flagOf(country.code)}</span>
           <span className="tabular-nums">+{country.dial}</span>
@@ -95,7 +95,7 @@ export function PhoneField({
                   update(c.code, number);
                   setOpen(false);
                 }}
-                className={`flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm transition-colors hover:bg-accent ${
+                className={`flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-start text-sm transition-colors hover:bg-accent ${
                   c.code === code ? "bg-accent/60" : ""
                 }`}
               >

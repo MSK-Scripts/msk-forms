@@ -63,7 +63,7 @@ export function LanguageSwitcher({ locale }: { locale: string }) {
       {open && (
         <ul
           role="listbox"
-          className="absolute right-0 z-50 mt-1.5 min-w-[8rem] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md"
+          className="absolute end-0 z-50 mt-1.5 min-w-[8rem] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md"
         >
           {LOCALES.map((l) => {
             const active = l.value === locale;
