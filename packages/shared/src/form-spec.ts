@@ -124,7 +124,7 @@ export const formFieldSchema = z.object({
   rows: z.array(matrixRowSchema).optional(),
   // Arithmetic expression for a `calculated` field, referencing other fields via
   // `{fieldId}` placeholders (e.g. "{price} * {qty}"). Evaluated server-side.
-  formula: z.string().optional(),
+  formula: z.string().max(2000).optional(),
   validation: fieldValidationSchema.default({ required: false }),
   conditional: z.array(conditionRuleSchema).default([]),
   translations: z.record(z.string(), z.record(z.string(), z.string())).optional(),

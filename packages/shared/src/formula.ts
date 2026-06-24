@@ -1,5 +1,10 @@
 import type { FormField } from "./form-spec";
 
+// Matches a `{fieldId}` placeholder. The inner length is bounded so the regex
+// stays linear (no polynomial backtracking on adversarial input); field ids are
+// short well under this cap.
+const REFERENCE_RE = /\{([^}]{1,128})\}/g;
+
 /**
  * Calculated fields (concept §26, Phase 3). A `calculated` field carries a
  * `formula` string that references other fields via `{fieldId}` placeholders and
@@ -12,7 +17,7 @@ import type { FormField } from "./form-spec";
 /** Field ids referenced by a formula via `{id}` placeholders (de-duplicated). */
 export function referencedFieldIds(formula: string): string[] {
   const ids = new Set<string>();
-  for (const m of formula.matchAll(/\{([^}]+)\}/g)) {
+  for (const m of formula.matchAll(REFERENCE_RE)) {
     const id = m[1]?.trim();
     if (id) ids.add(id);
   }
@@ -63,7 +68,7 @@ export function evaluateFormula(
 
   // Replace each {id} with its numeric value, parenthesised so a negative value
   // composes correctly (e.g. `1 - {x}` with x = -2 → `1 - (-2)`).
-  const substituted = formula.replace(/\{([^}]+)\}/g, (_match, id: string) => {
+  const substituted = formula.replace(REFERENCE_RE, (_match, id: string) => {
     const key = id.trim();
     return `(${referenceValue(fieldsById.get(key), answers[key])})`;
   });
