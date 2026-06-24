@@ -143,6 +143,7 @@ export async function getGuildForms(guildId: string) {
       updatedAt: true,
       openAt: true,
       closeAt: true,
+      settings: true,
       _count: { select: { submissions: true } },
     },
   });

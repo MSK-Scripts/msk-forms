@@ -1,5 +1,5 @@
 import { prisma } from "@msk-forms/db";
-import { FREE_FORM_LIMIT, formScheduleStatus } from "@msk-forms/shared";
+import { experimentActive, FREE_FORM_LIMIT, formScheduleStatus, parseFormSettings } from "@msk-forms/shared";
 import { Card, StatusBadge } from "@msk-forms/ui";
 import type { Route } from "next";
 import Link from "next/link";
@@ -204,6 +204,14 @@ export default async function GuildFormsPage({
                         className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
                       >
                         {t.edit}
+                      </Link>
+                    )}
+                    {canManage && experimentActive(parseFormSettings(form.settings).experiment) && (
+                      <Link
+                        href={`/dashboard/${guildId}/forms/${form.id}/experiment` as Route}
+                        className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+                      >
+                        {t.experimentLink}
                       </Link>
                     )}
                     {canManage && (

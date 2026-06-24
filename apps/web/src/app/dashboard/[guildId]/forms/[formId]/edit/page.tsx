@@ -49,6 +49,7 @@ export default async function EditFormPage({
         statusOptions={statusOpts}
         isPro={pro}
         automationsProBody={t.pro.automationsBody}
+        experimentProBody={t.pro.experimentBody}
         dateLabels={{ today: t.form.dateToday, clear: t.form.dateClear, now: t.form.dateNow }}
         initial={{
           title: form.title,
@@ -62,6 +63,7 @@ export default async function EditFormPage({
           closeAt: form.closeAt?.toISOString() ?? "",
           pages: spec?.pages.length ? spec.pages : [{ id: "p1", title: "", fields: [] }],
           automations: settings.automations,
+          experiment: settings.experiment ?? { enabled: false, variants: [] },
         }}
       />
     </div>

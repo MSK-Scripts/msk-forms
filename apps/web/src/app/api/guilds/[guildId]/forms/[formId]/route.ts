@@ -40,10 +40,11 @@ export async function PATCH(
   }
   const input = parsed.data;
 
-  // Automations are a Pro feature — strip them for Free guilds.
+  // Automations and A/B tests are Pro features — strip them for Free guilds.
   const settings = { ...(input.settings ?? {}) };
-  if (!(await isGuildPro(guildId)) && "automations" in settings) {
+  if (!(await isGuildPro(guildId))) {
     delete (settings as { automations?: unknown }).automations;
+    delete (settings as { experiment?: unknown }).experiment;
   }
 
   try {

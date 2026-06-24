@@ -45,7 +45,11 @@ export async function POST(
     }
   }
   const settings = { ...(input.settings ?? {}) };
-  if (!pro && "automations" in settings) delete (settings as { automations?: unknown }).automations;
+  if (!pro) {
+    // Automations and A/B tests are Pro features — strip rather than fail.
+    delete (settings as { automations?: unknown }).automations;
+    delete (settings as { experiment?: unknown }).experiment;
+  }
 
   try {
     const form = await prisma.form.create({

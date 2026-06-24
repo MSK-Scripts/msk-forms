@@ -168,9 +168,26 @@ model Form {
   submissions  Submission[]
   formStatuses FormStatusDef[]
   reviewers    FormReviewer[]
+  experimentStats ExperimentStat[]
 
   @@index([guildId, status])
   @@map("forms")
+}
+
+/// Per-variant A/B test counters for a form (concept §26): views (assignments)
+/// and submissions (conversions). One row per (form, variant).
+model ExperimentStat {
+  id          String   @id @default(uuid()) @db.Uuid
+  formId      String   @map("form_id") @db.Uuid
+  variantId   String   @map("variant_id")
+  views       Int      @default(0)
+  submissions Int      @default(0)
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  form Form @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@unique([formId, variantId])
+  @@map("experiment_stats")
 }
 
 model FormVersion {

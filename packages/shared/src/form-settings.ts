@@ -29,6 +29,28 @@ export const automationRuleSchema = z.object({
 });
 export type AutomationRule = z.infer<typeof automationRuleSchema>;
 
+/**
+ * One arm of an A/B test (concept §26). Overrides the public form's copy; an
+ * applicant is stickily assigned a variant and view/submission counts are
+ * tracked per variant to measure conversion.
+ */
+export const experimentVariantSchema = z.object({
+  id: z.string().min(1).max(40),
+  name: z.string().min(1).max(80),
+  /** Relative traffic share; higher = more visitors. 0 disables the variant. */
+  weight: z.number().int().min(0).max(100).default(1),
+  /** Optional copy overrides shown for this variant. */
+  title: z.string().max(200).optional(),
+  description: z.string().max(2000).optional(),
+});
+export type ExperimentVariant = z.infer<typeof experimentVariantSchema>;
+
+export const experimentSchema = z.object({
+  enabled: z.boolean().default(false),
+  variants: z.array(experimentVariantSchema).max(6).default([]),
+});
+export type Experiment = z.infer<typeof experimentSchema>;
+
 export const formSettingsSchema = z.object({
   /** Legacy single accepted role (still read for backward compatibility). */
   acceptedRoleId: snowflake.optional(),
@@ -38,7 +60,31 @@ export const formSettingsSchema = z.object({
   reviewChannelId: snowflake.optional(),
   /** When-then rules evaluated on submission creation. */
   automations: z.array(automationRuleSchema).max(20).default([]),
+  /** Optional A/B test over the public form's copy. */
+  experiment: experimentSchema.optional(),
 });
+
+/** True when an experiment is live (enabled with at least two variants). */
+export function experimentActive(exp: Experiment | undefined): boolean {
+  return Boolean(exp?.enabled && (exp.variants?.length ?? 0) >= 2);
+}
+
+/**
+ * Weighted-random variant pick. `rnd` is a number in [0, 1) (caller supplies it
+ * so this stays pure/testable). Returns the chosen variant id, or null when no
+ * variant has positive weight.
+ */
+export function pickVariant(variants: ExperimentVariant[], rnd: number): string | null {
+  const active = variants.filter((v) => v.weight > 0);
+  if (active.length === 0) return null;
+  const total = active.reduce((sum, v) => sum + v.weight, 0);
+  let r = rnd * total;
+  for (const v of active) {
+    r -= v.weight;
+    if (r < 0) return v.id;
+  }
+  return active[active.length - 1]!.id;
+}
 
 export type FormSettings = z.infer<typeof formSettingsSchema>;
 
