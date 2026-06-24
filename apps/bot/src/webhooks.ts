@@ -1,6 +1,7 @@
 import { createHmac } from "node:crypto";
 
 import { prisma } from "@msk-forms/db";
+import { buildSubmissionWebhookPayload, type WebhookEvent } from "@msk-forms/shared";
 
 /** How many pending deliveries to drain per tick. */
 const BATCH = 25;
@@ -26,6 +27,63 @@ function backoffMs(attempts: number): number {
   return (minutes[Math.min(attempts, minutes.length - 1)] ?? 360) * 60_000;
 }
 
+/** The thin payload stored in the outbox at enqueue time. */
+type ThinPayload = {
+  event?: WebhookEvent;
+  guildId?: string;
+  submissionId?: string;
+  formId?: string;
+  fromStatus?: string | null;
+  toStatus?: string;
+  at?: string;
+};
+
+/**
+ * Turn the thin outbox payload into the rich {@link buildSubmissionWebhookPayload}
+ * body by loading the submission + form once at delivery time. This enriches
+ * every event regardless of which path enqueued it (submit, web review, bulk, bot
+ * accept, automations) and always reflects the current state. Falls back to the
+ * stored thin payload when the submission has since been deleted.
+ */
+async function hydratePayload(stored: unknown): Promise<unknown> {
+  const thin = (stored ?? {}) as ThinPayload;
+  if (!thin.event || !thin.submissionId) return stored ?? {};
+
+  const sub = await prisma.submission.findUnique({
+    where: { id: thin.submissionId },
+    select: {
+      id: true,
+      status: true,
+      score: true,
+      submittedAt: true,
+      answers: true,
+      guildId: true,
+      form: { select: { id: true, slug: true, title: true, schema: true } },
+      user: { select: { discordId: true, username: true } },
+    },
+  });
+  if (!sub) return stored ?? {};
+
+  return buildSubmissionWebhookPayload({
+    event: thin.event,
+    at: thin.at ?? new Date().toISOString(),
+    guildId: sub.guildId,
+    form: sub.form,
+    submission: {
+      id: sub.id,
+      status: sub.status,
+      score: sub.score,
+      submittedAt: sub.submittedAt.toISOString(),
+      answers: sub.answers,
+    },
+    applicant: { discordId: sub.user?.discordId ?? null, name: sub.user?.username ?? null },
+    transition:
+      thin.event === "submission.status_changed"
+        ? { fromStatus: thin.fromStatus, toStatus: thin.toStatus }
+        : undefined,
+  });
+}
+
 /**
  * POST one delivery to its endpoint, HMAC-signing the raw JSON body. On a 2xx the
  * row is marked `success`; otherwise it's retried with backoff until MAX_ATTEMPTS,
@@ -41,7 +99,7 @@ async function deliverOne(row: DeliveryRow): Promise<void> {
     return;
   }
 
-  const body = JSON.stringify(row.payload ?? {});
+  const body = JSON.stringify(await hydratePayload(row.payload));
   const signature = createHmac("sha256", row.webhook.secret).update(body).digest("hex");
   const attempts = row.attempts + 1;
 

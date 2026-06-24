@@ -3,6 +3,7 @@ import { Card } from "@msk-forms/ui";
 
 import { UpgradeActions } from "@/components/billing/upgrade-button";
 import { ApiKeysManager, type ApiKeyRow } from "@/components/api/api-keys-manager";
+import { IntegrationsCard } from "@/components/api/integrations-card";
 import { ProNotice } from "@/components/pro-notice";
 import { requireUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
@@ -62,6 +63,7 @@ export default async function ApiPage({
         <p className="text-sm text-muted-foreground">{t.intro}</p>
       </div>
       <ApiKeysManager guildId={guildId} initial={keys} baseUrl={appBaseUrl()} t={t} />
+      <IntegrationsCard baseUrl={appBaseUrl()} t={t} />
     </div>
   );
 }
