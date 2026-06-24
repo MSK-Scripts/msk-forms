@@ -131,6 +131,14 @@ export function FormRenderer({
     e.preventDefault();
     setSubmitError(null);
 
+    // A submit from a non-final step (e.g. pressing Enter in a field) must only
+    // advance, never submit — otherwise the remaining pages are skipped. The
+    // captcha token check used to mask this; it no longer runs on custom domains.
+    if (!isLast) {
+      goNext();
+      return;
+    }
+
     // Validate every visible field across all shown pages.
     const allShownFields = shownPageIndices.flatMap((i) => visibleFieldsOf(pages[i]!));
     const allErrors = collectErrors(allShownFields);
