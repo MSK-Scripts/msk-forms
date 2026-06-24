@@ -105,7 +105,7 @@ export default async function SubmissionDetailPage({
                   return (
                     <li
                       key={ev.id}
-                      className={`flex flex-col gap-1 border-l-2 pl-3 ${internal ? "border-border" : "border-primary"}`}
+                      className={`flex flex-col gap-1 border-s-2 ps-3 ${internal ? "border-border" : "border-primary"}`}
                     >
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span className="font-mono">{fmt(ev.createdAt)}</span>

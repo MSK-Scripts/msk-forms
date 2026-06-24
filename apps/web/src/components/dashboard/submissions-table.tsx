@@ -153,7 +153,7 @@ export function SubmissionsTable({
       <div className="overflow-hidden rounded-lg border border-border">
         <table className="w-full text-sm">
           <thead className="bg-muted/40">
-            <tr className="border-b border-border text-left font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+            <tr className="border-b border-border text-start font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
               {canReview && (
                 <th className="px-4 py-3">
                   <input
@@ -216,7 +216,7 @@ export function SubmissionsTable({
                   <td className="px-4 py-3">
                     <StatusBadge label={status.label} color={status.color} />
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-4 py-3 text-end">
                     <Link
                       href={`/dashboard/${guildId}/submissions/${s.id}` as Route}
                       className="text-sm font-medium text-primary transition-colors hover:underline"

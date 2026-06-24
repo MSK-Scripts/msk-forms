@@ -12,7 +12,7 @@ export async function StatusPreview() {
   const t = (await getDict()).preview;
 
   return (
-    <Card className="mx-auto w-full max-w-md text-left shadow-lg">
+    <Card className="mx-auto w-full max-w-md text-start shadow-lg">
       <CardHeader className="flex-row items-start justify-between space-y-0">
         <div>
           <CardDescription className="text-[11px] uppercase tracking-wider">

@@ -23,7 +23,7 @@ export function Field({ htmlFor, label, required, hint, error, children }: Field
       {label && (
         <label htmlFor={htmlFor} className="text-sm font-medium text-foreground">
           {label}
-          {required && <span className="ml-1 text-primary">*</span>}
+          {required && <span className="ms-1 text-primary">*</span>}
         </label>
       )}
       {children}
