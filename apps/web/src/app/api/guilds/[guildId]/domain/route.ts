@@ -6,6 +6,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
 import { primaryHostname } from "@/lib/custom-domain";
+import { requestDomainSync } from "@/lib/domain-sync";
 import { canManageForms } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
 
@@ -86,5 +87,9 @@ export async function DELETE(
     where: { id: guildId },
     data: { customDomain: null, customDomainToken: null, customDomainVerifiedAt: null },
   });
+
+  // Drop the domain's Apache vhost promptly rather than on the next timer tick.
+  await requestDomainSync();
+
   return NextResponse.json({ ok: true });
 }

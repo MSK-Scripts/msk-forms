@@ -3,3 +3,8 @@
 
 # Shell scripts must stay LF (they run on the Linux server).
 *.sh text eol=lf
+
+# systemd unit files must stay LF (CRLF breaks unit parsing on Linux).
+*.path text eol=lf
+*.service text eol=lf
+*.timer text eol=lf
