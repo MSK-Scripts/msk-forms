@@ -26,7 +26,8 @@ export async function createHandoffToken(userId: string): Promise<string | null>
   try {
     await redis.set(`${PREFIX}${token}`, userId, "EX", TTL_SECONDS);
     return token;
-  } catch {
+  } catch (err) {
+    console.error("[auth-handoff] failed to store token:", (err as Error).message);
     return null;
   }
 }
@@ -41,7 +42,8 @@ export async function redeemHandoffToken(token: string): Promise<string | null> 
   try {
     const userId = await redis.getdel(`${PREFIX}${token}`);
     return userId || null;
-  } catch {
+  } catch (err) {
+    console.error("[auth-handoff] failed to redeem token:", (err as Error).message);
     return null;
   }
 }

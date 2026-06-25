@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { getGuildByDomain, isPrimaryHostname } from "@/lib/custom-domain";
 import { buildAuthorizeUrl } from "@/lib/discord";
+import { safeRelativePath } from "@/lib/url";
 
 // Prisma/iron-session need the Node.js runtime (not Edge).
 export const runtime = "nodejs";
@@ -16,11 +17,9 @@ export const dynamic = "force-dynamic";
 export async function GET(request: NextRequest) {
   const state = crypto.randomUUID();
 
-  // Only allow same-origin relative redirects to avoid open-redirect abuse.
-  const rawReturnTo = request.nextUrl.searchParams.get("returnTo") ?? "/dashboard";
-  const returnTo = rawReturnTo.startsWith("/") && !rawReturnTo.startsWith("//")
-    ? rawReturnTo
-    : "/dashboard";
+  // Only allow same-origin relative redirects to avoid open-redirect abuse
+  // (rejects `//`, backslashes and control chars — see safeRelativePath).
+  const returnTo = safeRelativePath(request.nextUrl.searchParams.get("returnTo"), "/dashboard");
 
   // Optional: the verified custom domain the login was started from. After OAuth
   // (which always completes on the primary host) the callback hands the session
