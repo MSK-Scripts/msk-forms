@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { getGuildByDomain, isPrimaryHostname } from "@/lib/custom-domain";
 import { buildAuthorizeUrl } from "@/lib/discord";
 
 // Prisma/iron-session need the Node.js runtime (not Edge).
@@ -21,6 +22,16 @@ export async function GET(request: NextRequest) {
     ? rawReturnTo
     : "/dashboard";
 
+  // Optional: the verified custom domain the login was started from. After OAuth
+  // (which always completes on the primary host) the callback hands the session
+  // back to this domain. Validated against the DB so we never hand off to an
+  // arbitrary host.
+  const rawOrigin = (request.nextUrl.searchParams.get("origin") ?? "").toLowerCase();
+  const origin =
+    rawOrigin && !isPrimaryHostname(rawOrigin) && (await getGuildByDomain(rawOrigin))
+      ? rawOrigin
+      : "";
+
   const cookieStore = await cookies();
   const secure = process.env.NODE_ENV === "production";
   cookieStore.set("oauth_state", state, {
@@ -37,6 +48,15 @@ export async function GET(request: NextRequest) {
     path: "/",
     maxAge: 600,
   });
+  if (origin) {
+    cookieStore.set("oauth_origin", origin, {
+      httpOnly: true,
+      secure,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 600,
+    });
+  }
 
   return NextResponse.redirect(buildAuthorizeUrl(state));
 }
