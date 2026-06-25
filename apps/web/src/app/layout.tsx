@@ -6,6 +6,8 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { getCurrentUser } from "@/lib/auth";
+import { logoUrl, parseBranding } from "@/lib/branding";
+import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 import { getDirection, getLocale } from "@/i18n";
 import "./globals.css";
 
@@ -28,7 +30,7 @@ const spaceMono = Space_Mono({
   display: "swap",
 });
 
-export const metadata: Metadata = {
+const DEFAULT_METADATA: Metadata = {
   title: "MSK Forms: application forms with a status loop",
   description:
     "Build application forms, collect submissions, and let applicants track their status live. With a Discord bot any server can invite.",
@@ -37,6 +39,28 @@ export const metadata: Metadata = {
     apple: "/logo.png",
   },
 };
+
+/**
+ * Host-aware metadata: on a guild's verified custom domain, use that guild's
+ * name and (if set) its logo as the browser favicon, so the tab looks like the
+ * guild's own site. Falls back to the MSK Forms defaults everywhere else.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const host = await requestHostname();
+  if (!host || isPrimaryHostname(host)) return DEFAULT_METADATA;
+
+  const guild = await getGuildByDomain(host);
+  if (!guild) return DEFAULT_METADATA;
+
+  const logo = logoUrl(guild.id, parseBranding(guild.branding));
+  return {
+    ...DEFAULT_METADATA,
+    title: guild.name,
+    ...(logo
+      ? { icons: { icon: [{ url: logo, type: "image/webp" }], apple: logo } }
+      : {}),
+  };
+}
 
 export default async function RootLayout({
   children,

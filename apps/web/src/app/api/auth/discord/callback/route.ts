@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 
   const cookieStore = await cookies();
   const storedState = cookieStore.get("oauth_state")?.value;
-  const returnTo = safeRelativePath(cookieStore.get("oauth_return_to")?.value, "/dashboard");
+  const returnToCookie = cookieStore.get("oauth_return_to")?.value;
 
   // Clear the one-shot CSRF cookies regardless of outcome.
   cookieStore.delete("oauth_state");
@@ -40,6 +40,8 @@ export async function GET(request: NextRequest) {
   const host = await requestHostname();
   const onCustomDomain = Boolean(host) && !isPrimaryHostname(host!);
   const base = onCustomDomain ? `https://${host}` : appBaseUrl();
+  // The dashboard is primary-only; default custom-domain logins to the guild home.
+  const returnTo = safeRelativePath(returnToCookie, onCustomDomain ? "/" : "/dashboard");
   const errorUrl = new URL("/?auth=error", base);
 
   if (!code || !state || !storedState || state !== storedState) {
