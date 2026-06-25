@@ -3,6 +3,7 @@ import { Card } from "@msk-forms/ui";
 
 import { UpgradeActions } from "@/components/billing/upgrade-button";
 import { DomainForm } from "@/components/domain/domain-form";
+import { OAuthForm } from "@/components/domain/oauth-form";
 import { ProNotice } from "@/components/pro-notice";
 import { requireUser } from "@/lib/auth";
 import { primaryHostname } from "@/lib/custom-domain";
@@ -55,7 +56,13 @@ export default async function DomainPage({
 
   const guild = await prisma.guild.findUnique({
     where: { id: guildId },
-    select: { customDomain: true, customDomainToken: true, customDomainVerifiedAt: true },
+    select: {
+      customDomain: true,
+      customDomainToken: true,
+      customDomainVerifiedAt: true,
+      oauthClientId: true,
+      oauthClientSecret: true,
+    },
   });
 
   return (
@@ -73,6 +80,12 @@ export default async function DomainPage({
           verified: Boolean(guild?.customDomainVerifiedAt),
         }}
         t={t}
+      />
+      <OAuthForm
+        guildId={guildId}
+        customDomain={guild?.customDomainVerifiedAt ? (guild.customDomain ?? "") : ""}
+        initial={{ clientId: guild?.oauthClientId ?? "", hasSecret: Boolean(guild?.oauthClientSecret) }}
+        t={t.oauth}
       />
     </div>
   );

@@ -1,41 +1,42 @@
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 
-import { isValidBindNonce } from "@/lib/auth-handoff";
-import { getGuildByDomain, isPrimaryHostname } from "@/lib/custom-domain";
+import { isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 import { buildAuthorizeUrl } from "@/lib/discord";
-import { safeRelativePath } from "@/lib/url";
+import { resolveHostOAuth } from "@/lib/guild-oauth";
+import { absoluteUrl, safeRelativePath } from "@/lib/url";
 
 // Prisma/iron-session need the Node.js runtime (not Edge).
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Start the Discord OAuth2 flow: generate a CSRF `state`, stash it (plus an
- * optional post-login redirect) in a short-lived HttpOnly cookie, then 302 to
- * Discord. The callback verifies the state.
+ * Start the Discord OAuth2 flow: generate a CSRF `state`, stash it (plus the
+ * post-login redirect) in short-lived HttpOnly cookies, then 302 to Discord.
+ *
+ * Host-aware: on a verified custom domain whose guild has its own Discord OAuth
+ * app, the whole flow runs on that host (its own client_id + callback) so the
+ * session cookie is established directly on the custom domain — no cross-domain
+ * handoff. On a custom domain WITHOUT its own app, fall back to the primary host.
  */
 export async function GET(request: NextRequest) {
   const state = crypto.randomUUID();
 
-  // Only allow same-origin relative redirects to avoid open-redirect abuse
-  // (rejects `//`, backslashes and control chars — see safeRelativePath).
+  // Same-origin relative redirect only (rejects "//", backslashes, control chars).
   const returnTo = safeRelativePath(request.nextUrl.searchParams.get("returnTo"), "/dashboard");
 
-  // Optional: the verified custom domain the login was started from. After OAuth
-  // (which always completes on the primary host) the callback hands the session
-  // back to this domain. Validated against the DB so we never hand off to an
-  // arbitrary host.
-  const rawOrigin = (request.nextUrl.searchParams.get("origin") ?? "").toLowerCase();
-  const origin =
-    rawOrigin && !isPrimaryHostname(rawOrigin) && (await getGuildByDomain(rawOrigin))
-      ? rawOrigin
-      : "";
-
-  // Binding nonce from /api/auth/start (set as a host-only cookie on the custom
-  // domain). Carried through to the callback so the minted token is tied to it.
-  const rawBind = request.nextUrl.searchParams.get("bind");
-  const bind = isValidBindNonce(rawBind) ? rawBind : "";
+  const host = await requestHostname();
+  let app: { clientId: string; redirectUri: string } | undefined;
+  if (host && !isPrimaryHostname(host)) {
+    const oauth = await resolveHostOAuth(host);
+    if (!oauth) {
+      // No per-guild OAuth app — log in on the primary host instead.
+      return NextResponse.redirect(
+        absoluteUrl(`/api/auth/discord/login?returnTo=${encodeURIComponent(returnTo)}`),
+      );
+    }
+    app = { clientId: oauth.clientId, redirectUri: oauth.redirectUri };
+  }
 
   const cookieStore = await cookies();
   const secure = process.env.NODE_ENV === "production";
@@ -53,24 +54,6 @@ export async function GET(request: NextRequest) {
     path: "/",
     maxAge: 600,
   });
-  if (origin) {
-    cookieStore.set("oauth_origin", origin, {
-      httpOnly: true,
-      secure,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 600,
-    });
-  }
-  if (origin && bind) {
-    cookieStore.set("oauth_bind", bind, {
-      httpOnly: true,
-      secure,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 600,
-    });
-  }
 
-  return NextResponse.redirect(buildAuthorizeUrl(state));
+  return NextResponse.redirect(buildAuthorizeUrl(state, app));
 }

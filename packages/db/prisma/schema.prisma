@@ -101,6 +101,10 @@ model Guild {
   customDomain           String?   @unique @map("custom_domain")
   customDomainToken      String?   @map("custom_domain_token")
   customDomainVerifiedAt DateTime? @map("custom_domain_verified_at")
+  /// Per-guild Discord OAuth app (for login on the guild's own custom domain).
+  /// The client secret is stored encrypted (AES-256-GCM, see lib/crypto.ts).
+  oauthClientId     String? @map("oauth_client_id")
+  oauthClientSecret String? @map("oauth_client_secret")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 

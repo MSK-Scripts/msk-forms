@@ -41,13 +41,11 @@ export default async function PublicFormPage({
     const domainGuild = await getGuildByDomain(host!);
     if (!domainGuild || domainGuild.id !== form.guildId) notFound();
   }
-  // Auth must happen on the primary domain (same-origin OAuth state/callback).
-  // From a custom domain, /api/auth/start (same origin) sets a host-only binding
-  // cookie, then bounces to the primary login; the callback hands the session
-  // back here via a browser-bound one-time token.
-  const loginHref = onCustomDomain
-    ? `/api/auth/start?returnTo=${encodeURIComponent(`/f/${slug}`)}`
-    : `/api/auth/discord/login?returnTo=/f/${slug}`;
+  // Same-origin login link for both hosts. The login route is host-aware: on a
+  // custom domain whose guild has its own Discord OAuth app it runs the whole
+  // flow here (session set on this domain); otherwise it falls back to the
+  // primary host.
+  const loginHref = `/api/auth/discord/login?returnTo=${encodeURIComponent(`/f/${slug}`)}`;
 
   const branding = parseBranding(form.guild.branding);
   const brand = brandStyle(branding);
