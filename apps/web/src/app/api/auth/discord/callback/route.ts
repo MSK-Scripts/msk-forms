@@ -2,8 +2,7 @@ import { prisma } from "@msk-forms/db";
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 
-import { createHandoffToken } from "@/lib/auth-handoff";
-import { getGuildByDomain, isPrimaryHostname } from "@/lib/custom-domain";
+import { isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 import {
   discordAvatarUrl,
   exchangeCode,
@@ -11,15 +10,18 @@ import {
   fetchDiscordUser,
   mapLocale,
 } from "@/lib/discord";
+import { resolveHostOAuth } from "@/lib/guild-oauth";
 import { getSession } from "@/lib/session";
-import { absoluteUrl } from "@/lib/url";
+import { appBaseUrl, safeRelativePath } from "@/lib/url";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Discord OAuth2 callback: validate the CSRF `state`, exchange the code,
- * upsert the user, and establish the session cookie.
+ * Discord OAuth2 callback: validate the CSRF `state`, exchange the code, upsert
+ * the user, and establish the session cookie on THIS host. On a verified custom
+ * domain with its own OAuth app, that means the applicant is logged in directly
+ * on the custom domain (no cross-domain handoff).
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -28,22 +30,28 @@ export async function GET(request: NextRequest) {
 
   const cookieStore = await cookies();
   const storedState = cookieStore.get("oauth_state")?.value;
-  const returnTo = cookieStore.get("oauth_return_to")?.value ?? "/dashboard";
-  const origin = cookieStore.get("oauth_origin")?.value ?? "";
-  const bind = cookieStore.get("oauth_bind")?.value ?? null;
+  const returnTo = safeRelativePath(cookieStore.get("oauth_return_to")?.value, "/dashboard");
 
   // Clear the one-shot CSRF cookies regardless of outcome.
   cookieStore.delete("oauth_state");
   cookieStore.delete("oauth_return_to");
-  cookieStore.delete("oauth_origin");
-  cookieStore.delete("oauth_bind");
+
+  // Land the user on the same host the flow ran on (custom domain or primary).
+  const host = await requestHostname();
+  const onCustomDomain = Boolean(host) && !isPrimaryHostname(host!);
+  const base = onCustomDomain ? `https://${host}` : appBaseUrl();
+  const errorUrl = new URL("/?auth=error", base);
 
   if (!code || !state || !storedState || state !== storedState) {
-    return NextResponse.redirect(absoluteUrl("/?auth=error"));
+    return NextResponse.redirect(errorUrl);
   }
 
   try {
-    const token = await exchangeCode(code);
+    // Per-guild OAuth app when on the guild's own custom domain; else the global
+    // app. The same redirect_uri/client_id as the authorize step (Discord checks).
+    const app = (await resolveHostOAuth(host)) ?? undefined;
+
+    const token = await exchangeCode(code, app);
     const discordUser = await fetchDiscordUser(token.access_token);
 
     const avatar = discordAvatarUrl(discordUser);
@@ -93,22 +101,9 @@ export async function GET(request: NextRequest) {
     session.isLoggedIn = true;
     await session.save();
 
-    // If login started on a verified custom domain, hand the session back there
-    // via a one-time token (a primary-host cookie can't be read cross-domain).
-    // Re-validate the origin so a tampered cookie can't redirect us elsewhere.
-    if (origin && !isPrimaryHostname(origin) && (await getGuildByDomain(origin))) {
-      const handoff = await createHandoffToken(user.id, bind);
-      if (handoff) {
-        const url = new URL(`https://${origin}/api/auth/handoff`);
-        url.searchParams.set("token", handoff);
-        url.searchParams.set("returnTo", returnTo);
-        return NextResponse.redirect(url.toString());
-      }
-    }
-
-    return NextResponse.redirect(absoluteUrl(returnTo));
+    return NextResponse.redirect(new URL(returnTo, base));
   } catch (error) {
     console.error("Discord OAuth callback failed:", error);
-    return NextResponse.redirect(absoluteUrl("/?auth=error"));
+    return NextResponse.redirect(errorUrl);
   }
 }

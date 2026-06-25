@@ -32,11 +32,21 @@ function requireEnv(name: string): string {
   return value;
 }
 
+/**
+ * Optional per-guild OAuth app (for login on a guild's own custom domain). When
+ * omitted, the global app + primary redirect_uri (from env) are used.
+ */
+export interface OAuthApp {
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string;
+}
+
 /** Build the Discord authorize URL the user is redirected to on login. */
-export function buildAuthorizeUrl(state: string): string {
+export function buildAuthorizeUrl(state: string, app?: Pick<OAuthApp, "clientId" | "redirectUri">): string {
   const url = new URL(`${DISCORD_API}/oauth2/authorize`);
-  url.searchParams.set("client_id", requireEnv("DISCORD_CLIENT_ID"));
-  url.searchParams.set("redirect_uri", requireEnv("DISCORD_REDIRECT_URI"));
+  url.searchParams.set("client_id", app?.clientId ?? requireEnv("DISCORD_CLIENT_ID"));
+  url.searchParams.set("redirect_uri", app?.redirectUri ?? requireEnv("DISCORD_REDIRECT_URI"));
   url.searchParams.set("response_type", "code");
   url.searchParams.set("scope", OAUTH_SCOPES.join(" "));
   url.searchParams.set("state", state);
@@ -45,13 +55,13 @@ export function buildAuthorizeUrl(state: string): string {
 }
 
 /** Exchange an authorization code for an access token. */
-export async function exchangeCode(code: string): Promise<DiscordTokenResponse> {
+export async function exchangeCode(code: string, app?: OAuthApp): Promise<DiscordTokenResponse> {
   const body = new URLSearchParams({
-    client_id: requireEnv("DISCORD_CLIENT_ID"),
-    client_secret: requireEnv("DISCORD_CLIENT_SECRET"),
+    client_id: app?.clientId ?? requireEnv("DISCORD_CLIENT_ID"),
+    client_secret: app?.clientSecret ?? requireEnv("DISCORD_CLIENT_SECRET"),
     grant_type: "authorization_code",
     code,
-    redirect_uri: requireEnv("DISCORD_REDIRECT_URI"),
+    redirect_uri: app?.redirectUri ?? requireEnv("DISCORD_REDIRECT_URI"),
   });
 
   const res = await fetch(`${DISCORD_API}/oauth2/token`, {
