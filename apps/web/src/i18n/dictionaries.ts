@@ -337,6 +337,7 @@ const en = {
       secretPlaceholderNew: "Client secret",
       copy: "Copy", copied: "Copied!",
       active: "Active", save: "Save", saving: "Saving…", remove: "Remove", removing: "Removing…",
+      saved: "Saved. Your secret is stored securely and stays hidden — the field is blank on purpose. Leave it empty next time to keep it.",
       errSave: "Could not save the credentials.", errAction: "Action failed.",
     },
     captcha: {
@@ -351,6 +352,7 @@ const en = {
       secretPlaceholderSet: "•••••••• (unchanged — leave blank to keep)",
       secretPlaceholderNew: "Secret key",
       active: "Active", save: "Save", saving: "Saving…", remove: "Remove", removing: "Removing…",
+      saved: "Saved. Your secret is stored securely and stays hidden — the field is blank on purpose. Leave it empty next time to keep it.",
       errSave: "Could not save the keys.", errAction: "Action failed.",
     },
   },
@@ -806,6 +808,7 @@ const de: Dictionary = {
       secretPlaceholderNew: "Client-Secret",
       copy: "Kopieren", copied: "Kopiert!",
       active: "Aktiv", save: "Speichern", saving: "Wird gespeichert…", remove: "Entfernen", removing: "Wird entfernt…",
+      saved: "Gespeichert. Dein Secret ist sicher hinterlegt und bleibt verborgen — das Feld ist absichtlich leer. Lass es beim nächsten Mal leer, um es zu behalten.",
       errSave: "Credentials konnten nicht gespeichert werden.", errAction: "Aktion fehlgeschlagen.",
     },
     captcha: {
@@ -820,6 +823,7 @@ const de: Dictionary = {
       secretPlaceholderSet: "•••••••• (unverändert — leer lassen, um es zu behalten)",
       secretPlaceholderNew: "Secret Key",
       active: "Aktiv", save: "Speichern", saving: "Wird gespeichert…", remove: "Entfernen", removing: "Wird entfernt…",
+      saved: "Gespeichert. Dein Secret ist sicher hinterlegt und bleibt verborgen — das Feld ist absichtlich leer. Lass es beim nächsten Mal leer, um es zu behalten.",
       errSave: "Keys konnten nicht gespeichert werden.", errAction: "Aktion fehlgeschlagen.",
     },
   },
@@ -1273,6 +1277,7 @@ const hu: Dictionary = {
       secretPlaceholderNew: "Client Secret",
       copy: "Másol", copied: "Másolva!",
       active: "Aktív", save: "Mentés", saving: "Mentés…", remove: "Eltávolítás", removing: "Eltávolítás…",
+      saved: "Mentve. A titok biztonságosan tárolva és rejtve marad — a mező szándékosan üres. Hagyd üresen legközelebb a megtartásához.",
       errSave: "A hitelesítő adatok mentése sikertelen.", errAction: "A művelet sikertelen.",
     },
     captcha: {
@@ -1287,6 +1292,7 @@ const hu: Dictionary = {
       secretPlaceholderSet: "•••••••• (változatlan — hagyd üresen a megtartásához)",
       secretPlaceholderNew: "Secret Key",
       active: "Aktív", save: "Mentés", saving: "Mentés…", remove: "Eltávolítás", removing: "Eltávolítás…",
+      saved: "Mentve. A titok biztonságosan tárolva és rejtve marad — a mező szándékosan üres. Hagyd üresen legközelebb a megtartásához.",
       errSave: "A kulcsok mentése sikertelen.", errAction: "A művelet sikertelen.",
     },
   },

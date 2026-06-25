@@ -25,13 +25,17 @@ export function OAuthForm({
   const [saving, setSaving] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const redirectUri = customDomain ? `https://${customDomain}/api/auth/discord/callback` : "";
-  const configured = Boolean(initial.clientId) && initial.hasSecret;
+  // Reflect the live state, not the initial server snapshot, so the "Active"
+  // badge and Remove button appear immediately after the first save.
+  const configured = Boolean(clientId.trim()) && hasSecret;
 
   async function save() {
     setError(null);
+    setSaved(false);
     setSaving(true);
     try {
       const res = await fetch(`/api/guilds/${guildId}/oauth`, {
@@ -43,6 +47,7 @@ export function OAuthForm({
       if (!res.ok) throw new Error(data?.error ?? t.errSave);
       setHasSecret(true);
       setClientSecret("");
+      setSaved(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : t.errSave);
     } finally {
@@ -52,6 +57,7 @@ export function OAuthForm({
 
   async function remove() {
     setError(null);
+    setSaved(false);
     setRemoving(true);
     try {
       const res = await fetch(`/api/guilds/${guildId}/oauth`, { method: "DELETE" });
@@ -128,13 +134,21 @@ export function OAuthForm({
             <Input
               type="password"
               value={clientSecret}
-              onChange={(e) => setClientSecret(e.target.value)}
+              onChange={(e) => {
+                setClientSecret(e.target.value);
+                setSaved(false);
+              }}
               placeholder={hasSecret ? t.secretPlaceholderSet : t.secretPlaceholderNew}
               autoComplete="off"
             />
           </Field>
 
           {error && <p className="text-sm text-destructive">{error}</p>}
+          {saved && !error && (
+            <p className="rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-primary">
+              {t.saved}
+            </p>
+          )}
 
           <div className="flex items-center gap-2">
             <Button type="button" onClick={save} disabled={saving || !clientId.trim()}>
