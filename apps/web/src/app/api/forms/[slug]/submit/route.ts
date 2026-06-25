@@ -23,6 +23,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { captchaEnabled, verifyCaptcha } from "@/lib/captcha";
 import { isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 import { recordExperimentConversion } from "@/lib/experiment";
+import { getGuildCaptchaSecret } from "@/lib/guild-captcha";
 import { parseFormSpec, resolveStatus } from "@/lib/forms";
 import { getGuildPlan } from "@/lib/plan";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
@@ -80,23 +81,6 @@ export async function POST(
     return NextResponse.json({ error: "Missing answers." }, { status: 400 });
   }
 
-  // Captcha (only enforced when Turnstile keys are configured AND the request is
-  // on the primary host). Custom domains can't render the global Turnstile widget
-  // (its hostname allowlist), so we don't require a token there — those forms are
-  // covered by the per-IP rate limit above.
-  const host = await requestHostname();
-  const captchaApplies = captchaEnabled() && (!host || isPrimaryHostname(host));
-  if (captchaApplies) {
-    const token = (body as { captchaToken?: unknown }).captchaToken;
-    const ok = await verifyCaptcha(typeof token === "string" ? token : undefined, ip);
-    if (!ok) {
-      return NextResponse.json(
-        { error: "Captcha verification failed. Please try again." },
-        { status: 400 },
-      );
-    }
-  }
-
   const form = await prisma.form.findUnique({
     where: { slug },
     select: {
@@ -113,6 +97,24 @@ export async function POST(
 
   if (!form || form.status !== "live") {
     return NextResponse.json({ error: "Form not available." }, { status: 404 });
+  }
+
+  // Captcha: on the primary host the global Turnstile applies; on a custom domain
+  // the guild's OWN Turnstile (if configured), verified with that guild's secret.
+  // Unconfigured custom domains rely on the per-IP rate limit above.
+  const host = await requestHostname();
+  const onPrimary = !host || isPrimaryHostname(host);
+  const captchaSecret = onPrimary ? undefined : ((await getGuildCaptchaSecret(form.guildId)) ?? undefined);
+  const captchaRequired = onPrimary ? captchaEnabled() : Boolean(captchaSecret);
+  if (captchaRequired) {
+    const token = (body as { captchaToken?: unknown }).captchaToken;
+    const ok = await verifyCaptcha(typeof token === "string" ? token : undefined, ip, captchaSecret);
+    if (!ok) {
+      return NextResponse.json(
+        { error: "Captcha verification failed. Please try again." },
+        { status: 400 },
+      );
+    }
   }
 
   // Scheduling window: reject before it opens or after it closes.

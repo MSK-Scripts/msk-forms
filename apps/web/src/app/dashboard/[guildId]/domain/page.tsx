@@ -2,6 +2,7 @@ import { prisma } from "@msk-forms/db";
 import { Card } from "@msk-forms/ui";
 
 import { UpgradeActions } from "@/components/billing/upgrade-button";
+import { CaptchaForm } from "@/components/domain/captcha-form";
 import { DomainForm } from "@/components/domain/domain-form";
 import { OAuthForm } from "@/components/domain/oauth-form";
 import { ProNotice } from "@/components/pro-notice";
@@ -62,8 +63,11 @@ export default async function DomainPage({
       customDomainVerifiedAt: true,
       oauthClientId: true,
       oauthClientSecret: true,
+      captchaSiteKey: true,
+      captchaSecret: true,
     },
   });
+  const verifiedDomain = guild?.customDomainVerifiedAt ? (guild.customDomain ?? "") : "";
 
   return (
     <div className="flex flex-col gap-4">
@@ -83,9 +87,15 @@ export default async function DomainPage({
       />
       <OAuthForm
         guildId={guildId}
-        customDomain={guild?.customDomainVerifiedAt ? (guild.customDomain ?? "") : ""}
+        customDomain={verifiedDomain}
         initial={{ clientId: guild?.oauthClientId ?? "", hasSecret: Boolean(guild?.oauthClientSecret) }}
         t={t.oauth}
+      />
+      <CaptchaForm
+        guildId={guildId}
+        customDomain={verifiedDomain}
+        initial={{ siteKey: guild?.captchaSiteKey ?? "", hasSecret: Boolean(guild?.captchaSecret) }}
+        t={t.captcha}
       />
     </div>
   );

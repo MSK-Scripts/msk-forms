@@ -14,6 +14,7 @@ import { PoweredBy } from "@/components/public/powered-by";
 import { experimentCookieName } from "@/lib/experiment";
 import { getCurrentUser } from "@/lib/auth";
 import { brandStyle, logoUrl, parseBranding } from "@/lib/branding";
+import { getGuildCaptchaSiteKey } from "@/lib/guild-captcha";
 import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 import { isGuildPro } from "@/lib/plan";
 import { captchaSiteKey } from "@/lib/captcha";
@@ -105,9 +106,9 @@ export default async function PublicFormPage({
   }
 
   // The global Turnstile sitekey is bound to the primary host's allowlist, so it
-  // can't render on customer custom domains. Skip the widget there — those forms
-  // stay protected by the per-IP rate limit on submit (see the submit route).
-  const siteKey = onCustomDomain ? null : captchaSiteKey();
+  // can't render on customer custom domains. There we use the guild's OWN
+  // Turnstile site key if configured; otherwise no widget (rate limit only).
+  const siteKey = onCustomDomain ? await getGuildCaptchaSiteKey(form.guildId) : captchaSiteKey();
   const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   // A/B test: assign a variant (sticky cookie, else weighted-random) and show
