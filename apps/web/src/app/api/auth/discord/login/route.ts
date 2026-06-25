@@ -30,7 +30,11 @@ export async function GET(request: NextRequest) {
   if (host && !isPrimaryHostname(host)) {
     const oauth = await resolveHostOAuth(host);
     if (!oauth) {
-      // No per-guild OAuth app — log in on the primary host instead.
+      // No usable per-guild OAuth app for this custom domain — fall back to the
+      // primary host. Logged so a mis-saved secret (present but undecryptable)
+      // or an unverified domain is diagnosable instead of silently bouncing to
+      // the global MSK Forms app.
+      console.warn(`[oauth-login] no per-guild OAuth for host "${host}" — falling back to primary host`);
       return NextResponse.redirect(
         absoluteUrl(`/api/auth/discord/login?returnTo=${encodeURIComponent(returnTo)}`),
       );

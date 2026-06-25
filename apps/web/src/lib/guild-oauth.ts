@@ -19,7 +19,12 @@ export async function getGuildOAuth(guildId: string): Promise<GuildOAuth | null>
   });
   if (!guild?.oauthClientId || !guild.oauthClientSecret) return null;
   const clientSecret = decryptSecret(guild.oauthClientSecret);
-  if (!clientSecret) return null;
+  if (!clientSecret) {
+    // Ciphertext present but undecryptable (e.g. SESSION_SECRET changed) — the
+    // dashboard shows "Active" on presence alone, so surface this here.
+    console.warn(`[guild-oauth] stored OAuth secret for guild ${guildId} could not be decrypted`);
+    return null;
+  }
   return { clientId: guild.oauthClientId, clientSecret };
 }
 
