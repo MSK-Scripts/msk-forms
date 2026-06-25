@@ -13,7 +13,6 @@ import { LocalDateTime } from "@/components/public/local-datetime";
 import { PoweredBy } from "@/components/public/powered-by";
 import { experimentCookieName } from "@/lib/experiment";
 import { getCurrentUser } from "@/lib/auth";
-import { appBaseUrl } from "@/lib/url";
 import { brandStyle, logoUrl, parseBranding } from "@/lib/branding";
 import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 import { isGuildPro } from "@/lib/plan";
@@ -43,10 +42,11 @@ export default async function PublicFormPage({
     if (!domainGuild || domainGuild.id !== form.guildId) notFound();
   }
   // Auth must happen on the primary domain (same-origin OAuth state/callback).
-  // From a custom domain we pass `origin` so the callback hands the session back
-  // here (one-time token) — the applicant returns to this domain logged in.
+  // From a custom domain, /api/auth/start (same origin) sets a host-only binding
+  // cookie, then bounces to the primary login; the callback hands the session
+  // back here via a browser-bound one-time token.
   const loginHref = onCustomDomain
-    ? `${appBaseUrl()}/api/auth/discord/login?returnTo=${encodeURIComponent(`/f/${slug}`)}&origin=${encodeURIComponent(host!)}`
+    ? `/api/auth/start?returnTo=${encodeURIComponent(`/f/${slug}`)}`
     : `/api/auth/discord/login?returnTo=/f/${slug}`;
 
   const branding = parseBranding(form.guild.branding);
