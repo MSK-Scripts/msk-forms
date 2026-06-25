@@ -105,6 +105,10 @@ model Guild {
   /// The client secret is stored encrypted (AES-256-GCM, see lib/crypto.ts).
   oauthClientId     String? @map("oauth_client_id")
   oauthClientSecret String? @map("oauth_client_secret")
+  /// Per-guild Cloudflare Turnstile (captcha) for forms on the custom domain.
+  /// The secret is stored encrypted; the site key is public.
+  captchaSiteKey String? @map("captcha_site_key")
+  captchaSecret  String? @map("captcha_secret")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 

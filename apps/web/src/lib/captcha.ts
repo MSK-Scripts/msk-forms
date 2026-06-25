@@ -23,8 +23,13 @@ export function captchaEnabled(): boolean {
  * configured (nothing to enforce); otherwise **fails closed** — a missing token
  * or any verification error rejects the submission.
  */
-export async function verifyCaptcha(token: string | undefined, ip?: string): Promise<boolean> {
-  const secret = process.env.CAPTCHA_SECRET_KEY;
+export async function verifyCaptcha(
+  token: string | undefined,
+  ip?: string,
+  overrideSecret?: string,
+): Promise<boolean> {
+  // A per-guild secret (custom domain) overrides the global one.
+  const secret = overrideSecret ?? process.env.CAPTCHA_SECRET_KEY;
   if (!secret) return true;
   if (!token) return false;
 
