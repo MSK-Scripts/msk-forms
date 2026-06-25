@@ -30,11 +30,13 @@ export async function GET(request: NextRequest) {
   const storedState = cookieStore.get("oauth_state")?.value;
   const returnTo = cookieStore.get("oauth_return_to")?.value ?? "/dashboard";
   const origin = cookieStore.get("oauth_origin")?.value ?? "";
+  const bind = cookieStore.get("oauth_bind")?.value ?? null;
 
   // Clear the one-shot CSRF cookies regardless of outcome.
   cookieStore.delete("oauth_state");
   cookieStore.delete("oauth_return_to");
   cookieStore.delete("oauth_origin");
+  cookieStore.delete("oauth_bind");
 
   if (!code || !state || !storedState || state !== storedState) {
     return NextResponse.redirect(absoluteUrl("/?auth=error"));
@@ -95,7 +97,7 @@ export async function GET(request: NextRequest) {
     // via a one-time token (a primary-host cookie can't be read cross-domain).
     // Re-validate the origin so a tampered cookie can't redirect us elsewhere.
     if (origin && !isPrimaryHostname(origin) && (await getGuildByDomain(origin))) {
-      const handoff = await createHandoffToken(user.id);
+      const handoff = await createHandoffToken(user.id, bind);
       if (handoff) {
         const url = new URL(`https://${origin}/api/auth/handoff`);
         url.searchParams.set("token", handoff);

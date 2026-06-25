@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { isValidBindNonce } from "@/lib/auth-handoff";
 import { getGuildByDomain, isPrimaryHostname } from "@/lib/custom-domain";
 import { buildAuthorizeUrl } from "@/lib/discord";
 import { safeRelativePath } from "@/lib/url";
@@ -31,6 +32,11 @@ export async function GET(request: NextRequest) {
       ? rawOrigin
       : "";
 
+  // Binding nonce from /api/auth/start (set as a host-only cookie on the custom
+  // domain). Carried through to the callback so the minted token is tied to it.
+  const rawBind = request.nextUrl.searchParams.get("bind");
+  const bind = isValidBindNonce(rawBind) ? rawBind : "";
+
   const cookieStore = await cookies();
   const secure = process.env.NODE_ENV === "production";
   cookieStore.set("oauth_state", state, {
@@ -49,6 +55,15 @@ export async function GET(request: NextRequest) {
   });
   if (origin) {
     cookieStore.set("oauth_origin", origin, {
+      httpOnly: true,
+      secure,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 600,
+    });
+  }
+  if (origin && bind) {
+    cookieStore.set("oauth_bind", bind, {
       httpOnly: true,
       secure,
       sameSite: "lax",

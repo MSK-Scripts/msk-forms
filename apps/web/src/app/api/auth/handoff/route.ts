@@ -1,4 +1,5 @@
 import { prisma } from "@msk-forms/db";
+import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { redeemHandoffToken } from "@/lib/auth-handoff";
@@ -47,19 +48,30 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(dest);
   }
 
-  const userId = await redeemHandoffToken(token);
-  if (!userId) {
+  const claims = await redeemHandoffToken(token);
+  if (!claims) {
     // Expired, already used, or Redis unavailable — indistinguishable here by design.
     console.warn("[auth-handoff] no valid token (expired, reused, or store unavailable)");
     return NextResponse.redirect(dest);
   }
 
+  // Browser-binding: the token's bind nonce must match the host-only cookie set
+  // by /api/auth/start before the OAuth round-trip. A token leaked on its own
+  // (e.g. from an access log) is then not redeemable from another browser.
+  const cookieStore = await cookies();
+  const bindCookie = cookieStore.get("handoff_bind")?.value ?? null;
+  if (claims.bind && claims.bind !== bindCookie) {
+    console.warn("[auth-handoff] bind mismatch — token not redeemed");
+    return NextResponse.redirect(dest);
+  }
+  cookieStore.delete("handoff_bind");
+
   const user = await prisma.user.findUnique({
-    where: { id: userId },
+    where: { id: claims.userId },
     select: { id: true, discordId: true, username: true, avatar: true },
   });
   if (!user) {
-    console.warn(`[auth-handoff] token user ${userId} no longer exists`);
+    console.warn(`[auth-handoff] token user ${claims.userId} no longer exists`);
     return NextResponse.redirect(dest);
   }
 
