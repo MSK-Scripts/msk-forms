@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Wordmark } from "@/components/landing/wordmark";
 import { Button } from "@/components/ui/button";
 import { isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
+import { resolveHostOAuth } from "@/lib/guild-oauth";
 import { appBaseUrl } from "@/lib/url";
 import { getDict, getLocale } from "@/i18n";
 
@@ -18,14 +19,17 @@ export async function SiteHeader({ user }: { user: HeaderUser | null }) {
   const t = await getDict();
   const locale = await getLocale();
 
-  // Auth + dashboard live only on the primary domain (the OAuth state cookie and
-  // callback must be same-origin). On a guild's custom domain, point those links
-  // at the primary domain so login doesn't fail with a state mismatch.
+  // The dashboard lives only on the primary domain. Login is host-aware: on a
+  // custom domain whose guild has its OWN Discord OAuth app, log in right here
+  // (relative) so that app is used and the session lands on this domain. Without
+  // an own app, auth must run on the primary host (the OAuth state cookie and
+  // callback must be same-origin), else login fails with a state mismatch.
   const host = await requestHostname();
   const onCustomDomain = Boolean(host) && !isPrimaryHostname(host!);
-  const base = onCustomDomain ? appBaseUrl() : "";
-  const loginHref = `${base}/api/auth/discord/login`;
-  const dashboardHref = `${base}/dashboard`;
+  const ownOAuth = onCustomDomain ? await resolveHostOAuth(host!) : null;
+  const loginBase = onCustomDomain && !ownOAuth ? appBaseUrl() : "";
+  const loginHref = `${loginBase}/api/auth/discord/login`;
+  const dashboardHref = `${onCustomDomain ? appBaseUrl() : ""}/dashboard`;
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
