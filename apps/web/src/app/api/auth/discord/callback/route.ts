@@ -2,6 +2,8 @@ import { prisma } from "@msk-forms/db";
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { createHandoffToken } from "@/lib/auth-handoff";
+import { getGuildByDomain, isPrimaryHostname } from "@/lib/custom-domain";
 import {
   discordAvatarUrl,
   exchangeCode,
@@ -27,10 +29,12 @@ export async function GET(request: NextRequest) {
   const cookieStore = await cookies();
   const storedState = cookieStore.get("oauth_state")?.value;
   const returnTo = cookieStore.get("oauth_return_to")?.value ?? "/dashboard";
+  const origin = cookieStore.get("oauth_origin")?.value ?? "";
 
   // Clear the one-shot CSRF cookies regardless of outcome.
   cookieStore.delete("oauth_state");
   cookieStore.delete("oauth_return_to");
+  cookieStore.delete("oauth_origin");
 
   if (!code || !state || !storedState || state !== storedState) {
     return NextResponse.redirect(absoluteUrl("/?auth=error"));
@@ -86,6 +90,19 @@ export async function GET(request: NextRequest) {
     session.avatar = user.avatar;
     session.isLoggedIn = true;
     await session.save();
+
+    // If login started on a verified custom domain, hand the session back there
+    // via a one-time token (a primary-host cookie can't be read cross-domain).
+    // Re-validate the origin so a tampered cookie can't redirect us elsewhere.
+    if (origin && !isPrimaryHostname(origin) && (await getGuildByDomain(origin))) {
+      const handoff = await createHandoffToken(user.id);
+      if (handoff) {
+        const url = new URL(`https://${origin}/api/auth/handoff`);
+        url.searchParams.set("token", handoff);
+        url.searchParams.set("returnTo", returnTo);
+        return NextResponse.redirect(url.toString());
+      }
+    }
 
     return NextResponse.redirect(absoluteUrl(returnTo));
   } catch (error) {

@@ -42,10 +42,11 @@ export default async function PublicFormPage({
     const domainGuild = await getGuildByDomain(host!);
     if (!domainGuild || domainGuild.id !== form.guildId) notFound();
   }
-  // Auth must happen on the primary domain (same-origin OAuth state/callback);
-  // from a custom domain, send the login there and return to the primary copy.
+  // Auth must happen on the primary domain (same-origin OAuth state/callback).
+  // From a custom domain we pass `origin` so the callback hands the session back
+  // here (one-time token) — the applicant returns to this domain logged in.
   const loginHref = onCustomDomain
-    ? `${appBaseUrl()}/api/auth/discord/login?returnTo=/f/${slug}`
+    ? `${appBaseUrl()}/api/auth/discord/login?returnTo=${encodeURIComponent(`/f/${slug}`)}&origin=${encodeURIComponent(host!)}`
     : `/api/auth/discord/login?returnTo=/f/${slug}`;
 
   const branding = parseBranding(form.guild.branding);
