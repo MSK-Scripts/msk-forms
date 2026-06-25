@@ -22,12 +22,19 @@ export const dynamic = "force-dynamic";
 export async function GET(request: NextRequest) {
   const state = crypto.randomUUID();
 
-  // Same-origin relative redirect only (rejects "//", backslashes, control chars).
-  const returnTo = safeRelativePath(request.nextUrl.searchParams.get("returnTo"), "/dashboard");
-
   const host = await requestHostname();
+  const onCustomDomain = host != null && !isPrimaryHostname(host);
+
+  // Same-origin relative redirect only (rejects "//", backslashes, control chars).
+  // The dashboard lives only on the primary host, so on a custom domain default
+  // to the guild's branded home ("/") instead of "/dashboard".
+  const returnTo = safeRelativePath(
+    request.nextUrl.searchParams.get("returnTo"),
+    onCustomDomain ? "/" : "/dashboard",
+  );
+
   let app: { clientId: string; redirectUri: string } | undefined;
-  if (host && !isPrimaryHostname(host)) {
+  if (onCustomDomain) {
     const oauth = await resolveHostOAuth(host);
     if (!oauth) {
       // No usable per-guild OAuth app for this custom domain — fall back to the
