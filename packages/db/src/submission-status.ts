@@ -1,3 +1,4 @@
+import { enqueueGuildLog } from "./guild-log";
 import { Prisma, prisma } from "./index";
 import { enqueueWebhooks } from "./webhooks";
 
@@ -16,6 +17,10 @@ export interface ChangeSubmissionStatusArgs {
   toStatus: string;
   /** Reviewer who triggered the change, or null for bot/system actions. */
   actorUserId?: string | null;
+  /** Human-readable actor for the activity log (e.g. reviewer name, "Bot"). */
+  actorName?: string | null;
+  /** Status label for the activity log; falls back to the status key. */
+  toStatusLabel?: string | null;
   /** When set, queue an outbox DM for the applicant in the same transaction. */
   notify?: StatusChangeOutboxNotification | null;
 }
@@ -38,12 +43,25 @@ export interface ChangeSubmissionStatusResult {
 export async function changeSubmissionStatus(
   args: ChangeSubmissionStatusArgs,
 ): Promise<ChangeSubmissionStatusResult> {
-  const { submissionId, toStatus, actorUserId = null, notify = null } = args;
+  const {
+    submissionId,
+    toStatus,
+    actorUserId = null,
+    actorName = null,
+    toStatusLabel = null,
+    notify = null,
+  } = args;
 
   return prisma.$transaction(async (tx) => {
     const current = await tx.submission.findUnique({
       where: { id: submissionId },
-      select: { status: true, guildId: true, formId: true },
+      select: {
+        status: true,
+        guildId: true,
+        formId: true,
+        form: { select: { title: true } },
+        user: { select: { username: true } },
+      },
     });
     if (!current || current.status === toStatus) {
       return { changed: false, fromStatus: current?.status ?? null };
@@ -78,6 +96,18 @@ export async function changeSubmissionStatus(
         },
       });
     }
+
+    // Activity log: record the transition for the guild's log channel.
+    await enqueueGuildLog(tx, current.guildId, {
+      action: "status_changed",
+      actorName: actorName ?? undefined,
+      formTitle: current.form?.title,
+      applicantName: current.user?.username ?? "Anonymous",
+      fromStatus: current.status,
+      toStatus,
+      toStatusLabel: toStatusLabel ?? undefined,
+      submissionId,
+    });
 
     // Queue any subscribed webhook deliveries (atomic with the transition).
     await enqueueWebhooks(tx, current.guildId, "submission.status_changed", {

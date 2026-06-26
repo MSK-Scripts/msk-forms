@@ -20,6 +20,7 @@ export function BotConfigForm({
 }) {
   const router = useRouter();
   const [channel, setChannel] = useState(initial.reviewChannelId ?? "");
+  const [logChannel, setLogChannel] = useState(initial.logChannelId ?? "");
   const [role, setRole] = useState(acceptedRoleIdsOf(initial).join(", "));
   const [postName, setPostName] = useState(initial.postName ?? "");
   const [saving, setSaving] = useState(false);
@@ -33,6 +34,7 @@ export function BotConfigForm({
     try {
       const body: Record<string, unknown> = {};
       if (channel.trim()) body.reviewChannelId = channel.trim();
+      if (logChannel.trim()) body.logChannelId = logChannel.trim();
       const roleIds = parseIdList(role);
       if (roleIds.length > 0) body.acceptedRoleIds = roleIds;
       if (postName.trim()) body.postName = postName.trim();
@@ -63,6 +65,9 @@ export function BotConfigForm({
     <Card className="flex flex-col gap-4 p-5">
       <Field label={t.reviewChannel} hint={t.reviewChannelHint}>
         <Input value={channel} placeholder="123456789012345678" onChange={onEdit(setChannel)} />
+      </Field>
+      <Field label={t.logChannel} hint={t.logChannelHint}>
+        <Input value={logChannel} placeholder="123456789012345678" onChange={onEdit(setLogChannel)} />
       </Field>
       <Field label={t.acceptedRole} hint={t.acceptedRoleHint}>
         <Input value={role} placeholder="123456789012345678" onChange={onEdit(setRole)} />

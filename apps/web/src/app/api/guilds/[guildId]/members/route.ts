@@ -1,4 +1,4 @@
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { countsTowardTeam } from "@/lib/access";
@@ -84,6 +84,11 @@ export async function POST(
     where: { guildId_userId: { guildId, userId: target.id } },
     create: { guildId, userId: target.id, role },
     update: { role },
+  });
+  await logGuildActivitySafe(guildId, {
+    action: "member_added",
+    actorName: user.username,
+    detail: `${target.username} → ${role}`,
   });
   return NextResponse.json({ ok: true });
 }

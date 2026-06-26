@@ -1,4 +1,4 @@
-import { notifySubmissionChange, prisma } from "@msk-forms/db";
+import { enqueueGuildLog, notifySubmissionChange, prisma } from "@msk-forms/db";
 import { DEFAULT_STATUSES } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -30,7 +30,12 @@ export async function POST(
   const outcome = await prisma.$transaction(async (tx) => {
     const submission = await tx.submission.findUnique({
       where: { id },
-      select: { status: true },
+      select: {
+        status: true,
+        guildId: true,
+        form: { select: { title: true } },
+        user: { select: { username: true } },
+      },
     });
     if (!submission) return { code: 404 as const };
     if (TERMINAL.has(submission.status)) return { code: 409 as const };
@@ -49,6 +54,15 @@ export async function POST(
         toStatus: "withdrawn",
         visibility: "public",
       },
+    });
+
+    // Activity log: the applicant withdrew their own submission.
+    await enqueueGuildLog(tx, submission.guildId, {
+      action: "submission_withdrawn",
+      actorName: submission.user?.username ?? "Applicant",
+      applicantName: submission.user?.username ?? "Anonymous",
+      formTitle: submission.form.title,
+      submissionId: id,
     });
     return { code: 200 as const };
   });

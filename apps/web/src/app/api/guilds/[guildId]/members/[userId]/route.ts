@@ -1,4 +1,4 @@
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { countsTowardTeam } from "@/lib/access";
@@ -34,7 +34,7 @@ export async function PATCH(
 
   const member = await prisma.guildMember.findUnique({
     where: { guildId_userId: { guildId, userId } },
-    select: { role: true },
+    select: { role: true, user: { select: { username: true } } },
   });
   if (!member) return NextResponse.json({ error: "Member not found." }, { status: 404 });
   if (member.role === "owner") {
@@ -59,6 +59,11 @@ export async function PATCH(
     where: { guildId_userId: { guildId, userId } },
     data: { role },
   });
+  await logGuildActivitySafe(guildId, {
+    action: "member_role_changed",
+    actorName: user.username,
+    detail: `${member.user?.username ?? userId}: ${member.role} → ${role}`,
+  });
   return NextResponse.json({ ok: true });
 }
 
@@ -77,7 +82,7 @@ export async function DELETE(
 
   const member = await prisma.guildMember.findUnique({
     where: { guildId_userId: { guildId, userId } },
-    select: { role: true },
+    select: { role: true, user: { select: { username: true } } },
   });
   if (!member) return NextResponse.json({ error: "Member not found." }, { status: 404 });
   if (member.role === "owner") {
@@ -89,5 +94,10 @@ export async function DELETE(
     prisma.formReviewer.deleteMany({ where: { userId, form: { guildId } } }),
     prisma.guildMember.delete({ where: { guildId_userId: { guildId, userId } } }),
   ]);
+  await logGuildActivitySafe(guildId, {
+    action: "member_removed",
+    actorName: user.username,
+    detail: member.user?.username ?? userId,
+  });
   return NextResponse.json({ ok: true });
 }

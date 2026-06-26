@@ -1,4 +1,4 @@
-import { Prisma, prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, Prisma, prisma } from "@msk-forms/db";
 import { brandingColorSchema, sanitizeCustomCss, type Branding } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -49,6 +49,10 @@ export async function PATCH(
   await prisma.guild.update({
     where: { id: guildId },
     data: { branding: next as Prisma.InputJsonValue },
+  });
+  await logGuildActivitySafe(guildId, {
+    action: "branding_updated",
+    actorName: user.username,
   });
   return NextResponse.json({ ok: true });
 }

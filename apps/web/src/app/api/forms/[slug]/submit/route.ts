@@ -1,4 +1,10 @@
-import { changeSubmissionStatus, enqueueWebhooks, prisma, type Prisma } from "@msk-forms/db";
+import {
+  changeSubmissionStatus,
+  enqueueWebhooks,
+  logGuildActivitySafe,
+  prisma,
+  type Prisma,
+} from "@msk-forms/db";
 import {
   buildAnswerSchema,
   DEFAULT_STATUSES,
@@ -245,6 +251,15 @@ export async function POST(
     console.error("[submit] failed to queue review notification:", (err as Error).message);
   }
 
+  // Activity log: a new submission arrived.
+  await logGuildActivitySafe(form.guildId, {
+    action: "submission_created",
+    actorName: user?.username ?? "Anonymous",
+    applicantName: user?.username ?? "Anonymous",
+    formTitle: form.title,
+    submissionId: submission.id,
+  });
+
   // Queue any subscribed webhook deliveries (best-effort — never fail the submit).
   try {
     await enqueueWebhooks(prisma, form.guildId, "submission.created", {
@@ -288,6 +303,8 @@ export async function POST(
           submissionId: submission.id,
           toStatus: target,
           actorUserId: null,
+          actorName: "Automation",
+          toStatusLabel: resolveStatus(target, defs, (await getDict()).statusLabels).label,
           notify: user?.id && notify ? { userId: user.id, type: "status_change", payload: notify } : null,
         });
       }

@@ -1,4 +1,10 @@
-import { changeSubmissionStatus, notifySubmissionChange, Prisma, prisma } from "@msk-forms/db";
+import {
+  changeSubmissionStatus,
+  logGuildActivitySafe,
+  notifySubmissionChange,
+  Prisma,
+  prisma,
+} from "@msk-forms/db";
 import {
   DEFAULT_STATUSES,
   type MessageNotification,
@@ -72,18 +78,21 @@ export async function POST(
 
     // Idempotent, race-safe transition + event + applicant DM (skip anonymous).
     const labels = (await getDict()).statusLabels;
+    const toStatusLabel = resolveStatus(action.status, defs, labels).label;
     const notify: StatusChangeNotification | null = submission.userId
       ? {
           submissionId: id,
           formTitle: submission.form.title,
           toStatus: action.status,
-          toStatusLabel: resolveStatus(action.status, defs, labels).label,
+          toStatusLabel,
         }
       : null;
     await changeSubmissionStatus({
       submissionId: id,
       toStatus: action.status,
       actorUserId: user.id,
+      actorName: user.username,
+      toStatusLabel,
       notify:
         submission.userId && notify
           ? { userId: submission.userId, type: "status_change", payload: notify }
@@ -137,5 +146,12 @@ export async function POST(
   await prisma.$transaction(ops);
   // Realtime: a new public message is fresh activity on the status page.
   await notifySubmissionChange(id);
+  await logGuildActivitySafe(guildId, {
+    action: "message_sent",
+    actorName: user.username,
+    formTitle: submission.form.title,
+    submissionId: id,
+    detail: action.message.slice(0, 1024),
+  });
   return NextResponse.json({ ok: true });
 }
