@@ -13,7 +13,7 @@ Preferred channels:
 
 1. **GitHub Private Vulnerability Reporting** — via the *Security → Report a
    vulnerability* tab of this repository.
-2. Alternatively, email **moritz.kohm@gmail.com** with the subject
+2. Alternatively, email **info@msk-scripts.de** with the subject
    `[Security] MSK Forms`.
 
 Please include as much detail as possible:
