@@ -17,7 +17,7 @@ export default async function OfflinePage() {
   const dict = await getDict();
 
   return (
-    <main className="msk-form flex min-h-[60vh] flex-col items-center justify-center px-6 py-16 text-center">
+    <main className="msk-form pwa-safe-x flex min-h-[60vh] flex-col items-center justify-center py-16 text-center">
       <Image src="/logo.png" alt="" width={56} height={56} className="mb-6 opacity-90" priority />
       <h1 className="text-2xl font-bold tracking-tight">{dict.pwa.offlineTitle}</h1>
       <p className="mt-3 max-w-md text-muted-foreground">{dict.pwa.offlineBody}</p>

@@ -20,14 +20,16 @@ export function RadioGroup({
   disabled,
 }: RadioGroupProps) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1">
       {options.map((opt) => {
         const id = `${name}-${opt.value}`;
         return (
           <label
             key={opt.value}
             htmlFor={id}
-            className="flex cursor-pointer items-center gap-2.5 text-sm text-muted-foreground"
+            // -mx-2 px-2 py-2 widens the tap target to a comfortable row on
+            // touch (~40px) without indenting the content.
+            className="-mx-2 flex cursor-pointer items-center gap-2.5 rounded-md px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50"
           >
             <input
               id={id}
@@ -37,7 +39,7 @@ export function RadioGroup({
               checked={value === opt.value}
               disabled={disabled}
               onChange={(e) => onChange?.(e.target.value)}
-              className="h-4 w-4 accent-primary"
+              className="h-5 w-5 shrink-0 accent-primary"
             />
             {opt.label}
           </label>

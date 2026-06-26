@@ -78,6 +78,25 @@
 }
 
 /* ============================================================================
+   PWA safe-area insets. env() is 0 in a normal browser tab, so these are no-ops
+   there and only take effect in an installed/standalone PWA (viewport-fit=cover)
+   — keeping content clear of the notch (landscape) and the home indicator.
+   Uses logical `padding-inline` so it mirrors correctly under RTL.
+   ============================================================================ */
+@layer utilities {
+  .pwa-safe-x {
+    padding-inline-start: max(1.5rem, env(safe-area-inset-left));
+    padding-inline-end: max(1.5rem, env(safe-area-inset-right));
+  }
+  .pwa-safe-b {
+    padding-bottom: max(3rem, env(safe-area-inset-bottom));
+  }
+  .pwa-safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* ============================================================================
    Polish patterns — aligned with the MSK ecosystem (msk-shop / paste / shortener)
    ============================================================================ */
 
