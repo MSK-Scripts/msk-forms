@@ -31,6 +31,7 @@ export default async function PricingPage() {
         { label: c.rows.submissions, vals: [nf.format(100), nf.format(5000), c.unlimited] },
         { label: c.rows.abtest, vals: [false, true, true] },
         { label: c.rows.realtime, vals: [true, true, true] },
+        { label: c.rows.languages, vals: ["7", "7", "7"] },
       ],
     },
     {
@@ -38,6 +39,7 @@ export default async function PricingPage() {
       rows: [
         { label: c.rows.bot, vals: [true, true, true] },
         { label: c.rows.acceptRole, vals: [true, true, true] },
+        { label: c.rows.activityLog, vals: [true, true, true] },
       ],
     },
     {
