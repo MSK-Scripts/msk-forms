@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { GuildIcon } from "@/components/dashboard/guild-icon";
 import { requireUser } from "@/lib/auth";
+import { logoUrl as guildLogoUrl, parseBranding } from "@/lib/branding";
 import { getUserGuilds } from "@/lib/guild";
 import { getDict } from "@/i18n";
 
@@ -37,6 +38,7 @@ export default async function GuildsPage() {
                 <div className="flex items-center gap-3">
                   <GuildIcon
                     icon={guild.icon}
+                    logoUrl={guildLogoUrl(guild.id, parseBranding(guild.branding))}
                     name={guild.name}
                     size={44}
                     className="rounded-lg"
