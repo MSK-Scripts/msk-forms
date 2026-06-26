@@ -1,0 +1,13 @@
+{
+  "common": {
+    "submit": "Wyślij",
+    "cancel": "Anuluj",
+    "save": "Zapisz"
+  },
+  "status": {
+    "submitted": "Zgłoszono",
+    "in_review": "W trakcie recenzji",
+    "accepted": "Zaakceptowano",
+    "rejected": "Odrzucono"
+  }
+}

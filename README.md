@@ -22,6 +22,9 @@ Google/Microsoft Forms, rethought — a modern UI, more features and a real
 rejected / in review) on the very page where they filled out the form.
 Communities simply invite the **Discord bot** to their server.
 
+The whole experience — dashboard, builder, public forms and bot DMs — is
+available in **7 languages** (EN / DE / HU / FR / ES / PT / PL).
+
 > The full concept document is maintained internally.
 
 ## Invite the Discord bot
@@ -41,20 +44,21 @@ Embed Links — the minimum needed to post forms into a channel.
 | Frontend/SSR | Next.js 16 (App Router), TypeScript |
 | Styling | Tailwind CSS 3 |
 | Database | PostgreSQL + Prisma |
-| Cache/Queue | Redis + BullMQ |
+| Cache | Redis |
 | Bot | Node.js + discord.js v14 |
 | Storage | S3-compatible (MinIO) |
+| i18n | 7 languages (EN/DE/HU/FR/ES/PT/PL) |
 | Monorepo | pnpm Workspaces + Turborepo |
 | Hosting | Debian + Apache2 + PM2 |
 
-## Project structure (planned)
+## Project structure
 
 ```
 msk-forms/
 ├── apps/
 │   ├── web/         Next.js (dashboard, builder, public forms, status)
-│   ├── bot/         discord.js bot (multi-tenant, sharding)
-│   └── realtime/    WS/SSE service
+│   ├── bot/         discord.js bot (multi-tenant)
+│   └── realtime/    WebSocket service (Postgres LISTEN/NOTIFY fan-out)
 ├── packages/
 │   ├── db/          Prisma schema & client
 │   ├── shared/      Types, zod schemas, form spec

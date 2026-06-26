@@ -9,7 +9,7 @@ to the project.
 
 ## Requirements
 
-- **Node.js ≥ 22** and **pnpm ≥ 9** (`corepack enable`)
+- **Node.js ≥ 22** and **pnpm ≥ 11** (`corepack enable`)
 - **Docker** (for local infrastructure: Postgres, Redis, MinIO)
 
 ## Local setup
@@ -52,6 +52,20 @@ pnpm build
 See the [pull request template](./.github/pull_request_template.md) for the full
 checklist. Every PR runs **CI** (lint, typecheck, build, test, Prisma validate)
 and **CodeQL**.
+
+## Internationalization (i18n)
+
+The app ships in **7 languages**: EN, DE, HU, FR, ES, PT, PL.
+
+- **Web UI strings** live in `apps/web/src/i18n/dictionaries.ts`. The type
+  `Dictionary = typeof en` makes TypeScript **enforce completeness** — when you
+  add or change a key, update **all** language objects or the build fails.
+- **Bot DM strings** (applicant status notifications) live in
+  `apps/bot/src/i18n.ts`. Built-in status labels mirror the web's `statusLabels`.
+- Add a new language by extending the `Locale` union + `locales` array in
+  `apps/web/src/i18n/index.ts` and the `LanguageSwitcher`. Use double-quoted
+  strings with **typographic** inner quotes (`“ ”`, `« »`, `„ ”`) — straight
+  `"` inside a value breaks the TypeScript parse.
 
 ## Security
 
