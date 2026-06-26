@@ -1,5 +1,6 @@
 import { Card } from "@msk-forms/ui";
 
+import { GuildIcon } from "@/components/dashboard/guild-icon";
 import { NavTabs, type NavTab } from "@/components/dashboard/nav-tabs";
 import { requireUser } from "@/lib/auth";
 import { getReviewScope, MANAGER_ROLES, requireGuildMembership } from "@/lib/guild";
@@ -49,13 +50,7 @@ export default async function GuildLayout({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-3">
-        {guild.icon ? (
-          <img src={guild.icon} alt="" width={36} height={36} className="rounded-md" />
-        ) : (
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-muted font-heading text-muted-foreground">
-            {guild.name.charAt(0)}
-          </div>
-        )}
+        <GuildIcon icon={guild.icon} name={guild.name} size={36} className="rounded-md" />
         <h1 translate="no" className="font-heading text-2xl font-bold text-foreground">{guild.name}</h1>
       </div>
 

@@ -59,6 +59,19 @@ export async function syncGuild(guild: DiscordGuild): Promise<string> {
   return row.id;
 }
 
+/**
+ * Refresh just the cached name + icon URL for an already-linked guild. Used on
+ * GuildUpdate so a changed server icon (e.g. switching to an animated one)
+ * doesn't leave a stale, now-404 CDN URL behind in the dashboard. No-op when
+ * the guild isn't linked yet; deliberately does not touch the owner/members.
+ */
+export async function updateGuildMeta(guild: DiscordGuild): Promise<void> {
+  await prisma.guild.updateMany({
+    where: { discordGuildId: guild.id },
+    data: { name: guild.name, icon: guildIconUrl(guild) },
+  });
+}
+
 /** Sync every guild in the client's cache (catches joins made while offline). */
 export async function syncAllGuilds(client: Client): Promise<void> {
   const guilds = [...client.guilds.cache.values()];
