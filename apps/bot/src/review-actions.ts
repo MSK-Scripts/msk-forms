@@ -1,5 +1,5 @@
 import { changeSubmissionStatus, prisma } from "@msk-forms/db";
-import { DEFAULT_STATUSES, type StatusChangeNotification } from "@msk-forms/shared";
+import { DEFAULT_STATUSES, parseBotConfig, type StatusChangeNotification } from "@msk-forms/shared";
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -11,6 +11,7 @@ import {
 } from "discord.js";
 
 import { config } from "./config.js";
+import { guildStrings, type GuildStrings } from "./guild-i18n.js";
 import { grantAcceptedRole } from "./roles.js";
 import { dashboardSubmissionUrl } from "./urls.js";
 
@@ -35,14 +36,6 @@ export async function handleReviewButton(interaction: ButtonInteraction): Promis
   if ((rawAction !== "accept" && rawAction !== "reject") || !submissionId) return;
   const action = rawAction as Action;
 
-  if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
-    await interaction.reply({
-      content: "You need the **Manage Server** permission to review submissions.",
-      flags: MessageFlags.Ephemeral,
-    });
-    return;
-  }
-
   const submission = await prisma.submission.findUnique({
     where: { id: submissionId },
     select: {
@@ -50,11 +43,18 @@ export async function handleReviewButton(interaction: ButtonInteraction): Promis
       userId: true,
       guildId: true,
       form: { select: { title: true } },
-      guild: { select: { discordGuildId: true } },
+      guild: { select: { discordGuildId: true, botConfig: true } },
     },
   });
+  const s = guildStrings(submission ? parseBotConfig(submission.guild.botConfig).locale : undefined);
+
   if (!submission || submission.guild.discordGuildId !== interaction.guildId) {
-    await interaction.reply({ content: "Submission not found.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: s.submissionNotFound, flags: MessageFlags.Ephemeral });
+    return;
+  }
+
+  if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
+    await interaction.reply({ content: s.reviewNeedManage, flags: MessageFlags.Ephemeral });
     return;
   }
 
@@ -85,7 +85,7 @@ export async function handleReviewButton(interaction: ButtonInteraction): Promis
     await grantAcceptedRole(interaction.client, submissionId);
   }
 
-  await updateMessage(interaction, submission.guildId, submissionId, toStatus);
+  await updateMessage(interaction, submission.guildId, submissionId, toStatus, s);
 }
 
 /** Edit the review message: show the decision and disable the action buttons. */
@@ -94,22 +94,23 @@ async function updateMessage(
   guildId: string,
   submissionId: string,
   toStatus: string,
+  s: GuildStrings,
 ): Promise<void> {
   const accepted = toStatus === "accepted";
   const base = interaction.message.embeds[0];
   const embed = (base ? EmbedBuilder.from(base) : new EmbedBuilder())
     .setColor(accepted ? 0x00e676 : 0xff5252)
-    .addFields({ name: "Decision", value: accepted ? "✅ Accepted" : "❌ Rejected" });
+    .addFields({ name: s.decision, value: accepted ? s.decisionAccepted : s.decisionRejected });
 
   const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
       .setCustomId("sub:decided")
       .setStyle(accepted ? ButtonStyle.Success : ButtonStyle.Danger)
-      .setLabel(accepted ? "Accepted" : "Rejected")
+      .setLabel(accepted ? s.btnAccepted : s.btnRejected)
       .setDisabled(true),
     new ButtonBuilder()
       .setStyle(ButtonStyle.Link)
-      .setLabel("Open in dashboard")
+      .setLabel(s.btnOpenDashboard)
       .setURL(dashboardSubmissionUrl(config.apiBaseUrl, guildId, submissionId)),
   );
 
