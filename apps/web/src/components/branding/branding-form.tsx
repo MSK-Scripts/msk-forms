@@ -9,7 +9,7 @@ import type { Dictionary } from "@/i18n";
 
 type BrandingDict = Dictionary["branding"];
 
-const DEFAULT_ACCENT = "#00e676";
+const DEFAULT_ACCENT = "#5eb131";
 const HEX = /^#[0-9a-fA-F]{6}$/;
 
 export function BrandingForm({

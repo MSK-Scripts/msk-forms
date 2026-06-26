@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Noto_Sans, Outfit, Space_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import { headers } from "next/headers";
 
 import { SiteFooter } from "@/components/site-footer";
@@ -11,22 +11,16 @@ import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/cust
 import { getDirection, getLocale } from "@/i18n";
 import "./globals.css";
 
-const outfit = Outfit({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-outfit",
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-inter",
   display: "swap",
 });
-const notoSans = Noto_Sans({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["600", "700", "800"],
-  variable: "--font-noto-sans",
-  display: "swap",
-});
-const spaceMono = Space_Mono({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-space-mono",
+  weight: ["400", "500", "700"],
+  variable: "--font-jetbrains-mono",
   display: "swap",
 });
 
@@ -74,7 +68,7 @@ export default async function RootLayout({
       lang={locale}
       dir={getDirection(locale)}
       suppressHydrationWarning
-      className={`${outfit.variable} ${notoSans.variable} ${spaceMono.variable}`}
+      className={`${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="font-sans antialiased">
         <ThemeProvider nonce={nonce}>

@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 import animate from "tailwindcss-animate";
 
-// shadcn/ui config (Tailwind v3) — Neutral base, Emerald primary, Outfit/Noto Sans.
+// shadcn/ui config (Tailwind v3) — Neutral base, MSK-green primary, Inter/JetBrains Mono.
 const config: Config = {
   darkMode: "class",
   content: ["./src/**/*.{ts,tsx}", "../../packages/ui/src/**/*.{ts,tsx}"],
@@ -60,9 +60,13 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["var(--font-outfit)", "ui-sans-serif", "system-ui", "sans-serif"],
-        heading: ["var(--font-noto-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
-        mono: ["var(--font-space-mono)", "ui-monospace", "monospace"],
+        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        heading: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["var(--font-jetbrains-mono)", "ui-monospace", "monospace"],
+      },
+      boxShadow: {
+        card: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+        "card-hover": "0 8px 24px -8px rgb(0 0 0 / 0.12)",
       },
       keyframes: {
         "accordion-down": {
@@ -73,10 +77,20 @@ const config: Config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "fade-in": {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
+        "slide-up": {
+          from: { opacity: "0", transform: "translateY(8px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "fade-in": "fade-in 0.2s ease-out",
+        "slide-up": "slide-up 0.3s ease-out",
       },
     },
   },

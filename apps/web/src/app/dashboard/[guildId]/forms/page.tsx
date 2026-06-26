@@ -22,7 +22,7 @@ export const dynamic = "force-dynamic";
 
 const FORM_STATUS_COLORS: Record<string, string> = {
   draft: "#6b6b72",
-  live: "#00E676",
+  live: "#5eb131",
   closed: "#f5a623",
   archived: "#6b6b72",
 };

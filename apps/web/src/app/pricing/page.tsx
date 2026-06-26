@@ -87,7 +87,8 @@ export default async function PricingPage() {
   return (
     <main className="container py-16 lg:py-24">
       <div className="mx-auto max-w-2xl text-center">
-        <h1 className="text-balance font-heading text-4xl font-bold tracking-tight md:text-5xl">
+        <span className="eyebrow justify-center">{t.eyebrow}</span>
+        <h1 className="mt-4 text-balance font-heading text-4xl font-bold tracking-tight md:text-5xl">
           {t.title}
         </h1>
         <p className="mt-4 text-pretty text-lg leading-relaxed text-muted-foreground">{t.sub}</p>
@@ -100,7 +101,7 @@ export default async function PricingPage() {
             className={
               highlight
                 ? "relative border-primary shadow-lg shadow-primary/10 lg:-mt-3"
-                : "relative"
+                : "relative transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-card-hover"
             }
           >
             {highlight && (

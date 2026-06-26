@@ -10,7 +10,8 @@ export async function Features() {
   return (
     <section className="container py-20 lg:py-28">
       <div className="max-w-2xl">
-        <h2 className="text-balance font-heading text-3xl font-bold tracking-tight md:text-4xl">
+        <span className="eyebrow">{t.features.eyebrow}</span>
+        <h2 className="mt-4 text-balance font-heading text-3xl font-bold tracking-tight md:text-4xl">
           {t.features.title}
         </h2>
         <p className="mt-4 text-pretty text-lg leading-relaxed text-muted-foreground">
@@ -19,7 +20,7 @@ export async function Features() {
       </div>
 
       <div className="mt-12 grid gap-5 lg:grid-cols-3 lg:grid-rows-2">
-        <Card className="flex flex-col justify-between lg:col-span-2 lg:row-span-2">
+        <Card className="flex flex-col justify-between transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-card-hover lg:col-span-2 lg:row-span-2">
           <CardContent className="flex h-full flex-col justify-between gap-10 p-8">
             <div>
               <FeatureIcon>
@@ -67,7 +68,7 @@ function FeatureCard({
   body: string;
 }) {
   return (
-    <Card>
+    <Card className="transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-card-hover">
       <CardContent className="p-7">
         <FeatureIcon>{icon}</FeatureIcon>
         <h3 className="mt-6 font-heading text-xl font-bold">{title}</h3>

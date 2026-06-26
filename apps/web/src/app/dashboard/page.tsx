@@ -32,7 +32,7 @@ export default async function GuildsPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {guilds.map((guild) => (
             <Link key={guild.id} href={`/dashboard/${guild.id}/forms` as Route} className="group">
-              <Card className="flex h-full flex-col gap-4 p-5 transition-all group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:shadow-md">
+              <Card className="flex h-full flex-col gap-4 p-5 transition-all group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:shadow-card-hover">
                 <div className="flex items-center gap-3">
                   {guild.icon ? (
                     <img src={guild.icon} alt="" width={44} height={44} className="rounded-lg" />
