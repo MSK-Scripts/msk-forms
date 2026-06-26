@@ -11,12 +11,12 @@ export function Checkbox({ label, className = "", id, ...props }: CheckboxProps)
   return (
     <label
       htmlFor={id}
-      className="flex cursor-pointer items-start gap-2.5 text-sm text-foreground"
+      className="flex cursor-pointer items-start gap-2.5 py-1 text-sm text-foreground"
     >
       <input
         id={id}
         type="checkbox"
-        className={`mt-0.5 h-4 w-4 shrink-0 accent-primary ${className}`}
+        className={`h-5 w-5 shrink-0 accent-primary ${className}`}
         {...props}
       />
       <span className="text-muted-foreground">{label}</span>

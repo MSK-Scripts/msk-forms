@@ -52,7 +52,7 @@ export async function SiteFooter() {
 
   return (
     <footer className="mt-16 border-t border-border bg-muted/30">
-      <div className="container py-12">
+      <div className="container pwa-safe-b pt-12">
         <div className="flex flex-col gap-10 lg:flex-row lg:justify-between">
           <div className="max-w-sm">
             <Wordmark />

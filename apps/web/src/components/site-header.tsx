@@ -32,7 +32,7 @@ export async function SiteHeader({ user }: { user: HeaderUser | null }) {
   const dashboardHref = `${onCustomDomain ? appBaseUrl() : ""}/dashboard`;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="pwa-safe-top sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
           <a href="/" aria-label="MSK Forms home">
