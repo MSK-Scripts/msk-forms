@@ -7,11 +7,17 @@ import { z } from "zod";
  */
 const snowflake = z.string().regex(/^\d{17,20}$/, "Enter a valid Discord ID.");
 
+/** App locales the bot can speak per guild (command replies, embeds, logs). */
+export const BOT_LOCALES = ["en", "de", "hu", "fr", "es", "pt", "pl"] as const;
+export type BotLocale = (typeof BOT_LOCALES)[number];
+
 export const botConfigSchema = z.object({
   /** Channel that receives the "new submission" review embed. */
   reviewChannelId: snowflake.optional(),
   /** Channel that receives the guild activity log (every tracked event). */
   logChannelId: snowflake.optional(),
+  /** Language the bot uses for this guild's command replies/embeds/logs. */
+  locale: z.enum(BOT_LOCALES).optional(),
   /** Legacy single accepted role (still read for backward compatibility). */
   acceptedRoleId: snowflake.optional(),
   /** Roles granted to the applicant when a submission is accepted. */

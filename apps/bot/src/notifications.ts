@@ -17,6 +17,7 @@ import {
 } from "discord.js";
 
 import { config } from "./config.js";
+import { fmt, guildStrings } from "./guild-i18n.js";
 import { dmStrings, localizedStatus } from "./i18n.js";
 import { postBranded } from "./posting.js";
 import { grantAcceptedRole } from "./roles.js";
@@ -43,14 +44,16 @@ type PendingRow = {
 };
 
 /** A status-change or message DM, localized to the applicant's locale. */
-function buildMessage(row: PendingRow): {
+function buildMessage(
+  row: PendingRow,
+  locale: string | undefined,
+): {
   embeds: EmbedBuilder[];
   components: ActionRowBuilder<ButtonBuilder>[];
 } | null {
   const payload = row.payload as Partial<StatusChangeNotification & MessageNotification>;
   if (!payload?.submissionId) return null;
 
-  const locale = row.user?.locale;
   const s = dmStrings(locale);
   const url = statusUrl(config.apiBaseUrl, payload.submissionId);
   const embed = new EmbedBuilder()
@@ -89,10 +92,11 @@ async function deliverReview(client: Client, row: PendingRow): Promise<boolean> 
     where: { id: payload.submissionId },
     select: { form: { select: { settings: true } }, guild: { select: { botConfig: true } } },
   });
+  const botCfg = parseBotConfig(sub?.guild.botConfig);
   const channelId =
-    parseFormSettings(sub?.form.settings).reviewChannelId ??
-    parseBotConfig(sub?.guild.botConfig).reviewChannelId;
+    parseFormSettings(sub?.form.settings).reviewChannelId ?? botCfg.reviewChannelId;
   if (!channelId) return true; // no review channel configured → nothing to do
+  const s = guildStrings(botCfg.locale);
 
   try {
     const channel = await client.channels.fetch(channelId);
@@ -102,12 +106,12 @@ async function deliverReview(client: Client, row: PendingRow): Promise<boolean> 
     }
 
     const url = dashboardSubmissionUrl(config.apiBaseUrl, row.guildId, payload.submissionId);
-    const lines = [`**Applicant:** ${payload.applicantName ?? "Anonymous"}`];
+    const lines = [`**${s.applicant}:** ${payload.applicantName ?? s.anonymous}`];
     if (payload.preview?.length) lines.push("", ...payload.preview.map((l) => `• ${l}`));
 
     const embed = new EmbedBuilder()
       .setColor(MSK_GREEN)
-      .setTitle(`New submission — ${payload.formTitle ?? "form"}`)
+      .setTitle(fmt(s.reviewTitle, { form: payload.formTitle ?? "form" }))
       .setURL(url)
       .setDescription(lines.join("\n").slice(0, 4000))
       .setFooter({ text: "MSK Forms" });
@@ -116,12 +120,12 @@ async function deliverReview(client: Client, row: PendingRow): Promise<boolean> 
       new ButtonBuilder()
         .setCustomId(`sub:accept:${payload.submissionId}`)
         .setStyle(ButtonStyle.Success)
-        .setLabel("Accept"),
+        .setLabel(s.btnAccept),
       new ButtonBuilder()
         .setCustomId(`sub:reject:${payload.submissionId}`)
         .setStyle(ButtonStyle.Danger)
-        .setLabel("Reject"),
-      new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Open in dashboard").setURL(url),
+        .setLabel(s.btnReject),
+      new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel(s.btnOpenDashboard).setURL(url),
     );
 
     await postBranded(channel, row.guildId, { embeds: [embed], components: [buttons] });
@@ -170,8 +174,10 @@ async function deliverLog(client: Client, row: PendingRow): Promise<boolean> {
     where: { id: row.guildId },
     select: { botConfig: true },
   });
-  const channelId = parseBotConfig(guild?.botConfig).logChannelId;
+  const botCfg = parseBotConfig(guild?.botConfig);
+  const channelId = botCfg.logChannelId;
   if (!channelId) return true; // no log channel configured → nothing to do
+  const s = guildStrings(botCfg.locale);
 
   const meta = LOG_PRESENTATION[payload.action] ?? {
     emoji: "•",
@@ -187,23 +193,26 @@ async function deliverLog(client: Client, row: PendingRow): Promise<boolean> {
     }
 
     const fields: { name: string; value: string; inline?: boolean }[] = [];
-    if (payload.formTitle) fields.push({ name: "Form", value: payload.formTitle, inline: true });
+    if (payload.formTitle)
+      fields.push({ name: s.logField.form, value: payload.formTitle, inline: true });
     if (payload.applicantName)
-      fields.push({ name: "Applicant", value: payload.applicantName, inline: true });
-    if (payload.actorName) fields.push({ name: "By", value: payload.actorName, inline: true });
+      fields.push({ name: s.logField.applicant, value: payload.applicantName, inline: true });
+    if (payload.actorName)
+      fields.push({ name: s.logField.by, value: payload.actorName, inline: true });
     if (payload.action === "status_changed" && payload.toStatus) {
       const to = payload.toStatusLabel ?? payload.toStatus;
       fields.push({
-        name: "Status",
+        name: s.logField.status,
         value: payload.fromStatus ? `${payload.fromStatus} → ${to}` : to,
         inline: true,
       });
     }
-    if (payload.detail) fields.push({ name: "Details", value: payload.detail.slice(0, 1024) });
+    if (payload.detail)
+      fields.push({ name: s.logField.details, value: payload.detail.slice(0, 1024) });
 
     const embed = new EmbedBuilder()
       .setColor(meta.color)
-      .setTitle(`${meta.emoji} ${meta.title}`)
+      .setTitle(`${meta.emoji} ${s.log[payload.action!] ?? meta.title}`)
       .setFooter({ text: "MSK Forms" })
       .setTimestamp();
     if (fields.length) embed.addFields(fields);
@@ -213,7 +222,7 @@ async function deliverLog(client: Client, row: PendingRow): Promise<boolean> {
       const url = dashboardSubmissionUrl(config.apiBaseUrl, row.guildId, payload.submissionId);
       components.push(
         new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Open in dashboard").setURL(url),
+          new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel(s.btnOpenDashboard).setURL(url),
         ),
       );
     }
@@ -242,7 +251,21 @@ async function deliverOne(client: Client, row: PendingRow): Promise<boolean> {
   const discordId = row.user?.discordId;
   if (!discordId) return true;
 
-  const message = buildMessage(row);
+  // DM in the applicant's own locale; fall back to the guild's configured bot
+  // language when the applicant has none (rare — OAuth users always have one).
+  let dmLocale = row.user?.locale || undefined;
+  if (!dmLocale) {
+    const p = row.payload as { submissionId?: string };
+    if (p.submissionId) {
+      const sub = await prisma.submission.findUnique({
+        where: { id: p.submissionId },
+        select: { guild: { select: { botConfig: true } } },
+      });
+      dmLocale = parseBotConfig(sub?.guild.botConfig).locale || undefined;
+    }
+  }
+
+  const message = buildMessage(row, dmLocale);
   if (!message) {
     console.warn(`[bot] notification ${row.id} has an unrecognised payload — dropping.`);
     return true;

@@ -9,6 +9,16 @@ import type { Dictionary } from "@/i18n";
 
 type BotDict = Dictionary["botConfig"];
 
+const LOCALE_OPTIONS = [
+  { value: "en", label: "English" },
+  { value: "de", label: "Deutsch" },
+  { value: "hu", label: "Magyar" },
+  { value: "fr", label: "Français" },
+  { value: "es", label: "Español" },
+  { value: "pt", label: "Português" },
+  { value: "pl", label: "Polski" },
+] as const;
+
 export function BotConfigForm({
   guildId,
   initial,
@@ -21,6 +31,7 @@ export function BotConfigForm({
   const router = useRouter();
   const [channel, setChannel] = useState(initial.reviewChannelId ?? "");
   const [logChannel, setLogChannel] = useState(initial.logChannelId ?? "");
+  const [locale, setLocale] = useState<string>(initial.locale ?? "en");
   const [role, setRole] = useState(acceptedRoleIdsOf(initial).join(", "));
   const [postName, setPostName] = useState(initial.postName ?? "");
   const [saving, setSaving] = useState(false);
@@ -35,6 +46,7 @@ export function BotConfigForm({
       const body: Record<string, unknown> = {};
       if (channel.trim()) body.reviewChannelId = channel.trim();
       if (logChannel.trim()) body.logChannelId = logChannel.trim();
+      body.locale = locale;
       const roleIds = parseIdList(role);
       if (roleIds.length > 0) body.acceptedRoleIds = roleIds;
       if (postName.trim()) body.postName = postName.trim();
@@ -68,6 +80,22 @@ export function BotConfigForm({
       </Field>
       <Field label={t.logChannel} hint={t.logChannelHint}>
         <Input value={logChannel} placeholder="123456789012345678" onChange={onEdit(setLogChannel)} />
+      </Field>
+      <Field label={t.language} hint={t.languageHint}>
+        <select
+          value={locale}
+          onChange={(e) => {
+            setLocale(e.target.value);
+            setSaved(false);
+          }}
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        >
+          {LOCALE_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
       </Field>
       <Field label={t.acceptedRole} hint={t.acceptedRoleHint}>
         <Input value={role} placeholder="123456789012345678" onChange={onEdit(setRole)} />

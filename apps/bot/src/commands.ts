@@ -37,6 +37,26 @@ export const commands = [
     .addSubcommand((sub) =>
       sub.setName("setup").setDescription("Open the dashboard to configure forms"),
     )
+    .addSubcommand((sub) =>
+      sub
+        .setName("language")
+        .setDescription("Set the bot's language for this server (managers only)")
+        .addStringOption((opt) =>
+          opt
+            .setName("locale")
+            .setDescription("Language")
+            .setRequired(true)
+            .addChoices(
+              { name: "English", value: "en" },
+              { name: "Deutsch", value: "de" },
+              { name: "Magyar", value: "hu" },
+              { name: "Français", value: "fr" },
+              { name: "Español", value: "es" },
+              { name: "Português", value: "pt" },
+              { name: "Polski", value: "pl" },
+            ),
+        ),
+    )
     .toJSON(),
 ];
 
