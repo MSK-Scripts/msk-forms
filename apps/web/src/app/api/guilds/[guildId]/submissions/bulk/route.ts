@@ -68,6 +68,8 @@ export async function POST(
       submissionId: sub.id,
       toStatus: status,
       actorUserId: user.id,
+      actorName: user.username,
+      toStatusLabel: label,
       notify: sub.userId && notify ? { userId: sub.userId, type: "status_change", payload: notify } : null,
     });
     if (res.changed) changed++;

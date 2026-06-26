@@ -1,4 +1,4 @@
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -151,6 +151,12 @@ export async function handleFormsCommand(
     );
 
     await postBranded(channel, guildId, { embeds: [embed], components: [row] });
+    await logGuildActivitySafe(guildId, {
+      action: "form_posted",
+      actorName: interaction.user.username,
+      formTitle: form.title,
+      detail: `Posted in #${channel.name}`,
+    });
     await interaction.reply({
       content: `✅ Posted **${form.title}** in <#${channel.id}>.`,
       flags: MessageFlags.Ephemeral,

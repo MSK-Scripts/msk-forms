@@ -1,4 +1,4 @@
-import { Prisma, prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, Prisma, prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
@@ -63,6 +63,11 @@ export async function PATCH(
         version: { increment: 1 },
       },
     });
+    await logGuildActivitySafe(guildId, {
+      action: "form_updated",
+      actorName: user.username,
+      formTitle: input.title,
+    });
     return NextResponse.json({ id: formId });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
@@ -91,7 +96,7 @@ export async function DELETE(
 
   const existing = await prisma.form.findUnique({
     where: { id: formId },
-    select: { guildId: true },
+    select: { guildId: true, title: true },
   });
   if (!existing || existing.guildId !== guildId) {
     return NextResponse.json({ error: "Form not found." }, { status: 404 });
@@ -105,6 +110,12 @@ export async function DELETE(
 
   await prisma.form.delete({ where: { id: formId } });
   await Promise.all(files.map((f) => deleteObject(f.storageKey)));
+
+  await logGuildActivitySafe(guildId, {
+    action: "form_deleted",
+    actorName: user.username,
+    formTitle: existing.title,
+  });
 
   return NextResponse.json({ ok: true });
 }

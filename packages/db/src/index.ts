@@ -24,3 +24,4 @@ if (process.env.NODE_ENV !== "production") {
 export * from "./generated/prisma/client";
 export * from "./submission-status";
 export * from "./webhooks";
+export * from "./guild-log";

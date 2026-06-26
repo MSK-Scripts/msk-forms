@@ -1,4 +1,4 @@
-import { Prisma, prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, Prisma, prisma } from "@msk-forms/db";
 import { botConfigSchema } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -32,6 +32,10 @@ export async function PATCH(
   await prisma.guild.update({
     where: { id: guildId },
     data: { botConfig: parsed.data as Prisma.InputJsonValue },
+  });
+  await logGuildActivitySafe(guildId, {
+    action: "bot_config_updated",
+    actorName: user.username,
   });
   return NextResponse.json({ ok: true });
 }

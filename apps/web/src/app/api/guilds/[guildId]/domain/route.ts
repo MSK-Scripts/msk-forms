@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { customDomainSchema } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -67,6 +67,11 @@ export async function PATCH(
       ...(unchanged ? {} : { customDomainVerifiedAt: null }),
     },
   });
+  await logGuildActivitySafe(guildId, {
+    action: "domain_updated",
+    actorName: user.username,
+    detail: `Set to ${domain}`,
+  });
   return NextResponse.json({ ok: true, token });
 }
 
@@ -90,6 +95,12 @@ export async function DELETE(
 
   // Drop the domain's Apache vhost promptly rather than on the next timer tick.
   await requestDomainSync();
+
+  await logGuildActivitySafe(guildId, {
+    action: "domain_updated",
+    actorName: user.username,
+    detail: "Removed",
+  });
 
   return NextResponse.json({ ok: true });
 }

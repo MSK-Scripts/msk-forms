@@ -1,4 +1,4 @@
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { clientIp, rateLimit } from "@/lib/rate-limit";
@@ -24,7 +24,12 @@ export async function DELETE(
 
   const submission = await prisma.submission.findUnique({
     where: { id },
-    select: { files: { select: { storageKey: true } } },
+    select: {
+      guildId: true,
+      files: { select: { storageKey: true } },
+      form: { select: { title: true } },
+      user: { select: { username: true } },
+    },
   });
   if (!submission) return NextResponse.json({ error: "Not found." }, { status: 404 });
 
@@ -34,6 +39,14 @@ export async function DELETE(
   const keys = submission.files.map((f) => f.storageKey);
   await prisma.submission.delete({ where: { id } });
   await Promise.all(keys.map((key) => deleteObject(key)));
+
+  // Activity log: the applicant erased their submission (no link — it's gone).
+  await logGuildActivitySafe(submission.guildId, {
+    action: "submission_deleted",
+    actorName: submission.user?.username ?? "Applicant",
+    applicantName: submission.user?.username ?? "Anonymous",
+    formTitle: submission.form.title,
+  });
 
   return NextResponse.json({ ok: true });
 }

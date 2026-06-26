@@ -2,6 +2,7 @@ import { prisma } from "@msk-forms/db";
 import {
   parseBotConfig,
   parseFormSettings,
+  type LogNotification,
   type MessageNotification,
   type StatusChangeNotification,
   type SubmissionReviewNotification,
@@ -22,6 +23,8 @@ import { grantAcceptedRole } from "./roles.js";
 import { dashboardSubmissionUrl, statusUrl } from "./urls.js";
 
 const MSK_GREEN = 0x00e676;
+const LOG_RED = 0xff5252;
+const LOG_BLURPLE = 0x5865f2;
 const BATCH = 25;
 /** Discord error code: "Cannot send messages to this user" (DMs closed / no mutual guild). */
 const CANNOT_DM = 50007;
@@ -133,6 +136,100 @@ async function deliverReview(client: Client, row: PendingRow): Promise<boolean> 
   }
 }
 
+/** Per-action presentation for the guild activity log: emoji, title, colour. */
+const LOG_PRESENTATION: Record<string, { emoji: string; title: string; color: number }> = {
+  submission_created: { emoji: "📝", title: "New submission", color: MSK_GREEN },
+  status_changed: { emoji: "🔄", title: "Status changed", color: LOG_BLURPLE },
+  message_sent: { emoji: "💬", title: "Message sent to applicant", color: LOG_BLURPLE },
+  submission_withdrawn: { emoji: "↩️", title: "Submission withdrawn", color: LOG_RED },
+  submission_deleted: { emoji: "🗑️", title: "Submission deleted", color: LOG_RED },
+  role_granted: { emoji: "✅", title: "Role granted", color: MSK_GREEN },
+  form_created: { emoji: "✨", title: "Form created", color: MSK_GREEN },
+  form_updated: { emoji: "✏️", title: "Form updated", color: LOG_BLURPLE },
+  form_deleted: { emoji: "🗑️", title: "Form deleted", color: LOG_RED },
+  form_posted: { emoji: "📤", title: "Form posted", color: LOG_BLURPLE },
+  member_added: { emoji: "➕", title: "Member added", color: MSK_GREEN },
+  member_role_changed: { emoji: "👤", title: "Member role changed", color: LOG_BLURPLE },
+  member_removed: { emoji: "➖", title: "Member removed", color: LOG_RED },
+  bot_config_updated: { emoji: "⚙️", title: "Bot config updated", color: LOG_BLURPLE },
+  branding_updated: { emoji: "🎨", title: "Branding updated", color: LOG_BLURPLE },
+  domain_updated: { emoji: "🌐", title: "Domain updated", color: LOG_BLURPLE },
+};
+
+/**
+ * Post one activity-log entry to the guild's configured log channel. Drops
+ * (marks read) when there's no guild, no configured log channel, or the channel
+ * is permanently unreachable; retries on transient errors.
+ */
+async function deliverLog(client: Client, row: PendingRow): Promise<boolean> {
+  if (!row.guildId) return true;
+  const payload = row.payload as Partial<LogNotification>;
+  if (!payload?.action) return true;
+
+  const guild = await prisma.guild.findUnique({
+    where: { id: row.guildId },
+    select: { botConfig: true },
+  });
+  const channelId = parseBotConfig(guild?.botConfig).logChannelId;
+  if (!channelId) return true; // no log channel configured → nothing to do
+
+  const meta = LOG_PRESENTATION[payload.action] ?? {
+    emoji: "•",
+    title: payload.action,
+    color: LOG_BLURPLE,
+  };
+
+  try {
+    const channel = await client.channels.fetch(channelId);
+    if (!channel?.isTextBased() || !channel.isSendable()) {
+      console.warn(`[bot] log channel ${channelId} not usable — dropping ${row.id}.`);
+      return true;
+    }
+
+    const fields: { name: string; value: string; inline?: boolean }[] = [];
+    if (payload.formTitle) fields.push({ name: "Form", value: payload.formTitle, inline: true });
+    if (payload.applicantName)
+      fields.push({ name: "Applicant", value: payload.applicantName, inline: true });
+    if (payload.actorName) fields.push({ name: "By", value: payload.actorName, inline: true });
+    if (payload.action === "status_changed" && payload.toStatus) {
+      const to = payload.toStatusLabel ?? payload.toStatus;
+      fields.push({
+        name: "Status",
+        value: payload.fromStatus ? `${payload.fromStatus} → ${to}` : to,
+        inline: true,
+      });
+    }
+    if (payload.detail) fields.push({ name: "Details", value: payload.detail.slice(0, 1024) });
+
+    const embed = new EmbedBuilder()
+      .setColor(meta.color)
+      .setTitle(`${meta.emoji} ${meta.title}`)
+      .setFooter({ text: "MSK Forms" })
+      .setTimestamp();
+    if (fields.length) embed.addFields(fields);
+
+    const components: ActionRowBuilder<ButtonBuilder>[] = [];
+    if (payload.submissionId) {
+      const url = dashboardSubmissionUrl(config.apiBaseUrl, row.guildId, payload.submissionId);
+      components.push(
+        new ActionRowBuilder<ButtonBuilder>().addComponents(
+          new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Open in dashboard").setURL(url),
+        ),
+      );
+    }
+
+    await postBranded(channel, row.guildId, { embeds: [embed], components });
+    return true;
+  } catch (err) {
+    if (err instanceof DiscordAPIError && CHANNEL_GONE.includes(Number(err.code))) {
+      console.warn(`[bot] log channel ${channelId} gone (${err.code}) — dropping ${row.id}.`);
+      return true;
+    }
+    console.error(`[bot] failed to post log entry to ${channelId}:`, err);
+    return false;
+  }
+}
+
 /**
  * Try to deliver one notification. Returns true when the row should be marked
  * read — on success, when there's no recipient, or on a permanent "can't DM"
@@ -140,6 +237,7 @@ async function deliverReview(client: Client, row: PendingRow): Promise<boolean> 
  */
 async function deliverOne(client: Client, row: PendingRow): Promise<boolean> {
   if (row.type === "submission_review") return deliverReview(client, row);
+  if (row.type === "log") return deliverLog(client, row);
 
   const discordId = row.user?.discordId;
   if (!discordId) return true;
@@ -180,7 +278,10 @@ export async function deliverPendingNotifications(client: Client): Promise<void>
   running = true;
   try {
     const pending = (await prisma.notification.findMany({
-      where: { readAt: null, type: { in: ["status_change", "message", "submission_review"] } },
+      where: {
+        readAt: null,
+        type: { in: ["status_change", "message", "submission_review", "log"] },
+      },
       orderBy: { createdAt: "asc" },
       take: BATCH,
       select: {

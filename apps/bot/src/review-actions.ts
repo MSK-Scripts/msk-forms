@@ -72,6 +72,8 @@ export async function handleReviewButton(interaction: ButtonInteraction): Promis
   const { changed } = await changeSubmissionStatus({
     submissionId,
     toStatus,
+    actorName: interaction.user.username,
+    toStatusLabel: statusLabel(toStatus),
     notify:
       submission.userId && notify
         ? { userId: submission.userId, type: "status_change", payload: notify }

@@ -10,6 +10,8 @@ const snowflake = z.string().regex(/^\d{17,20}$/, "Enter a valid Discord ID.");
 export const botConfigSchema = z.object({
   /** Channel that receives the "new submission" review embed. */
   reviewChannelId: snowflake.optional(),
+  /** Channel that receives the guild activity log (every tracked event). */
+  logChannelId: snowflake.optional(),
   /** Legacy single accepted role (still read for backward compatibility). */
   acceptedRoleId: snowflake.optional(),
   /** Roles granted to the applicant when a submission is accepted. */
