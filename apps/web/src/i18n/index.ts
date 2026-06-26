@@ -4,7 +4,7 @@ import { dictionaries, type Dictionary, type Locale } from "./dictionaries";
 
 export type { Dictionary, Locale } from "./dictionaries";
 
-export const locales: Locale[] = ["en", "de", "hu"];
+export const locales: Locale[] = ["en", "de", "hu", "fr", "es", "pt", "pl"];
 export const defaultLocale: Locale = "en";
 export const LOCALE_COOKIE = "NEXT_LOCALE";
 
