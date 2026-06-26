@@ -45,9 +45,9 @@ export async function SiteFooter() {
     { label: "MSK Shortener", href: "https://s.msk-scripts.de/" },
   ];
   const legal: FooterLink[] = [
-    { label: t.footer.imprint, href: "https://www.msk-scripts.de/terms/imprint" },
-    { label: t.footer.privacy, href: "https://www.msk-scripts.de/terms/privacy" },
-    { label: t.footer.terms, href: "https://www.msk-scripts.de/terms" },
+    { label: t.footer.imprint, href: "/terms/imprint" },
+    { label: t.footer.privacy, href: "/terms/privacy" },
+    { label: t.footer.terms, href: "/terms" },
   ];
 
   return (
