@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { headers } from "next/headers";
 
+import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -28,10 +29,31 @@ const DEFAULT_METADATA: Metadata = {
   title: "MSK Forms: application forms with a status loop",
   description:
     "Build application forms, collect submissions, and let applicants track their status live. With a Discord bot any server can invite.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "MSK Forms",
+    statusBarStyle: "default",
+  },
   icons: {
     icon: "/favicon.ico",
-    apple: "/logo.png",
+    apple: "/icons/apple-touch-icon.png",
   },
+};
+
+/**
+ * Theme color follows the system scheme so the mobile browser/PWA title bar
+ * matches light/dark. `viewport-fit=cover` lets safe-area insets apply on
+ * notched phones (used by sticky headers / bottom bars).
+ */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f6f6f6" },
+    { media: "(prefers-color-scheme: dark)", color: "#171717" },
+  ],
 };
 
 /**
@@ -78,6 +100,7 @@ export default async function RootLayout({
             <SiteFooter />
           </div>
         </ThemeProvider>
+        <ServiceWorkerRegister />
       </body>
     </html>
   );

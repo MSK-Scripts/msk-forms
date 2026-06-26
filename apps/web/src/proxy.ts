@@ -31,6 +31,10 @@ export function proxy(request: NextRequest) {
     `base-uri 'self'`,
     `form-action 'self'`,
     `object-src 'none'`,
+    // PWA: the web app manifest and the service worker are same-origin. Declared
+    // explicitly so browsers don't fall back to default-src/script-src for them.
+    `manifest-src 'self'`,
+    `worker-src 'self'`,
     `upgrade-insecure-requests`,
   ].join("; ");
 
@@ -53,7 +57,7 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     {
-      source: "/((?!_next/static|_next/image|favicon.ico).*)",
+      source: "/((?!_next/static|_next/image|favicon.ico|sw.js|manifest.webmanifest).*)",
     },
   ],
 };
