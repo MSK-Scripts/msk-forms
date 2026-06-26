@@ -2,6 +2,11 @@ export type Locale = "en" | "de" | "hu" | "fr" | "es" | "pt" | "pl";
 
 const en = {
   header: { login: "Log in", dashboard: "Dashboard", logout: "Log out", toggleTheme: "Toggle theme", language: "Language" },
+  pwa: {
+    offlineTitle: "You're offline",
+    offlineBody: "This page needs a connection. Reconnect and try again.",
+    retry: "Try again",
+  },
   footer: {
     tagline: "Application forms with a real status loop, by MSK Scripts.",
     product: "Product", ecosystem: "Ecosystem", legal: "Legal",
@@ -487,6 +492,11 @@ export type Dictionary = typeof en;
 
 const de: Dictionary = {
   header: { login: "Anmelden", dashboard: "Dashboard", logout: "Abmelden", toggleTheme: "Theme wechseln", language: "Sprache" },
+  pwa: {
+    offlineTitle: "Du bist offline",
+    offlineBody: "Diese Seite braucht eine Verbindung. Stelle sie wieder her und versuche es erneut.",
+    retry: "Erneut versuchen",
+  },
   footer: {
     tagline: "Formulare mit echtem Status-Loop, von MSK Scripts.",
     product: "Produkt", ecosystem: "Ökosystem", legal: "Rechtliches",
@@ -968,6 +978,11 @@ const de: Dictionary = {
 
 const hu: Dictionary = {
   header: { login: "Bejelentkezés", dashboard: "Vezérlőpult", logout: "Kijelentkezés", toggleTheme: "Téma váltása", language: "Nyelv" },
+  pwa: {
+    offlineTitle: "Nincs internetkapcsolat",
+    offlineBody: "Ehhez az oldalhoz kapcsolat szükséges. Csatlakozz újra, és próbáld meg ismét.",
+    retry: "Újrapróbálkozás",
+  },
   footer: {
     tagline: "Jelentkezési űrlapok valódi állapotkövetéssel, a MSK Scripts-től.",
     product: "Termék", ecosystem: "Ökoszisztéma", legal: "Jogi információk",
@@ -1449,6 +1464,11 @@ const hu: Dictionary = {
 
 const fr: Dictionary = {
   header: { login: "Connexion", dashboard: "Tableau de bord", logout: "Déconnexion", toggleTheme: "Changer de thème", language: "Langue" },
+  pwa: {
+    offlineTitle: "Vous êtes hors ligne",
+    offlineBody: "Cette page nécessite une connexion. Reconnectez-vous et réessayez.",
+    retry: "Réessayer",
+  },
   footer: {
     tagline: "Formulaires de candidature avec un vrai suivi de statut, par MSK Scripts.",
     product: "Produit", ecosystem: "Écosystème", legal: "Mentions légales",
@@ -1931,6 +1951,11 @@ const fr: Dictionary = {
 
 const es: Dictionary = {
   header: { login: "Iniciar sesión", dashboard: "Dashboard", logout: "Cerrar sesión", toggleTheme: "Cambiar tema", language: "Idioma" },
+  pwa: {
+    offlineTitle: "Estás sin conexión",
+    offlineBody: "Esta página necesita conexión. Vuelve a conectarte e inténtalo de nuevo.",
+    retry: "Reintentar",
+  },
   footer: {
     tagline: "Formularios de solicitud con seguimiento de estado real, por MSK Scripts.",
     product: "Producto", ecosystem: "Ecosistema", legal: "Legal",
@@ -2413,6 +2438,11 @@ const es: Dictionary = {
 
 const pt: Dictionary = {
   header: { login: "Entrar", dashboard: "Painel", logout: "Sair", toggleTheme: "Alternar tema", language: "Idioma" },
+  pwa: {
+    offlineTitle: "Você está offline",
+    offlineBody: "Esta página precisa de conexão. Reconecte-se e tente novamente.",
+    retry: "Tentar novamente",
+  },
   footer: {
     tagline: "Formulários de candidatura com acompanhamento de status real, by MSK Scripts.",
     product: "Produto", ecosystem: "Ecossistema", legal: "Legal",
@@ -2895,6 +2925,11 @@ const pt: Dictionary = {
 
 const pl: Dictionary = {
   header: { login: "Zaloguj się", dashboard: "Panel", logout: "Wyloguj się", toggleTheme: "Zmień motyw", language: "Język" },
+  pwa: {
+    offlineTitle: "Jesteś offline",
+    offlineBody: "Ta strona wymaga połączenia. Połącz się ponownie i spróbuj jeszcze raz.",
+    retry: "Spróbuj ponownie",
+  },
   footer: {
     tagline: "Formularze zgłoszeniowe z prawdziwą pętlą statusu, od MSK Scripts.",
     product: "Produkt", ecosystem: "Ekosystem", legal: "Informacje prawne",
