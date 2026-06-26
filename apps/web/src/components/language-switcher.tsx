@@ -8,6 +8,10 @@ const LOCALES = [
   { value: "en", short: "EN", label: "English" },
   { value: "de", short: "DE", label: "Deutsch" },
   { value: "hu", short: "HU", label: "Magyar" },
+  { value: "fr", short: "FR", label: "Français" },
+  { value: "es", short: "ES", label: "Español" },
+  { value: "pt", short: "PT", label: "Português" },
+  { value: "pl", short: "PL", label: "Polski" },
 ] as const;
 
 export function LanguageSwitcher({ locale }: { locale: string }) {
