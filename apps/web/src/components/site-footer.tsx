@@ -36,7 +36,7 @@ export async function SiteFooter() {
   const product: FooterLink[] = [
     { label: t.pricing.nav, href: "/pricing" },
     { label: t.footer.demoForm, href: "/f/demo-whitelist" },
-    { label: t.footer.documentation, href: "https://docu.msk-scripts.de" },
+    { label: t.footer.documentation, href: "https://docu.msk-scripts.de/ecosystem/msk-forms" },
     { label: t.footer.github, href: "https://github.com/MSK-Scripts" },
   ];
   const ecosystem: FooterLink[] = [
