@@ -1,0 +1,13 @@
+{
+  "common": {
+    "submit": "Beküldés",
+    "cancel": "Mégse",
+    "save": "Mentés"
+  },
+  "status": {
+    "submitted": "Beküldve",
+    "in_review": "Elbírálás alatt",
+    "accepted": "Elfogadva",
+    "rejected": "Elutasítva"
+  }
+}

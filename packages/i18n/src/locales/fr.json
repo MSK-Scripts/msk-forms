@@ -1,0 +1,13 @@
+{
+  "common": {
+    "submit": "Envoyer",
+    "cancel": "Annuler",
+    "save": "Enregistrer"
+  },
+  "status": {
+    "submitted": "Envoyé",
+    "in_review": "En cours d'examen",
+    "accepted": "Accepté",
+    "rejected": "Refusé"
+  }
+}

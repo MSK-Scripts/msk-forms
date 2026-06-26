@@ -135,7 +135,16 @@ export function discordAvatarUrl(user: DiscordUser): string | null {
   return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${ext}?size=128`;
 }
 
-/** Map a Discord locale to one of our supported app locales. */
-export function mapLocale(locale: string | undefined): "de" | "en" {
-  return locale?.toLowerCase().startsWith("de") ? "de" : "en";
+/** Map a Discord locale (e.g. "de", "pt-BR", "es-ES") to one of our 7 app locales. */
+export function mapLocale(
+  locale: string | undefined,
+): "en" | "de" | "hu" | "fr" | "es" | "pt" | "pl" {
+  const l = locale?.toLowerCase() ?? "";
+  if (l.startsWith("de")) return "de";
+  if (l.startsWith("hu")) return "hu";
+  if (l.startsWith("fr")) return "fr";
+  if (l.startsWith("es")) return "es";
+  if (l.startsWith("pt")) return "pt";
+  if (l.startsWith("pl")) return "pl";
+  return "en";
 }
