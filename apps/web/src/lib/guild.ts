@@ -104,6 +104,7 @@ export async function getUserGuilds(userId: string) {
           id: true,
           name: true,
           icon: true,
+          branding: true,
           _count: { select: { forms: true, submissions: true } },
         },
       },
@@ -122,7 +123,7 @@ export async function requireGuildMembership(guildId: string, userId: string) {
     where: { guildId_userId: { guildId, userId } },
     select: {
       role: true,
-      guild: { select: { id: true, name: true, icon: true } },
+      guild: { select: { id: true, name: true, icon: true, branding: true } },
     },
   });
   if (!membership) notFound();
