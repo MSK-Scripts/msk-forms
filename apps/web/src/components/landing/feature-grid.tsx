@@ -10,7 +10,8 @@ export async function FeatureGrid() {
   return (
     <section className="container py-20 lg:py-24">
       <div className="mx-auto max-w-2xl text-center">
-        <h2 className="text-balance font-heading text-3xl font-bold tracking-tight md:text-4xl">
+        <span className="eyebrow justify-center">{t.eyebrow}</span>
+        <h2 className="mt-4 text-balance font-heading text-3xl font-bold tracking-tight md:text-4xl">
           {t.title}
         </h2>
         <p className="mt-4 text-pretty text-lg leading-relaxed text-muted-foreground">{t.sub}</p>

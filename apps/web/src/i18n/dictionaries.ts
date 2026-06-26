@@ -17,6 +17,7 @@ const en = {
     inviteBot: "Invite the bot",
   },
   features: {
+    eyebrow: "Why MSK Forms",
     title: "The part most form tools skip.",
     sub: "A form is easy. Telling people what happened after they hit submit is the hard part. That is the whole point of MSK Forms.",
     uspTitle: "Applicants always know where they stand.",
@@ -29,6 +30,7 @@ const en = {
     buildBody: "Compose forms from typed fields: text, choices, dates, consent. Ready in seconds.",
   },
   featureGrid: {
+    eyebrow: "Feature set",
     title: "Everything you need to run applications",
     sub: "From the form to the decision — and the applicant follows along live.",
     items: [
@@ -51,6 +53,7 @@ const en = {
     ],
   },
   steps: {
+    eyebrow: "How it works",
     title: "From zero to live in three steps.",
     build: "Build", buildBody: "Drop in the fields you need and set who can submit.",
     share: "Share", shareBody: "Publish a link or post the form to Discord with the bot.",
@@ -63,6 +66,7 @@ const en = {
   },
   pricing: {
     nav: "Pricing",
+    eyebrow: "Plans",
     title: "Pricing that scales with your server.",
     sub: "Start free. Upgrade a guild whenever it outgrows the free limits.",
     perMonth: "/month",
@@ -490,6 +494,7 @@ const de: Dictionary = {
     inviteBot: "Bot einladen",
   },
   features: {
+    eyebrow: "Warum MSK Forms",
     title: "Der Teil, den die meisten Formular-Tools auslassen.",
     sub: "Ein Formular ist leicht. Den Leuten zu sagen, was nach dem Absenden passiert, ist der schwere Teil. Genau darum geht es bei MSK Forms.",
     uspTitle: "Bewerber wissen immer, woran sie sind.",
@@ -502,6 +507,7 @@ const de: Dictionary = {
     buildBody: "Formulare aus typisierten Feldern zusammenstellen: Text, Auswahl, Datum, Zustimmung. In Sekunden fertig.",
   },
   featureGrid: {
+    eyebrow: "Funktionsumfang",
     title: "Alles, um Bewerbungen zu betreiben",
     sub: "Vom Formular bis zur Entscheidung — und der Bewerber verfolgt alles live mit.",
     items: [
@@ -524,6 +530,7 @@ const de: Dictionary = {
     ],
   },
   steps: {
+    eyebrow: "So funktioniert's",
     title: "In drei Schritten live.",
     build: "Bauen", buildBody: "Felder reinziehen und festlegen, wer einreichen darf.",
     share: "Teilen", shareBody: "Link veröffentlichen oder das Formular per Bot in Discord posten.",
@@ -536,6 +543,7 @@ const de: Dictionary = {
   },
   pricing: {
     nav: "Preise",
+    eyebrow: "Tarife",
     title: "Preise, die mit deinem Server mitwachsen.",
     sub: "Kostenlos starten. Eine Guild upgraden, sobald sie die Free-Grenzen sprengt.",
     perMonth: "/Monat",
@@ -959,6 +967,7 @@ const hu: Dictionary = {
     inviteBot: "Bot meghívása",
   },
   features: {
+    eyebrow: "Miért MSK Forms",
     title: "Amit a legtöbb űrlapeszköz kihagy.",
     sub: "Egy űrlap egyszerű. A nehéz rész elmondani az embereknek, mi történt a beküldés után. Pontosan erről szól a MSK Forms.",
     uspTitle: "A jelentkezők mindig tudják, hol tartanak.",
@@ -971,6 +980,7 @@ const hu: Dictionary = {
     buildBody: "Állítsd össze az űrlapokat típusos mezőkből: szöveg, választás, dátum, hozzájárulás. Másodpercek alatt kész.",
   },
   featureGrid: {
+    eyebrow: "Funkciók",
     title: "Minden, ami a jelentkezésekhez kell",
     sub: "Az űrlaptól a döntésig — a jelentkező pedig élőben követi.",
     items: [
@@ -993,6 +1003,7 @@ const hu: Dictionary = {
     ],
   },
   steps: {
+    eyebrow: "Hogyan működik",
     title: "Nulláról élesbe három lépésben.",
     build: "Építés", buildBody: "Húzd be a szükséges mezőket, és állítsd be, ki küldhet be.",
     share: "Megosztás", shareBody: "Tedd közzé a linket, vagy posztold az űrlapot Discordra a bottal.",
@@ -1005,6 +1016,7 @@ const hu: Dictionary = {
   },
   pricing: {
     nav: "Árak",
+    eyebrow: "Csomagok",
     title: "Árazás, amely együtt nő a szervereddel.",
     sub: "Kezdj ingyen. Frissíts egy szervert, amint kinövi az ingyenes korlátokat.",
     perMonth: "/hó",

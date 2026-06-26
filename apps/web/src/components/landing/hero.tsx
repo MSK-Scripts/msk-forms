@@ -16,10 +16,11 @@ export async function Hero({
 
   return (
     <section className="relative overflow-hidden">
+      <div aria-hidden className="hero-decor-gradient pointer-events-none absolute inset-0 -z-10" />
       <div className="container grid items-center gap-12 pb-20 pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:pb-28 lg:pt-24">
         <div>
           <Badge variant="outline" className="gap-1.5 border-primary/30 text-primary">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-primary" />
             {t.hero.badge}
           </Badge>
 

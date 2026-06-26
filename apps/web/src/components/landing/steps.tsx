@@ -14,7 +14,8 @@ export async function Steps() {
   return (
     <section className="border-y border-border bg-muted/30">
       <div className="container py-20 lg:py-24">
-        <h2 className="text-balance font-heading text-3xl font-bold tracking-tight md:text-4xl">
+        <span className="eyebrow">{t.steps.eyebrow}</span>
+        <h2 className="mt-4 text-balance font-heading text-3xl font-bold tracking-tight md:text-4xl">
           {t.steps.title}
         </h2>
 

@@ -11,7 +11,7 @@
     --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
-    --primary: 161 94% 30%;
+    --primary: 101 62% 40%;
     --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 93%;
     --secondary-foreground: 0 0% 10%;
@@ -23,7 +23,7 @@
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 88%;
     --input: 0 0% 88%;
-    --ring: 161 94% 30%;
+    --ring: 101 62% 40%;
     --chart-1: 43 96% 56%;
     --chart-2: 161 64% 42%;
     --chart-3: 200 80% 47%;
@@ -39,7 +39,7 @@
     --card-foreground: 0 0% 97%;
     --popover: 0 0% 12%;
     --popover-foreground: 0 0% 97%;
-    --primary: 161 84% 38%;
+    --primary: 99 57% 44%;
     --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 17%;
     --secondary-foreground: 0 0% 97%;
@@ -51,7 +51,7 @@
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 20%;
     --input: 0 0% 23%;
-    --ring: 161 84% 42%;
+    --ring: 99 57% 44%;
     --chart-1: 43 96% 56%;
     --chart-2: 161 64% 50%;
     --chart-3: 200 80% 55%;
@@ -74,5 +74,84 @@
   }
   ::selection {
     @apply bg-primary/20;
+  }
+}
+
+/* ============================================================================
+   Polish patterns — aligned with the MSK ecosystem (msk-shop / paste / shortener)
+   ============================================================================ */
+
+/* Eyebrow label — small MSK-green mono kicker above section headlines. */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: hsl(var(--primary));
+}
+.eyebrow::before {
+  content: "";
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: hsl(var(--primary));
+}
+
+/* Radial accent gradient behind hero sections (CSP-safe, no inline styles). */
+.hero-decor-gradient {
+  background: radial-gradient(
+    ellipse 60% 50% at 30% 20%,
+    hsl(var(--primary) / 0.12),
+    transparent 70%
+  );
+}
+
+/* Pulsing live-indicator dot. */
+.pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.85);
+  }
+}
+
+/* Custom scrollbars (pointer devices only). */
+@media (pointer: fine) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 5px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground));
+  }
+}
+
+/* Respect reduced-motion preferences. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
