@@ -3,7 +3,7 @@ import { ActivityType, Client, Events, GatewayIntentBits, MessageFlags } from "d
 import { registerCommands } from "./commands.js";
 import { assertConfig, config } from "./config.js";
 import { handleFormsAutocomplete, handleFormsCommand } from "./forms.js";
-import { syncAllGuilds, syncGuild } from "./guilds.js";
+import { syncAllGuilds, syncGuild, updateGuildMeta } from "./guilds.js";
 import { deliverPendingNotifications } from "./notifications.js";
 import { handleReviewButton, isReviewButton } from "./review-actions.js";
 import { deliverPendingWebhooks } from "./webhooks.js";
@@ -43,6 +43,17 @@ export function createClient(): Client {
     syncGuild(guild)
       .then(() => console.info(`[bot] Linked guild ${guild.name} (${guild.id}).`))
       .catch((err) => console.error(`[bot] Failed to link guild ${guild.id}:`, err));
+  });
+
+  // A linked guild changed its name or icon → refresh the cached values so the
+  // dashboard doesn't keep serving a stale (now-404) icon URL. Discord purges
+  // old icon hashes, so a switched/animated icon otherwise breaks until the
+  // next bot restart. Fires under the (non-privileged) Guilds intent.
+  client.on(Events.GuildUpdate, (oldGuild, newGuild) => {
+    if (oldGuild.icon === newGuild.icon && oldGuild.name === newGuild.name) return;
+    updateGuildMeta(newGuild).catch((err) =>
+      console.error(`[bot] Failed to refresh guild ${newGuild.id}:`, err),
+    );
   });
 
   client.on(Events.InteractionCreate, async (interaction) => {

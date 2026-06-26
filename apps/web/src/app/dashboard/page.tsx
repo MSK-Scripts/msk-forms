@@ -2,6 +2,7 @@ import { Card } from "@msk-forms/ui";
 import type { Route } from "next";
 import Link from "next/link";
 
+import { GuildIcon } from "@/components/dashboard/guild-icon";
 import { requireUser } from "@/lib/auth";
 import { getUserGuilds } from "@/lib/guild";
 import { getDict } from "@/i18n";
@@ -34,13 +35,13 @@ export default async function GuildsPage() {
             <Link key={guild.id} href={`/dashboard/${guild.id}/forms` as Route} className="group">
               <Card className="flex h-full flex-col gap-4 p-5 transition-all group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:shadow-card-hover">
                 <div className="flex items-center gap-3">
-                  {guild.icon ? (
-                    <img src={guild.icon} alt="" width={44} height={44} className="rounded-lg" />
-                  ) : (
-                    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-muted font-heading text-lg text-muted-foreground">
-                      {guild.name.charAt(0)}
-                    </div>
-                  )}
+                  <GuildIcon
+                    icon={guild.icon}
+                    name={guild.name}
+                    size={44}
+                    className="rounded-lg"
+                    fallbackTextClassName="text-lg"
+                  />
                   <div className="min-w-0 flex-1">
                     <p
                       translate="no"
