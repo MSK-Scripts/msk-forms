@@ -3,7 +3,8 @@ import { IconArrowRight, IconBrandDiscord } from "@tabler/icons-react";
 import { StatusPreview } from "@/components/landing/status-preview";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getDict } from "@/i18n";
+import { getActiveServerCount } from "@/lib/stats";
+import { getDict, getLocale } from "@/i18n";
 
 export async function Hero({
   loggedIn,
@@ -12,7 +13,11 @@ export async function Hero({
   loggedIn: boolean;
   botInvite: string;
 }) {
-  const t = await getDict();
+  const [t, locale, servers] = await Promise.all([
+    getDict(),
+    getLocale(),
+    getActiveServerCount(),
+  ]);
 
   return (
     <section className="relative overflow-hidden">
@@ -60,6 +65,21 @@ export async function Hero({
               </a>
             </Button>
           </div>
+
+          {servers > 0 && (
+            <a
+              href="/stats"
+              className="mt-7 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />
+              <span>
+                <span className="font-semibold tabular-nums text-foreground">
+                  {new Intl.NumberFormat(locale).format(servers)}
+                </span>{" "}
+                {servers === 1 ? t.hero.serverOne : t.hero.serverMany}
+              </span>
+            </a>
+          )}
         </div>
 
         <div className="relative">

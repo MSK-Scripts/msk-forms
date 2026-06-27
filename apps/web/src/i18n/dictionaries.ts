@@ -2,6 +2,17 @@ export type Locale = "en" | "de" | "hu" | "fr" | "es" | "pt" | "pl";
 
 const en = {
   header: { login: "Log in", dashboard: "Dashboard", logout: "Log out", toggleTheme: "Toggle theme", language: "Language" },
+  stats: {
+    nav: "Stats",
+    eyebrow: "Platform stats",
+    title: "MSK Forms in numbers",
+    sub: "Anonymous, platform-wide totals across every server using MSK Forms.",
+    guilds: "Discord servers",
+    forms: "Forms created",
+    submissions: "Submissions received",
+    liveForms: "Live forms",
+    note: "Aggregate counts only. No server names, forms, or personal data are shown.",
+  },
   pwa: {
     offlineTitle: "You're offline",
     offlineBody: "This page needs a connection. Reconnect and try again.",
@@ -20,6 +31,7 @@ const en = {
     sub: "Build a form, share a link, let applicants track their status live. With a Discord bot any server can invite.",
     loginDiscord: "Log in with Discord", demo: "View a demo form", openDashboard: "Open dashboard",
     inviteBot: "Invite the bot",
+    serverOne: "active Discord server", serverMany: "active Discord servers",
   },
   features: {
     eyebrow: "Why MSK Forms",
@@ -492,6 +504,17 @@ export type Dictionary = typeof en;
 
 const de: Dictionary = {
   header: { login: "Anmelden", dashboard: "Dashboard", logout: "Abmelden", toggleTheme: "Theme wechseln", language: "Sprache" },
+  stats: {
+    nav: "Statistik",
+    eyebrow: "Plattform-Statistik",
+    title: "MSK Forms in Zahlen",
+    sub: "Anonyme, plattformweite Summen über alle Server, die MSK Forms nutzen.",
+    guilds: "Discord-Server",
+    forms: "Erstellte Formulare",
+    submissions: "Eingegangene Einreichungen",
+    liveForms: "Live-Formulare",
+    note: "Nur aggregierte Zahlen. Keine Servernamen, Formulare oder personenbezogenen Daten werden gezeigt.",
+  },
   pwa: {
     offlineTitle: "Du bist offline",
     offlineBody: "Diese Seite braucht eine Verbindung. Stelle sie wieder her und versuche es erneut.",
@@ -510,6 +533,7 @@ const de: Dictionary = {
     sub: "Formular bauen, Link teilen, Bewerber sehen ihren Status live. Mit einem Discord-Bot, den jeder Server einladen kann.",
     loginDiscord: "Mit Discord anmelden", demo: "Demo-Formular ansehen", openDashboard: "Zum Dashboard",
     inviteBot: "Bot einladen",
+    serverOne: "aktiver Discord-Server", serverMany: "aktive Discord-Server",
   },
   features: {
     eyebrow: "Warum MSK Forms",
@@ -978,6 +1002,17 @@ const de: Dictionary = {
 
 const hu: Dictionary = {
   header: { login: "Bejelentkezés", dashboard: "Vezérlőpult", logout: "Kijelentkezés", toggleTheme: "Téma váltása", language: "Nyelv" },
+  stats: {
+    nav: "Statisztika",
+    eyebrow: "Platformstatisztika",
+    title: "Az MSK Forms számokban",
+    sub: "Névtelen, platformszintű összesítések az MSK Formsot használó összes szerverről.",
+    guilds: "Discord-szerverek",
+    forms: "Létrehozott űrlapok",
+    submissions: "Beérkezett beküldések",
+    liveForms: "Élő űrlapok",
+    note: "Csak összesített számok. Szervernevek, űrlapok vagy személyes adatok nem jelennek meg.",
+  },
   pwa: {
     offlineTitle: "Nincs internetkapcsolat",
     offlineBody: "Ehhez az oldalhoz kapcsolat szükséges. Csatlakozz újra, és próbáld meg ismét.",
@@ -996,6 +1031,7 @@ const hu: Dictionary = {
     sub: "Hozz létre űrlapot, oszd meg a linket, és a jelentkezők élőben követhetik az állapotukat. Discord bottal bármelyik szerver meghívhatja.",
     loginDiscord: "Bejelentkezés Discorddal", demo: "Demo űrlap megtekintése", openDashboard: "Vezérlőpult megnyitása",
     inviteBot: "Bot meghívása",
+    serverOne: "aktív Discord-szerver", serverMany: "aktív Discord-szerver",
   },
   features: {
     eyebrow: "Miért MSK Forms",
@@ -1464,6 +1500,17 @@ const hu: Dictionary = {
 
 const fr: Dictionary = {
   header: { login: "Connexion", dashboard: "Tableau de bord", logout: "Déconnexion", toggleTheme: "Changer de thème", language: "Langue" },
+  stats: {
+    nav: "Statistiques",
+    eyebrow: "Statistiques de la plateforme",
+    title: "MSK Forms en chiffres",
+    sub: "Totaux anonymes, à l'échelle de la plateforme, sur tous les serveurs utilisant MSK Forms.",
+    guilds: "Serveurs Discord",
+    forms: "Formulaires créés",
+    submissions: "Soumissions reçues",
+    liveForms: "Formulaires actifs",
+    note: "Uniquement des totaux agrégés. Aucun nom de serveur, formulaire ou donnée personnelle n'est affiché.",
+  },
   pwa: {
     offlineTitle: "Vous êtes hors ligne",
     offlineBody: "Cette page nécessite une connexion. Reconnectez-vous et réessayez.",
@@ -1482,6 +1529,7 @@ const fr: Dictionary = {
     sub: "Créez un formulaire, partagez un lien, laissez les candidats suivre leur statut en direct. Avec un bot Discord que n'importe quel serveur peut inviter.",
     loginDiscord: "Se connecter avec Discord", demo: "Voir un formulaire démo", openDashboard: "Ouvrir le tableau de bord",
     inviteBot: "Inviter le bot",
+    serverOne: "serveur Discord actif", serverMany: "serveurs Discord actifs",
   },
   features: {
     eyebrow: "Pourquoi MSK Forms",
@@ -1951,6 +1999,17 @@ const fr: Dictionary = {
 
 const es: Dictionary = {
   header: { login: "Iniciar sesión", dashboard: "Dashboard", logout: "Cerrar sesión", toggleTheme: "Cambiar tema", language: "Idioma" },
+  stats: {
+    nav: "Estadísticas",
+    eyebrow: "Estadísticas de la plataforma",
+    title: "MSK Forms en cifras",
+    sub: "Totales anónimos de toda la plataforma, en todos los servidores que usan MSK Forms.",
+    guilds: "Servidores de Discord",
+    forms: "Formularios creados",
+    submissions: "Envíos recibidos",
+    liveForms: "Formularios activos",
+    note: "Solo recuentos agregados. No se muestran nombres de servidores, formularios ni datos personales.",
+  },
   pwa: {
     offlineTitle: "Estás sin conexión",
     offlineBody: "Esta página necesita conexión. Vuelve a conectarte e inténtalo de nuevo.",
@@ -1969,6 +2028,7 @@ const es: Dictionary = {
     sub: "Crea un formulario, comparte el enlace y deja que los solicitantes sigan su estado en vivo. Con un bot de Discord que cualquier servidor puede invitar.",
     loginDiscord: "Iniciar sesión con Discord", demo: "Ver formulario demo", openDashboard: "Abrir dashboard",
     inviteBot: "Invitar el bot",
+    serverOne: "servidor de Discord activo", serverMany: "servidores de Discord activos",
   },
   features: {
     eyebrow: "Por qué MSK Forms",
@@ -2438,6 +2498,17 @@ const es: Dictionary = {
 
 const pt: Dictionary = {
   header: { login: "Entrar", dashboard: "Painel", logout: "Sair", toggleTheme: "Alternar tema", language: "Idioma" },
+  stats: {
+    nav: "Estatísticas",
+    eyebrow: "Estatísticas da plataforma",
+    title: "MSK Forms em números",
+    sub: "Totais anônimos de toda a plataforma, em todos os servidores que usam o MSK Forms.",
+    guilds: "Servidores do Discord",
+    forms: "Formulários criados",
+    submissions: "Envios recebidos",
+    liveForms: "Formulários ativos",
+    note: "Apenas contagens agregadas. Nenhum nome de servidor, formulário ou dado pessoal é exibido.",
+  },
   pwa: {
     offlineTitle: "Você está offline",
     offlineBody: "Esta página precisa de conexão. Reconecte-se e tente novamente.",
@@ -2456,6 +2527,7 @@ const pt: Dictionary = {
     sub: "Crie um formulário, compartilhe um link e deixe os candidatos acompanharem o status ao vivo. Com um bot do Discord que qualquer servidor pode convidar.",
     loginDiscord: "Entrar com Discord", demo: "Ver formulário demo", openDashboard: "Abrir painel",
     inviteBot: "Convidar o bot",
+    serverOne: "servidor do Discord ativo", serverMany: "servidores do Discord ativos",
   },
   features: {
     eyebrow: "Por que MSK Forms",
@@ -2925,6 +2997,17 @@ const pt: Dictionary = {
 
 const pl: Dictionary = {
   header: { login: "Zaloguj się", dashboard: "Panel", logout: "Wyloguj się", toggleTheme: "Zmień motyw", language: "Język" },
+  stats: {
+    nav: "Statystyki",
+    eyebrow: "Statystyki platformy",
+    title: "MSK Forms w liczbach",
+    sub: "Anonimowe, ogólnoplatformowe sumy ze wszystkich serwerów korzystających z MSK Forms.",
+    guilds: "Serwery Discord",
+    forms: "Utworzone formularze",
+    submissions: "Otrzymane zgłoszenia",
+    liveForms: "Aktywne formularze",
+    note: "Tylko zagregowane liczby. Nie pokazujemy nazw serwerów, formularzy ani danych osobowych.",
+  },
   pwa: {
     offlineTitle: "Jesteś offline",
     offlineBody: "Ta strona wymaga połączenia. Połącz się ponownie i spróbuj jeszcze raz.",
@@ -2943,6 +3026,7 @@ const pl: Dictionary = {
     sub: "Stwórz formularz, udostępnij link, pozwól kandydatom śledzić status na żywo. Z botem Discord, którego może zaprosić każdy serwer.",
     loginDiscord: "Zaloguj się przez Discord", demo: "Zobacz formularz demo", openDashboard: "Otwórz panel",
     inviteBot: "Zaproś bota",
+    serverOne: "aktywny serwer Discord", serverMany: "aktywnych serwerów Discord",
   },
   features: {
     eyebrow: "Dlaczego MSK Forms",

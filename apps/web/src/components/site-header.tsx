@@ -44,6 +44,12 @@ export async function SiteHeader({ user }: { user: HeaderUser | null }) {
           >
             {t.pricing.nav}
           </a>
+          <a
+            href="/stats"
+            className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:block"
+          >
+            {t.stats.nav}
+          </a>
         </div>
 
         <div className="flex items-center gap-2">
