@@ -50,6 +50,12 @@ export async function SiteHeader({ user }: { user: HeaderUser | null }) {
           >
             {t.stats.nav}
           </a>
+          <a
+            href="https://forms.msk-scripts.de/msk-forms"
+            className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:block"
+          >
+            MSK Scripts Hub
+          </a>
         </div>
 
         <div className="flex items-center gap-2">
