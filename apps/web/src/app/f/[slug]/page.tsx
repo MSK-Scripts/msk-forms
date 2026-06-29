@@ -171,6 +171,7 @@ export default async function PublicFormPage({
           dateToday: t.dateToday,
           dateClear: t.dateClear,
           dateNow: t.dateNow,
+          previewNote: t.previewNote,
         }}
       />
     </Shell>
