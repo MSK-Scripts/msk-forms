@@ -38,7 +38,7 @@ import { AutomationsEditor } from "@/components/builder/automations-editor";
 import { ExperimentEditor } from "@/components/builder/experiment-editor";
 import { FieldEditor } from "@/components/builder/field-editor";
 import { DateField, type DateFieldLabels } from "@/components/form/date-field";
-import { BUILDER_FIELDS, needsOptions } from "@/lib/builder-fields";
+import { BUILDER_FIELDS, migrateFieldType, needsOptions } from "@/lib/builder-fields";
 import type { Dictionary } from "@/i18n";
 
 /** Icon per field type for the "Add field" picker grid. */
@@ -388,6 +388,7 @@ export function FormBuilder({
               isFirst={fi === 0}
               isLast={fi === page.fields.length - 1}
               onChange={(next) => updateField(pi, fi, next)}
+              onChangeType={(nt) => updateField(pi, fi, migrateFieldType(field, nt))}
               onRemove={() => removeField(pi, fi)}
               onMove={(dir) => moveField(pi, fi, dir)}
               t={t}
