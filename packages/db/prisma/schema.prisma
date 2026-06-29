@@ -98,6 +98,8 @@ model Guild {
   stripeSubscriptionId String? @map("stripe_subscription_id")
   branding       Json     @default("{}")
   botConfig      Json     @default("{}") @map("bot_config")
+  /// Vanity hub handle on the primary domain: forms.msk-scripts.de/<handle>.
+  handle                 String?   @unique
   customDomain           String?   @unique @map("custom_domain")
   customDomainToken      String?   @map("custom_domain_token")
   customDomainVerifiedAt DateTime? @map("custom_domain_verified_at")

@@ -4,6 +4,7 @@ import { Card } from "@msk-forms/ui";
 import { UpgradeActions } from "@/components/billing/upgrade-button";
 import { CaptchaForm } from "@/components/domain/captcha-form";
 import { DomainForm } from "@/components/domain/domain-form";
+import { HandleForm } from "@/components/domain/handle-form";
 import { OAuthForm } from "@/components/domain/oauth-form";
 import { ProNotice } from "@/components/pro-notice";
 import { requireUser } from "@/lib/auth";
@@ -11,6 +12,7 @@ import { primaryHostname } from "@/lib/custom-domain";
 import { canManageForms } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
 import { enterpriseEnabled, stripeEnabled } from "@/lib/stripe";
+import { appBaseUrl } from "@/lib/url";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -34,10 +36,38 @@ export default async function DomainPage({
     );
   }
 
-  if (!(await isGuildPro(guildId))) {
-    return (
-      <div className="flex flex-col gap-4">
+  const guild = await prisma.guild.findUnique({
+    where: { id: guildId },
+    select: {
+      handle: true,
+      customDomain: true,
+      customDomainToken: true,
+      customDomainVerifiedAt: true,
+      oauthClientId: true,
+      oauthClientSecret: true,
+      captchaSiteKey: true,
+      captchaSecret: true,
+    },
+  });
+  const verifiedDomain = guild?.customDomainVerifiedAt ? (guild.customDomain ?? "") : "";
+  const isPro = await isGuildPro(guildId);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1">
         <h2 className="font-heading text-xl font-semibold text-foreground">{t.title}</h2>
+        <p className="text-sm text-muted-foreground">{t.intro}</p>
+      </div>
+
+      {/* Free for all guilds: a vanity hub path on the primary domain. */}
+      <HandleForm
+        guildId={guildId}
+        baseUrl={appBaseUrl()}
+        initialHandle={guild?.handle ?? ""}
+        t={t.hub}
+      />
+
+      {!isPro ? (
         <ProNotice
           title={dict.pro.title}
           body={dict.pro.body}
@@ -51,30 +81,8 @@ export default async function DomainPage({
             ) : undefined
           }
         />
-      </div>
-    );
-  }
-
-  const guild = await prisma.guild.findUnique({
-    where: { id: guildId },
-    select: {
-      customDomain: true,
-      customDomainToken: true,
-      customDomainVerifiedAt: true,
-      oauthClientId: true,
-      oauthClientSecret: true,
-      captchaSiteKey: true,
-      captchaSecret: true,
-    },
-  });
-  const verifiedDomain = guild?.customDomainVerifiedAt ? (guild.customDomain ?? "") : "";
-
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <h2 className="font-heading text-xl font-semibold text-foreground">{t.title}</h2>
-        <p className="text-sm text-muted-foreground">{t.intro}</p>
-      </div>
+      ) : (
+        <>
       <DomainForm
         guildId={guildId}
         cnameTarget={primaryHostname()}
@@ -97,6 +105,8 @@ export default async function DomainPage({
         initial={{ siteKey: guild?.captchaSiteKey ?? "", hasSecret: Boolean(guild?.captchaSecret) }}
         t={t.captcha}
       />
+        </>
+      )}
     </div>
   );
 }

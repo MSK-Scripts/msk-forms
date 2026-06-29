@@ -196,6 +196,14 @@ export async function getLiveFormsForGuild(guildId: string) {
   });
 }
 
+/** Resolve a guild by its public hub handle (primary-domain vanity path). */
+export async function getGuildByHandle(handle: string) {
+  return prisma.guild.findUnique({
+    where: { handle },
+    select: { id: true, name: true, branding: true },
+  });
+}
+
 /** A guild's categories in display order (for the builder picker and public hub). */
 export async function getGuildCategories(guildId: string) {
   return prisma.formCategory.findMany({
