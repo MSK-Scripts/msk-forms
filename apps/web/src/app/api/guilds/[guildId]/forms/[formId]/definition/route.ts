@@ -49,6 +49,7 @@ export async function GET(
       settings: true,
       openAt: true,
       closeAt: true,
+      category: { select: { name: true } },
     },
   });
   if (!form || form.guildId !== guildId) {
@@ -71,6 +72,7 @@ export async function GET(
       visibility: form.visibility,
       openAt: form.openAt ? form.openAt.toISOString() : null,
       closeAt: form.closeAt ? form.closeAt.toISOString() : null,
+      category: form.category?.name ?? null,
     },
     spec,
     settings: parseFormSettings(form.settings),
