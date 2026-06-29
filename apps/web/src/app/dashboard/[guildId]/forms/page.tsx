@@ -215,6 +215,16 @@ export default async function GuildFormsPage({
                     )}
                     {canManage && (
                       <Link
+                        href={`/dashboard/${guildId}/forms/${form.id}/preview` as Route}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+                      >
+                        {t.preview}
+                      </Link>
+                    )}
+                    {canManage && (
+                      <Link
                         href={`/dashboard/${guildId}/forms/${form.id}/edit` as Route}
                         className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
                       >

@@ -187,6 +187,7 @@ const en = {
     accessRestricted: "This form uses an access restriction that isn’t supported yet.",
     submit: "Submit", submitting: "Submitting…", required: "This field is required.",
     submitFailed: "Submission failed.",
+    previewNote: "Preview only. Your answers are not submitted.",
     captchaRequired: "Please complete the captcha.",
     fileUploading: "Uploading…", fileRemove: "Remove", uploadFailed: "Upload failed.",
     signatureClear: "Clear",
@@ -252,7 +253,8 @@ const en = {
     noGuildsHint:
       "Connecting a guild happens through the Discord bot invite. That flow lands in a later slice. For now, an admin can add you to a guild.",
     countForm: "form", countForms: "forms", countSubmission: "submission", countSubmissions: "submissions",
-    newForm: "New form", noForms: "No forms yet. Create your first one.", edit: "Edit", experimentLink: "A/B", exportCsv: "Export CSV", exportLabel: "Export",
+    newForm: "New form", noForms: "No forms yet. Create your first one.", edit: "Edit",
+    preview: "Preview", previewNotice: "Private preview of an unpublished form. Only guild managers can see this.", previewExit: "Back to forms", experimentLink: "A/B", exportCsv: "Export CSV", exportLabel: "Export",
     deleteForm: "Delete", deleteFormTitle: "Delete form?", deleteFormConfirm: "Delete this form? All its submissions, files and activity will be permanently removed. This cannot be undone.", deleteFormFailed: "Could not delete the form.", cancel: "Cancel",
     formIo: {
       export: "Export JSON", import: "Import JSON", importing: "Importing…",
@@ -707,6 +709,7 @@ const de: Dictionary = {
     accessRestricted: "Dieses Formular nutzt eine Zugangsbeschränkung, die noch nicht unterstützt wird.",
     submit: "Absenden", submitting: "Wird gesendet…", required: "Dieses Feld ist erforderlich.",
     submitFailed: "Senden fehlgeschlagen.",
+    previewNote: "Nur Vorschau. Deine Antworten werden nicht gesendet.",
     captchaRequired: "Bitte das Captcha lösen.",
     fileUploading: "Wird hochgeladen…", fileRemove: "Entfernen", uploadFailed: "Upload fehlgeschlagen.",
     signatureClear: "Löschen",
@@ -770,7 +773,8 @@ const de: Dictionary = {
     noGuildsHint:
       "Eine Guild wird über die Discord-Bot-Einladung verbunden. Dieser Ablauf kommt in einem späteren Slice. Bis dahin kann dich ein Admin zu einer Guild hinzufügen.",
     countForm: "Formular", countForms: "Formulare", countSubmission: "Einreichung", countSubmissions: "Einreichungen",
-    newForm: "Neues Formular", noForms: "Noch keine Formulare. Erstelle dein erstes.", edit: "Bearbeiten", experimentLink: "A/B", exportCsv: "CSV-Export", exportLabel: "Export",
+    newForm: "Neues Formular", noForms: "Noch keine Formulare. Erstelle dein erstes.", edit: "Bearbeiten",
+    preview: "Vorschau", previewNotice: "Private Vorschau eines unveröffentlichten Formulars. Nur Guild-Manager sehen das.", previewExit: "Zurück zu den Formularen", experimentLink: "A/B", exportCsv: "CSV-Export", exportLabel: "Export",
     deleteForm: "Löschen", deleteFormTitle: "Formular löschen?", deleteFormConfirm: "Dieses Formular löschen? Alle Einreichungen, Dateien und Aktivitäten werden unwiderruflich entfernt. Das kann nicht rückgängig gemacht werden.", deleteFormFailed: "Formular konnte nicht gelöscht werden.", cancel: "Abbrechen",
     formIo: {
       export: "JSON exportieren", import: "JSON importieren", importing: "Importiere…",
@@ -1223,6 +1227,7 @@ const hu: Dictionary = {
     accessRestricted: "Ez az űrlap olyan hozzáférési korlátozást használ, amely még nem támogatott.",
     submit: "Beküldés", submitting: "Beküldés…", required: "Ez a mező kötelező.",
     submitFailed: "A beküldés sikertelen.",
+    previewNote: "Csak előnézet. A válaszaid nem kerülnek elküldésre.",
     captchaRequired: "Kérjük, töltsd ki a captchát.",
     fileUploading: "Feltöltés…", fileRemove: "Eltávolítás", uploadFailed: "A feltöltés sikertelen.",
     signatureClear: "Törlés",
@@ -1286,7 +1291,8 @@ const hu: Dictionary = {
     noGuildsHint:
       "Egy szerver összekapcsolása a Discord bot meghívásán keresztül történik. Ez a folyamat egy későbbi szakaszban érkezik. Egyelőre egy adminisztrátor hozzáadhat egy szerverhez.",
     countForm: "űrlap", countForms: "űrlap", countSubmission: "beküldés", countSubmissions: "beküldés",
-    newForm: "Új űrlap", noForms: "Még nincsenek űrlapok. Hozd létre az elsőt.", edit: "Szerkesztés", experimentLink: "A/B", exportCsv: "CSV exportálás", exportLabel: "Export",
+    newForm: "Új űrlap", noForms: "Még nincsenek űrlapok. Hozd létre az elsőt.", edit: "Szerkesztés",
+    preview: "Előnézet", previewNotice: "Egy nem közzétett űrlap privát előnézete. Csak a szerver kezelői látják.", previewExit: "Vissza az űrlapokhoz", experimentLink: "A/B", exportCsv: "CSV exportálás", exportLabel: "Export",
     deleteForm: "Törlés", deleteFormTitle: "Törlöd az űrlapot?", deleteFormConfirm: "Törlöd ezt az űrlapot? Az összes beküldése, fájlja és tevékenysége véglegesen törlődik. Ez nem vonható vissza.", deleteFormFailed: "Az űrlap törlése sikertelen.", cancel: "Mégse",
     formIo: {
       export: "JSON exportálása", import: "JSON importálása", importing: "Importálás…",
@@ -1739,6 +1745,7 @@ const fr: Dictionary = {
     accessRestricted: "Ce formulaire utilise une restriction d'accès qui n'est pas encore prise en charge.",
     submit: "Envoyer", submitting: "Envoi en cours…", required: "Ce champ est obligatoire.",
     submitFailed: "L'envoi a échoué.",
+    previewNote: "Aperçu uniquement. Vos réponses ne sont pas envoyées.",
     captchaRequired: "Veuillez compléter le captcha.",
     fileUploading: "Chargement…", fileRemove: "Supprimer", uploadFailed: "Le chargement a échoué.",
     signatureClear: "Effacer",
@@ -1802,7 +1809,8 @@ const fr: Dictionary = {
     noGuildsHint:
       "La connexion d'un serveur passe par l'invitation du bot Discord. Ce processus arrivera dans un prochain module. Pour l'instant, un administrateur peut vous ajouter à un serveur.",
     countForm: "formulaire", countForms: "formulaires", countSubmission: "soumission", countSubmissions: "soumissions",
-    newForm: "Nouveau formulaire", noForms: "Aucun formulaire. Créez le premier.", edit: "Modifier", experimentLink: "A/B", exportCsv: "Exporter CSV", exportLabel: "Exporter",
+    newForm: "Nouveau formulaire", noForms: "Aucun formulaire. Créez le premier.", edit: "Modifier",
+    preview: "Aperçu", previewNotice: "Aperçu privé d'un formulaire non publié. Seuls les gestionnaires du serveur peuvent le voir.", previewExit: "Retour aux formulaires", experimentLink: "A/B", exportCsv: "Exporter CSV", exportLabel: "Exporter",
     deleteForm: "Supprimer", deleteFormTitle: "Supprimer le formulaire ?", deleteFormConfirm: "Supprimer ce formulaire ? Toutes ses soumissions, fichiers et activités seront définitivement supprimés. Cette action est irréversible.", deleteFormFailed: "Impossible de supprimer le formulaire.", cancel: "Annuler",
     formIo: {
       export: "Exporter en JSON", import: "Importer un JSON", importing: "Importation…",
@@ -2256,6 +2264,7 @@ const es: Dictionary = {
     accessRestricted: "Este formulario usa una restricción de acceso que aún no está disponible.",
     submit: "Enviar", submitting: "Enviando…", required: "Este campo es obligatorio.",
     submitFailed: "Error al enviar.",
+    previewNote: "Solo vista previa. Tus respuestas no se envían.",
     captchaRequired: "Por favor, completa el captcha.",
     fileUploading: "Subiendo…", fileRemove: "Eliminar", uploadFailed: "Error al subir el archivo.",
     signatureClear: "Limpiar",
@@ -2319,7 +2328,8 @@ const es: Dictionary = {
     noGuildsHint:
       "La conexión de una guild ocurre mediante la invitación del bot de Discord. Ese flujo llega en una fase posterior. Por ahora, un administrador puede añadirte a una guild.",
     countForm: "formulario", countForms: "formularios", countSubmission: "envío", countSubmissions: "envíos",
-    newForm: "Nuevo formulario", noForms: "Aún no hay formularios. Crea el primero.", edit: "Editar", experimentLink: "A/B", exportCsv: "Exportar CSV", exportLabel: "Exportar",
+    newForm: "Nuevo formulario", noForms: "Aún no hay formularios. Crea el primero.", edit: "Editar",
+    preview: "Vista previa", previewNotice: "Vista previa privada de un formulario no publicado. Solo los gestores del servidor pueden verla.", previewExit: "Volver a los formularios", experimentLink: "A/B", exportCsv: "Exportar CSV", exportLabel: "Exportar",
     deleteForm: "Eliminar", deleteFormTitle: "¿Eliminar formulario?", deleteFormConfirm: "¿Eliminar este formulario? Todos sus envíos, archivos y actividad se eliminarán permanentemente. Esta acción no se puede deshacer.", deleteFormFailed: "No se pudo eliminar el formulario.", cancel: "Cancelar",
     formIo: {
       export: "Exportar JSON", import: "Importar JSON", importing: "Importando…",
@@ -2773,6 +2783,7 @@ const pt: Dictionary = {
     accessRestricted: "Este formulário usa uma restrição de acesso que ainda não é suportada.",
     submit: "Enviar", submitting: "Enviando…", required: "Este campo é obrigatório.",
     submitFailed: "Falha no envio.",
+    previewNote: "Apenas prévia. Suas respostas não são enviadas.",
     captchaRequired: "Por favor, complete o captcha.",
     fileUploading: "Enviando…", fileRemove: "Remover", uploadFailed: "Falha no upload.",
     signatureClear: "Limpar",
@@ -2836,7 +2847,8 @@ const pt: Dictionary = {
     noGuildsHint:
       "Conectar um servidor acontece através do convite do bot do Discord. Esse fluxo chega em uma fatia posterior. Por enquanto, um admin pode adicioná-lo a um servidor.",
     countForm: "formulário", countForms: "formulários", countSubmission: "candidatura", countSubmissions: "candidaturas",
-    newForm: "Novo formulário", noForms: "Nenhum formulário ainda. Crie o seu primeiro.", edit: "Editar", experimentLink: "A/B", exportCsv: "Exportar CSV", exportLabel: "Exportar",
+    newForm: "Novo formulário", noForms: "Nenhum formulário ainda. Crie o seu primeiro.", edit: "Editar",
+    preview: "Prévia", previewNotice: "Prévia privada de um formulário não publicado. Apenas os gestores do servidor podem ver.", previewExit: "Voltar aos formulários", experimentLink: "A/B", exportCsv: "Exportar CSV", exportLabel: "Exportar",
     deleteForm: "Excluir", deleteFormTitle: "Excluir formulário?", deleteFormConfirm: "Excluir este formulário? Todas as candidaturas, arquivos e atividades serão removidos permanentemente. Esta ação não pode ser desfeita.", deleteFormFailed: "Não foi possível excluir o formulário.", cancel: "Cancelar",
     formIo: {
       export: "Exportar JSON", import: "Importar JSON", importing: "Importando…",
@@ -3290,6 +3302,7 @@ const pl: Dictionary = {
     accessRestricted: "Ten formularz używa ograniczenia dostępu, które nie jest jeszcze obsługiwane.",
     submit: "Wyślij", submitting: "Wysyłanie…", required: "To pole jest wymagane.",
     submitFailed: "Wysyłanie nie powiodło się.",
+    previewNote: "Tylko podgląd. Twoje odpowiedzi nie są wysyłane.",
     captchaRequired: "Proszę wypełnić captchę.",
     fileUploading: "Przesyłanie…", fileRemove: "Usuń", uploadFailed: "Przesyłanie nie powiodło się.",
     signatureClear: "Wyczyść",
@@ -3353,7 +3366,8 @@ const pl: Dictionary = {
     noGuildsHint:
       "Połączenie serwera odbywa się przez zaproszenie bota Discord. Tymczasem administrator może Cię dodać do serwera.",
     countForm: "formularz", countForms: "formularzy", countSubmission: "zgłoszenie", countSubmissions: "zgłoszeń",
-    newForm: "Nowy formularz", noForms: "Brak formularzy. Utwórz pierwszy.", edit: "Edytuj", experimentLink: "A/B", exportCsv: "Eksport CSV", exportLabel: "Eksportuj",
+    newForm: "Nowy formularz", noForms: "Brak formularzy. Utwórz pierwszy.", edit: "Edytuj",
+    preview: "Podgląd", previewNotice: "Prywatny podgląd nieopublikowanego formularza. Widzą go tylko menedżerowie serwera.", previewExit: "Powrót do formularzy", experimentLink: "A/B", exportCsv: "Eksport CSV", exportLabel: "Eksportuj",
     deleteForm: "Usuń", deleteFormTitle: "Usunąć formularz?", deleteFormConfirm: "Usunąć ten formularz? Wszystkie zgłoszenia, pliki i aktywność zostaną trwale usunięte. Tej operacji nie można cofnąć.", deleteFormFailed: "Nie udało się usunąć formularza.", cancel: "Anuluj",
     formIo: {
       export: "Eksportuj JSON", import: "Importuj JSON", importing: "Importowanie…",
