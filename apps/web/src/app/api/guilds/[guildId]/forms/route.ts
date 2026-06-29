@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
 import { formInputSchema } from "@/lib/form-input";
+import { resolveGuildCategoryId } from "@/lib/forms";
 import { canManageForms } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
 
@@ -51,6 +52,8 @@ export async function POST(
     delete (settings as { experiment?: unknown }).experiment;
   }
 
+  const categoryId = await resolveGuildCategoryId(guildId, input.categoryId);
+
   try {
     const form = await prisma.form.create({
       data: {
@@ -64,6 +67,7 @@ export async function POST(
         settings: settings as Prisma.InputJsonValue,
         openAt: input.openAt ? new Date(input.openAt) : null,
         closeAt: input.closeAt ? new Date(input.closeAt) : null,
+        categoryId,
         createdById: user.id,
       },
       select: { id: true },

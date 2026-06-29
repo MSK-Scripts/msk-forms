@@ -116,6 +116,7 @@ model Guild {
   forms         Form[]
   submissions   Submission[]
   formStatuses  FormStatusDef[]
+  categories    FormCategory[]
   apiKeys       ApiKey[]
   notifications Notification[]
   webhooks      Webhook[]
@@ -166,11 +167,13 @@ model Form {
   version     Int            @default(1)
   openAt      DateTime?      @map("open_at")
   closeAt     DateTime?      @map("close_at")
+  categoryId  String?        @map("category_id") @db.Uuid
   createdById String         @map("created_by") @db.Uuid
   createdAt   DateTime       @default(now()) @map("created_at")
   updatedAt   DateTime       @updatedAt @map("updated_at")
 
   guild        Guild           @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  category     FormCategory?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   createdBy    User            @relation("FormCreatedBy", fields: [createdById], references: [id])
   versions     FormVersion[]
   submissions  Submission[]
@@ -179,7 +182,26 @@ model Form {
   experimentStats ExperimentStat[]
 
   @@index([guildId, status])
+  @@index([guildId, categoryId])
   @@map("forms")
+}
+
+/// Per-guild form category (e.g. "Job applications" vs "Staff applications").
+/// Forms reference it optionally; deleting a category leaves its forms
+/// uncategorized (SetNull). Public hubs group live forms by category.
+model FormCategory {
+  id        String   @id @default(uuid()) @db.Uuid
+  guildId   String   @map("guild_id") @db.Uuid
+  name      String
+  color     String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  guild Guild  @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  forms Form[]
+
+  @@index([guildId])
+  @@map("form_categories")
 }
 
 /// Per-variant A/B test counters for a form (concept §26): views (assignments)
