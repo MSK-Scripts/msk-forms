@@ -1,10 +1,18 @@
 "use client";
 
-import { isComputedField, isLayoutField, type ConditionRule, type FormField } from "@msk-forms/shared";
-import { Card, Checkbox, Field, Input, Textarea } from "@msk-forms/ui";
+import {
+  isComputedField,
+  isLayoutField,
+  type ConditionRule,
+  type FieldType,
+  type FormField,
+} from "@msk-forms/shared";
+import { Card, Checkbox, Field, Input, Select, Textarea } from "@msk-forms/ui";
 
 import { ConditionEditor } from "@/components/builder/condition-editor";
 import {
+  BUILDER_FIELDS,
+  fieldCarriesTypeData,
   isLayoutType,
   needsFormula,
   needsOptions,
@@ -24,6 +32,7 @@ interface FieldEditorProps {
   isFirst: boolean;
   isLast: boolean;
   onChange: (field: FormField) => void;
+  onChangeType: (newType: FieldType) => void;
   onRemove: () => void;
   onMove: (dir: -1 | 1) => void;
   t: BuilderDict;
@@ -37,12 +46,17 @@ export function FieldEditor({
   isFirst,
   isLast,
   onChange,
+  onChangeType,
   onRemove,
   onMove,
   t,
 }: FieldEditorProps) {
   const layout = isLayoutType(field.type);
-  const typeLabel = (t.ft as Record<string, string>)[field.type] ?? field.type;
+  const ftLabels = t.ft as Record<string, string>;
+  const typeOptions = BUILDER_FIELDS.map((f) => ({
+    value: f.type,
+    label: ftLabels[f.type] ?? f.type,
+  }));
 
   function patch(partial: Partial<FormField>) {
     onChange({ ...field, ...partial });
@@ -85,10 +99,20 @@ export function FieldEditor({
 
   return (
     <Card className="flex flex-col gap-3 p-4">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wide text-primary">
-          {index + 1}. {typeLabel}
-        </span>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="shrink-0 text-xs font-semibold uppercase tracking-wide text-primary">
+            {index + 1}.
+          </span>
+          <div className="w-44 sm:w-52">
+            <Select
+              aria-label={t.changeType}
+              value={field.type}
+              onChange={(e) => onChangeType(e.target.value as FieldType)}
+              options={typeOptions}
+            />
+          </div>
+        </div>
         <div className="flex items-center gap-1">
           <IconButton label={t.moveUp} disabled={isFirst} onClick={() => onMove(-1)}>
             ↑
@@ -101,6 +125,9 @@ export function FieldEditor({
           </IconButton>
         </div>
       </div>
+      {fieldCarriesTypeData(field) && (
+        <p className="-mt-1 text-xs text-muted-foreground">{t.changeTypeWarn}</p>
+      )}
 
       {field.type !== "divider" && (
         <Field label={layout ? t.fieldText : t.fieldLabel}>
