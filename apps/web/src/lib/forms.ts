@@ -173,19 +173,49 @@ export async function getFormForEdit(formId: string, guildId: string) {
       settings: true,
       openAt: true,
       closeAt: true,
+      categoryId: true,
     },
   });
   if (!form || form.guildId !== guildId) return null;
   return form;
 }
 
-/** Live (published) forms for a guild, for the custom-domain landing index. */
+/** Live (published) forms for a guild, for the public form hub (grouped by category). */
 export async function getLiveFormsForGuild(guildId: string) {
   return prisma.form.findMany({
     where: { guildId, status: "live" },
     orderBy: { createdAt: "desc" },
-    select: { slug: true, title: true, description: true, openAt: true, closeAt: true },
+    select: {
+      slug: true,
+      title: true,
+      description: true,
+      openAt: true,
+      closeAt: true,
+      categoryId: true,
+    },
   });
+}
+
+/** A guild's categories in display order (for the builder picker and public hub). */
+export async function getGuildCategories(guildId: string) {
+  return prisma.formCategory.findMany({
+    where: { guildId },
+    orderBy: { order: "asc" },
+    select: { id: true, name: true, color: true },
+  });
+}
+
+/** Validate that a category belongs to the guild; returns the id or null. */
+export async function resolveGuildCategoryId(
+  guildId: string,
+  categoryId: string | null | undefined,
+): Promise<string | null> {
+  if (!categoryId) return null;
+  const cat = await prisma.formCategory.findFirst({
+    where: { id: categoryId, guildId },
+    select: { id: true },
+  });
+  return cat ? cat.id : null;
 }
 
 /** Load a live (published) form by slug for the public submission page. */

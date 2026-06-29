@@ -20,6 +20,7 @@ export const formInputSchema = z.object({
   settings: formSettingsSchema.optional(),
   openAt: z.string().datetime().nullish(),
   closeAt: z.string().datetime().nullish(),
+  categoryId: z.string().uuid().nullish(),
 });
 
 export type FormInput = z.infer<typeof formInputSchema>;
