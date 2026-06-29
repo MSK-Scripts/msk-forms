@@ -25,8 +25,11 @@ export default async function PricingPage() {
       name: c.groups.build,
       rows: [
         { label: c.rows.builder, vals: [true, true, true] },
+        { label: c.rows.changeType, vals: [true, true, true] },
         { label: c.rows.logic, vals: [true, true, true] },
         { label: c.rows.quiz, vals: [true, true, true] },
+        { label: c.rows.categories, vals: [true, true, true] },
+        { label: c.rows.preview, vals: [true, true, true] },
         { label: c.rows.forms, vals: ["3", c.unlimited, c.unlimited] },
         { label: c.rows.submissions, vals: [nf.format(100), nf.format(5000), c.unlimited] },
         { label: c.rows.abtest, vals: [false, true, true] },
@@ -46,6 +49,7 @@ export default async function PricingPage() {
       name: c.groups.branding,
       rows: [
         { label: c.rows.colorLogo, vals: [true, true, true] },
+        { label: c.rows.hub, vals: [true, true, true] },
         { label: c.rows.domain, vals: [false, true, true] },
         { label: c.rows.domainAuth, vals: [false, true, true] },
         { label: c.rows.css, vals: [false, true, true] },
@@ -59,6 +63,7 @@ export default async function PricingPage() {
         { label: c.rows.webhooks, vals: [false, true, true] },
         { label: c.rows.automations, vals: [false, true, true] },
         { label: c.rows.integrations, vals: [false, false, true] },
+        { label: c.rows.formIo, vals: [false, true, true] },
         { label: c.rows.exports, vals: [c.rows.exportsFree, c.rows.exportsPaid, c.rows.exportsEnt] },
       ],
     },
