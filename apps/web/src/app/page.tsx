@@ -5,10 +5,9 @@ import { FeatureGrid } from "@/components/landing/feature-grid";
 import { Features } from "@/components/landing/features";
 import { Hero } from "@/components/landing/hero";
 import { Steps } from "@/components/landing/steps";
-import { GuildFormsHub } from "@/components/public/forms-hub";
+import { GuildHub } from "@/components/public/guild-hub";
 import { getCurrentUser } from "@/lib/auth";
 import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
-import { getGuildCategories, getLiveFormsForGuild } from "@/lib/forms";
 import { botInviteUrl } from "@/lib/url";
 import { getDict } from "@/i18n";
 
@@ -26,24 +25,7 @@ export default async function HomePage({
   if (host && !isPrimaryHostname(host)) {
     const guild = await getGuildByDomain(host);
     if (!guild) notFound();
-    const [forms, categories] = await Promise.all([
-      getLiveFormsForGuild(guild.id),
-      getGuildCategories(guild.id),
-    ]);
-    return (
-      <GuildFormsHub
-        guild={guild}
-        forms={forms}
-        categories={categories}
-        labels={{
-          chooseForm: t.domainHome.chooseForm,
-          noForms: t.domainHome.noForms,
-          endingSoon: t.form.endingSoon,
-          opensAt: t.form.opensAt,
-          otherForms: t.domainHome.otherForms,
-        }}
-      />
-    );
+    return <GuildHub guild={guild} />;
   }
 
   const user = await getCurrentUser();
