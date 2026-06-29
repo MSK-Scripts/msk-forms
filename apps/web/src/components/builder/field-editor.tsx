@@ -148,6 +148,16 @@ export function FieldEditor({
             />
           </Field>
 
+          {(field.type === "consent" || field.type === "age_check") && (
+            <Field label={t.consentText} hint={t.consentHint}>
+              <Input
+                value={field.placeholder ?? ""}
+                onChange={(e) => patch({ placeholder: e.target.value })}
+                placeholder={t.consentPh}
+              />
+            </Field>
+          )}
+
           {needsOptions(field.type) && (
             <Field label={needsRows(field.type) ? t.columns : t.options}>
               <div className="flex flex-col gap-2">
