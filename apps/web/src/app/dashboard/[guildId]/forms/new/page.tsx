@@ -6,7 +6,7 @@ import { UpgradeActions } from "@/components/billing/upgrade-button";
 import { FormBuilder } from "@/components/builder/form-builder";
 import { ProNotice } from "@/components/pro-notice";
 import { requireUser } from "@/lib/auth";
-import { getStatusOptionsForGuild } from "@/lib/forms";
+import { getGuildCategories, getStatusOptionsForGuild } from "@/lib/forms";
 import { canManageForms } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
 import { enterpriseEnabled, stripeEnabled } from "@/lib/stripe";
@@ -55,7 +55,10 @@ export default async function NewFormPage({
     );
   }
 
-  const statusOpts = await getStatusOptionsForGuild(guildId, t.statusLabels);
+  const [statusOpts, categories] = await Promise.all([
+    getStatusOptionsForGuild(guildId, t.statusLabels),
+    getGuildCategories(guildId),
+  ]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -66,6 +69,7 @@ export default async function NewFormPage({
         guildId={guildId}
         t={t.builder}
         statusOptions={statusOpts}
+        categories={categories}
         isPro={pro}
         automationsProBody={t.pro.automationsBody}
         experimentProBody={t.pro.experimentBody}
@@ -80,6 +84,7 @@ export default async function NewFormPage({
           reviewChannelId: "",
           openAt: "",
           closeAt: "",
+          categoryId: null,
           pages: [{ id: "p1", title: "", fields: [] }],
           automations: [],
           experiment: { enabled: false, variants: [] },

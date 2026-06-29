@@ -38,7 +38,7 @@ import { AutomationsEditor } from "@/components/builder/automations-editor";
 import { ExperimentEditor } from "@/components/builder/experiment-editor";
 import { FieldEditor } from "@/components/builder/field-editor";
 import { DateField, type DateFieldLabels } from "@/components/form/date-field";
-import { BUILDER_FIELDS, needsOptions } from "@/lib/builder-fields";
+import { BUILDER_FIELDS, migrateFieldType, needsOptions } from "@/lib/builder-fields";
 import type { Dictionary } from "@/i18n";
 
 /** Icon per field type for the "Add field" picker grid. */
@@ -83,6 +83,8 @@ export interface FormBuilderInitial {
   /** ISO 8601 open/close timestamps, or "" when unset. */
   openAt: string;
   closeAt: string;
+  /** Selected category id, or null when uncategorized. */
+  categoryId: string | null;
   pages: FormPage[];
   automations: AutomationRule[];
   experiment: Experiment;
@@ -117,6 +119,7 @@ export function FormBuilder({
   formId,
   initial,
   statusOptions,
+  categories,
   isPro,
   automationsProBody,
   experimentProBody,
@@ -127,6 +130,7 @@ export function FormBuilder({
   formId?: string;
   initial: FormBuilderInitial;
   statusOptions: StatusOption[];
+  categories: { id: string; name: string }[];
   isPro: boolean;
   automationsProBody: string;
   experimentProBody: string;
@@ -141,6 +145,7 @@ export function FormBuilder({
   const [visibility, setVisibility] = useState(initial.visibility);
   const [acceptedRoles, setAcceptedRoles] = useState(initial.acceptedRoles);
   const [reviewChannelId, setReviewChannelId] = useState(initial.reviewChannelId);
+  const [categoryId, setCategoryId] = useState(initial.categoryId ?? "");
   // Schedule inputs are localized on the client to avoid a hydration mismatch
   // (the ISO→local conversion depends on the viewer's timezone).
   const [openAt, setOpenAt] = useState("");
@@ -241,6 +246,7 @@ export function FormBuilder({
       settings,
       openAt: openAt ? new Date(openAt).toISOString() : null,
       closeAt: closeAt ? new Date(closeAt).toISOString() : null,
+      categoryId: categoryId || null,
     };
 
     setSaving(true);
@@ -311,6 +317,18 @@ export function FormBuilder({
               ]}
             />
           </Field>
+          {categories.length > 0 && (
+            <Field label={t.category}>
+              <Select
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                options={[
+                  { value: "", label: t.noCategory },
+                  ...categories.map((c) => ({ value: c.id, label: c.name })),
+                ]}
+              />
+            </Field>
+          )}
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label={t.acceptedRole} hint={t.acceptedRoleHint}>
@@ -388,6 +406,7 @@ export function FormBuilder({
               isFirst={fi === 0}
               isLast={fi === page.fields.length - 1}
               onChange={(next) => updateField(pi, fi, next)}
+              onChangeType={(nt) => updateField(pi, fi, migrateFieldType(field, nt))}
               onRemove={() => removeField(pi, fi)}
               onMove={(dir) => moveField(pi, fi, dir)}
               t={t}

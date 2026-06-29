@@ -8,6 +8,7 @@ import QRCode from "qrcode";
 import { ManageBillingButton } from "@/components/billing/manage-billing-button";
 import { UpgradeActions } from "@/components/billing/upgrade-button";
 import { DeleteFormButton } from "@/components/dashboard/delete-form-button";
+import { ImportFormButton, ReplaceFormButton } from "@/components/dashboard/form-io";
 import { ShareButton } from "@/components/dashboard/share-button";
 import { LocalDateTime } from "@/components/public/local-datetime";
 import { requireUser } from "@/lib/auth";
@@ -83,6 +84,12 @@ export default async function GuildFormsPage({
         )}
         {guildBilling?.stripeSubscriptionId && (
           <ManageBillingButton guildId={guildId} label={dict.pro.manage} />
+        )}
+        {canManage && plan.isPro && (
+          <ImportFormButton
+            guildId={guildId}
+            t={{ import: t.formIo.import, importing: t.formIo.importing, importErr: t.formIo.importErr }}
+          />
         )}
         {canManage &&
           (atFormLimit ? (
@@ -198,6 +205,14 @@ export default async function GuildFormsPage({
                         )}
                       </div>
                     )}
+                    {canManage && plan.isPro && (
+                      <a
+                        href={`/api/guilds/${guildId}/forms/${form.id}/definition`}
+                        className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+                      >
+                        {t.formIo.export}
+                      </a>
+                    )}
                     {canManage && (
                       <Link
                         href={`/dashboard/${guildId}/forms/${form.id}/edit` as Route}
@@ -205,6 +220,19 @@ export default async function GuildFormsPage({
                       >
                         {t.edit}
                       </Link>
+                    )}
+                    {canManage && plan.isPro && (
+                      <ReplaceFormButton
+                        guildId={guildId}
+                        formId={form.id}
+                        t={{
+                          replace: t.formIo.replace,
+                          replaceTitle: t.formIo.replaceTitle,
+                          replaceConfirm: t.formIo.replaceConfirm,
+                          cancel: t.cancel,
+                          importErr: t.formIo.importErr,
+                        }}
+                      />
                     )}
                     {canManage && experimentActive(parseFormSettings(form.settings).experiment) && (
                       <Link

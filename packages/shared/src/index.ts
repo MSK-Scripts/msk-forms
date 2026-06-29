@@ -2,6 +2,8 @@
 // package (a `.js` suffix on a `.ts` source breaks Turbopack resolution).
 export * from "./form-spec";
 export * from "./form-settings";
+export * from "./form-definition";
+export * from "./categories";
 export * from "./conditions";
 export * from "./constants";
 export * from "./notifications";
