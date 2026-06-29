@@ -32,6 +32,9 @@ export const formDefinitionSchema = z.object({
     visibility: z.enum(["public", "authenticated", "password", "role_required"]),
     openAt: z.string().datetime().nullish(),
     closeAt: z.string().datetime().nullish(),
+    // Category by name (not id) so it survives a move between guilds. Import
+    // resolves it against the target guild and creates it if missing.
+    category: z.string().max(60).nullish(),
   }),
   spec: formSpecSchema,
   settings: formSettingsSchema.default({}),

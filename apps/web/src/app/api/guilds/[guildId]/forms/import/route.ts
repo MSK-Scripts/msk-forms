@@ -6,6 +6,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 
 import { getCurrentUser } from "@/lib/auth";
+import { resolveOrCreateCategoryByName } from "@/lib/forms";
 import { canManageForms } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
 
@@ -56,6 +57,9 @@ export async function POST(
   }
   const { mode, formId, definition } = parsed.data;
   const f = definition.form;
+  // The definition carries a category name; resolve it against this guild
+  // (creating it if missing) so it survives a move between guilds.
+  const categoryId = await resolveOrCreateCategoryByName(guildId, f.category);
   const common = {
     title: f.title,
     description: f.description ?? null,
@@ -65,6 +69,7 @@ export async function POST(
     settings: definition.settings as Prisma.InputJsonValue,
     openAt: f.openAt ? new Date(f.openAt) : null,
     closeAt: f.closeAt ? new Date(f.closeAt) : null,
+    categoryId,
   };
 
   if (mode === "replace") {

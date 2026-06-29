@@ -218,6 +218,30 @@ export async function resolveGuildCategoryId(
   return cat ? cat.id : null;
 }
 
+/**
+ * Resolve a category by name within a guild, creating it if it does not exist
+ * yet. Used by form import (the definition carries a category name, not an id).
+ * Returns the id or null for an empty name.
+ */
+export async function resolveOrCreateCategoryByName(
+  guildId: string,
+  name: string | null | undefined,
+): Promise<string | null> {
+  const trimmed = name?.trim();
+  if (!trimmed) return null;
+  const existing = await prisma.formCategory.findFirst({
+    where: { guildId, name: trimmed },
+    select: { id: true },
+  });
+  if (existing) return existing.id;
+  const count = await prisma.formCategory.count({ where: { guildId } });
+  const created = await prisma.formCategory.create({
+    data: { guildId, name: trimmed, order: count },
+    select: { id: true },
+  });
+  return created.id;
+}
+
 /** Load a live (published) form by slug for the public submission page. */
 export async function getLiveFormBySlug(slug: string) {
   const form = await prisma.form.findUnique({
