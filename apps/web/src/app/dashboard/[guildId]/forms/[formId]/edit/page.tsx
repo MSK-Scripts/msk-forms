@@ -5,7 +5,12 @@ import { acceptedRoleIdsOf, parseFormSettings } from "@msk-forms/shared";
 
 import { FormBuilder } from "@/components/builder/form-builder";
 import { requireUser } from "@/lib/auth";
-import { getFormForEdit, getStatusOptionsForGuild, parseFormSpec } from "@/lib/forms";
+import {
+  getFormForEdit,
+  getGuildCategories,
+  getStatusOptionsForGuild,
+  parseFormSpec,
+} from "@/lib/forms";
 import { canManageForms } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
 import { getDict } from "@/i18n";
@@ -34,8 +39,11 @@ export default async function EditFormPage({
 
   const spec = parseFormSpec(form.schema);
   const settings = parseFormSettings(form.settings);
-  const statusOpts = await getStatusOptionsForGuild(guildId, t.statusLabels);
-  const pro = await isGuildPro(guildId);
+  const [statusOpts, categories, pro] = await Promise.all([
+    getStatusOptionsForGuild(guildId, t.statusLabels),
+    getGuildCategories(guildId),
+    isGuildPro(guildId),
+  ]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -47,6 +55,7 @@ export default async function EditFormPage({
         formId={form.id}
         t={t.builder}
         statusOptions={statusOpts}
+        categories={categories}
         isPro={pro}
         automationsProBody={t.pro.automationsBody}
         experimentProBody={t.pro.experimentBody}
@@ -61,6 +70,7 @@ export default async function EditFormPage({
           reviewChannelId: settings.reviewChannelId ?? "",
           openAt: form.openAt?.toISOString() ?? "",
           closeAt: form.closeAt?.toISOString() ?? "",
+          categoryId: form.categoryId,
           pages: spec?.pages.length ? spec.pages : [{ id: "p1", title: "", fields: [] }],
           automations: settings.automations,
           experiment: settings.experiment ?? { enabled: false, variants: [] },

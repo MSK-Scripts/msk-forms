@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
 import { formInputSchema } from "@/lib/form-input";
+import { resolveGuildCategoryId } from "@/lib/forms";
 import { canManageForms } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
 import { deleteObject } from "@/lib/s3";
@@ -47,6 +48,8 @@ export async function PATCH(
     delete (settings as { experiment?: unknown }).experiment;
   }
 
+  const categoryId = await resolveGuildCategoryId(guildId, input.categoryId);
+
   try {
     await prisma.form.update({
       where: { id: formId },
@@ -60,6 +63,7 @@ export async function PATCH(
         settings: settings as Prisma.InputJsonValue,
         openAt: input.openAt ? new Date(input.openAt) : null,
         closeAt: input.closeAt ? new Date(input.closeAt) : null,
+        categoryId,
         version: { increment: 1 },
       },
     });

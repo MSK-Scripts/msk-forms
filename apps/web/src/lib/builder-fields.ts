@@ -1,4 +1,4 @@
-import type { FieldType } from "@msk-forms/shared";
+import type { FieldType, FormField } from "@msk-forms/shared";
 
 /** Field types the builder offers (the subset the renderer supports today). */
 export const BUILDER_FIELDS: { type: FieldType; label: string }[] = [
@@ -50,3 +50,50 @@ export const needsFormula = (type: FieldType): boolean => type === "calculated";
 export const needsStarsConfig = (type: FieldType): boolean => STARS_CONFIG_TYPES.includes(type);
 export const needsSliderConfig = (type: FieldType): boolean => SLIDER_CONFIG_TYPES.includes(type);
 export const needsRows = (type: FieldType): boolean => ROWS_CONFIG_TYPES.includes(type);
+
+/**
+ * Convert an existing field to a different type. Keeps the parts that are
+ * type-agnostic (id, label, help text, placeholder, width, conditional rules,
+ * required flag) and resets the type-specific configuration that no longer
+ * applies. Options/rows survive when both the old and new type use them (e.g.
+ * single_choice -> dropdown), otherwise they are cleared. Type-specific
+ * validation bounds (min/max/step, lengths, pattern, file limits) are dropped
+ * because they are reconfigured per type.
+ */
+export function migrateFieldType(field: FormField, newType: FieldType): FormField {
+  return {
+    id: field.id,
+    type: newType,
+    label: field.label,
+    description: field.description,
+    placeholder: field.placeholder,
+    width: field.width,
+    conditional: field.conditional,
+    validation: { required: field.validation.required },
+    ...(needsOptions(newType) ? { options: field.options ?? [] } : {}),
+    ...(needsRows(newType) ? { rows: field.rows ?? [] } : {}),
+    ...(needsFormula(newType) ? { formula: field.formula } : {}),
+  };
+}
+
+/**
+ * Whether a field holds type-specific configuration that a type change could
+ * reset (options, matrix rows, a formula, or any validation bound beyond
+ * `required`). Drives the "switching type resets configuration" warning.
+ */
+export function fieldCarriesTypeData(field: FormField): boolean {
+  const v = field.validation;
+  return (
+    (field.options?.length ?? 0) > 0 ||
+    (field.rows?.length ?? 0) > 0 ||
+    Boolean(field.formula) ||
+    v.min !== undefined ||
+    v.max !== undefined ||
+    v.step !== undefined ||
+    v.minLength !== undefined ||
+    v.maxLength !== undefined ||
+    Boolean(v.pattern) ||
+    (v.allowedMimeTypes?.length ?? 0) > 0 ||
+    v.maxFileSizeMb !== undefined
+  );
+}
