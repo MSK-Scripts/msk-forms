@@ -23,6 +23,7 @@ export async function GuildHub({ guild }: { guild: HubGuild }) {
         noForms: t.domainHome.noForms,
         endingSoon: t.form.endingSoon,
         opensAt: t.form.opensAt,
+        opensIn: t.form.opensIn,
         otherForms: t.domainHome.otherForms,
       }}
     />

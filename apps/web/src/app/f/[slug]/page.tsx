@@ -8,6 +8,7 @@ import { experimentActive, formScheduleStatus, parseFormSettings, pickVariant } 
 
 import { CustomCss } from "@/components/branding/custom-css";
 import { FormRenderer } from "@/components/form/form-renderer";
+import { Countdown } from "@/components/public/countdown";
 import { ExperimentView } from "@/components/public/experiment-view";
 import { LocalDateTime } from "@/components/public/local-datetime";
 import { PoweredBy } from "@/components/public/powered-by";
@@ -64,11 +65,16 @@ export default async function PublicFormPage({
   // Scheduling: a live form may not be open yet, or may already have closed.
   const schedule = formScheduleStatus(form.openAt, form.closeAt, new Date());
   if (schedule.state === "scheduled") {
+    const showCountdown = parseFormSettings(form.settings).showCountdown === true;
     return (
       <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
-        <p className="text-sm text-muted-foreground">
-          {t.opensAt} <LocalDateTime iso={form.openAt!.toISOString()} />
-        </p>
+        {showCountdown ? (
+          <Countdown targetIso={form.openAt!.toISOString()} label={t.opensIn} celebrate />
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            {t.opensAt} <LocalDateTime iso={form.openAt!.toISOString()} />
+          </p>
+        )}
       </Shell>
     );
   }

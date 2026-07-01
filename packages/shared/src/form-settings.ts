@@ -62,6 +62,12 @@ export const formSettingsSchema = z.object({
   automations: z.array(automationRuleSchema).max(20).default([]),
   /** Optional A/B test over the public form's copy. */
   experiment: experimentSchema.optional(),
+  /**
+   * Tease a scheduled (not-yet-open) form on the public hub with a live
+   * countdown, and celebrate with confetti when it opens. Off by default keeps
+   * the plain "opens at <date>" text.
+   */
+  showCountdown: z.boolean().optional(),
 });
 
 /** True when an experiment is live (enabled with at least two variants). */

@@ -70,6 +70,7 @@ export default async function EditFormPage({
           reviewChannelId: settings.reviewChannelId ?? "",
           openAt: form.openAt?.toISOString() ?? "",
           closeAt: form.closeAt?.toISOString() ?? "",
+          showCountdown: settings.showCountdown === true,
           categoryId: form.categoryId,
           pages: spec?.pages.length ? spec.pages : [{ id: "p1", title: "", fields: [] }],
           automations: settings.automations,
