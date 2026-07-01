@@ -6,6 +6,7 @@ import {
   formatAnswerValue,
   formSpecSchema,
   isLayoutField,
+  parseFormSettings,
   type FormSpec,
 } from "@msk-forms/shared";
 
@@ -182,7 +183,7 @@ export async function getFormForEdit(formId: string, guildId: string) {
 
 /** Live (published) forms for a guild, for the public form hub (grouped by category). */
 export async function getLiveFormsForGuild(guildId: string) {
-  return prisma.form.findMany({
+  const forms = await prisma.form.findMany({
     where: { guildId, status: "live" },
     orderBy: { createdAt: "desc" },
     select: {
@@ -192,8 +193,13 @@ export async function getLiveFormsForGuild(guildId: string) {
       openAt: true,
       closeAt: true,
       categoryId: true,
+      settings: true,
     },
   });
+  return forms.map(({ settings, ...form }) => ({
+    ...form,
+    showCountdown: parseFormSettings(settings).showCountdown === true,
+  }));
 }
 
 /** Resolve a guild by its public hub handle (primary-domain vanity path). */

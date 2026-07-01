@@ -3,6 +3,7 @@ import type { Route } from "next";
 import Link from "next/link";
 
 import { CustomCss } from "@/components/branding/custom-css";
+import { Countdown } from "@/components/public/countdown";
 import { LocalDateTime } from "@/components/public/local-datetime";
 import { brandStyle, logoUrl, parseBranding } from "@/lib/branding";
 
@@ -13,6 +14,8 @@ export interface HubForm {
   openAt: Date | null;
   closeAt: Date | null;
   categoryId: string | null;
+  /** Tease this scheduled form with a live countdown on the hub. */
+  showCountdown: boolean;
 }
 
 export interface HubCategory {
@@ -32,6 +35,7 @@ export interface HubLabels {
   noForms: string;
   endingSoon: string;
   opensAt: string;
+  opensIn: string;
   otherForms: string;
 }
 
@@ -121,9 +125,13 @@ export function GuildFormsHub({
                       <span className="text-sm text-muted-foreground">{form.description}</span>
                     )}
                     {schedule.state === "scheduled" && form.openAt ? (
-                      <span className="mt-1 text-sm text-muted-foreground">
-                        {labels.opensAt} <LocalDateTime iso={form.openAt.toISOString()} />
-                      </span>
+                      form.showCountdown ? (
+                        <Countdown targetIso={form.openAt.toISOString()} label={labels.opensIn} />
+                      ) : (
+                        <span className="mt-1 text-sm text-muted-foreground">
+                          {labels.opensAt} <LocalDateTime iso={form.openAt.toISOString()} />
+                        </span>
+                      )
                     ) : (
                       <span className="mt-1 text-sm font-medium text-primary">
                         {labels.chooseForm} →
