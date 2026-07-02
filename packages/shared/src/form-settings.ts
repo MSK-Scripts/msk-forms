@@ -68,7 +68,22 @@ export const formSettingsSchema = z.object({
    * the plain "opens at <date>" text.
    */
   showCountdown: z.boolean().optional(),
+  /**
+   * Limit each signed-in applicant to one active (non-terminal) submission:
+   * while their submission is open they can't submit again and are sent to its
+   * status page. Once a reviewer sets a terminal status (accepted/rejected/
+   * withdrawn or a custom terminal status) they may apply again. Default on;
+   * turn off for forms that accept repeated submissions (surveys/feedback).
+   * Only enforceable for signed-in applicants (anonymous submits can't be tied
+   * to a person). Treat `undefined` as on — see `singleSubmissionEnforced`.
+   */
+  singleSubmission: z.boolean().default(true),
 });
+
+/** Whether the "one active submission per person" rule is on (undefined = on). */
+export function singleSubmissionEnforced(s: { singleSubmission?: boolean }): boolean {
+  return s.singleSubmission !== false;
+}
 
 /** True when an experiment is live (enabled with at least two variants). */
 export function experimentActive(exp: Experiment | undefined): boolean {
@@ -97,7 +112,7 @@ export type FormSettings = z.infer<typeof formSettingsSchema>;
 /** Parse a stored Form.settings JSON blob, falling back to empty settings. */
 export function parseFormSettings(json: unknown): FormSettings {
   const result = formSettingsSchema.safeParse(json);
-  return result.success ? result.data : { automations: [] };
+  return result.success ? result.data : { automations: [], singleSubmission: true };
 }
 
 /**

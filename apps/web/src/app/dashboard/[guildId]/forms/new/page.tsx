@@ -85,6 +85,7 @@ export default async function NewFormPage({
           openAt: "",
           closeAt: "",
           showCountdown: false,
+          singleSubmission: true,
           categoryId: null,
           pages: [{ id: "p1", title: "", fields: [] }],
           automations: [],

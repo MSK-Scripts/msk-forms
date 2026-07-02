@@ -183,7 +183,15 @@ export function FormRenderer({
         body: JSON.stringify({ answers, captchaToken, experimentVariant }),
       });
       if (!res.ok) {
-        const data = (await res.json().catch(() => null)) as { error?: string } | null;
+        const data = (await res.json().catch(() => null)) as
+          | { error?: string; submissionId?: string }
+          | null;
+        // Already has an active submission → send them to its status page
+        // rather than showing an error.
+        if (res.status === 409 && data?.submissionId) {
+          router.push(`/s/${data.submissionId}` as Route);
+          return;
+        }
         throw new Error(data?.error ?? labels.submitFailed);
       }
       const { submissionId } = (await res.json()) as { submissionId: string };

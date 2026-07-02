@@ -1,10 +1,16 @@
 import { cookies, headers } from "next/headers";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Script from "next/script";
 
 import type { CSSProperties } from "react";
 
-import { experimentActive, formScheduleStatus, parseFormSettings, pickVariant } from "@msk-forms/shared";
+import {
+  experimentActive,
+  formScheduleStatus,
+  parseFormSettings,
+  pickVariant,
+  singleSubmissionEnforced,
+} from "@msk-forms/shared";
 
 import { CustomCss } from "@/components/branding/custom-css";
 import { FormRenderer } from "@/components/form/form-renderer";
@@ -19,7 +25,7 @@ import { getGuildCaptchaSiteKey } from "@/lib/guild-captcha";
 import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 import { isGuildPro } from "@/lib/plan";
 import { captchaSiteKey } from "@/lib/captcha";
-import { getLiveFormBySlug } from "@/lib/forms";
+import { findActiveSubmissionId, getLiveFormBySlug } from "@/lib/forms";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -62,6 +68,17 @@ export default async function PublicFormPage({
     );
   }
 
+  // One active submission per person: a signed-in applicant who already has an
+  // open (non-terminal) submission for this form is sent to its status page
+  // rather than the form. Only enforceable for signed-in applicants — anonymous
+  // submits can't be tied to a person. Once a reviewer sets a terminal status
+  // they may apply again.
+  const user = await getCurrentUser();
+  if (user && singleSubmissionEnforced(parseFormSettings(form.settings))) {
+    const activeId = await findActiveSubmissionId(form.id, user.id, form.guildId);
+    if (activeId) redirect(`/s/${activeId}`);
+  }
+
   // Scheduling: a live form may not be open yet, or may already have closed.
   const schedule = formScheduleStatus(form.openAt, form.closeAt, new Date());
   if (schedule.state === "scheduled") {
@@ -87,7 +104,6 @@ export default async function PublicFormPage({
   }
 
   if (form.visibility === "authenticated") {
-    const user = await getCurrentUser();
     if (!user) {
       return (
         <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
