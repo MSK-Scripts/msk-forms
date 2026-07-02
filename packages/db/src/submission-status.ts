@@ -23,6 +23,12 @@ export interface ChangeSubmissionStatusArgs {
   toStatusLabel?: string | null;
   /** When set, queue an outbox DM for the applicant in the same transaction. */
   notify?: StatusChangeOutboxNotification | null;
+  /**
+   * Visibility of the recorded status_change event. `"internal"` hides the
+   * change from the applicant's status page (pair it with `notify: null` for a
+   * fully silent change). Defaults to `"public"`.
+   */
+  eventVisibility?: "public" | "internal";
 }
 
 export interface ChangeSubmissionStatusResult {
@@ -50,6 +56,7 @@ export async function changeSubmissionStatus(
     actorName = null,
     toStatusLabel = null,
     notify = null,
+    eventVisibility = "public",
   } = args;
 
   return prisma.$transaction(async (tx) => {
@@ -83,7 +90,7 @@ export async function changeSubmissionStatus(
         type: "status_change",
         fromStatus: current.status,
         toStatus,
-        visibility: "public",
+        visibility: eventVisibility,
       },
     });
 

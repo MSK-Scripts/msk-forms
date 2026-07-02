@@ -77,26 +77,29 @@ export async function POST(
     }
 
     // Idempotent, race-safe transition + event + applicant DM (skip anonymous).
+    // When the reviewer hides the change, the event is internal and no DM is
+    // queued — the applicant neither sees nor is notified of it.
     const labels = (await getDict()).statusLabels;
     const toStatusLabel = resolveStatus(action.status, defs, labels).label;
-    const notify: StatusChangeNotification | null = submission.userId
-      ? {
-          submissionId: id,
-          formTitle: submission.form.title,
-          toStatus: action.status,
-          toStatusLabel,
-        }
-      : null;
+    const notify: StatusChangeNotification | null =
+      submission.userId && !action.hidden
+        ? {
+            submissionId: id,
+            formTitle: submission.form.title,
+            toStatus: action.status,
+            toStatusLabel,
+          }
+        : null;
     await changeSubmissionStatus({
       submissionId: id,
       toStatus: action.status,
       actorUserId: user.id,
       actorName: user.username,
       toStatusLabel,
-      notify:
-        submission.userId && notify
-          ? { userId: submission.userId, type: "status_change", payload: notify }
-          : null,
+      eventVisibility: action.hidden ? "internal" : "public",
+      notify: notify
+        ? { userId: submission.userId!, type: "status_change", payload: notify }
+        : null,
     });
     return NextResponse.json({ ok: true });
   }

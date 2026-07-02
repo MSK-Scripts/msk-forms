@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, Field, Select, Textarea } from "@msk-forms/ui";
+import { Button, Card, Checkbox, Field, Select, Textarea } from "@msk-forms/ui";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -29,6 +29,7 @@ export function ReviewPanel({
 }) {
   const router = useRouter();
   const [status, setStatus] = useState(currentStatus);
+  const [hidden, setHidden] = useState(false);
   const [note, setNote] = useState("");
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState<SubmissionAction["kind"] | null>(null);
@@ -76,11 +77,18 @@ export function ReviewPanel({
             type="button"
             className="shrink-0"
             disabled={pending !== null || status === currentStatus}
-            onClick={() => submit({ kind: "status", status })}
+            onClick={() => submit({ kind: "status", status, hidden })}
           >
             {pending === "status" ? t.saving : t.apply}
           </Button>
         </div>
+        <Checkbox
+          id="hide-status-change"
+          checked={hidden}
+          onChange={(e) => setHidden(e.target.checked)}
+          label={t.hideFromApplicant}
+        />
+        <p className="ms-[1.9rem] text-xs text-muted-foreground">{t.hideFromApplicantHint}</p>
       </Field>
 
       <Field label={t.noteLabel} hint={t.noteHint}>

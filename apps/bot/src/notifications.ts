@@ -47,6 +47,7 @@ type PendingRow = {
 function buildMessage(
   row: PendingRow,
   locale: string | undefined,
+  baseUrl: string,
 ): {
   embeds: EmbedBuilder[];
   components: ActionRowBuilder<ButtonBuilder>[];
@@ -55,7 +56,7 @@ function buildMessage(
   if (!payload?.submissionId) return null;
 
   const s = dmStrings(locale);
-  const url = statusUrl(config.apiBaseUrl, payload.submissionId);
+  const url = statusUrl(baseUrl, payload.submissionId);
   const embed = new EmbedBuilder()
     .setColor(MSK_GREEN)
     .setTitle(payload.formTitle ?? s.title)
@@ -254,19 +255,29 @@ async function deliverOne(client: Client, row: PendingRow): Promise<boolean> {
   // Applicant DMs speak the guild's configured bot language when it's set (the
   // community deliberately chose it, so the whole bot — embeds, logs AND DMs —
   // stays in that language). Only when the guild left it unset do we fall back
-  // to the applicant's own Discord locale, then to English.
+  // to the applicant's own Discord locale, then to English. The status link
+  // points at the guild's verified custom domain when it has one, so applicants
+  // stay on the community's own domain instead of the primary host.
   let dmLocale = row.user?.locale || undefined;
+  let baseUrl = config.apiBaseUrl;
   const p = row.payload as { submissionId?: string };
   if (p.submissionId) {
     const sub = await prisma.submission.findUnique({
       where: { id: p.submissionId },
-      select: { guild: { select: { botConfig: true } } },
+      select: {
+        guild: {
+          select: { botConfig: true, customDomain: true, customDomainVerifiedAt: true },
+        },
+      },
     });
     const guildLocale = parseBotConfig(sub?.guild.botConfig).locale;
     if (guildLocale) dmLocale = guildLocale;
+    if (sub?.guild.customDomain && sub.guild.customDomainVerifiedAt) {
+      baseUrl = `https://${sub.guild.customDomain}`;
+    }
   }
 
-  const message = buildMessage(row, dmLocale);
+  const message = buildMessage(row, dmLocale, baseUrl);
   if (!message) {
     console.warn(`[bot] notification ${row.id} has an unrecognised payload — dropping.`);
     return true;
