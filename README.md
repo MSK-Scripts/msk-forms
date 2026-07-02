@@ -27,6 +27,18 @@ available in **7 languages** (EN / DE / HU / FR / ES / PT / PL).
 
 > The full concept document is maintained internally.
 
+## Features
+
+- **Powerful builder** — 20+ field types, multi-step pages, conditional logic, quiz scoring, calculated fields, and per-form scheduling with an optional public countdown.
+- **Real feedback loop** — every submission gets a live status page; applicants follow along without an account and can withdraw, export, or delete their data (GDPR). One active submission per person by default.
+- **Discord-native review** — new submissions post to a review channel with Accept / Reject buttons, status DMs, automatic role grants, and a full activity log, all in your server's language.
+- **Make it yours** — accent color, logo, custom CSS with a live preview, form categories, a public form hub, and custom domains with automatic TLS.
+- **Team & workflow** — roles with per-form reviewer access, a Kanban board, bulk actions, custom statuses, automations, A/B tests, and CSV / XLSX / JSON / PDF exports.
+- **Integrations** — outgoing webhooks, Zapier / Make, and a REST API.
+- **Everywhere** — 7 languages, light / dark themes, and an installable PWA.
+
+Full documentation: **[docu.msk-scripts.de/ecosystem/msk-forms](https://docu.msk-scripts.de/ecosystem/msk-forms/)**.
+
 ## Invite the Discord bot
 
 Add the MSK Forms bot to your server to list and post forms (`/forms`) and
