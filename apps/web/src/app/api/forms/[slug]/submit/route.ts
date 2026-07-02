@@ -18,6 +18,7 @@ import {
   isLayoutField,
   parseFormSettings,
   scoreSubmission,
+  singleSubmissionEnforced,
   type FileAnswer,
   type FormSpec,
   type StatusChangeNotification,
@@ -30,7 +31,7 @@ import { captchaEnabled, verifyCaptcha } from "@/lib/captcha";
 import { isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 import { recordExperimentConversion } from "@/lib/experiment";
 import { getGuildCaptchaSecret } from "@/lib/guild-captcha";
-import { parseFormSpec, resolveStatus } from "@/lib/forms";
+import { findActiveSubmissionId, parseFormSpec, resolveStatus } from "@/lib/forms";
 import { getGuildPlan } from "@/lib/plan";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 import { headObject } from "@/lib/s3";
@@ -198,6 +199,20 @@ export async function POST(
   }
 
   const user = await getCurrentUser();
+
+  // One active submission per person: block a signed-in applicant who already
+  // has an open (non-terminal) submission and point them at its status page.
+  // Enforced only for signed-in applicants (anonymous submits can't be deduped).
+  if (user && singleSubmissionEnforced(parseFormSettings(form.settings))) {
+    const activeId = await findActiveSubmissionId(form.id, user.id, form.guildId);
+    if (activeId) {
+      return NextResponse.json(
+        { error: "You already have an active submission for this form.", submissionId: activeId },
+        { status: 409 },
+      );
+    }
+  }
+
   // Quiz score (null when the form has no scored options).
   const score = scoreSubmission(spec, data);
 

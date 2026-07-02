@@ -251,18 +251,19 @@ async function deliverOne(client: Client, row: PendingRow): Promise<boolean> {
   const discordId = row.user?.discordId;
   if (!discordId) return true;
 
-  // DM in the applicant's own locale; fall back to the guild's configured bot
-  // language when the applicant has none (rare — OAuth users always have one).
+  // Applicant DMs speak the guild's configured bot language when it's set (the
+  // community deliberately chose it, so the whole bot — embeds, logs AND DMs —
+  // stays in that language). Only when the guild left it unset do we fall back
+  // to the applicant's own Discord locale, then to English.
   let dmLocale = row.user?.locale || undefined;
-  if (!dmLocale) {
-    const p = row.payload as { submissionId?: string };
-    if (p.submissionId) {
-      const sub = await prisma.submission.findUnique({
-        where: { id: p.submissionId },
-        select: { guild: { select: { botConfig: true } } },
-      });
-      dmLocale = parseBotConfig(sub?.guild.botConfig).locale || undefined;
-    }
+  const p = row.payload as { submissionId?: string };
+  if (p.submissionId) {
+    const sub = await prisma.submission.findUnique({
+      where: { id: p.submissionId },
+      select: { guild: { select: { botConfig: true } } },
+    });
+    const guildLocale = parseBotConfig(sub?.guild.botConfig).locale;
+    if (guildLocale) dmLocale = guildLocale;
   }
 
   const message = buildMessage(row, dmLocale);

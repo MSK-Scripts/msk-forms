@@ -71,6 +71,7 @@ export default async function EditFormPage({
           openAt: form.openAt?.toISOString() ?? "",
           closeAt: form.closeAt?.toISOString() ?? "",
           showCountdown: settings.showCountdown === true,
+          singleSubmission: settings.singleSubmission !== false,
           categoryId: form.categoryId,
           pages: spec?.pages.length ? spec.pages : [{ id: "p1", title: "", fields: [] }],
           automations: settings.automations,

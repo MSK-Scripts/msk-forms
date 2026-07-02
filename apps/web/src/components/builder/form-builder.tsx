@@ -85,6 +85,8 @@ export interface FormBuilderInitial {
   closeAt: string;
   /** Tease the scheduled form with a live countdown + confetti on the hub. */
   showCountdown: boolean;
+  /** Limit each signed-in applicant to one active (non-terminal) submission. */
+  singleSubmission: boolean;
   /** Selected category id, or null when uncategorized. */
   categoryId: string | null;
   pages: FormPage[];
@@ -153,6 +155,7 @@ export function FormBuilder({
   const [openAt, setOpenAt] = useState("");
   const [closeAt, setCloseAt] = useState("");
   const [showCountdown, setShowCountdown] = useState(initial.showCountdown);
+  const [singleSubmission, setSingleSubmission] = useState(initial.singleSubmission);
   useEffect(() => {
     setOpenAt(isoToLocalInput(initial.openAt));
     setCloseAt(isoToLocalInput(initial.closeAt));
@@ -240,6 +243,7 @@ export function FormBuilder({
     if (automations.length > 0) settings.automations = automations;
     if (experiment.enabled) settings.experiment = experiment;
     if (showCountdown) settings.showCountdown = true;
+    settings.singleSubmission = singleSubmission;
     const payload = {
       title: title.trim(),
       description: description.trim() || null,
@@ -376,6 +380,15 @@ export function FormBuilder({
             label={t.countdownLabel}
           />
           <p className="ms-[1.9rem] text-xs text-muted-foreground">{t.countdownHint}</p>
+        </div>
+        <div>
+          <Checkbox
+            id="single-submission"
+            checked={singleSubmission}
+            onChange={(e) => setSingleSubmission(e.target.checked)}
+            label={t.singleSubmissionLabel}
+          />
+          <p className="ms-[1.9rem] text-xs text-muted-foreground">{t.singleSubmissionHint}</p>
         </div>
       </Card>
 
