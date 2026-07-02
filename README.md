@@ -91,12 +91,11 @@ pnpm dev
 
 ## Branches & CI/CD
 
-- `main` → production (auto-deploy via SSH → PM2)
-- `develop` → integration
-- Feature branches → PR against `develop`
+- `main` → production (auto-deploy via SSH → PM2); direct pushes are blocked.
+- Feature branches → PR against `main` → squash-merge once CI is green.
 
 Every PR runs **CI** (lint, typecheck, build, test, Prisma validate) and
-**CodeQL**. `main` deploys automatically to `forms.msk-scripts.de`.
+**CodeQL**. Merging to `main` deploys automatically to `forms.msk-scripts.de`.
 
 ---
 
