@@ -5,12 +5,28 @@ import { Button, Card, Field, Input, Textarea } from "@msk-forms/ui";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { CssPreview } from "@/components/branding/css-preview";
 import type { Dictionary } from "@/i18n";
 
 type BrandingDict = Dictionary["branding"];
 
 const DEFAULT_ACCENT = "#5eb131";
 const HEX = /^#[0-9a-fA-F]{6}$/;
+
+/**
+ * Beginner-friendly starter rules. Each targets `.msk-form` or a CSS variable
+ * so it behaves identically in the preview and on the live page (the two
+ * documented, stable hooks). `key` maps to a localized label.
+ */
+const CSS_SNIPPETS: { key: keyof BrandingDict["snip"]; css: string }[] = [
+  { key: "rounded", css: ".msk-form {\n  --radius: 1.25rem;\n}" },
+  {
+    key: "tint",
+    css: ".msk-form {\n  background: hsl(var(--primary) / 0.05);\n  padding: 1.5rem;\n  border-radius: 1rem;\n}",
+  },
+  { key: "text", css: ".msk-form {\n  font-size: 1.05rem;\n}" },
+  { key: "heading", css: ".msk-form h1 {\n  color: hsl(var(--primary));\n  font-weight: 800;\n}" },
+];
 
 export function BrandingForm({
   guildId,
@@ -58,6 +74,11 @@ export function BrandingForm({
     }
   }
 
+  function addSnippet(snippet: string) {
+    setCss((prev) => (prev.trim() ? `${prev.trimEnd()}\n\n${snippet}` : snippet));
+    setSaved(false);
+  }
+
   const swatch = HEX.test(color.trim()) ? color.trim() : DEFAULT_ACCENT;
 
   return (
@@ -101,17 +122,51 @@ export function BrandingForm({
 
       {canCss ? (
         <Field label={t.customCss} hint={t.customCssHint}>
-          <Textarea
-            value={css}
-            rows={6}
-            spellCheck={false}
-            placeholder=".msk-form { ... }"
-            className="font-mono text-xs"
-            onChange={(e) => {
-              setCss(e.target.value);
-              setSaved(false);
-            }}
-          />
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-medium text-foreground">{t.cssSnippets}</span>
+              <div className="flex flex-wrap gap-2">
+                {CSS_SNIPPETS.map((s) => (
+                  <button
+                    key={s.key}
+                    type="button"
+                    onClick={() => addSnippet(s.css)}
+                    className="rounded-md border border-border bg-card px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+                  >
+                    + {t.snip[s.key]}
+                  </button>
+                ))}
+              </div>
+              <span className="text-xs text-muted-foreground">{t.cssSnippetsHint}</span>
+            </div>
+            <Textarea
+              value={css}
+              rows={6}
+              spellCheck={false}
+              placeholder=".msk-form { ... }"
+              className="font-mono text-xs"
+              onChange={(e) => {
+                setCss(e.target.value);
+                setSaved(false);
+              }}
+            />
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-medium text-foreground">{t.cssPreviewTitle}</span>
+              <CssPreview
+                css={css}
+                accentColor={color}
+                labels={{
+                  guild: t.sample.guild,
+                  title: t.sample.title,
+                  desc: t.sample.desc,
+                  field: t.sample.field,
+                  field2: t.sample.field2,
+                  submit: t.sample.submit,
+                }}
+              />
+              <span className="text-xs text-muted-foreground">{t.cssPreviewNote}</span>
+            </div>
+          </div>
         </Field>
       ) : (
         <Field label={t.customCss}>
