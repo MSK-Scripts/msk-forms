@@ -1,7 +1,7 @@
 export type Locale = "en" | "de" | "hu" | "fr" | "es" | "pt" | "pl";
 
 const en = {
-  header: { login: "Log in", dashboard: "Dashboard", logout: "Log out", toggleTheme: "Toggle theme", language: "Language" },
+  header: { login: "Log in", dashboard: "Dashboard", logout: "Log out", toggleTheme: "Toggle theme", language: "Language", menu: "Menu" },
   stats: {
     nav: "Stats",
     eyebrow: "Platform stats",
@@ -549,7 +549,7 @@ const en = {
 export type Dictionary = typeof en;
 
 const de: Dictionary = {
-  header: { login: "Anmelden", dashboard: "Dashboard", logout: "Abmelden", toggleTheme: "Theme wechseln", language: "Sprache" },
+  header: { login: "Anmelden", dashboard: "Dashboard", logout: "Abmelden", toggleTheme: "Theme wechseln", language: "Sprache", menu: "Menü" },
   stats: {
     nav: "Statistik",
     eyebrow: "Plattform-Statistik",
@@ -1093,7 +1093,7 @@ const de: Dictionary = {
 };
 
 const hu: Dictionary = {
-  header: { login: "Bejelentkezés", dashboard: "Vezérlőpult", logout: "Kijelentkezés", toggleTheme: "Téma váltása", language: "Nyelv" },
+  header: { login: "Bejelentkezés", dashboard: "Vezérlőpult", logout: "Kijelentkezés", toggleTheme: "Téma váltása", language: "Nyelv", menu: "Menü" },
   stats: {
     nav: "Statisztika",
     eyebrow: "Platformstatisztika",
@@ -1637,7 +1637,7 @@ const hu: Dictionary = {
 };
 
 const fr: Dictionary = {
-  header: { login: "Connexion", dashboard: "Tableau de bord", logout: "Déconnexion", toggleTheme: "Changer de thème", language: "Langue" },
+  header: { login: "Connexion", dashboard: "Tableau de bord", logout: "Déconnexion", toggleTheme: "Changer de thème", language: "Langue", menu: "Menu" },
   stats: {
     nav: "Statistiques",
     eyebrow: "Statistiques de la plateforme",
@@ -2182,7 +2182,7 @@ const fr: Dictionary = {
 
 
 const es: Dictionary = {
-  header: { login: "Iniciar sesión", dashboard: "Dashboard", logout: "Cerrar sesión", toggleTheme: "Cambiar tema", language: "Idioma" },
+  header: { login: "Iniciar sesión", dashboard: "Dashboard", logout: "Cerrar sesión", toggleTheme: "Cambiar tema", language: "Idioma", menu: "Menú" },
   stats: {
     nav: "Estadísticas",
     eyebrow: "Estadísticas de la plataforma",
@@ -2727,7 +2727,7 @@ const es: Dictionary = {
 
 
 const pt: Dictionary = {
-  header: { login: "Entrar", dashboard: "Painel", logout: "Sair", toggleTheme: "Alternar tema", language: "Idioma" },
+  header: { login: "Entrar", dashboard: "Painel", logout: "Sair", toggleTheme: "Alternar tema", language: "Idioma", menu: "Menu" },
   stats: {
     nav: "Estatísticas",
     eyebrow: "Estatísticas da plataforma",
@@ -3272,7 +3272,7 @@ const pt: Dictionary = {
 
 
 const pl: Dictionary = {
-  header: { login: "Zaloguj się", dashboard: "Panel", logout: "Wyloguj się", toggleTheme: "Zmień motyw", language: "Język" },
+  header: { login: "Zaloguj się", dashboard: "Panel", logout: "Wyloguj się", toggleTheme: "Zmień motyw", language: "Język", menu: "Menu" },
   stats: {
     nav: "Statystyki",
     eyebrow: "Statystyki platformy",
