@@ -155,10 +155,18 @@ export async function getGuildForms(guildId: string) {
  * Pass a {@link ReviewScope}: `all` returns everything; otherwise only the
  * granted forms' submissions (empty grants → no rows).
  */
-export async function getGuildSubmissions(guildId: string, scope: ReviewScope) {
+export async function getGuildSubmissions(
+  guildId: string,
+  scope: ReviewScope,
+  opts: { archived?: boolean } = {},
+) {
   if (!scope.all && scope.formIds.length === 0) return [];
   return prisma.submission.findMany({
-    where: { guildId, ...(scope.all ? {} : { formId: { in: scope.formIds } }) },
+    where: {
+      guildId,
+      ...(scope.all ? {} : { formId: { in: scope.formIds } }),
+      archivedAt: opts.archived ? { not: null } : null,
+    },
     orderBy: { submittedAt: "desc" },
     take: 100,
     select: {
@@ -169,6 +177,21 @@ export async function getGuildSubmissions(guildId: string, scope: ReviewScope) {
       formId: true,
       form: { select: { title: true } },
       user: { select: { username: true, avatar: true } },
+    },
+  });
+}
+
+/** Count a guild's archived submissions within the reviewer's scope. */
+export async function countArchivedSubmissions(
+  guildId: string,
+  scope: ReviewScope,
+): Promise<number> {
+  if (!scope.all && scope.formIds.length === 0) return 0;
+  return prisma.submission.count({
+    where: {
+      guildId,
+      ...(scope.all ? {} : { formId: { in: scope.formIds } }),
+      archivedAt: { not: null },
     },
   });
 }
