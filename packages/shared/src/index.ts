@@ -4,6 +4,7 @@ export * from "./form-spec";
 export * from "./form-settings";
 export * from "./form-definition";
 export * from "./categories";
+export * from "./handle";
 export * from "./conditions";
 export * from "./constants";
 export * from "./notifications";

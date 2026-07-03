@@ -5,6 +5,7 @@ import {
   experimentActive,
   parseFormSettings,
   pickVariant,
+  singleSubmissionEnforced,
   type AutomationRule,
   type ExperimentVariant,
 } from "./form-settings.js";
@@ -39,8 +40,8 @@ describe("evaluateAutomations", () => {
 });
 
 describe("parseFormSettings", () => {
-  it("defaults automations to an empty array", () => {
-    expect(parseFormSettings(undefined)).toEqual({ automations: [] });
+  it("defaults automations to an empty array and single-submission on", () => {
+    expect(parseFormSettings(undefined)).toEqual({ automations: [], singleSubmission: true });
     expect(parseFormSettings({ acceptedRoleId: "123456789012345678" }).automations).toEqual([]);
   });
 
@@ -50,6 +51,14 @@ describe("parseFormSettings", () => {
     });
     expect(parsed.automations).toHaveLength(1);
     expect(parseFormSettings({ automations: [{ setStatus: "" }] }).automations).toEqual([]);
+  });
+
+  it("treats single-submission as on unless explicitly false", () => {
+    expect(parseFormSettings(undefined).singleSubmission).toBe(true);
+    expect(parseFormSettings({ singleSubmission: false }).singleSubmission).toBe(false);
+    expect(singleSubmissionEnforced({})).toBe(true);
+    expect(singleSubmissionEnforced({ singleSubmission: true })).toBe(true);
+    expect(singleSubmissionEnforced({ singleSubmission: false })).toBe(false);
   });
 });
 

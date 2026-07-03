@@ -52,6 +52,7 @@ export interface FormLabels {
   dateToday: string;
   dateClear: string;
   dateNow: string;
+  previewNote: string;
 }
 
 export function FormRenderer({
@@ -60,6 +61,7 @@ export function FormRenderer({
   labels,
   captchaSiteKey,
   experimentVariant,
+  preview = false,
 }: {
   slug: string;
   spec: FormSpec;
@@ -67,6 +69,8 @@ export function FormRenderer({
   captchaSiteKey?: string | null;
   /** Assigned A/B-test variant, sent with the submission for conversion tracking. */
   experimentVariant?: string;
+  /** Render-only mode for managers: validates and navigates but never submits. */
+  preview?: boolean;
 }) {
   const router = useRouter();
   const [answers, setAnswers] = useState<Answers>({});
@@ -74,6 +78,7 @@ export function FormRenderer({
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [previewDone, setPreviewDone] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   // Turnstile tokens are single-use; bump this to remount the widget (and get a
   // fresh token) after a failed submit.
@@ -99,6 +104,7 @@ export function FormRenderer({
 
   function setAnswer(id: string, value: FieldValue) {
     setAnswers((prev) => ({ ...prev, [id]: value }));
+    if (previewDone) setPreviewDone(false);
     setErrors((prev) => {
       if (!prev[id]) return prev;
       const next = { ...prev };
@@ -159,6 +165,11 @@ export function FormRenderer({
       if (bad !== undefined) setStep(bad);
       return;
     }
+    // Preview mode (managers): the form passed validation, but never submit.
+    if (preview) {
+      setPreviewDone(true);
+      return;
+    }
     if (captchaSiteKey && !captchaToken) {
       setSubmitError(labels.captchaRequired);
       return;
@@ -172,7 +183,15 @@ export function FormRenderer({
         body: JSON.stringify({ answers, captchaToken, experimentVariant }),
       });
       if (!res.ok) {
-        const data = (await res.json().catch(() => null)) as { error?: string } | null;
+        const data = (await res.json().catch(() => null)) as
+          | { error?: string; submissionId?: string }
+          | null;
+        // Already has an active submission → send them to its status page
+        // rather than showing an error.
+        if (res.status === 409 && data?.submissionId) {
+          router.push(`/s/${data.submissionId}` as Route);
+          return;
+        }
         throw new Error(data?.error ?? labels.submitFailed);
       }
       const { submissionId } = (await res.json()) as { submissionId: string };
@@ -245,6 +264,12 @@ export function FormRenderer({
       )}
 
       {submitError && <p className="text-sm text-destructive">{submitError}</p>}
+
+      {previewDone && (
+        <p className="rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm font-medium text-primary">
+          {labels.previewNote}
+        </p>
+      )}
 
       <div className="flex items-center gap-3">
         {!isFirst && (

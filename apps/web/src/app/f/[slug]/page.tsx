@@ -1,13 +1,20 @@
 import { cookies, headers } from "next/headers";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Script from "next/script";
 
 import type { CSSProperties } from "react";
 
-import { experimentActive, formScheduleStatus, parseFormSettings, pickVariant } from "@msk-forms/shared";
+import {
+  experimentActive,
+  formScheduleStatus,
+  parseFormSettings,
+  pickVariant,
+  singleSubmissionEnforced,
+} from "@msk-forms/shared";
 
 import { CustomCss } from "@/components/branding/custom-css";
 import { FormRenderer } from "@/components/form/form-renderer";
+import { Countdown } from "@/components/public/countdown";
 import { ExperimentView } from "@/components/public/experiment-view";
 import { LocalDateTime } from "@/components/public/local-datetime";
 import { PoweredBy } from "@/components/public/powered-by";
@@ -18,7 +25,7 @@ import { getGuildCaptchaSiteKey } from "@/lib/guild-captcha";
 import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 import { isGuildPro } from "@/lib/plan";
 import { captchaSiteKey } from "@/lib/captcha";
-import { getLiveFormBySlug } from "@/lib/forms";
+import { findActiveSubmissionId, getLiveFormBySlug } from "@/lib/forms";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -61,14 +68,30 @@ export default async function PublicFormPage({
     );
   }
 
+  // One active submission per person: a signed-in applicant who already has an
+  // open (non-terminal) submission for this form is sent to its status page
+  // rather than the form. Only enforceable for signed-in applicants — anonymous
+  // submits can't be tied to a person. Once a reviewer sets a terminal status
+  // they may apply again.
+  const user = await getCurrentUser();
+  if (user && singleSubmissionEnforced(parseFormSettings(form.settings))) {
+    const activeId = await findActiveSubmissionId(form.id, user.id, form.guildId);
+    if (activeId) redirect(`/s/${activeId}`);
+  }
+
   // Scheduling: a live form may not be open yet, or may already have closed.
   const schedule = formScheduleStatus(form.openAt, form.closeAt, new Date());
   if (schedule.state === "scheduled") {
+    const showCountdown = parseFormSettings(form.settings).showCountdown === true;
     return (
       <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
-        <p className="text-sm text-muted-foreground">
-          {t.opensAt} <LocalDateTime iso={form.openAt!.toISOString()} />
-        </p>
+        {showCountdown ? (
+          <Countdown targetIso={form.openAt!.toISOString()} label={t.opensIn} celebrate />
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            {t.opensAt} <LocalDateTime iso={form.openAt!.toISOString()} />
+          </p>
+        )}
       </Shell>
     );
   }
@@ -81,7 +104,6 @@ export default async function PublicFormPage({
   }
 
   if (form.visibility === "authenticated") {
-    const user = await getCurrentUser();
     if (!user) {
       return (
         <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
@@ -140,7 +162,7 @@ export default async function PublicFormPage({
       )}
       {form.closeAt && (
         <p
-          className={`rounded-md border px-3 py-2 text-sm ${
+          className={`mb-5 rounded-md border px-3 py-2 text-sm ${
             schedule.endingSoon
               ? "border-amber-500/40 bg-amber-500/10 font-medium text-amber-600 dark:text-amber-400"
               : "border-border bg-muted/40 text-muted-foreground"
@@ -171,6 +193,7 @@ export default async function PublicFormPage({
           dateToday: t.dateToday,
           dateClear: t.dateClear,
           dateNow: t.dateNow,
+          previewNote: t.previewNote,
         }}
       />
     </Shell>

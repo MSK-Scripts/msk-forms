@@ -36,7 +36,14 @@ export default async function SubmissionStatusPage({
 
   const dict = await getDict();
   const t = dict.status;
-  const status = resolveStatus(submission.status, submission.statusDefs, dict.statusLabels);
+  // Show the last status the reviewer made visible, not necessarily the raw
+  // current status: a reviewer can mark a status change "hidden" (an internal
+  // event, no DM), and it must not surface here. Fall back to the stored status
+  // for legacy submissions with no public status_change event.
+  const lastVisibleStatus =
+    [...submission.events].reverse().find((e) => e.type === "status_change" && e.toStatus)
+      ?.toStatus ?? submission.status;
+  const status = resolveStatus(lastVisibleStatus, submission.statusDefs, dict.statusLabels);
   const answers = (submission.answers ?? {}) as Record<string, unknown>;
   const branding = parseBranding(submission.form.guild.branding);
   const brand = brandStyle(branding);

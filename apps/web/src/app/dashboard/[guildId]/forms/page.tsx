@@ -74,11 +74,11 @@ export default async function GuildFormsPage({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
           {forms.length} {forms.length === 1 ? t.countForm : t.countForms}
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
         {canUpgradeToEnterprise && (
           <UpgradeActions guildId={guildId} enterpriseLabel={dict.pro.upgradeEnterprise} />
         )}
@@ -124,7 +124,7 @@ export default async function GuildFormsPage({
             const sched = formScheduleStatus(form.openAt, form.closeAt, new Date());
             return (
               <Card key={form.id} className="flex flex-col gap-3 p-4">
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                   <div className="flex min-w-0 flex-col gap-1">
                     <div className="flex items-center gap-3">
                       <span className="truncate font-medium text-foreground">{form.title}</span>
@@ -171,7 +171,7 @@ export default async function GuildFormsPage({
                       )}
                     </span>
                   </div>
-                  <div className="flex shrink-0 items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 sm:shrink-0 sm:justify-end">
                     {form._count.submissions > 0 && (
                       <div className="flex items-center gap-2.5 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground">
                         <span className="text-xs uppercase tracking-wide">{t.exportLabel}</span>
@@ -212,6 +212,16 @@ export default async function GuildFormsPage({
                       >
                         {t.formIo.export}
                       </a>
+                    )}
+                    {canManage && (
+                      <Link
+                        href={`/dashboard/${guildId}/forms/${form.id}/preview` as Route}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+                      >
+                        {t.preview}
+                      </Link>
                     )}
                     {canManage && (
                       <Link

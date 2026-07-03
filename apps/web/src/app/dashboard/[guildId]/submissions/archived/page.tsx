@@ -1,30 +1,28 @@
 import { prisma } from "@msk-forms/db";
 import { Card } from "@msk-forms/ui";
+import { IconArrowLeft } from "@tabler/icons-react";
 import type { Route } from "next";
 import Link from "next/link";
 
-import { DashboardLive } from "@/components/dashboard/dashboard-live";
 import { SubmissionsTable } from "@/components/dashboard/submissions-table";
 import { requireUser } from "@/lib/auth";
 import { resolveStatus, statusOptions } from "@/lib/forms";
-import { countArchivedSubmissions, getGuildSubmissions, getReviewScope } from "@/lib/guild";
-import { signGuildRealtimeToken } from "@/lib/realtime-token";
+import { getGuildSubmissions, getReviewScope } from "@/lib/guild";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export default async function GuildSubmissionsPage({
+export default async function ArchivedSubmissionsPage({
   params,
 }: {
   params: Promise<{ guildId: string }>;
 }) {
   const { guildId } = await params;
-  const user = await requireUser(`/dashboard/${guildId}/submissions`);
+  const user = await requireUser(`/dashboard/${guildId}/submissions/archived`);
   const dict = await getDict();
   const t = dict.dashboard;
 
-  // Reviewers see only the submissions of forms they're allowed to review.
   const scope = await getReviewScope(guildId, user.id);
   const canReview = scope.all || scope.formIds.length > 0;
   if (!canReview) {
@@ -35,44 +33,43 @@ export default async function GuildSubmissionsPage({
     );
   }
 
-  const liveToken = signGuildRealtimeToken(guildId);
-  const live = liveToken ? <DashboardLive guildId={guildId} token={liveToken} /> : null;
-
-  const [submissions, defs, archivedCount] = await Promise.all([
-    getGuildSubmissions(guildId, scope),
+  const [submissions, defs] = await Promise.all([
+    getGuildSubmissions(guildId, scope, { archived: true }),
     prisma.formStatusDef.findMany({
       where: { guildId },
       orderBy: { order: "asc" },
       select: { key: true, label: true, color: true, order: true },
     }),
-    countArchivedSubmissions(guildId, scope),
   ]);
 
-  const archivedLink =
-    archivedCount > 0 ? (
-      <div className="flex justify-end">
-        <Link
-          href={`/dashboard/${guildId}/submissions/archived` as Route}
-          className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-        >
-          {t.viewArchived} ({archivedCount})
-        </Link>
-      </div>
-    ) : null;
+  const backLink = (
+    <Link
+      href={`/dashboard/${guildId}/submissions` as Route}
+      className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+    >
+      <IconArrowLeft size={16} stroke={1.75} />
+      {t.backToSubmissions}
+    </Link>
+  );
+
+  const header = (
+    <div className="flex flex-col gap-1">
+      {backLink}
+      <h2 className="font-heading text-xl font-semibold text-foreground">{t.archivedTitle}</h2>
+    </div>
+  );
 
   if (submissions.length === 0) {
     return (
-      <>
-        {live}
-        {archivedLink}
+      <div className="flex flex-col gap-4">
+        {header}
         <Card className="p-8">
-          <p className="text-muted-foreground">{t.noSubmissions}</p>
+          <p className="text-muted-foreground">{t.noArchived}</p>
         </Card>
-      </>
+      </div>
     );
   }
 
-  // Columns include any status present on a submission but not in the defs.
   const options = statusOptions(defs, dict.statusLabels);
   const present = new Set(submissions.map((s) => s.status));
   const extra = [...present]
@@ -91,14 +88,14 @@ export default async function GuildSubmissionsPage({
   }));
 
   return (
-    <>
-      {live}
-      {archivedLink}
+    <div className="flex flex-col gap-4">
+      {header}
       <SubmissionsTable
         guildId={guildId}
         rows={rows}
         options={[...options, ...extra]}
         canReview={canReview}
+        archived
         labels={{
           colApplicant: t.colApplicant,
           colForm: t.colForm,
@@ -116,6 +113,6 @@ export default async function GuildSubmissionsPage({
           allForms: t.allForms,
         }}
       />
-    </>
+    </div>
   );
 }

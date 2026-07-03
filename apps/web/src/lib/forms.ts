@@ -6,6 +6,8 @@ import {
   formatAnswerValue,
   formSpecSchema,
   isLayoutField,
+  isTerminalStatus,
+  parseFormSettings,
   type FormSpec,
 } from "@msk-forms/shared";
 
@@ -182,7 +184,7 @@ export async function getFormForEdit(formId: string, guildId: string) {
 
 /** Live (published) forms for a guild, for the public form hub (grouped by category). */
 export async function getLiveFormsForGuild(guildId: string) {
-  return prisma.form.findMany({
+  const forms = await prisma.form.findMany({
     where: { guildId, status: "live" },
     orderBy: { createdAt: "desc" },
     select: {
@@ -192,7 +194,20 @@ export async function getLiveFormsForGuild(guildId: string) {
       openAt: true,
       closeAt: true,
       categoryId: true,
+      settings: true,
     },
+  });
+  return forms.map(({ settings, ...form }) => ({
+    ...form,
+    showCountdown: parseFormSettings(settings).showCountdown === true,
+  }));
+}
+
+/** Resolve a guild by its public hub handle (primary-domain vanity path). */
+export async function getGuildByHandle(handle: string) {
+  return prisma.guild.findUnique({
+    where: { handle },
+    select: { id: true, name: true, branding: true },
   });
 }
 
@@ -263,6 +278,33 @@ export async function getLiveFormBySlug(slug: string) {
   });
   if (!form) return null;
   return { ...form, spec: parseFormSpec(form.schema) };
+}
+
+/**
+ * The id of a signed-in applicant's active (non-terminal) submission for a form,
+ * or null when they have none. Used to enforce "one active submission per
+ * person": while such a submission exists the applicant is sent to its status
+ * page instead of the form. Considers only their most recent submission — once
+ * it reaches a terminal status they may apply again.
+ */
+export async function findActiveSubmissionId(
+  formId: string,
+  userId: string,
+  guildId: string,
+): Promise<string | null> {
+  const [latest, defs] = await Promise.all([
+    prisma.submission.findFirst({
+      where: { formId, userId },
+      orderBy: { submittedAt: "desc" },
+      select: { id: true, status: true },
+    }),
+    prisma.formStatusDef.findMany({
+      where: { guildId },
+      select: { key: true, isTerminal: true },
+    }),
+  ]);
+  if (!latest) return null;
+  return isTerminalStatus(latest.status, defs) ? null : latest.id;
 }
 
 /**

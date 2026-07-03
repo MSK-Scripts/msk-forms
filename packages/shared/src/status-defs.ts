@@ -1,5 +1,21 @@
 import { z } from "zod";
 
+import { DEFAULT_STATUSES } from "./constants";
+
+/**
+ * True when a status is terminal — an "ending" state that closes the review
+ * (built-in accepted/rejected/withdrawn, or any custom def flagged terminal).
+ * A guild's custom def sharing a built-in key overrides the built-in flag.
+ */
+export function isTerminalStatus(
+  key: string,
+  defs: { key: string; isTerminal?: boolean }[],
+): boolean {
+  const custom = defs.find((d) => d.key === key);
+  if (custom) return custom.isTerminal === true;
+  return DEFAULT_STATUSES.find((s) => s.key === key)?.terminal ?? false;
+}
+
 /**
  * Guild-defined custom statuses (stored as FormStatusDef rows with formId null).
  * They extend or override the built-in default pipeline (see DEFAULT_STATUSES):
