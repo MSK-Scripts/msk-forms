@@ -30,6 +30,8 @@ export interface SubmissionsTableLabels {
   colStatus: string;
   colScore: string;
   open: string;
+  archive: string;
+  restore: string;
   selected: string;
   apply: string;
   applying: string;
@@ -43,12 +45,15 @@ export function SubmissionsTable({
   rows,
   options,
   canReview,
+  archived = false,
   labels,
 }: {
   guildId: string;
   rows: SubmissionRow[];
   options: StatusOption[];
   canReview: boolean;
+  /** When true this is the archived view: the row action restores instead of archives. */
+  archived?: boolean;
   labels: SubmissionsTableLabels;
 }) {
   const router = useRouter();
@@ -57,6 +62,7 @@ export function SubmissionsTable({
   const [applying, setApplying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formFilter, setFormFilter] = useState("all");
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   // Distinct forms present in the current submissions, for the filter dropdown.
   const forms = [...new Map(rows.map((r) => [r.formId, r.formTitle])).entries()]
@@ -85,6 +91,29 @@ export function SubmissionsTable({
   }
   function toggleAll() {
     setSelected(allSelected ? new Set() : new Set(visibleRows.map((r) => r.id)));
+  }
+
+  async function setArchived(id: string, value: boolean) {
+    setError(null);
+    setBusyId(id);
+    try {
+      const res = await fetch(`/api/guilds/${guildId}/submissions/${id}/archive`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ archived: value }),
+      });
+      if (!res.ok) throw new Error(labels.bulkFailed);
+      setSelected((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : labels.bulkFailed);
+    } finally {
+      setBusyId(null);
+    }
   }
 
   async function apply() {
@@ -216,13 +245,25 @@ export function SubmissionsTable({
                   <td className="px-4 py-3">
                     <StatusBadge label={status.label} color={status.color} />
                   </td>
-                  <td className="px-4 py-3 text-end">
-                    <Link
-                      href={`/dashboard/${guildId}/submissions/${s.id}` as Route}
-                      className="text-sm font-medium text-primary transition-colors hover:underline"
-                    >
-                      {labels.open}
-                    </Link>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-4">
+                      <Link
+                        href={`/dashboard/${guildId}/submissions/${s.id}` as Route}
+                        className="text-sm font-medium text-primary transition-colors hover:underline"
+                      >
+                        {labels.open}
+                      </Link>
+                      {canReview && (
+                        <button
+                          type="button"
+                          onClick={() => setArchived(s.id, !archived)}
+                          disabled={busyId === s.id}
+                          className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+                        >
+                          {archived ? labels.restore : labels.archive}
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               );

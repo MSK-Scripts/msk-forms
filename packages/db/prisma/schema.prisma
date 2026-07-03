@@ -263,8 +263,9 @@ model Submission {
   status      String   @default("submitted")
   score       Int?
   meta        Json     @default("{}")
-  submittedAt DateTime @default(now()) @map("submitted_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  submittedAt DateTime  @default(now()) @map("submitted_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  archivedAt  DateTime? @map("archived_at")
 
   form   Form              @relation(fields: [formId], references: [id], onDelete: Cascade)
   guild  Guild             @relation(fields: [guildId], references: [id], onDelete: Cascade)
@@ -275,6 +276,7 @@ model Submission {
   @@index([formId, status])
   @@index([userId])
   @@index([guildId, submittedAt])
+  @@index([guildId, archivedAt])
   @@map("submissions")
 }
 
