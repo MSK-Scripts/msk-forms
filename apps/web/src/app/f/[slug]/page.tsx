@@ -162,7 +162,7 @@ export default async function PublicFormPage({
       )}
       {form.closeAt && (
         <p
-          className={`rounded-md border px-3 py-2 text-sm ${
+          className={`mb-5 rounded-md border px-3 py-2 text-sm ${
             schedule.endingSoon
               ? "border-amber-500/40 bg-amber-500/10 font-medium text-amber-600 dark:text-amber-400"
               : "border-border bg-muted/40 text-muted-foreground"
