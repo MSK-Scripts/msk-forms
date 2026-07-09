@@ -3,6 +3,7 @@
 import {
   computePagePath,
   evaluateFormula,
+  isAnswerMissing,
   isComputedField,
   isFieldRequired,
   isFieldVisible,
@@ -26,16 +27,6 @@ function isLayout(field: FormField): boolean {
   return isLayoutField(field.type);
 }
 
-/** True when a required field has no meaningful answer. */
-function isEmpty(value: FieldValue): boolean {
-  if (value === undefined || value === null || value === "") return true;
-  if (Array.isArray(value)) return value.length === 0;
-  if (value === false) return true; // unchecked consent/age_check
-  // Matrix answer ({ rowId: column }) with nothing picked yet.
-  if (typeof value === "object" && Object.keys(value).length === 0) return true;
-  return false;
-}
-
 export interface FormLabels {
   submit: string;
   submitting: string;
@@ -53,6 +44,8 @@ export interface FormLabels {
   dateClear: string;
   dateNow: string;
   previewNote: string;
+  yes: string;
+  no: string;
 }
 
 export function FormRenderer({
@@ -119,7 +112,7 @@ export function FormRenderer({
     for (const field of fields) {
       // Layout has no value; calculated fields are derived, never entered.
       if (isLayout(field) || isComputedField(field.type) || !isFieldVisible(field, answers)) continue;
-      if (isFieldRequired(field, answers) && isEmpty(answers[field.id])) {
+      if (isFieldRequired(field, answers) && isAnswerMissing(field, answers[field.id])) {
         out[field.id] = labels.required;
       }
     }
@@ -254,6 +247,7 @@ export function FormRenderer({
                 clear: labels.signatureClear,
               }}
               dateLabels={{ today: labels.dateToday, clear: labels.dateClear, now: labels.dateNow }}
+              yesNoLabels={{ yes: labels.yes, no: labels.no }}
             />
           </Field>
         ),

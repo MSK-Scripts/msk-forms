@@ -202,6 +202,7 @@ const en = {
     signatureClear: "Clear",
     next: "Next", back: "Back", step: "Step",
     dateToday: "Today", dateClear: "Clear", dateNow: "Now",
+    yes: "Yes", no: "No",
     poweredBy: "Powered by MSK Forms",
   },
   status: {
@@ -752,6 +753,7 @@ const de: Dictionary = {
     signatureClear: "Löschen",
     next: "Weiter", back: "Zurück", step: "Schritt",
     dateToday: "Heute", dateClear: "Löschen", dateNow: "Jetzt",
+    yes: "Ja", no: "Nein",
     poweredBy: "Bereitgestellt von MSK Forms",
   },
   status: {
@@ -1298,6 +1300,7 @@ const hu: Dictionary = {
     signatureClear: "Törlés",
     next: "Tovább", back: "Vissza", step: "Lépés",
     dateToday: "Ma", dateClear: "Törlés", dateNow: "Most",
+    yes: "Igen", no: "Nem",
     poweredBy: "Üzemelteti: MSK Forms",
   },
   status: {
@@ -1844,6 +1847,7 @@ const fr: Dictionary = {
     signatureClear: "Effacer",
     next: "Suivant", back: "Retour", step: "Étape",
     dateToday: "Aujourd'hui", dateClear: "Effacer", dateNow: "Maintenant",
+    yes: "Oui", no: "Non",
     poweredBy: "Propulsé par MSK Forms",
   },
   status: {
@@ -2391,6 +2395,7 @@ const es: Dictionary = {
     signatureClear: "Limpiar",
     next: "Siguiente", back: "Atrás", step: "Paso",
     dateToday: "Hoy", dateClear: "Limpiar", dateNow: "Ahora",
+    yes: "Sí", no: "No",
     poweredBy: "Con tecnología de MSK Forms",
   },
   status: {
@@ -2938,6 +2943,7 @@ const pt: Dictionary = {
     signatureClear: "Limpar",
     next: "Próximo", back: "Voltar", step: "Etapa",
     dateToday: "Hoje", dateClear: "Limpar", dateNow: "Agora",
+    yes: "Sim", no: "Não",
     poweredBy: "Desenvolvido com MSK Forms",
   },
   status: {
@@ -3485,6 +3491,7 @@ const pl: Dictionary = {
     signatureClear: "Wyczyść",
     next: "Dalej", back: "Wstecz", step: "Krok",
     dateToday: "Dzisiaj", dateClear: "Wyczyść", dateNow: "Teraz",
+    yes: "Tak", no: "Nie",
     poweredBy: "Powered by MSK Forms",
   },
   status: {

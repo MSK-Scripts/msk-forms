@@ -104,6 +104,8 @@ export default async function FormPreviewPage({
             dateClear: t.dateClear,
             dateNow: t.dateNow,
             previewNote: t.previewNote,
+            yes: t.yes,
+            no: t.no,
           }}
         />
       </div>

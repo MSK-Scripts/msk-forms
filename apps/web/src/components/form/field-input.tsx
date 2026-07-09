@@ -26,11 +26,6 @@ export type FieldValue =
   | Record<string, string>
   | undefined;
 
-const YES_NO_OPTIONS = [
-  { value: "yes", label: "Yes" },
-  { value: "no", label: "No" },
-];
-
 interface FieldInputProps {
   field: FormField;
   value: FieldValue;
@@ -41,6 +36,7 @@ interface FieldInputProps {
   slug: string;
   fileLabels: FileFieldLabels;
   dateLabels: DateFieldLabels;
+  yesNoLabels: { yes: string; no: string };
 }
 
 /** Renders the interactive control for a single (non-layout) form field. */
@@ -53,6 +49,7 @@ export function FieldInput({
   slug,
   fileLabels,
   dateLabels,
+  yesNoLabels,
 }: FieldInputProps) {
   const id = field.id;
   const options = (field.options ?? []).map((o) => ({ value: o.value, label: o.label }));
@@ -215,7 +212,10 @@ export function FieldInput({
       return (
         <RadioGroup
           name={id}
-          options={YES_NO_OPTIONS}
+          options={[
+            { value: "yes", label: yesNoLabels.yes },
+            { value: "no", label: yesNoLabels.no },
+          ]}
           value={value === true ? "yes" : value === false ? "no" : undefined}
           disabled={disabled}
           onChange={(v) => onChange(v === "yes")}

@@ -13,7 +13,7 @@ import { ShareButton } from "@/components/dashboard/share-button";
 import { LocalDateTime } from "@/components/public/local-datetime";
 import { requireUser } from "@/lib/auth";
 import { appBaseUrl } from "@/lib/url";
-import { canManageForms, getGuildForms } from "@/lib/guild";
+import { canManageForms, getGuildForms, getReviewScope } from "@/lib/guild";
 import { getGuildPlan } from "@/lib/plan";
 import { enterpriseEnabled, stripeEnabled } from "@/lib/stripe";
 import { getDict } from "@/i18n";
@@ -35,8 +35,9 @@ export default async function GuildFormsPage({
 }) {
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/forms`);
+  const scope = await getReviewScope(guildId, user.id);
   const [forms, canManage, plan] = await Promise.all([
-    getGuildForms(guildId),
+    getGuildForms(guildId, scope),
     canManageForms(guildId, user.id),
     getGuildPlan(guildId),
   ]);
