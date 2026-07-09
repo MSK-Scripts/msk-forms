@@ -4,6 +4,7 @@ import {
   countsTowardTeam,
   isGlobalReviewerRole,
   isManagerRole,
+  manageScopeFromRole,
   scopeFromRole,
 } from "./access";
 
@@ -39,6 +40,23 @@ describe("scopeFromRole", () => {
   it("grants nothing to a viewer with no grants or a non-member", () => {
     expect(scopeFromRole("viewer", [])).toEqual({ all: false, formIds: [] });
     expect(scopeFromRole(null, ["f1"])).toEqual({ all: false, formIds: [] });
+  });
+});
+
+describe("manageScopeFromRole", () => {
+  it("lets guild managers manage every form (grants ignored)", () => {
+    expect(manageScopeFromRole("owner", ["f1"])).toEqual({ all: true, formIds: [] });
+    expect(manageScopeFromRole("admin", [])).toEqual({ all: true, formIds: [] });
+  });
+
+  it("does not treat a guild-wide reviewer as a manager", () => {
+    expect(manageScopeFromRole("reviewer", ["f1"])).toEqual({ all: false, formIds: ["f1"] });
+  });
+
+  it("scopes a viewer to their per-form manage grants", () => {
+    expect(manageScopeFromRole("viewer", ["f1"])).toEqual({ all: false, formIds: ["f1"] });
+    expect(manageScopeFromRole("viewer", [])).toEqual({ all: false, formIds: [] });
+    expect(manageScopeFromRole(null, ["f1"])).toEqual({ all: false, formIds: [] });
   });
 });
 

@@ -37,6 +37,16 @@ export function scopeFromRole(role: string | null, grantedFormIds: string[]): Re
 }
 
 /**
+ * Resolve the manage scope from a member's role and their per-form manage grants:
+ * a guild manager (owner/admin) manages everything; otherwise only the forms they
+ * hold a manage grant on; a non-member or a member without grants manages nothing.
+ */
+export function manageScopeFromRole(role: string | null, manageFormIds: string[]): ReviewScope {
+  if (isManagerRole(role)) return { all: true, formIds: [] };
+  return { all: false, formIds: role === null ? [] : manageFormIds };
+}
+
+/**
  * Whether a user counts toward the plan member cap: a manager/global reviewer,
  * or anyone with at least one per-form grant. Plain viewers with no grants don't.
  */

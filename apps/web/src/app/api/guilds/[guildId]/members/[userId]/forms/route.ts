@@ -25,10 +25,25 @@ export async function PUT(
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
-  const body = (await request.json().catch(() => null)) as { formIds?: unknown } | null;
-  const requested = Array.isArray(body?.formIds)
-    ? body.formIds.filter((x): x is string => typeof x === "string")
-    : null;
+  // Each grant is a form the member may access; `manage` upgrades it from
+  // review-only to full management of that single form. Legacy `formIds`
+  // (review-only) is still accepted for compatibility.
+  const body = (await request.json().catch(() => null)) as {
+    grants?: unknown;
+    formIds?: unknown;
+  } | null;
+  const requested: { formId: string; manage: boolean }[] | null = Array.isArray(body?.grants)
+    ? body.grants
+        .filter(
+          (g): g is { formId: string; manage?: unknown } =>
+            typeof g === "object" && g !== null && typeof (g as { formId?: unknown }).formId === "string",
+        )
+        .map((g) => ({ formId: g.formId, manage: (g as { manage?: unknown }).manage === true }))
+    : Array.isArray(body?.formIds)
+      ? body.formIds
+          .filter((x): x is string => typeof x === "string")
+          .map((formId) => ({ formId, manage: false }))
+      : null;
   if (requested === null) {
     return NextResponse.json({ error: "Invalid request." }, { status: 422 });
   }
@@ -41,15 +56,16 @@ export async function PUT(
 
   // Keep only ids that are actually this guild's forms.
   const guildForms = await prisma.form.findMany({
-    where: { guildId, id: { in: requested } },
+    where: { guildId, id: { in: requested.map((g) => g.formId) } },
     select: { id: true },
   });
-  const formIds = guildForms.map((f) => f.id);
+  const valid = new Set(guildForms.map((f) => f.id));
+  const grants = requested.filter((g) => valid.has(g.formId));
 
   // Plan member cap: only when this grant newly adds the user to the team.
   const currentGrants = await prisma.formReviewer.count({ where: { userId, form: { guildId } } });
   const countedBefore = countsTowardTeam(member.role, currentGrants > 0);
-  const countsAfter = countsTowardTeam(member.role, formIds.length > 0);
+  const countsAfter = countsTowardTeam(member.role, grants.length > 0);
   if (countsAfter && !countedBefore) {
     const { memberLimit } = await getGuildPlan(guildId);
     if (memberLimit !== null && (await countTeamMembers(guildId)) >= memberLimit) {
@@ -63,8 +79,12 @@ export async function PUT(
   // Replace the grants atomically.
   await prisma.$transaction([
     prisma.formReviewer.deleteMany({ where: { userId, form: { guildId } } }),
-    ...(formIds.length > 0
-      ? [prisma.formReviewer.createMany({ data: formIds.map((formId) => ({ formId, userId })) })]
+    ...(grants.length > 0
+      ? [
+          prisma.formReviewer.createMany({
+            data: grants.map((g) => ({ formId: g.formId, userId, canManage: g.manage })),
+          }),
+        ]
       : []),
   ]);
   return NextResponse.json({ ok: true });
