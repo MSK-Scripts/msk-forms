@@ -9,7 +9,7 @@ import { FormRenderer } from "@/components/form/form-renderer";
 import { requireUser } from "@/lib/auth";
 import { brandStyle, logoUrl, parseBranding } from "@/lib/branding";
 import { getFormForEdit, parseFormSpec } from "@/lib/forms";
-import { canManageForms } from "@/lib/guild";
+import { canManageForm } from "@/lib/guild";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -31,7 +31,7 @@ export default async function FormPreviewPage({
   const dict = await getDict();
   const t = dict.form;
 
-  if (!(await canManageForms(guildId, user.id))) {
+  if (!(await canManageForm(guildId, user.id, formId))) {
     return (
       <Card className="p-8">
         <p className="text-muted-foreground">{dict.dashboard.noPermEdit}</p>

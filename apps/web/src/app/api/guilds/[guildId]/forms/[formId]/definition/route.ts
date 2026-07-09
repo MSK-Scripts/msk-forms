@@ -8,7 +8,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
 import { parseFormSpec } from "@/lib/forms";
-import { canManageForms } from "@/lib/guild";
+import { canManageForm } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
 
 export const runtime = "nodejs";
@@ -16,7 +16,8 @@ export const dynamic = "force-dynamic";
 
 /**
  * Export a form's definition (structure + settings, not submissions) as a
- * portable JSON file. Manager-only and Pro+, mirroring the import endpoint.
+ * portable JSON file. Requires a guild manager or per-form manager, and Pro+,
+ * mirroring the import endpoint.
  */
 export async function GET(
   _request: NextRequest,
@@ -26,7 +27,7 @@ export async function GET(
 
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-  if (!(await canManageForms(guildId, user.id))) {
+  if (!(await canManageForm(guildId, user.id, formId))) {
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
   if (!(await isGuildPro(guildId))) {

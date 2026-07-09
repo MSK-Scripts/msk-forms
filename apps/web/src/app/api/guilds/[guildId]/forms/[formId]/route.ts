@@ -4,14 +4,14 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { formInputSchema } from "@/lib/form-input";
 import { resolveGuildCategoryId } from "@/lib/forms";
-import { canManageForms } from "@/lib/guild";
+import { canManageForm } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
 import { deleteObject } from "@/lib/s3";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/** Update an existing form. Requires owner/admin and form ∈ guild. */
+/** Update an existing form. Requires a guild manager or per-form manager, form ∈ guild. */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ guildId: string; formId: string }> },
@@ -20,7 +20,7 @@ export async function PATCH(
 
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-  if (!(await canManageForms(guildId, user.id))) {
+  if (!(await canManageForm(guildId, user.id, formId))) {
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
@@ -83,8 +83,9 @@ export async function PATCH(
 
 /**
  * Delete a form and everything under it (versions, submissions, events, files,
- * status defs all cascade). Owner/admin only, form ∈ guild. Stored file objects
- * are purged from object storage best-effort after the row is gone.
+ * status defs all cascade). Requires a guild manager or per-form manager, form ∈
+ * guild. Stored file objects are purged from object storage best-effort after
+ * the row is gone.
  */
 export async function DELETE(
   _request: NextRequest,
@@ -94,7 +95,7 @@ export async function DELETE(
 
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-  if (!(await canManageForms(guildId, user.id))) {
+  if (!(await canManageForm(guildId, user.id, formId))) {
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 

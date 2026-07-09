@@ -11,7 +11,7 @@ import {
   getStatusOptionsForGuild,
   parseFormSpec,
 } from "@/lib/forms";
-import { canManageForms } from "@/lib/guild";
+import { canManageForm } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
 import { getDict } from "@/i18n";
 
@@ -26,7 +26,7 @@ export default async function EditFormPage({
   const { guildId, formId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/forms/${formId}/edit`);
   const t = await getDict();
-  if (!(await canManageForms(guildId, user.id))) {
+  if (!(await canManageForm(guildId, user.id, formId))) {
     return (
       <Card className="p-8">
         <p className="text-muted-foreground">{t.dashboard.noPermEdit}</p>
