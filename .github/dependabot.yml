@@ -42,6 +42,10 @@ updates:
       # Do Next.js major bumps manually
       - dependency-name: "next"
         update-types: ["version-update:semver-major"]
+      # Stay on Tailwind CSS v3 on purpose: the branding system depends on the
+      # v3 HSL token format, so a v4 major must be a deliberate migration.
+      - dependency-name: "tailwindcss"
+        update-types: ["version-update:semver-major"]
 
   # --- GitHub Actions ------------------------------------------------------
   - package-ecosystem: "github-actions"
