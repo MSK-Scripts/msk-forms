@@ -30,7 +30,15 @@ export async function GET(
   const webhooks = await prisma.webhook.findMany({
     where: { guildId },
     orderBy: { createdAt: "asc" },
-    select: { id: true, url: true, secret: true, events: true, active: true, createdAt: true },
+    select: {
+      id: true,
+      url: true,
+      secret: true,
+      events: true,
+      active: true,
+      format: true,
+      createdAt: true,
+    },
   });
   return NextResponse.json({ webhooks });
 }
@@ -69,9 +77,18 @@ export async function POST(
       url: parsed.data.url,
       events: parsed.data.events,
       active: parsed.data.active,
+      format: parsed.data.format,
       secret: randomBytes(24).toString("hex"),
     },
-    select: { id: true, url: true, secret: true, events: true, active: true, createdAt: true },
+    select: {
+      id: true,
+      url: true,
+      secret: true,
+      events: true,
+      active: true,
+      format: true,
+      createdAt: true,
+    },
   });
   return NextResponse.json({ webhook }, { status: 201 });
 }
