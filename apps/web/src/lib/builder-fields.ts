@@ -44,6 +44,8 @@ const STARS_CONFIG_TYPES: FieldType[] = ["rating_stars"];
 const SLIDER_CONFIG_TYPES: FieldType[] = ["slider"];
 
 export const needsOptions = (type: FieldType): boolean => CHOICE_TYPES.includes(type);
+/** Yes/No fields expose a points editor for the "yes" and "no" answers. */
+export const needsYesNoScore = (type: FieldType): boolean => type === "yes_no";
 export const isLayoutType = (type: FieldType): boolean => BUILDER_LAYOUT_TYPES.includes(type);
 /** Calculated fields configure an arithmetic formula instead of an input. */
 export const needsFormula = (type: FieldType): boolean => type === "calculated";
