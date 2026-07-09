@@ -37,6 +37,7 @@ export async function GET(
       events: true,
       active: true,
       format: true,
+      formId: true,
       createdAt: true,
     },
   });
@@ -71,6 +72,16 @@ export async function POST(
     return NextResponse.json({ error: "Too many webhooks." }, { status: 422 });
   }
 
+  // A form-scoped webhook must target a form that belongs to this guild.
+  const formId = parsed.data.formId ?? null;
+  if (formId) {
+    const form = await prisma.form.findFirst({
+      where: { id: formId, guildId },
+      select: { id: true },
+    });
+    if (!form) return NextResponse.json({ error: "Form not found." }, { status: 422 });
+  }
+
   const webhook = await prisma.webhook.create({
     data: {
       guildId,
@@ -78,6 +89,7 @@ export async function POST(
       events: parsed.data.events,
       active: parsed.data.active,
       format: parsed.data.format,
+      formId,
       secret: randomBytes(24).toString("hex"),
     },
     select: {
@@ -87,6 +99,7 @@ export async function POST(
       events: true,
       active: true,
       format: true,
+      formId: true,
       createdAt: true,
     },
   });

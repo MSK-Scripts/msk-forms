@@ -45,13 +45,25 @@ export const webhookInputSchema = z
     events: z.array(webhookEventSchema).min(1, "Select at least one event."),
     active: z.boolean().default(true),
     format: webhookFormatSchema.default("json"),
+    /** Optional form to scope the webhook to; omit/null = every form. */
+    formId: z.string().uuid().nullish(),
   })
   .superRefine((val, ctx) => {
-    if (val.format === "discord" && !DISCORD_WEBHOOK_URL_RE.test(val.url)) {
+    const isDiscordUrl = DISCORD_WEBHOOK_URL_RE.test(val.url);
+    if (val.format === "discord" && !isDiscordUrl) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["url"],
         message: "Enter a valid Discord channel webhook URL.",
+      });
+    }
+    // Common mistake: pasting a Discord webhook URL but leaving the generic JSON
+    // format — Discord rejects the raw signed body, so nothing gets logged.
+    if (val.format === "json" && isDiscordUrl) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["url"],
+        message: "This looks like a Discord webhook URL — choose the Discord format.",
       });
     }
   });
