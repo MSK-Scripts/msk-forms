@@ -12,6 +12,25 @@ export function isBlankAnswer(value: unknown): boolean {
   return false;
 }
 
+/**
+ * Field-aware "is this required answer missing?" check (shared client+server).
+ * Most types defer to `isBlankAnswer`, but two need special handling:
+ * - `yes_no`: an explicit "No" is `false`, which is a valid answer — unlike
+ *   consent/age_check where an unchecked box (`false`) means no agreement.
+ * - `matrix`: every row must have a picked column.
+ */
+export function isAnswerMissing(field: FormField, value: unknown): boolean {
+  if (field.type === "yes_no") return value !== true && value !== false;
+  if (field.type === "matrix") {
+    const rows = field.rows ?? [];
+    return (
+      rows.length === 0 ||
+      rows.some((row) => isBlankAnswer((value as Record<string, unknown>)?.[row.id]))
+    );
+  }
+  return isBlankAnswer(value);
+}
+
 /** Evaluate a single rule's `when` clause against the current answers. */
 export function evaluateCondition(when: ConditionRule["when"], answers: AnswerMap): boolean {
   const actual = answers[when.field];

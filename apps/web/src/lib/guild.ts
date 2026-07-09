@@ -130,10 +130,19 @@ export async function requireGuildMembership(guildId: string, userId: string) {
   return { ...membership.guild, role: membership.role };
 }
 
-/** Forms for a guild, with submission counts, for the "Manage Forms" tab. */
-export async function getGuildForms(guildId: string) {
+/**
+ * Forms for a guild, with submission counts, for the "Manage Forms" tab, scoped
+ * to what the viewer may review. Managers/guild-wide reviewers (`scope.all`) see
+ * every form; a per-form reviewer sees only their granted forms (empty grants →
+ * no forms). Keeps the list consistent with the per-form export/review gating.
+ */
+export async function getGuildForms(guildId: string, scope: ReviewScope) {
+  if (!scope.all && scope.formIds.length === 0) return [];
   return prisma.form.findMany({
-    where: { guildId },
+    where: {
+      guildId,
+      ...(scope.all ? {} : { id: { in: scope.formIds } }),
+    },
     orderBy: { updatedAt: "desc" },
     select: {
       id: true,

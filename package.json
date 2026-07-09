@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "description": "MSK Forms — a modern form & application platform with status feedback and a Discord bot",
-  "author": "Moritz Kohm <moritz.kohm@gmail.com> (https://msk-scripts.de)",
+  "author": "Moritz Kohm <info@musiker15.de> (https://www.msk-scripts.de)",
   "license": "SEE LICENSE IN LICENSE",
   "type": "module",
   "engines": {
     "node": ">=22",
     "pnpm": ">=9"
   },
-  "packageManager": "pnpm@11.2.2+sha512.36e6621fad506178936455e70247b8808ef4ec25797a9f437a93281a020484e2607f6a469a22e982987c3dbb8866e3071514ab10a4a1749e06edcd1ec118436f",
+  "packageManager": "pnpm@11.10.0+sha512.0b7f8b98060031904c017e3a41eb187a16d40eeb829b95c4f8cb03681761fc4ab53dd219115b9b447f4dce1a05a214764461e7d3703392a9f32f9511ce8c86c8",
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",

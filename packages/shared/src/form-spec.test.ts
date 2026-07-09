@@ -62,6 +62,19 @@ describe("buildAnswerSchema", () => {
     expect(answerSchema.safeParse({ age: 30 }).success).toBe(false); // name missing
   });
 
+  it("accepts an explicit No (false) for a required yes_no field", () => {
+    const s = buildAnswerSchema(specWith({ id: "yn", type: "yes_no", validation: { required: true } }));
+    expect(s.safeParse({ yn: false }).success).toBe(true); // "No" is a valid answer
+    expect(s.safeParse({ yn: true }).success).toBe(true);
+    expect(s.safeParse({}).success).toBe(false); // unanswered
+  });
+
+  it("requires a checked box for a required consent field", () => {
+    const s = buildAnswerSchema(specWith({ id: "c", type: "consent", validation: { required: true } }));
+    expect(s.safeParse({ c: false }).success).toBe(false); // unchecked = no agreement
+    expect(s.safeParse({ c: true }).success).toBe(true);
+  });
+
   it("rejects an empty string for a required text field", () => {
     const s = buildAnswerSchema(specWith({ id: "x", type: "short_text", validation: { required: true } }));
     expect(s.safeParse({ x: "" }).success).toBe(false);

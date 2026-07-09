@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { isBlankAnswer, isFieldRequired, isFieldVisible } from "./conditions";
+import { isAnswerMissing, isFieldRequired, isFieldVisible } from "./conditions";
 
 /**
  * Form spec — the JSON definition of a form (concept §6–§8).
@@ -300,14 +300,7 @@ export function buildAnswerSchema(spec: FormSpec): z.ZodTypeAny {
     for (const field of fields) {
       if (!isFieldVisible(field, answers) || !isFieldRequired(field, answers)) continue;
 
-      const value = answers[field.id];
-      const missing =
-        field.type === "matrix"
-          ? (field.rows ?? []).length === 0 ||
-            (field.rows ?? []).some((row) => isBlankAnswer((value as Record<string, unknown>)?.[row.id]))
-          : isBlankAnswer(value);
-
-      if (missing) {
+      if (isAnswerMissing(field, answers[field.id])) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: [field.id], message: "Required." });
       }
     }
