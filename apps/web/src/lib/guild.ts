@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import {
   isGlobalReviewerRole,
   isManagerRole,
+  manageScopeFromRole,
   REVIEWER_ROLES,
   scopeFromRole,
   type ReviewScope as PureReviewScope,
@@ -32,6 +33,46 @@ export type ReviewScope = PureReviewScope;
 /** True if the user may manage (create/edit) the guild's forms. */
 export async function canManageForms(guildId: string, userId: string): Promise<boolean> {
   return isManagerRole(await getGuildRole(guildId, userId));
+}
+
+/**
+ * Which of a guild's forms a user may fully manage (edit the form itself, not
+ * just review). Guild managers (owner/admin) get `all`; other members get the
+ * forms they hold a per-form manage grant on. Decision logic lives in
+ * `manageScopeFromRole`.
+ */
+export async function getManageScope(guildId: string, userId: string): Promise<ReviewScope> {
+  const role = await getGuildRole(guildId, userId);
+  const grants = isManagerRole(role)
+    ? []
+    : (
+        await prisma.formReviewer.findMany({
+          where: { userId, canManage: true, form: { guildId } },
+          select: { formId: true },
+        })
+      ).map((g) => g.formId);
+  return manageScopeFromRole(role, grants);
+}
+
+/**
+ * True if the user may fully manage this specific form: a guild manager, or a
+ * member with a per-form manage grant on it. Used to gate the per-form edit,
+ * delete and definition-export routes so a single-form manager can act on their
+ * form without guild-wide access.
+ */
+export async function canManageForm(
+  guildId: string,
+  userId: string,
+  formId: string,
+): Promise<boolean> {
+  const role = await getGuildRole(guildId, userId);
+  if (isManagerRole(role)) return true;
+  if (role === null) return false;
+  const grant = await prisma.formReviewer.findUnique({
+    where: { formId_userId: { formId, userId } },
+    select: { canManage: true, form: { select: { guildId: true } } },
+  });
+  return Boolean(grant?.canManage && grant.form.guildId === guildId);
 }
 
 /**

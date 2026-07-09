@@ -13,7 +13,7 @@ import { ShareButton } from "@/components/dashboard/share-button";
 import { LocalDateTime } from "@/components/public/local-datetime";
 import { requireUser } from "@/lib/auth";
 import { appBaseUrl } from "@/lib/url";
-import { canManageForms, getGuildForms, getReviewScope } from "@/lib/guild";
+import { canManageForms, getGuildForms, getManageScope, getReviewScope } from "@/lib/guild";
 import { getGuildPlan } from "@/lib/plan";
 import { enterpriseEnabled, stripeEnabled } from "@/lib/stripe";
 import { getDict } from "@/i18n";
@@ -36,11 +36,15 @@ export default async function GuildFormsPage({
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/forms`);
   const scope = await getReviewScope(guildId, user.id);
-  const [forms, canManage, plan] = await Promise.all([
+  const [forms, canManage, manageScope, plan] = await Promise.all([
     getGuildForms(guildId, scope),
     canManageForms(guildId, user.id),
+    getManageScope(guildId, user.id),
     getGuildPlan(guildId),
   ]);
+  // Whether the viewer may fully manage a given form (guild manager or a per-form
+  // manage grant). Drives the per-form edit/preview/delete/export-definition buttons.
+  const manages = (formId: string) => manageScope.all || manageScope.formIds.includes(formId);
   const base = appBaseUrl();
   const dict = await getDict();
   const t = dict.dashboard;
@@ -206,7 +210,7 @@ export default async function GuildFormsPage({
                         )}
                       </div>
                     )}
-                    {canManage && plan.isPro && (
+                    {manages(form.id) && plan.isPro && (
                       <a
                         href={`/api/guilds/${guildId}/forms/${form.id}/definition`}
                         className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
@@ -214,7 +218,7 @@ export default async function GuildFormsPage({
                         {t.formIo.export}
                       </a>
                     )}
-                    {canManage && (
+                    {manages(form.id) && (
                       <Link
                         href={`/dashboard/${guildId}/forms/${form.id}/preview` as Route}
                         target="_blank"
@@ -224,7 +228,7 @@ export default async function GuildFormsPage({
                         {t.preview}
                       </Link>
                     )}
-                    {canManage && (
+                    {manages(form.id) && (
                       <Link
                         href={`/dashboard/${guildId}/forms/${form.id}/edit` as Route}
                         className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
@@ -253,7 +257,7 @@ export default async function GuildFormsPage({
                         {t.experimentLink}
                       </Link>
                     )}
-                    {canManage && (
+                    {manages(form.id) && (
                       <DeleteFormButton
                         guildId={guildId}
                         formId={form.id}

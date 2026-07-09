@@ -1,18 +1,22 @@
 "use client";
 
-import { Button, Card, Checkbox, Field, Input, Select } from "@msk-forms/ui";
+import { Button, Card, Field, Input, Select } from "@msk-forms/ui";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import type { Dictionary } from "@/i18n";
 
+/** Per-form access a member holds: none, review-only, or full management. */
+export type FormAccess = "none" | "review" | "manage";
+
 export interface MemberRow {
   userId: string;
   username: string;
   avatar: string | null;
   role: string;
-  formIds: string[];
+  /** Per-form access level (absent form id = no access). */
+  access: Record<string, "review" | "manage">;
 }
 
 type MembersDict = Dictionary["members"];
@@ -38,9 +42,9 @@ export function MembersManager({
   const [confirmRemove, setConfirmRemove] = useState<MemberRow | null>(null);
   const [addId, setAddId] = useState("");
   const [addRole, setAddRole] = useState("viewer");
-  // Local per-user form selection, seeded from props.
-  const [grants, setGrants] = useState<Record<string, Set<string>>>(
-    () => Object.fromEntries(members.map((m) => [m.userId, new Set(m.formIds)])),
+  // Local per-user, per-form access map, seeded from props.
+  const [access, setAccess] = useState<Record<string, Record<string, "review" | "manage">>>(
+    () => Object.fromEntries(members.map((m) => [m.userId, { ...m.access }])),
   );
 
   const roleLabel: Record<string, string> = {
@@ -90,14 +94,15 @@ export function MembersManager({
     );
   }
 
-  function toggleForm(m: MemberRow, formId: string) {
-    const next = new Set(grants[m.userId] ?? []);
-    if (next.has(formId)) next.delete(formId);
-    else next.add(formId);
-    setGrants((g) => ({ ...g, [m.userId]: next }));
+  function setFormAccess(m: MemberRow, formId: string, level: FormAccess) {
+    const next = { ...(access[m.userId] ?? {}) };
+    if (level === "none") delete next[formId];
+    else next[formId] = level;
+    setAccess((a) => ({ ...a, [m.userId]: next }));
+    const grants = Object.entries(next).map(([id, lvl]) => ({ formId: id, manage: lvl === "manage" }));
     void call(
       `/api/guilds/${guildId}/members/${m.userId}/forms`,
-      { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ formIds: [...next] }) },
+      { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ grants }) },
       m.userId,
     );
   }
@@ -186,21 +191,31 @@ export function MembersManager({
               )}
             </div>
 
-            {/* Per-form reviewer grants only matter for viewers (reviewers see all). */}
+            {/* Per-form grants only matter for viewers (reviewers already see all). */}
             {m.role === "viewer" && forms.length > 0 && (
               <div className="flex flex-col gap-2 rounded-md border border-border bg-muted/30 p-3">
                 <p className="text-xs font-medium text-foreground">{t.formAccess}</p>
                 <p className="text-xs text-muted-foreground">{t.formAccessHint}</p>
                 <div className="flex flex-col gap-1.5">
                   {forms.map((f) => (
-                    <Checkbox
-                      key={f.id}
-                      id={`${m.userId}-${f.id}`}
-                      label={f.title}
-                      checked={grants[m.userId]?.has(f.id) ?? false}
-                      disabled={busy === m.userId}
-                      onChange={() => toggleForm(m, f.id)}
-                    />
+                    <div key={f.id} className="flex items-center justify-between gap-2">
+                      <span translate="no" className="min-w-0 truncate text-sm text-foreground">
+                        {f.title}
+                      </span>
+                      <div className="w-40 shrink-0">
+                        <Select
+                          aria-label={f.title}
+                          value={access[m.userId]?.[f.id] ?? "none"}
+                          disabled={busy === m.userId}
+                          onChange={(e) => setFormAccess(m, f.id, e.target.value as FormAccess)}
+                          options={[
+                            { value: "none", label: t.accessNone },
+                            { value: "review", label: t.accessReview },
+                            { value: "manage", label: t.accessManage },
+                          ]}
+                        />
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>

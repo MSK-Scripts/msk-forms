@@ -36,7 +36,7 @@ export default async function MembersPage({
     }),
     prisma.formReviewer.findMany({
       where: { form: { guildId } },
-      select: { userId: true, formId: true },
+      select: { userId: true, formId: true, canManage: true },
     }),
     prisma.form.findMany({
       where: { guildId },
@@ -47,8 +47,11 @@ export default async function MembersPage({
     countTeamMembers(guildId),
   ]);
 
-  const grantsByUser: Record<string, string[]> = {};
-  for (const g of grants) (grantsByUser[g.userId] ??= []).push(g.formId);
+  // Per-user, per-form access level: "manage" (full) or "review" (read).
+  const accessByUser: Record<string, Record<string, "review" | "manage">> = {};
+  for (const g of grants) {
+    (accessByUser[g.userId] ??= {})[g.formId] = g.canManage ? "manage" : "review";
+  }
 
   const rows: MemberRow[] = members
     .map((m) => ({
@@ -56,7 +59,7 @@ export default async function MembersPage({
       username: m.user.username,
       avatar: m.user.avatar,
       role: m.role,
-      formIds: grantsByUser[m.user.id] ?? [],
+      access: accessByUser[m.user.id] ?? {},
     }))
     .sort((a, b) => (ROLE_ORDER[a.role] ?? 9) - (ROLE_ORDER[b.role] ?? 9) || a.username.localeCompare(b.username));
 
