@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildDiscordWebhookBody,
   buildSubmissionWebhookPayload,
+  webhookInputSchema,
   webhookSubscribeSchema,
 } from "./webhooks.js";
 
@@ -48,6 +50,71 @@ describe("webhookSubscribeSchema", () => {
     expect(() =>
       webhookSubscribeSchema.parse({ targetUrl: "not-a-url", event: "submission.created" }),
     ).toThrow();
+  });
+});
+
+describe("webhookInputSchema format", () => {
+  it("defaults to json and accepts any URL", () => {
+    const parsed = webhookInputSchema.parse({
+      url: "https://example.com/hooks",
+      events: ["submission.created"],
+    });
+    expect(parsed.format).toBe("json");
+  });
+
+  it("requires a real Discord webhook URL for the discord format", () => {
+    expect(
+      webhookInputSchema.safeParse({
+        url: "https://example.com/hooks",
+        events: ["submission.created"],
+        format: "discord",
+      }).success,
+    ).toBe(false);
+    expect(
+      webhookInputSchema.safeParse({
+        url: "https://discord.com/api/webhooks/123456789/AbC-tok_en",
+        events: ["submission.created"],
+        format: "discord",
+      }).success,
+    ).toBe(true);
+  });
+});
+
+describe("buildDiscordWebhookBody", () => {
+  const payload = buildSubmissionWebhookPayload({
+    event: "submission.created",
+    at: "2026-06-24T10:00:00.000Z",
+    guildId: "g1",
+    form,
+    submission,
+    applicant: { discordId: "123", name: "Ada" },
+  });
+
+  it("renders one embed with applicant, status and answer fields", () => {
+    const body = buildDiscordWebhookBody(payload);
+    expect(body.embeds).toHaveLength(1);
+    const embed = body.embeds[0]!;
+    expect(embed.title).toContain("New submission");
+    expect(embed.title).toContain("Application");
+    const names = embed.fields.map((f) => f.name);
+    expect(names).toContain("Applicant");
+    expect(names).toContain("Status");
+    expect(names).toContain("Your name");
+    expect(embed.fields.find((f) => f.name === "Your name")?.value).toBe("Ada");
+  });
+
+  it("shows the status transition for a status_changed event", () => {
+    const changed = buildSubmissionWebhookPayload({
+      event: "submission.status_changed",
+      at: "2026-06-24T11:00:00.000Z",
+      guildId: "g1",
+      form,
+      submission: { ...submission, status: "accepted" },
+      transition: { fromStatus: "submitted", toStatus: "accepted" },
+    });
+    const embed = buildDiscordWebhookBody(changed).embeds[0]!;
+    expect(embed.title).toContain("Submission updated");
+    expect(embed.fields.find((f) => f.name === "Status")?.value).toBe("submitted → accepted");
   });
 });
 

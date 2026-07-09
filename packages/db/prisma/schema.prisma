@@ -359,6 +359,9 @@ model Webhook {
   active    Boolean  @default(true)
   /// Who manages this hook: "manual" (dashboard) or an integration ("zapier"/"make").
   source    String   @default("manual")
+  /// Delivery format: "json" (generic HMAC-signed POST) or "discord" (a Discord
+  /// channel webhook receiving a formatted embed — log submissions to any server).
+  format    String   @default("json")
   createdAt DateTime @default(now()) @map("created_at")
 
   guild      Guild             @relation(fields: [guildId], references: [id], onDelete: Cascade)

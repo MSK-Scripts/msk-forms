@@ -1,7 +1,12 @@
 import { createHmac } from "node:crypto";
 
 import { prisma } from "@msk-forms/db";
-import { buildSubmissionWebhookPayload, type WebhookEvent } from "@msk-forms/shared";
+import {
+  buildDiscordWebhookBody,
+  buildSubmissionWebhookPayload,
+  type SubmissionWebhookPayload,
+  type WebhookEvent,
+} from "@msk-forms/shared";
 
 /** How many pending deliveries to drain per tick. */
 const BATCH = 25;
@@ -18,7 +23,7 @@ type DeliveryRow = {
   event: string;
   payload: unknown;
   attempts: number;
-  webhook: { url: string; secret: string } | null;
+  webhook: { url: string; secret: string; format: string } | null;
 };
 
 /** Exponential-ish backoff (minutes) keyed by the attempt just made. */
@@ -85,9 +90,11 @@ async function hydratePayload(stored: unknown): Promise<unknown> {
 }
 
 /**
- * POST one delivery to its endpoint, HMAC-signing the raw JSON body. On a 2xx the
- * row is marked `success`; otherwise it's retried with backoff until MAX_ATTEMPTS,
- * then marked `failed` with the last error.
+ * POST one delivery to its endpoint. Generic (`json`) hooks get the raw JSON body
+ * HMAC-signed via `X-MSK-Signature`; `discord` hooks get a formatted embed body
+ * (no signature — Discord doesn't verify one). On a 2xx the row is marked
+ * `success`; otherwise it's retried with backoff until MAX_ATTEMPTS, then marked
+ * `failed` with the last error.
  */
 async function deliverOne(row: DeliveryRow): Promise<void> {
   if (!row.webhook) {
@@ -99,8 +106,20 @@ async function deliverOne(row: DeliveryRow): Promise<void> {
     return;
   }
 
-  const body = JSON.stringify(await hydratePayload(row.payload));
-  const signature = createHmac("sha256", row.webhook.secret).update(body).digest("hex");
+  const hydrated = await hydratePayload(row.payload);
+  const isDiscord = row.webhook.format === "discord";
+  const body = isDiscord
+    ? JSON.stringify(buildDiscordWebhookBody(hydrated as SubmissionWebhookPayload))
+    : JSON.stringify(hydrated);
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "User-Agent": "MSK-Forms-Webhook/1",
+  };
+  if (!isDiscord) {
+    const signature = createHmac("sha256", row.webhook.secret).update(body).digest("hex");
+    headers["X-MSK-Event"] = row.event;
+    headers["X-MSK-Signature"] = `sha256=${signature}`;
+  }
   const attempts = row.attempts + 1;
 
   let ok = false;
@@ -110,12 +129,7 @@ async function deliverOne(row: DeliveryRow): Promise<void> {
   try {
     const res = await fetch(row.webhook.url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "User-Agent": "MSK-Forms-Webhook/1",
-        "X-MSK-Event": row.event,
-        "X-MSK-Signature": `sha256=${signature}`,
-      },
+      headers,
       body,
       signal: controller.signal,
     });
@@ -161,7 +175,7 @@ export async function deliverPendingWebhooks(): Promise<void> {
         event: true,
         payload: true,
         attempts: true,
-        webhook: { select: { url: true, secret: true } },
+        webhook: { select: { url: true, secret: true, format: true } },
       },
     })) as DeliveryRow[];
 

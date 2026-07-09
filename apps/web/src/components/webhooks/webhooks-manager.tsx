@@ -1,7 +1,7 @@
 "use client";
 
-import { WEBHOOK_EVENTS, type WebhookEvent } from "@msk-forms/shared";
-import { Button, Card, Checkbox, Field, Input } from "@msk-forms/ui";
+import { WEBHOOK_EVENTS, type WebhookEvent, type WebhookFormat } from "@msk-forms/shared";
+import { Button, Card, Checkbox, Field, Input, Select } from "@msk-forms/ui";
 import { useState } from "react";
 
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -15,6 +15,8 @@ export interface WebhookRow {
   active: boolean;
   /** "manual" (added here) or an integration provider ("zapier"/"make"). */
   source: string;
+  /** "json" (generic signed POST) or "discord" (Discord embed). */
+  format: string;
 }
 
 /** Badge label for an integration-managed hook; brand names stay verbatim. */
@@ -44,6 +46,7 @@ export function WebhooksManager({
 }) {
   const [webhooks, setWebhooks] = useState<WebhookRow[]>(initial);
   const [url, setUrl] = useState("");
+  const [format, setFormat] = useState<WebhookFormat>("json");
   const [events, setEvents] = useState<Set<WebhookEvent>>(new Set(WEBHOOK_EVENTS));
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +71,7 @@ export function WebhooksManager({
       const res = await fetch(`/api/guilds/${guildId}/webhooks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: url.trim(), events: [...events] }),
+        body: JSON.stringify({ url: url.trim(), events: [...events], format }),
       });
       const data = (await res.json().catch(() => null)) as
         | { webhook?: WebhookRow; error?: string }
@@ -77,6 +80,7 @@ export function WebhooksManager({
       // Hooks added here are always manually managed.
       setWebhooks((prev) => [...prev, { ...data.webhook!, source: "manual" }]);
       setUrl("");
+      setFormat("json");
       setEvents(new Set(WEBHOOK_EVENTS));
     } catch (err) {
       setError(err instanceof Error ? err.message : t.errAdd);
@@ -132,10 +136,20 @@ export function WebhooksManager({
         <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
           {t.addTitle}
         </h3>
-        <Field label={t.url}>
+        <Field label={t.format}>
+          <Select
+            value={format}
+            onChange={(e) => setFormat(e.target.value as WebhookFormat)}
+            options={[
+              { value: "json", label: t.formatJson },
+              { value: "discord", label: t.formatDiscord },
+            ]}
+          />
+        </Field>
+        <Field label={t.url} hint={format === "discord" ? t.discordHint : undefined}>
           <Input
             value={url}
-            placeholder={t.urlPlaceholder}
+            placeholder={format === "discord" ? t.discordUrlPlaceholder : t.urlPlaceholder}
             onChange={(e) => setUrl(e.target.value)}
           />
         </Field>
@@ -173,6 +187,11 @@ export function WebhooksManager({
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="break-all font-mono text-sm text-foreground">{hook.url}</span>
                   <div className="flex shrink-0 items-center gap-1.5">
+                    {hook.format === "discord" && (
+                      <span className="rounded bg-[#5865F2]/15 px-2 py-0.5 text-xs font-medium text-[#5865F2]">
+                        {t.formatDiscord}
+                      </span>
+                    )}
                     {hook.source !== "manual" && (
                       <span
                         className="rounded bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground"
@@ -202,34 +221,40 @@ export function WebhooksManager({
                     </span>
                   ))}
                 </div>
-                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                  <span className="font-medium">{t.secret}:</span>
-                  <code className="break-all font-mono">
-                    {revealed.has(hook.id) ? hook.secret : "•".repeat(24)}
-                  </code>
-                  <button
-                    type="button"
-                    className="text-primary hover:underline"
-                    onClick={() =>
-                      setRevealed((prev) => {
-                        const next = new Set(prev);
-                        if (next.has(hook.id)) next.delete(hook.id);
-                        else next.add(hook.id);
-                        return next;
-                      })
-                    }
-                  >
-                    {revealed.has(hook.id) ? t.hide : t.show}
-                  </button>
-                  <button
-                    type="button"
-                    className="text-primary hover:underline"
-                    onClick={() => copySecret(hook)}
-                  >
-                    {copied === hook.id ? t.copied : t.copy}
-                  </button>
-                </div>
-                <p className="text-xs text-muted-foreground">{t.secretHint}</p>
+                {/* The signing secret only applies to generic JSON hooks; a
+                    Discord webhook does not verify a signature. */}
+                {hook.format !== "discord" && (
+                  <>
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <span className="font-medium">{t.secret}:</span>
+                      <code className="break-all font-mono">
+                        {revealed.has(hook.id) ? hook.secret : "•".repeat(24)}
+                      </code>
+                      <button
+                        type="button"
+                        className="text-primary hover:underline"
+                        onClick={() =>
+                          setRevealed((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(hook.id)) next.delete(hook.id);
+                            else next.add(hook.id);
+                            return next;
+                          })
+                        }
+                      >
+                        {revealed.has(hook.id) ? t.hide : t.show}
+                      </button>
+                      <button
+                        type="button"
+                        className="text-primary hover:underline"
+                        onClick={() => copySecret(hook)}
+                      >
+                        {copied === hook.id ? t.copied : t.copy}
+                      </button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{t.secretHint}</p>
+                  </>
+                )}
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" onClick={() => toggleActive(hook)}>
                     {hook.active ? t.disable : t.enable}
