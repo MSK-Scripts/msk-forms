@@ -19,6 +19,7 @@ import {
   needsRows,
   needsSliderConfig,
   needsStarsConfig,
+  needsYesNoScore,
 } from "@/lib/builder-fields";
 import type { Dictionary } from "@/i18n";
 
@@ -78,6 +79,24 @@ export function FieldEditor({
   }
   function removeOption(i: number) {
     patch({ options: (field.options ?? []).filter((_, j) => j !== i) });
+  }
+  /**
+   * Set the score for the "yes" or "no" answer of a yes_no field. Scores live on
+   * two synthetic options (values "yes"/"no") so they flow through the shared
+   * scoring, seeded on first edit.
+   */
+  function setYesNoScore(which: "yes" | "no", raw: string) {
+    const base =
+      field.options?.length === 2
+        ? [...field.options]
+        : [
+            { value: "yes", label: "Yes" },
+            { value: "no", label: "No" },
+          ];
+    const i = which === "yes" ? 0 : 1;
+    const n = raw === "" ? undefined : Number(raw);
+    base[i] = { ...base[i]!, score: n !== undefined && Number.isFinite(n) ? n : undefined };
+    patch({ options: base });
   }
   function setValidation(partial: Partial<FormField["validation"]>) {
     patch({ validation: { ...field.validation, ...partial } });
@@ -193,6 +212,29 @@ export function FieldEditor({
                 >
                   + {t.addOption}
                 </button>
+              </div>
+            </Field>
+          )}
+
+          {needsYesNoScore(field.type) && (
+            <Field label={t.points} hint={t.yesNoScoreHint}>
+              <div className="flex flex-col gap-2">
+                {(["yes", "no"] as const).map((which) => (
+                  <div key={which} className="flex items-center gap-2">
+                    <span className="flex-1 text-sm text-muted-foreground">
+                      {which === "yes" ? t.yes : t.no}
+                    </span>
+                    <div className="w-24 shrink-0">
+                      <Input
+                        type="number"
+                        value={field.options?.find((o) => o.value === which)?.score ?? ""}
+                        onChange={(e) => setYesNoScore(which, e.target.value)}
+                        placeholder={t.points}
+                        title={t.points}
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
             </Field>
           )}

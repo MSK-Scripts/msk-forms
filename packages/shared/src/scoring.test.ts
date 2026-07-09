@@ -25,6 +25,15 @@ describe("scoreSubmission", () => {
     expect(scoreSubmission(s, {})).toBe(0);
   });
 
+  it("scores a yes_no field from its synthetic yes/no options", () => {
+    const s = spec([
+      { id: "q", type: "yes_no", width: "full", validation: { required: false }, conditional: [], options: [{ value: "yes", label: "Yes", score: 10 }, { value: "no", label: "No", score: 0 }] },
+    ]);
+    expect(scoreSubmission(s, { q: true })).toBe(10);
+    expect(scoreSubmission(s, { q: false })).toBe(0);
+    expect(scoreSubmission(s, {})).toBe(0); // unanswered
+  });
+
   it("sums every selected option for multi-choice and across fields", () => {
     const s = spec([
       { id: "q1", type: "multi_choice", width: "full", validation: { required: false }, conditional: [], options: [{ value: "x", label: "X", score: 3 }, { value: "y", label: "Y", score: 5 }, { value: "z", label: "Z", score: 0 }] },
