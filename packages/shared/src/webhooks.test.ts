@@ -78,6 +78,26 @@ describe("webhookInputSchema format", () => {
       }).success,
     ).toBe(true);
   });
+
+  it("rejects a Discord webhook URL left on the generic JSON format", () => {
+    // The common footgun: a Discord URL with format json would POST raw signed
+    // JSON that Discord rejects, so nothing logs. The schema catches it.
+    const res = webhookInputSchema.safeParse({
+      url: "https://discord.com/api/webhooks/123456789/AbC-tok_en",
+      events: ["submission.created"],
+      format: "json",
+    });
+    expect(res.success).toBe(false);
+  });
+
+  it("accepts an optional form scope", () => {
+    const parsed = webhookInputSchema.parse({
+      url: "https://example.com/hooks",
+      events: ["submission.created"],
+      formId: "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+    });
+    expect(parsed.formId).toBe("3f2504e0-4f89-41d3-9a0c-0305e82c3301");
+  });
 });
 
 describe("buildDiscordWebhookBody", () => {

@@ -185,6 +185,7 @@ model Form {
   formStatuses FormStatusDef[]
   reviewers    FormReviewer[]
   experimentStats ExperimentStat[]
+  webhooks     Webhook[]
 
   @@index([guildId, status])
   @@index([guildId, categoryId])
@@ -362,12 +363,17 @@ model Webhook {
   /// Delivery format: "json" (generic HMAC-signed POST) or "discord" (a Discord
   /// channel webhook receiving a formatted embed — log submissions to any server).
   format    String   @default("json")
+  /// Optional form scope: when set, the webhook only fires for this form's
+  /// events; null (default) means every form in the guild.
+  formId    String?  @map("form_id") @db.Uuid
   createdAt DateTime @default(now()) @map("created_at")
 
   guild      Guild             @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  form       Form?             @relation(fields: [formId], references: [id], onDelete: Cascade)
   deliveries WebhookDelivery[]
 
   @@index([guildId])
+  @@index([formId])
   @@map("webhooks")
 }
 
@@ -389,5 +395,6 @@ model WebhookDelivery {
   webhook Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
 
   @@index([status, nextAttemptAt])
+  @@index([webhookId, createdAt(sort: Desc)])
   @@map("webhook_deliveries")
 }
