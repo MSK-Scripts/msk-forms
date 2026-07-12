@@ -1,7 +1,7 @@
 "use client";
 
-import { WEBHOOK_EVENTS, type WebhookEvent } from "@msk-forms/shared";
-import { Button, Card, Checkbox, Field, Input } from "@msk-forms/ui";
+import { WEBHOOK_EVENTS, type WebhookEvent, type WebhookFormat } from "@msk-forms/shared";
+import { Button, Card, Checkbox, Field, Input, Select } from "@msk-forms/ui";
 import { useState } from "react";
 
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -15,6 +15,12 @@ export interface WebhookRow {
   active: boolean;
   /** "manual" (added here) or an integration provider ("zapier"/"make"). */
   source: string;
+  /** "json" (generic signed POST) or "discord" (Discord embed). */
+  format: string;
+  /** Form this hook is scoped to, or null for every form in the guild. */
+  formId: string | null;
+  /** Outcome of the most recent delivery attempt, if any. */
+  lastDelivery: { status: string; error: string | null; at: string } | null;
 }
 
 /** Badge label for an integration-managed hook; brand names stay verbatim. */
@@ -36,15 +42,21 @@ function eventLabel(event: string, t: WebhooksDict): string {
 export function WebhooksManager({
   guildId,
   initial,
+  forms,
   t,
 }: {
   guildId: string;
   initial: WebhookRow[];
+  forms: { id: string; title: string }[];
   t: WebhooksDict;
 }) {
   const [webhooks, setWebhooks] = useState<WebhookRow[]>(initial);
   const [url, setUrl] = useState("");
+  const [format, setFormat] = useState<WebhookFormat>("json");
+  // "" = every form; otherwise a specific form id.
+  const [formId, setFormId] = useState("");
   const [events, setEvents] = useState<Set<WebhookEvent>>(new Set(WEBHOOK_EVENTS));
+  const formTitle = (id: string | null) => forms.find((f) => f.id === id)?.title ?? id;
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [revealed, setRevealed] = useState<Set<string>>(new Set());
@@ -68,15 +80,22 @@ export function WebhooksManager({
       const res = await fetch(`/api/guilds/${guildId}/webhooks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: url.trim(), events: [...events] }),
+        body: JSON.stringify({
+          url: url.trim(),
+          events: [...events],
+          format,
+          formId: formId || null,
+        }),
       });
       const data = (await res.json().catch(() => null)) as
         | { webhook?: WebhookRow; error?: string }
         | null;
       if (!res.ok || !data?.webhook) throw new Error(data?.error ?? t.errAdd);
-      // Hooks added here are always manually managed.
-      setWebhooks((prev) => [...prev, { ...data.webhook!, source: "manual" }]);
+      // Hooks added here are always manually managed and have no deliveries yet.
+      setWebhooks((prev) => [...prev, { ...data.webhook!, source: "manual", lastDelivery: null }]);
       setUrl("");
+      setFormat("json");
+      setFormId("");
       setEvents(new Set(WEBHOOK_EVENTS));
     } catch (err) {
       setError(err instanceof Error ? err.message : t.errAdd);
@@ -132,10 +151,20 @@ export function WebhooksManager({
         <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
           {t.addTitle}
         </h3>
-        <Field label={t.url}>
+        <Field label={t.format}>
+          <Select
+            value={format}
+            onChange={(e) => setFormat(e.target.value as WebhookFormat)}
+            options={[
+              { value: "json", label: t.formatJson },
+              { value: "discord", label: t.formatDiscord },
+            ]}
+          />
+        </Field>
+        <Field label={t.url} hint={format === "discord" ? t.discordHint : undefined}>
           <Input
             value={url}
-            placeholder={t.urlPlaceholder}
+            placeholder={format === "discord" ? t.discordUrlPlaceholder : t.urlPlaceholder}
             onChange={(e) => setUrl(e.target.value)}
           />
         </Field>
@@ -152,6 +181,18 @@ export function WebhooksManager({
             ))}
           </div>
         </Field>
+        {forms.length > 0 && (
+          <Field label={t.formScope} hint={t.formScopeHint}>
+            <Select
+              value={formId}
+              onChange={(e) => setFormId(e.target.value)}
+              options={[
+                { value: "", label: t.scopeAll },
+                ...forms.map((f) => ({ value: f.id, label: f.title })),
+              ]}
+            />
+          </Field>
+        )}
         <div>
           <Button type="button" onClick={add} disabled={adding || !url.trim() || events.size === 0}>
             {adding ? t.adding : t.add}
@@ -173,6 +214,11 @@ export function WebhooksManager({
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="break-all font-mono text-sm text-foreground">{hook.url}</span>
                   <div className="flex shrink-0 items-center gap-1.5">
+                    {hook.format === "discord" && (
+                      <span className="rounded bg-[#5865F2]/15 px-2 py-0.5 text-xs font-medium text-[#5865F2]">
+                        {t.formatDiscord}
+                      </span>
+                    )}
                     {hook.source !== "manual" && (
                       <span
                         className="rounded bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground"
@@ -192,7 +238,7 @@ export function WebhooksManager({
                     </span>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap items-center gap-1.5">
                   {hook.events.map((event) => (
                     <span
                       key={event}
@@ -201,35 +247,67 @@ export function WebhooksManager({
                       {eventLabel(event, t)}
                     </span>
                   ))}
+                  <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                    {hook.formId ? formTitle(hook.formId) : t.scopeAll}
+                  </span>
                 </div>
-                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                  <span className="font-medium">{t.secret}:</span>
-                  <code className="break-all font-mono">
-                    {revealed.has(hook.id) ? hook.secret : "•".repeat(24)}
-                  </code>
-                  <button
-                    type="button"
-                    className="text-primary hover:underline"
-                    onClick={() =>
-                      setRevealed((prev) => {
-                        const next = new Set(prev);
-                        if (next.has(hook.id)) next.delete(hook.id);
-                        else next.add(hook.id);
-                        return next;
-                      })
-                    }
-                  >
-                    {revealed.has(hook.id) ? t.hide : t.show}
-                  </button>
-                  <button
-                    type="button"
-                    className="text-primary hover:underline"
-                    onClick={() => copySecret(hook)}
-                  >
-                    {copied === hook.id ? t.copied : t.copy}
-                  </button>
-                </div>
-                <p className="text-xs text-muted-foreground">{t.secretHint}</p>
+                <p className="text-xs text-muted-foreground">
+                  <span className="font-medium">{t.lastDelivery}:</span>{" "}
+                  {hook.lastDelivery ? (
+                    <span
+                      className={
+                        hook.lastDelivery.status === "success"
+                          ? "text-primary"
+                          : hook.lastDelivery.status === "failed"
+                            ? "text-destructive"
+                            : "text-muted-foreground"
+                      }
+                    >
+                      {hook.lastDelivery.status === "success"
+                        ? t.deliverySuccess
+                        : hook.lastDelivery.status === "failed"
+                          ? t.deliveryFailed
+                          : t.deliveryPending}
+                      {hook.lastDelivery.error ? ` (${hook.lastDelivery.error})` : ""}
+                    </span>
+                  ) : (
+                    t.deliveryNone
+                  )}
+                </p>
+                {/* The signing secret only applies to generic JSON hooks; a
+                    Discord webhook does not verify a signature. */}
+                {hook.format !== "discord" && (
+                  <>
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <span className="font-medium">{t.secret}:</span>
+                      <code className="break-all font-mono">
+                        {revealed.has(hook.id) ? hook.secret : "•".repeat(24)}
+                      </code>
+                      <button
+                        type="button"
+                        className="text-primary hover:underline"
+                        onClick={() =>
+                          setRevealed((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(hook.id)) next.delete(hook.id);
+                            else next.add(hook.id);
+                            return next;
+                          })
+                        }
+                      >
+                        {revealed.has(hook.id) ? t.hide : t.show}
+                      </button>
+                      <button
+                        type="button"
+                        className="text-primary hover:underline"
+                        onClick={() => copySecret(hook)}
+                      >
+                        {copied === hook.id ? t.copied : t.copy}
+                      </button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{t.secretHint}</p>
+                  </>
+                )}
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" onClick={() => toggleActive(hook)}>
                     {hook.active ? t.disable : t.enable}

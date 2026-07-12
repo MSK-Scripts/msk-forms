@@ -52,11 +52,51 @@ export default async function WebhooksPage({
     );
   }
 
-  const webhooks = (await prisma.webhook.findMany({
-    where: { guildId },
-    orderBy: { createdAt: "asc" },
-    select: { id: true, url: true, secret: true, events: true, active: true, source: true },
-  })) as WebhookRow[];
+  const [rawWebhooks, forms] = await Promise.all([
+    prisma.webhook.findMany({
+      where: { guildId },
+      orderBy: { createdAt: "asc" },
+      select: {
+        id: true,
+        url: true,
+        secret: true,
+        events: true,
+        active: true,
+        source: true,
+        format: true,
+        formId: true,
+      },
+    }),
+    prisma.form.findMany({
+      where: { guildId },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, title: true },
+    }),
+  ]);
+
+  // Latest delivery per webhook, so the dashboard can show whether events are
+  // actually getting through (the top reason a "test submission didn't log").
+  const latest = await prisma.webhookDelivery.findMany({
+    where: { webhookId: { in: rawWebhooks.map((w) => w.id) } },
+    orderBy: { createdAt: "desc" },
+    distinct: ["webhookId"],
+    select: { webhookId: true, status: true, lastError: true, createdAt: true, deliveredAt: true },
+  });
+  const lastByHook = new Map(latest.map((d) => [d.webhookId, d]));
+
+  const webhooks: WebhookRow[] = rawWebhooks.map((w) => {
+    const d = lastByHook.get(w.id);
+    return {
+      ...w,
+      lastDelivery: d
+        ? {
+            status: d.status,
+            error: d.lastError,
+            at: (d.deliveredAt ?? d.createdAt).toISOString(),
+          }
+        : null,
+    };
+  });
 
   return (
     <div className="flex flex-col gap-4">
@@ -64,7 +104,7 @@ export default async function WebhooksPage({
         <h2 className="font-heading text-xl font-semibold text-foreground">{t.title}</h2>
         <p className="text-sm text-muted-foreground">{t.intro}</p>
       </div>
-      <WebhooksManager guildId={guildId} initial={webhooks} t={t} />
+      <WebhooksManager guildId={guildId} initial={webhooks} forms={forms} t={t} />
     </div>
   );
 }
