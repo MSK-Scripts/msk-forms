@@ -5,8 +5,8 @@
 
 const DISCORD_API = "https://discord.com/api/v10";
 
-/** OAuth2 scopes we request for web login: identity, email, guild list. */
-export const OAUTH_SCOPES = ["identify", "email", "guilds"] as const;
+/** OAuth2 scopes we request for web login: identity and email. */
+export const OAUTH_SCOPES = ["identify", "email"] as const;
 
 export interface DiscordTokenResponse {
   access_token: string;
@@ -88,24 +88,6 @@ export async function fetchDiscordUser(accessToken: string): Promise<DiscordUser
     throw new Error(`Discord user fetch failed: ${res.status} ${await res.text()}`);
   }
   return res.json() as Promise<DiscordUser>;
-}
-
-/**
- * Fetch the Discord guild ids the authenticated user is a member of (via the
- * `guilds` scope). Best-effort — returns [] on any error so login never fails.
- */
-export async function fetchDiscordGuildIds(accessToken: string): Promise<string[]> {
-  try {
-    const res = await fetch(`${DISCORD_API}/users/@me/guilds`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-      cache: "no-store",
-    });
-    if (!res.ok) return [];
-    const guilds = (await res.json()) as { id: string }[];
-    return Array.isArray(guilds) ? guilds.map((g) => g.id) : [];
-  } catch {
-    return [];
-  }
 }
 
 /**
