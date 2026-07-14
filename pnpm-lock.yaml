@@ -96,8 +96,8 @@ importers:
   apps/web:
     dependencies:
       '@aws-sdk/client-s3':
-        specifier: ^3.1085.0
-        version: 3.1085.0
+        specifier: ^3.1086.0
+        version: 3.1086.0
       '@msk-forms/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -272,8 +272,8 @@ packages:
     resolution: {integrity: sha512-EKnvkXSmz3IpA99tCNuI+dLFXyZyClSm8zns9sB/elvkU+MTuomAs6toJMPMBf98/fICG/urXDkzGz0/c3yyAQ==}
     engines: {node: '>=20.0.0'}
 
-  '@aws-sdk/client-s3@3.1085.0':
-    resolution: {integrity: sha512-O0xe8sR50AYkwxlvRRsV0qytEO2dtXQTQ1CF3YBBdE5xtVkbu27H0vGa1mjQi1/+fbYM80AWEIPai5jZmXyubw==}
+  '@aws-sdk/client-s3@3.1086.0':
+    resolution: {integrity: sha512-6+7mVMPKetZmmF2L1yRJ+rN9b1OwVgc5sju2mj8ixdxuGjtVZ0ekFlcWGBFMQT9gpFk55PPLBng/XRYO3qah5A==}
     engines: {node: '>=20.0.0'}
 
   '@aws-sdk/core@3.975.1':
@@ -296,8 +296,8 @@ packages:
     resolution: {integrity: sha512-GREWRrMj0XnNKMaVa/Mauoaui26qBEHu71WWqXbwZOu/jFQOnPZjTf7u0KtGKC8VGa6VUs9kDWGgocrKNLS9vw==}
     engines: {node: '>=20.0.0'}
 
-  '@aws-sdk/credential-provider-node@3.972.66':
-    resolution: {integrity: sha512-f+qjRXZpz7sgzbc4QB+6nLKfyKFgRRXzWdXbsKPv/VhVRyHsDyq4yBWC/B75BAJpFIcUeI2XR/3gdWJ677zB4A==}
+  '@aws-sdk/credential-provider-node@3.972.67':
+    resolution: {integrity: sha512-oYlzWst56rlhhjbYnexwv5hVLYe1cW4liLObhDfxDLI4RAQzleMVHQgQgx7XsC4HKj4e3kjT8v9DId+Pi/dndw==}
     engines: {node: '>=20.0.0'}
 
   '@aws-sdk/credential-provider-process@3.972.57':
@@ -3147,11 +3147,11 @@ snapshots:
       '@smithy/types': 4.16.1
       tslib: 2.8.1
 
-  '@aws-sdk/client-s3@3.1085.0':
+  '@aws-sdk/client-s3@3.1086.0':
     dependencies:
       '@aws-sdk/checksums': 3.1000.16
       '@aws-sdk/core': 3.975.1
-      '@aws-sdk/credential-provider-node': 3.972.66
+      '@aws-sdk/credential-provider-node': 3.972.67
       '@aws-sdk/middleware-sdk-s3': 3.972.62
       '@aws-sdk/signature-v4-multi-region': 3.996.39
       '@aws-sdk/types': 3.974.0
@@ -3215,7 +3215,7 @@ snapshots:
       '@smithy/types': 4.16.1
       tslib: 2.8.1
 
-  '@aws-sdk/credential-provider-node@3.972.66':
+  '@aws-sdk/credential-provider-node@3.972.67':
     dependencies:
       '@aws-sdk/credential-provider-env': 3.972.57
       '@aws-sdk/credential-provider-http': 3.972.59
