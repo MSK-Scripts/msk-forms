@@ -46,6 +46,10 @@ updates:
       # v3 HSL token format, so a v4 major must be a deliberate migration.
       - dependency-name: "tailwindcss"
         update-types: ["version-update:semver-major"]
+      # TypeScript majors are a deliberate migration: TS 7 (the native compiler)
+      # is not yet supported by our toolchain (typescript-eslint 8 crashes on it).
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   # --- GitHub Actions ------------------------------------------------------
   - package-ecosystem: "github-actions"
