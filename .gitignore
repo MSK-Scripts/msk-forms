@@ -13,6 +13,9 @@ build/
 next-env.d.ts
 .vercel/
 
+# Graphify
+graphify-out/
+
 # Environment / secrets
 .env
 .env.*
