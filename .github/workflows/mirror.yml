@@ -32,7 +32,10 @@ name: Mirror to Codeberg
 
 on:
   push:
-    branches: ["**"]
+    # Dependabot pushes run with the Dependabot secrets store, not the Actions
+    # one, so CODEBERG_* are empty and the mirror always fails on those branches.
+    # They are ephemeral throwaway branches not worth mirroring anyway — skip them.
+    branches-ignore: ["dependabot/**"]
     tags: ["**"]
   delete:
   workflow_dispatch:
