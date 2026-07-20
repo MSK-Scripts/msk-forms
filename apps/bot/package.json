@@ -15,7 +15,7 @@
   "dependencies": {
     "@msk-forms/db": "workspace:*",
     "@msk-forms/shared": "workspace:*",
-    "discord.js": "^14.26.5"
+    "discord.js": "^14.27.0"
   },
   "devDependencies": {
     "tsx": "^4.23.1",
