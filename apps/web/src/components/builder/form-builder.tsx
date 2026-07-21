@@ -92,6 +92,8 @@ export interface FormBuilderInitial {
   pages: FormPage[];
   automations: AutomationRule[];
   experiment: Experiment;
+  /** Per-form status message overrides, keyed by status key. */
+  statusMessages: Record<string, string>;
 }
 
 /** ISO → `datetime-local` input value (YYYY-MM-DDTHH:MM) in the viewer's tz. */
@@ -163,6 +165,9 @@ export function FormBuilder({
   const [pages, setPages] = useState<FormPage[]>(initial.pages);
   const [automations, setAutomations] = useState<AutomationRule[]>(initial.automations);
   const [experiment, setExperiment] = useState<Experiment>(initial.experiment);
+  const [statusMessages, setStatusMessages] = useState<Record<string, string>>(
+    initial.statusMessages,
+  );
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -244,6 +249,13 @@ export function FormBuilder({
     if (experiment.enabled) settings.experiment = experiment;
     if (showCountdown) settings.showCountdown = true;
     settings.singleSubmission = singleSubmission;
+    // Keep only non-blank per-status overrides.
+    const trimmedMessages = Object.fromEntries(
+      Object.entries(statusMessages)
+        .map(([k, v]) => [k, v.trim()] as const)
+        .filter(([, v]) => v),
+    );
+    if (Object.keys(trimmedMessages).length > 0) settings.statusMessages = trimmedMessages;
     const payload = {
       title: title.trim(),
       description: description.trim() || null,
@@ -354,6 +366,27 @@ export function FormBuilder({
             />
           </Field>
         </div>
+        <details className="rounded-md border border-border p-3">
+          <summary className="cursor-pointer text-sm font-medium text-foreground">
+            {t.statusMessagesLabel}
+          </summary>
+          <p className="mt-2 text-xs text-muted-foreground">{t.statusMessagesHint}</p>
+          <div className="mt-3 flex flex-col gap-3">
+            {statusOptions.map((s) => (
+              <Field key={s.value} label={s.label}>
+                <Textarea
+                  value={statusMessages[s.value] ?? ""}
+                  onChange={(e) =>
+                    setStatusMessages((m) => ({ ...m, [s.value]: e.target.value }))
+                  }
+                  placeholder={t.statusMessagesPlaceholder}
+                  rows={2}
+                  maxLength={2000}
+                />
+              </Field>
+            ))}
+          </div>
+        </details>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label={t.opensLabel} hint={t.scheduleHint}>
             <DateField

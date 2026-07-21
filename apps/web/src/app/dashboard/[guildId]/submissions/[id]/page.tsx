@@ -1,3 +1,5 @@
+import { prisma } from "@msk-forms/db";
+import { parseStatusMessages, resolveStatusMessage } from "@msk-forms/shared";
 import type { Route } from "next";
 import { StatusBadge } from "@msk-forms/ui";
 import Link from "next/link";
@@ -36,6 +38,22 @@ export default async function SubmissionDetailPage({
   if (!canReview) notFound();
   const status = resolveStatus(submission.status, submission.statusDefs, dict.statusLabels);
   const answers = (submission.answers ?? {}) as Record<string, unknown>;
+
+  // Resolve the per-status message template (form override -> guild) so the
+  // review panel can prefill the applicant message when a status is picked.
+  const [guildCfg, formCfg] = await Promise.all([
+    prisma.guild.findUnique({ where: { id: guildId }, select: { statusMessages: true } }),
+    prisma.form.findUnique({ where: { id: submission.formId }, select: { settings: true } }),
+  ]);
+  const guildMsgs = parseStatusMessages(guildCfg?.statusMessages);
+  const formMsgs = parseStatusMessages(
+    (formCfg?.settings as { statusMessages?: unknown } | null)?.statusMessages,
+  );
+  const statusMessages: Record<string, string> = {};
+  for (const opt of submission.options) {
+    const msg = resolveStatusMessage(guildMsgs, formMsgs, opt.key);
+    if (msg) statusMessages[opt.key] = msg;
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -137,6 +155,7 @@ export default async function SubmissionDetailPage({
             submissionId={submission.id}
             currentStatus={submission.status}
             options={submission.options}
+            statusMessages={statusMessages}
             t={t}
           />
         ) : (

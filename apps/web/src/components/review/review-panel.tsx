@@ -2,7 +2,7 @@
 
 import { Button, Card, Checkbox, Field, Select, Textarea } from "@msk-forms/ui";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import type { Dictionary } from "@/i18n";
 import type { SubmissionAction } from "@/lib/submission-action";
@@ -19,12 +19,15 @@ export function ReviewPanel({
   submissionId,
   currentStatus,
   options,
+  statusMessages,
   t,
 }: {
   guildId: string;
   submissionId: string;
   currentStatus: string;
   options: { key: string; label: string }[];
+  /** Resolved per-status message template (form override -> guild) for this form. */
+  statusMessages: Record<string, string>;
   t: ReviewDict;
 }) {
   const router = useRouter();
@@ -32,6 +35,12 @@ export function ReviewPanel({
   const [hidden, setHidden] = useState(false);
   const [note, setNote] = useState("");
   const [message, setMessage] = useState("");
+  // Editable applicant message that travels with the status change, prefilled
+  // from the target status' template. Reset whenever the target status changes.
+  const [statusMsg, setStatusMsg] = useState(statusMessages[currentStatus] ?? "");
+  useEffect(() => {
+    setStatusMsg(statusMessages[status] ?? "");
+  }, [status, statusMessages]);
   const [pending, setPending] = useState<SubmissionAction["kind"] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -77,11 +86,29 @@ export function ReviewPanel({
             type="button"
             className="shrink-0"
             disabled={pending !== null || status === currentStatus}
-            onClick={() => submit({ kind: "status", status, hidden })}
+            onClick={() => {
+              const original = statusMessages[status] ?? "";
+              // Unchanged prefill -> let the server auto-apply the template;
+              // otherwise send the (edited or cleared) message as an override.
+              const msg = statusMsg === original ? undefined : statusMsg;
+              submit({ kind: "status", status, hidden, message: msg });
+            }}
           >
             {pending === "status" ? t.saving : t.apply}
           </Button>
         </div>
+        {!hidden && (
+          <>
+            <Textarea
+              value={statusMsg}
+              onChange={(e) => setStatusMsg(e.target.value)}
+              placeholder={t.statusMessagePlaceholder}
+              rows={2}
+              maxLength={2000}
+            />
+            <p className="text-xs text-muted-foreground">{t.statusMessageHint}</p>
+          </>
+        )}
         <Checkbox
           id="hide-status-change"
           checked={hidden}

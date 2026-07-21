@@ -90,6 +90,7 @@ export default async function NewFormPage({
           pages: [{ id: "p1", title: "", fields: [] }],
           automations: [],
           experiment: { enabled: false, variants: [] },
+          statusMessages: {},
         }}
       />
     </div>

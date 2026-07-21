@@ -38,6 +38,7 @@ export default async function GuildLayout({
     ...(canManage
       ? [
           { href: `/dashboard/${guildId}/statuses`, label: t.statusesTab, prefix: true },
+          { href: `/dashboard/${guildId}/messages`, label: t.messagesTab, prefix: true },
           { href: `/dashboard/${guildId}/categories`, label: t.categoriesTab, prefix: true },
           { href: `/dashboard/${guildId}/branding`, label: t.brandingTab, prefix: true },
           { href: `/dashboard/${guildId}/bot`, label: t.botTab, prefix: true },

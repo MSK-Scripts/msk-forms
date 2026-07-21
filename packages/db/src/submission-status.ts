@@ -2,6 +2,37 @@ import { enqueueGuildLog } from "./guild-log";
 import { Prisma, prisma } from "./index";
 import { enqueueWebhooks } from "./webhooks";
 
+/** Read a trimmed non-empty string from a raw `{key: string}` JSON map. */
+function messageFromMap(map: unknown, key: string): string | null {
+  if (map && typeof map === "object" && !Array.isArray(map)) {
+    const value = (map as Record<string, unknown>)[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return null;
+}
+
+/**
+ * Resolve the applicant message for a transition. An explicit `override` wins
+ * (empty string opts out); otherwise the per-status template from the form's
+ * settings (override) or the guild's `statusMessages`. Kept dependency-free so
+ * `@msk-forms/db` need not import `@msk-forms/shared` (mirrors `resolveStatusMessage`).
+ */
+function resolveTransitionMessage(
+  override: string | null | undefined,
+  formStatusMessages: unknown,
+  guildStatusMessages: unknown,
+  statusKey: string,
+): string | null {
+  if (override !== undefined) {
+    const trimmed = override?.trim();
+    return trimmed ? trimmed : null;
+  }
+  return (
+    messageFromMap(formStatusMessages, statusKey) ??
+    messageFromMap(guildStatusMessages, statusKey)
+  );
+}
+
 export interface StatusChangeOutboxNotification {
   /** Discord-linked applicant to DM (omit for anonymous submissions). */
   userId: string;
@@ -29,6 +60,17 @@ export interface ChangeSubmissionStatusArgs {
    * fully silent change). Defaults to `"public"`.
    */
   eventVisibility?: "public" | "internal";
+  /**
+   * Applicant-facing message for this transition:
+   *  - `undefined` (the default): auto-resolve the per-status template from the
+   *    form's `settings.statusMessages` (override) or the guild's
+   *    `statusMessages` for `toStatus`, if any.
+   *  - a non-empty string: use it verbatim (a reviewer's custom override).
+   *  - an empty string: send no message even if a template exists (opt out).
+   * A resolved public message is recorded as a `message` event and, for a linked
+   * applicant, delivered as the DM instead of the generic status-change DM.
+   */
+  applicantMessage?: string | null;
 }
 
 export interface ChangeSubmissionStatusResult {
@@ -57,6 +99,7 @@ export async function changeSubmissionStatus(
     toStatusLabel = null,
     notify = null,
     eventVisibility = "public",
+    applicantMessage,
   } = args;
 
   return prisma.$transaction(async (tx) => {
@@ -66,13 +109,27 @@ export async function changeSubmissionStatus(
         status: true,
         guildId: true,
         formId: true,
-        form: { select: { title: true } },
+        form: { select: { title: true, settings: true } },
+        guild: { select: { statusMessages: true } },
         user: { select: { username: true } },
       },
     });
     if (!current || current.status === toStatus) {
       return { changed: false, fromStatus: current?.status ?? null };
     }
+
+    // Resolve the applicant-facing message for this transition: an explicit
+    // override wins; otherwise the per-status template (form override -> guild).
+    // Only public changes carry a message; hidden/internal changes stay silent.
+    const finalMessage =
+      eventVisibility === "public"
+        ? resolveTransitionMessage(
+            applicantMessage,
+            (current.form?.settings as Record<string, unknown> | null)?.statusMessages,
+            current.guild?.statusMessages,
+            toStatus,
+          )
+        : null;
 
     // Guarded write: only succeeds if the status is still what we just read.
     const updated = await tx.submission.updateMany({
@@ -94,14 +151,43 @@ export async function changeSubmissionStatus(
       },
     });
 
-    if (notify) {
-      await tx.notification.create({
+    // Record the applicant-facing message (visible on the status page).
+    if (finalMessage) {
+      await tx.submissionEvent.create({
         data: {
-          userId: notify.userId,
-          type: notify.type,
-          payload: notify.payload as Prisma.InputJsonValue,
+          submissionId,
+          actorUserId,
+          type: "message",
+          message: finalMessage,
+          visibility: "public",
         },
       });
+    }
+
+    // Applicant DM: a resolved message supersedes the generic status-change DM
+    // (one meaningful notification), otherwise send the status-change DM as before.
+    if (notify) {
+      if (finalMessage) {
+        await tx.notification.create({
+          data: {
+            userId: notify.userId,
+            type: "message",
+            payload: {
+              submissionId,
+              formTitle: current.form?.title ?? null,
+              message: finalMessage,
+            } as Prisma.InputJsonValue,
+          },
+        });
+      } else {
+        await tx.notification.create({
+          data: {
+            userId: notify.userId,
+            type: notify.type,
+            payload: notify.payload as Prisma.InputJsonValue,
+          },
+        });
+      }
     }
 
     // Activity log: record the transition for the guild's log channel.
