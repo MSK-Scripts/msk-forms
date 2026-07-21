@@ -76,6 +76,7 @@ export default async function EditFormPage({
           pages: spec?.pages.length ? spec.pages : [{ id: "p1", title: "", fields: [] }],
           automations: settings.automations,
           experiment: settings.experiment ?? { enabled: false, variants: [] },
+          statusMessages: settings.statusMessages ?? {},
         }}
       />
     </div>

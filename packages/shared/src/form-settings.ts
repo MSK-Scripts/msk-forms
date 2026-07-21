@@ -51,6 +51,49 @@ export const experimentSchema = z.object({
 });
 export type Experiment = z.infer<typeof experimentSchema>;
 
+/** Max length of an automatic per-status message to the applicant. */
+export const MAX_STATUS_MESSAGE = 2000;
+
+/**
+ * A map of status key -> automatic message sent to the applicant when a
+ * submission enters that status. Lives guild-wide (`Guild.statusMessages`) and,
+ * optionally, per form (`Form.settings.statusMessages`, which overrides the
+ * guild map for that form). Empty/whitespace values are treated as "no message".
+ */
+export const statusMessagesSchema = z.record(
+  z.string().min(1).max(64),
+  z.string().max(MAX_STATUS_MESSAGE),
+);
+export type StatusMessages = z.infer<typeof statusMessagesSchema>;
+
+/** Parse a stored status-messages JSON blob, dropping blank entries. */
+export function parseStatusMessages(json: unknown): StatusMessages {
+  const result = statusMessagesSchema.safeParse(json);
+  if (!result.success) return {};
+  const out: StatusMessages = {};
+  for (const [key, value] of Object.entries(result.data)) {
+    const trimmed = value.trim();
+    if (trimmed) out[key] = trimmed;
+  }
+  return out;
+}
+
+/**
+ * Resolve the automatic message for a status transition: the per-form override
+ * wins over the guild default; returns null when neither has a (non-blank)
+ * message for `statusKey`.
+ */
+export function resolveStatusMessage(
+  guild: StatusMessages | null | undefined,
+  form: StatusMessages | null | undefined,
+  statusKey: string,
+): string | null {
+  const formMsg = form?.[statusKey]?.trim();
+  if (formMsg) return formMsg;
+  const guildMsg = guild?.[statusKey]?.trim();
+  return guildMsg || null;
+}
+
 export const formSettingsSchema = z.object({
   /** Legacy single accepted role (still read for backward compatibility). */
   acceptedRoleId: snowflake.optional(),
@@ -78,6 +121,11 @@ export const formSettingsSchema = z.object({
    * to a person). Treat `undefined` as on — see `singleSubmissionEnforced`.
    */
   singleSubmission: z.boolean().default(true),
+  /**
+   * Per-form automatic status messages, keyed by status. Overrides the guild
+   * `statusMessages` for this form only (see `resolveStatusMessage`).
+   */
+  statusMessages: statusMessagesSchema.optional(),
 });
 
 /** Whether the "one active submission per person" rule is on (undefined = on). */

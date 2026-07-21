@@ -98,6 +98,10 @@ model Guild {
   stripeSubscriptionId String? @map("stripe_subscription_id")
   branding       Json     @default("{}")
   botConfig      Json     @default("{}") @map("bot_config")
+  /// Guild-wide automatic messages to the applicant per status, keyed by status
+  /// key: { "<statusKey>": "<message>" }. A per-form override may live in
+  /// Form.settings.statusMessages. See @msk-forms/shared statusMessagesSchema.
+  statusMessages Json     @default("{}") @map("status_messages")
   /// Vanity hub handle on the primary domain: forms.msk-scripts.de/<handle>.
   handle                 String?   @unique
   customDomain           String?   @unique @map("custom_domain")

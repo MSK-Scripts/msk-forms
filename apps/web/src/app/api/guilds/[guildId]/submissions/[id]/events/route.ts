@@ -97,6 +97,9 @@ export async function POST(
       actorName: user.username,
       toStatusLabel,
       eventVisibility: action.hidden ? "internal" : "public",
+      // Omitted -> auto per-status template; provided -> reviewer override
+      // (empty string opts out). Hidden changes never carry a message anyway.
+      applicantMessage: action.message,
       notify: notify
         ? { userId: submission.userId!, type: "status_change", payload: notify }
         : null,

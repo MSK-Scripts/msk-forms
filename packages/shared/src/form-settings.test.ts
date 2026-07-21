@@ -4,11 +4,32 @@ import {
   evaluateAutomations,
   experimentActive,
   parseFormSettings,
+  parseStatusMessages,
   pickVariant,
+  resolveStatusMessage,
   singleSubmissionEnforced,
   type AutomationRule,
   type ExperimentVariant,
 } from "./form-settings.js";
+
+describe("status messages", () => {
+  it("parses and drops blank entries", () => {
+    expect(parseStatusMessages({ accepted: "Welcome!", rejected: "   ", other: "" })).toEqual({
+      accepted: "Welcome!",
+    });
+    expect(parseStatusMessages(null)).toEqual({});
+    expect(parseStatusMessages({ accepted: 5 })).toEqual({});
+  });
+
+  it("resolves the per-form override over the guild default", () => {
+    const guild = { accepted: "Guild accept", rejected: "Guild reject" };
+    const form = { accepted: "Form accept" };
+    expect(resolveStatusMessage(guild, form, "accepted")).toBe("Form accept");
+    expect(resolveStatusMessage(guild, form, "rejected")).toBe("Guild reject");
+    expect(resolveStatusMessage(guild, form, "on_hold")).toBeNull();
+    expect(resolveStatusMessage(null, null, "accepted")).toBeNull();
+  });
+});
 
 describe("evaluateAutomations", () => {
   const answers = { score: 85, age: 16, country: "de" };

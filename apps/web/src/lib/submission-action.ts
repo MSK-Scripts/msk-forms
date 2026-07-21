@@ -14,6 +14,11 @@ export const submissionActionSchema = z.discriminatedUnion("kind", [
     status: z.string().min(1).max(64),
     /** Keep the change internal: no applicant DM, hidden from their status page. */
     hidden: z.boolean().optional(),
+    /**
+     * Applicant message override for this change. Omit to auto-use the per-status
+     * template (form override -> guild); an empty string opts out of any message.
+     */
+    message: z.string().max(2000).optional(),
   }),
   z.object({ kind: z.literal("note"), message: z.string().min(1).max(4000) }),
   z.object({ kind: z.literal("message"), message: z.string().min(1).max(4000) }),
