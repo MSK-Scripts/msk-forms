@@ -30,7 +30,12 @@ overrides:
   # directly; this only lifts the older copy next pulls in as an optional dep.
   "sharp@<0.35.0": ">=0.35.0"
   # GHSA-3jxr-9vmj-r5cp + GHSA-mh99-v99m-4gvg — brace-expansion DoS via expansion
-  # blowup. Three major lines are in the tree, so patch each within its own line.
-  "brace-expansion@<1.1.16": ">=1.1.16 <2"
-  "brace-expansion@>=2.0.0 <2.1.2": ">=2.1.2 <3"
+  # blowup. The second advisory is only fixed in 5.0.8 and flags everything at or
+  # below 5.0.7, so the old 1.x/2.x lines stay flagged no matter how far we patch
+  # inside them. They only existed because glob@7 (archiver-utils, rimraf@2) and
+  # readdir-glob@1 (archiver, via exceljs) pull minimatch 3.x/5.x, so lift
+  # minimatch itself to 10 — it depends on brace-expansion ^5, which leaves 5.0.8
+  # as the single copy in the tree. Both consumers construct `new Minimatch(...)`
+  # rather than calling the export as a function, which is what breaks under 10.
+  "minimatch@<10": ">=10 <11"
   "brace-expansion@>=3.0.0 <5.0.8": ">=5.0.8"
