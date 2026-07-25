@@ -1,8 +1,10 @@
 # =============================================================================
 # Mirror to Codeberg
 # -----------------------------------------------------------------------------
-# GitHub bleibt die Quelle der Wahrheit. Bei jedem Push und bei jedem gelöschten
-# Branch oder Tag wird der komplette Ref-Stand nach Codeberg gespiegelt.
+# GitHub bleibt die Quelle der Wahrheit. Bei jedem Push auf main, bei jedem Tag
+# und bei jedem gelöschten Branch oder Tag wird der komplette Ref-Stand nach
+# Codeberg gespiegelt. Pushes auf Feature-Branches lösen nichts aus, damit der
+# Mirror nicht als Check an jedem Pull Request hängt.
 #
 # Der Spiegel ist exakt: mit --prune verschwinden auf Codeberg auch die Branches
 # und Tags, die es auf GitHub nicht mehr gibt. Direkt auf Codeberg gepushte
@@ -19,7 +21,7 @@
 #        CODEBERG_REPO   → z. B. msk-scripts/msk-shop
 #        CODEBERG_USER   → der Codeberg-Benutzername
 #   4. Workflow einmal manuell über "Run workflow" starten, danach läuft er
-#      bei jedem Push von allein.
+#      bei jedem Push auf main von allein.
 #
 # Repo-Name und Benutzername sind eigentlich keine Geheimnisse und wären als
 # Variables besser aufgehoben. Sie liegen hier trotzdem als Secrets, weil der
@@ -32,10 +34,14 @@ name: Mirror to Codeberg
 
 on:
   push:
-    # Dependabot pushes run with the Dependabot secrets store, not the Actions
-    # one, so CODEBERG_* are empty and the mirror always fails on those branches.
-    # They are ephemeral throwaway branches not worth mirroring anyway — skip them.
-    branches-ignore: ["dependabot/**"]
+    # Only main and tags. Feature and Dependabot branches are ephemeral, and
+    # running on them made the mirror show up as a check on every pull request,
+    # where it is noise: on Dependabot branches it even failed by design, because
+    # those runs use the Dependabot secrets store and cannot see CODEBERG_*.
+    #
+    # The mirror still carries every ref, so open branches reach Codeberg with the
+    # next push to main rather than immediately.
+    branches: ["main"]
     tags: ["**"]
   delete:
   workflow_dispatch:
