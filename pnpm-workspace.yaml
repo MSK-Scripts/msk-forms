@@ -26,3 +26,11 @@ overrides:
   # GHSA-4c8g-83qw-93j6 — fast-uri host confusion via failed IDN canonicalization
   # (transitive via ajv, dev-only). Stay on the 3.x line ajv asks for.
   "fast-uri@<3.1.3": ">=3.1.3 <4"
+  # GHSA-f88m-g3jw-g9cj — libvips CVEs inherited by sharp. We depend on 0.35.x
+  # directly; this only lifts the older copy next pulls in as an optional dep.
+  "sharp@<0.35.0": ">=0.35.0"
+  # GHSA-3jxr-9vmj-r5cp + GHSA-mh99-v99m-4gvg — brace-expansion DoS via expansion
+  # blowup. Three major lines are in the tree, so patch each within its own line.
+  "brace-expansion@<1.1.16": ">=1.1.16 <2"
+  "brace-expansion@>=2.0.0 <2.1.2": ">=2.1.2 <3"
+  "brace-expansion@>=3.0.0 <5.0.8": ">=5.0.8"
