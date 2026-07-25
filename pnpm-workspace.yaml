@@ -23,3 +23,6 @@ overrides:
   # GHSA-w5hq-g745-h8pq — uuid missing buffer bounds check in v3/v5/v6 (transitive
   # via exceljs, which only uses v4). Force the patched line; v4 API is unchanged.
   "uuid@<11.1.1": ">=11.1.1"
+  # GHSA-4c8g-83qw-93j6 — fast-uri host confusion via failed IDN canonicalization
+  # (transitive via ajv, dev-only). Stay on the 3.x line ajv asks for.
+  "fast-uri@<3.1.3": ">=3.1.3 <4"
