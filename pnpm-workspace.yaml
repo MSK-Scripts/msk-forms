@@ -20,6 +20,10 @@ overrides:
   # GHSA-w5hq-g745-h8pq — uuid missing buffer bounds check in v3/v5/v6 (transitive
   # via exceljs, which only uses v4). Force the patched line; v4 API is unchanged.
   "uuid@<11.1.1": ">=11.1.1"
+  # GHSA-c96f-x56v-gq3h — find-my-way HTTP/2 DDoS. Arrived with prisma 7.9.0, whose
+  # @prisma/dev swapped hono for a pinned find-my-way 9.6.0. Dev-only, patched in
+  # 9.7.0; the override is needed because the dependency is pinned exactly.
+  "find-my-way@<9.7.0": ">=9.7.0 <10"
   # GHSA-4c8g-83qw-93j6 — fast-uri host confusion via failed IDN canonicalization
   # (transitive via ajv, dev-only). Stay on the 3.x line ajv asks for.
   "fast-uri@<3.1.3": ">=3.1.3 <4"
