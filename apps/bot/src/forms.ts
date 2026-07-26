@@ -144,7 +144,7 @@ export async function handleFormsCommand(
       await interaction.reply({ content: s.noLiveForms, flags: MessageFlags.Ephemeral });
       return;
     }
-    const lines = forms.map((f) => `• **${f.title}** — ${formUrl(config.apiBaseUrl, f.slug)}`);
+    const lines = forms.map((f) => `• **${f.title}**: ${formUrl(config.apiBaseUrl, f.slug)}`);
     await interaction.reply({ content: lines.join("\n"), flags: MessageFlags.Ephemeral });
     return;
   }

@@ -12,7 +12,7 @@ import { config } from "./config.js";
 export const commands = [
   new SlashCommandBuilder()
     .setName("forms")
-    .setDescription("MSK Forms — manage and share forms")
+    .setDescription("MSK Forms: manage and share forms")
     .addSubcommand((sub) =>
       sub.setName("list").setDescription("List this guild's live forms"),
     )
