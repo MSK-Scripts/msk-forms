@@ -14,7 +14,9 @@ next-env.d.ts
 .vercel/
 
 # Graphify
-graphify-out/
+graphify-out/*
+!graphify-out/graph.json
+!graphify-out/GRAPH_REPORT.md
 
 # Environment / secrets
 .env
