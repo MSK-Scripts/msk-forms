@@ -206,7 +206,7 @@ export function FormRenderer({
         <div className="flex flex-col gap-2">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {labels.step} {position + 1} / {totalSteps}
-            {pages[activeIndex]?.title ? ` — ${pages[activeIndex]!.title}` : ""}
+            {pages[activeIndex]?.title ? ` · ${pages[activeIndex]!.title}` : ""}
           </p>
           <div className="h-1 w-full overflow-hidden rounded-full bg-secondary">
             <div

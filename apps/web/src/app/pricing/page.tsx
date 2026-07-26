@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { botInviteUrl } from "@/lib/url";
 import { getDict, getLocale } from "@/i18n";
 
-export const metadata: Metadata = { title: "Pricing — MSK Forms" };
+export const metadata: Metadata = { title: "Pricing · MSK Forms" };
 
 type Cell = boolean | string;
 

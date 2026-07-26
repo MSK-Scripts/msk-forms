@@ -22,7 +22,7 @@ By logging in, inviting the bot to a server, building or sharing a form, or subm
 
 MSK Forms lets a Discord server (guild) build forms, share them via a link, QR code, embed, or the bot, and review the resulting submissions. Applicants receive a private link on which they can track the status of their submission. Acceptance can grant a Discord role and notify the applicant by direct message.
 
-We provide the platform; we do not author the forms or decide what data they collect — that is done by the guilds that use the service (see section 5).
+We provide the platform; we do not author the forms or decide what data they collect. That is done by the guilds that use the service (see section 5).
 
 ---
 
@@ -45,7 +45,7 @@ You agree not to use MSK Forms to:
 - attempt to disrupt, overload, reverse engineer, or circumvent the security of the service (including rate limits and captcha);
 - resell or sublicense the service without our written consent.
 
-We may suspend or terminate access, remove the bot from a server, or delete content that violates these terms, applicable law, or Discord's policies — where reasonable, with prior notice.
+We may suspend or terminate access, remove the bot from a server, or delete content that violates these terms, applicable law, or Discord's policies. Where reasonable, we give notice first.
 
 ---
 
@@ -157,7 +157,7 @@ Mit der Anmeldung, dem Einladen des Bots auf einen Server, dem Erstellen oder Te
 
 MSK Forms ermöglicht einem Discord-Server (Guild), Formulare zu erstellen, per Link, QR-Code, Einbettung oder über den Bot zu teilen und die eingehenden Einreichungen zu prüfen. Bewerber erhalten einen privaten Link, auf dem sie den Status ihrer Einreichung verfolgen können. Eine Annahme kann eine Discord-Rolle vergeben und den Bewerber per Direktnachricht benachrichtigen.
 
-Wir stellen die Plattform bereit; wir erstellen die Formulare nicht und entscheiden nicht, welche Daten sie erheben — das tun die Guilds, die den Dienst nutzen (siehe Abschnitt 5).
+Wir stellen die Plattform bereit; wir erstellen die Formulare nicht und entscheiden nicht, welche Daten sie erheben. Das tun die Guilds, die den Dienst nutzen (siehe Abschnitt 5).
 
 ---
 
@@ -180,7 +180,7 @@ Sie verpflichten sich, MSK Forms nicht zu nutzen, um:
 - den Dienst zu stören, zu überlasten, zurückzuentwickeln oder dessen Sicherheitsmechanismen (einschließlich Rate-Limits und Captcha) zu umgehen;
 - den Dienst ohne unsere schriftliche Zustimmung weiterzuverkaufen oder zu unterlizenzieren.
 
-Wir können den Zugang sperren oder beenden, den Bot von einem Server entfernen oder Inhalte löschen, die gegen diese AGB, geltendes Recht oder die Richtlinien von Discord verstoßen — soweit zumutbar mit vorheriger Ankündigung.
+Wir können den Zugang sperren oder beenden, den Bot von einem Server entfernen oder Inhalte löschen, die gegen diese AGB, geltendes Recht oder die Richtlinien von Discord verstoßen. Soweit zumutbar kündigen wir das vorher an.
 
 ---
 

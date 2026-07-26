@@ -95,9 +95,9 @@ Your session is maintained with an encrypted, httpOnly cookie. **Legal basis:** 
 
 ### Form Submissions
 
-When a form is submitted, we store the **answers** the applicant provided, together with metadata (submission timestamp, status, status history, internal notes and public messages from reviewers, and — for quizzes — a score). The answers may contain personal data that the **guild operator chose to ask for**; the operator is responsible for that choice (see "Roles and Responsibilities").
+When a form is submitted, we store the **answers** the applicant provided, together with metadata (submission timestamp, status, status history, internal notes and public messages from reviewers, and, for quizzes, a score). The answers may contain personal data that the **guild operator chose to ask for**; the operator is responsible for that choice (see "Roles and Responsibilities").
 
-Each submission is reachable via a private link containing a random identifier (UUID). Anyone who has the link can view that submission's status page and use the self-service actions on it. The link is the access capability — handle it appropriately.
+Each submission is reachable via a private link containing a random identifier (UUID). Anyone who has the link can view that submission's status page and use the self-service actions on it. The link is the access capability, so handle it appropriately.
 
 For logged-in applicants, we additionally store the Discord identity needed to send status direct messages and (on acceptance) to grant a role. **Anonymous** submissions (public forms, no login) carry no Discord identity. **Legal basis:** Art. 6(1)(b) GDPR (provision of the service) and the guild operator's respective legal basis for the application itself.
 
@@ -141,19 +141,19 @@ If a guild configures a custom domain, the domain name is stored in our database
 
 | Processing activity | Legal basis |
 |---|---|
-| Discord login, account, sessions | Art. 6(1)(b) GDPR — provision of the service |
-| Form submissions, files, status workflow | Art. 6(1)(b) GDPR — provision of the service |
+| Discord login, account, sessions | Art. 6(1)(b) GDPR, provision of the service |
+| Form submissions, files, status workflow | Art. 6(1)(b) GDPR, provision of the service |
 | Discord bot functionality | Art. 6(1)(b) and (f) GDPR |
-| Subscription processing (Stripe) | Art. 6(1)(b) GDPR — provision of the service |
-| Captcha (Turnstile) | Art. 6(1)(f) GDPR — spam/abuse prevention |
-| Rate limiting | Art. 6(1)(f) GDPR — security and availability |
-| Web server logs | Art. 6(1)(f) GDPR — security and operation |
+| Subscription processing (Stripe) | Art. 6(1)(b) GDPR, provision of the service |
+| Captcha (Turnstile) | Art. 6(1)(f) GDPR, spam/abuse prevention |
+| Rate limiting | Art. 6(1)(f) GDPR, security and availability |
+| Web server logs | Art. 6(1)(f) GDPR, security and operation |
 
 ---
 
 ## Cookies and Local Storage
 
-We only use technically necessary cookies — there is **no** tracking and **no** cookie consent banner is required.
+We only use technically necessary cookies. There is **no** tracking and **no** cookie consent banner is required.
 
 | Name | Purpose | Duration |
 |---|---|---|
@@ -213,7 +213,7 @@ As a data subject, you have the following rights:
 - **Right to object** (Art. 21 GDPR)
 - **Right to lodge a complaint** with the competent supervisory authority
 
-**Applicant self-service:** if you submitted a form, you can exercise the core rights yourself directly on your status page, using only your submission link and without logging in — you can **withdraw**, **export** (as JSON), or **delete** your submission. Deleting also removes any files you uploaded.
+**Applicant self-service:** if you submitted a form, you can exercise the core rights yourself directly on your status page, using only your submission link and without logging in. You can **withdraw**, **export** (as JSON), or **delete** your submission. Deleting also removes any files you uploaded.
 
 To exercise your rights regarding account or platform data, contact: [info@msk-scripts.de](mailto:info@msk-scripts.de). For data contained in a specific application, the **guild operator** that runs the form is the primary point of contact; we will support you in reaching them. We process requests within **30 days**.
 
@@ -316,9 +316,9 @@ Ihre Sitzung wird über ein verschlüsseltes, httpOnly-Cookie aufrechterhalten. 
 
 ### Formular-Einreichungen
 
-Beim Absenden eines Formulars speichern wir die vom Bewerber gemachten **Antworten** samt Metadaten (Zeitstempel der Einreichung, Status, Statusverlauf, interne Notizen und öffentliche Nachrichten der Prüfer sowie — bei Quizzen — eine Punktzahl). Die Antworten können personenbezogene Daten enthalten, nach denen der **Guild-Betreiber zu fragen entschieden hat**; für diese Wahl ist der Betreiber verantwortlich (siehe „Rollen und Verantwortlichkeiten").
+Beim Absenden eines Formulars speichern wir die vom Bewerber gemachten **Antworten** samt Metadaten (Zeitstempel der Einreichung, Status, Statusverlauf, interne Notizen und öffentliche Nachrichten der Prüfer sowie, bei Quizzen, eine Punktzahl). Die Antworten können personenbezogene Daten enthalten, nach denen der **Guild-Betreiber zu fragen entschieden hat**; für diese Wahl ist der Betreiber verantwortlich (siehe „Rollen und Verantwortlichkeiten").
 
-Jede Einreichung ist über einen privaten Link mit einer zufälligen Kennung (UUID) erreichbar. Wer den Link besitzt, kann die Status-Seite dieser Einreichung einsehen und die dortigen Selbstbedienungsfunktionen nutzen. Der Link ist der Zugangsschlüssel — behandeln Sie ihn entsprechend.
+Jede Einreichung ist über einen privaten Link mit einer zufälligen Kennung (UUID) erreichbar. Wer den Link besitzt, kann die Status-Seite dieser Einreichung einsehen und die dortigen Selbstbedienungsfunktionen nutzen. Der Link ist der Zugangsschlüssel, behandeln Sie ihn entsprechend.
 
 Bei angemeldeten Bewerbern speichern wir zusätzlich die Discord-Identität, die zum Versand von Status-Direktnachrichten und (bei Annahme) zur Rollenvergabe erforderlich ist. **Anonyme** Einreichungen (öffentliche Formulare, ohne Anmeldung) enthalten keine Discord-Identität. **Rechtsgrundlage:** Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung des Dienstes) sowie die jeweilige Rechtsgrundlage des Guild-Betreibers für die Bewerbung selbst.
 
@@ -362,19 +362,19 @@ Konfiguriert eine Guild eine eigene Domain, wird der Domainname in unserer Daten
 
 | Verarbeitung | Rechtsgrundlage |
 |---|---|
-| Discord-Anmeldung, Konto, Sitzungen | Art. 6 Abs. 1 lit. b DSGVO — Bereitstellung des Dienstes |
-| Formular-Einreichungen, Dateien, Status-Workflow | Art. 6 Abs. 1 lit. b DSGVO — Bereitstellung des Dienstes |
+| Discord-Anmeldung, Konto, Sitzungen | Art. 6 Abs. 1 lit. b DSGVO, Bereitstellung des Dienstes |
+| Formular-Einreichungen, Dateien, Status-Workflow | Art. 6 Abs. 1 lit. b DSGVO, Bereitstellung des Dienstes |
 | Discord-Bot-Funktionalität | Art. 6 Abs. 1 lit. b und f DSGVO |
-| Abo-Abwicklung (Stripe) | Art. 6 Abs. 1 lit. b DSGVO — Bereitstellung des Dienstes |
-| Captcha (Turnstile) | Art. 6 Abs. 1 lit. f DSGVO — Spam-/Missbrauchsschutz |
-| Rate Limiting | Art. 6 Abs. 1 lit. f DSGVO — Sicherheit und Verfügbarkeit |
-| Server-Logs | Art. 6 Abs. 1 lit. f DSGVO — Sicherheit und Betrieb |
+| Abo-Abwicklung (Stripe) | Art. 6 Abs. 1 lit. b DSGVO, Bereitstellung des Dienstes |
+| Captcha (Turnstile) | Art. 6 Abs. 1 lit. f DSGVO, Spam-/Missbrauchsschutz |
+| Rate Limiting | Art. 6 Abs. 1 lit. f DSGVO, Sicherheit und Verfügbarkeit |
+| Server-Logs | Art. 6 Abs. 1 lit. f DSGVO, Sicherheit und Betrieb |
 
 ---
 
 ## Cookies und lokaler Speicher
 
-Wir verwenden ausschließlich technisch notwendige Cookies — es findet **kein** Tracking statt und ein Cookie-Consent-Banner ist nicht erforderlich.
+Wir verwenden ausschließlich technisch notwendige Cookies. Es findet **kein** Tracking statt und ein Cookie-Consent-Banner ist nicht erforderlich.
 
 | Name | Zweck | Dauer |
 |---|---|---|
@@ -434,7 +434,7 @@ Als betroffene Person haben Sie folgende Rechte:
 - **Widerspruchsrecht** (Art. 21 DSGVO)
 - **Beschwerderecht** bei der zuständigen Aufsichtsbehörde
 
-**Selbstbedienung für Bewerber:** Wenn Sie ein Formular abgesendet haben, können Sie die zentralen Rechte selbst direkt auf Ihrer Status-Seite ausüben — allein mit Ihrem Einreichungslink und ohne Anmeldung: Sie können Ihre Einreichung **widerrufen**, **exportieren** (als JSON) oder **löschen**. Beim Löschen werden auch von Ihnen hochgeladene Dateien entfernt.
+**Selbstbedienung für Bewerber:** Wenn Sie ein Formular abgesendet haben, können Sie die zentralen Rechte selbst direkt auf Ihrer Status-Seite ausüben, allein mit Ihrem Einreichungslink und ohne Anmeldung: Sie können Ihre Einreichung **widerrufen**, **exportieren** (als JSON) oder **löschen**. Beim Löschen werden auch von Ihnen hochgeladene Dateien entfernt.
 
 Zur Ausübung Ihrer Rechte bezüglich Konto- oder Plattformdaten wenden Sie sich an: [info@msk-scripts.de](mailto:info@msk-scripts.de). Für Daten innerhalb einer konkreten Bewerbung ist der **Guild-Betreiber**, der das Formular betreibt, der primäre Ansprechpartner; wir unterstützen Sie dabei, ihn zu erreichen. Anfragen bearbeiten wir innerhalb von **30 Tagen**.
 

@@ -68,12 +68,12 @@ export function IntegrationsCard({
         </span>
         <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
           <li>
-            <code className="font-mono text-xs text-foreground">submission.created</code> —{" "}
-            {t.integrationsEventCreated.split("—")[1]?.trim() ?? t.integrationsEventCreated}
+            <code className="font-mono text-xs text-foreground">submission.created</code>:{" "}
+            {t.integrationsEventCreated.split(":")[1]?.trim() ?? t.integrationsEventCreated}
           </li>
           <li>
-            <code className="font-mono text-xs text-foreground">submission.status_changed</code> —{" "}
-            {t.integrationsEventStatus.split("—")[1]?.trim() ?? t.integrationsEventStatus}
+            <code className="font-mono text-xs text-foreground">submission.status_changed</code>:{" "}
+            {t.integrationsEventStatus.split(":")[1]?.trim() ?? t.integrationsEventStatus}
           </li>
         </ul>
       </div>
