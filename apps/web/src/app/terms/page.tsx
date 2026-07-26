@@ -5,7 +5,7 @@ import { terms } from "@/content/legal/terms";
 import { renderMarkdown } from "@/lib/legal";
 import { getDict, getLocale } from "@/i18n";
 
-export const metadata: Metadata = { title: "Terms & Conditions — MSK Forms" };
+export const metadata: Metadata = { title: "Terms & Conditions · MSK Forms" };
 
 export default async function TermsPage() {
   const locale = await getLocale();
