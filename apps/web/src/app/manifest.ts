@@ -25,7 +25,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     name: "MSK Forms",
     short_name: "MSK Forms",
     description:
-      "Application forms with a live status loop — applicants track where they stand.",
+      "Application forms with a live status loop, so applicants always know where they stand.",
     start_url: "/",
     scope: "/",
     display: "standalone",
@@ -48,7 +48,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     ...base,
     name: guild.name,
     short_name: guild.name.slice(0, 24),
-    description: `Apply and track your status — ${guild.name}`,
+    description: `Apply and track your status at ${guild.name}`,
     ...(branding.accentColor ? { theme_color: branding.accentColor } : {}),
     // A guild logo (square-ish webp ≤512) covers both install sizes; keep our
     // maskable default so Android's adaptive icon still has a safe-zone source.

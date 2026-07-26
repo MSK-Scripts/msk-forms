@@ -5,7 +5,7 @@ import { privacy } from "@/content/legal/privacy";
 import { renderMarkdown } from "@/lib/legal";
 import { getDict, getLocale } from "@/i18n";
 
-export const metadata: Metadata = { title: "Privacy Policy — MSK Forms" };
+export const metadata: Metadata = { title: "Privacy Policy · MSK Forms" };
 
 export default async function PrivacyPage() {
   const locale = await getLocale();

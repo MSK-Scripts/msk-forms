@@ -5,7 +5,7 @@ import { imprint } from "@/content/legal/imprint";
 import { renderMarkdown } from "@/lib/legal";
 import { getDict, getLocale } from "@/i18n";
 
-export const metadata: Metadata = { title: "Imprint — MSK Forms" };
+export const metadata: Metadata = { title: "Imprint · MSK Forms" };
 
 export default async function ImprintPage() {
   const locale = await getLocale();

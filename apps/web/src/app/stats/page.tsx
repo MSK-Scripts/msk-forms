@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 // Public, anonymized aggregate counts — cache for 5 minutes to spare the DB.
 export const revalidate = 300;
 
-export const metadata: Metadata = { title: "Stats — MSK Forms" };
+export const metadata: Metadata = { title: "Stats · MSK Forms" };
 
 export default async function StatsPage() {
   const t = (await getDict()).stats;
