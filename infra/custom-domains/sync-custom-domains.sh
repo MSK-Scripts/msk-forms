@@ -41,7 +41,10 @@ trap 'rm -f "$TMP"' EXIT
 
 {
   echo "# Managed by sync-custom-domains.sh — DO NOT EDIT BY HAND."
-  echo "# Regenerated $(date -u +%FT%TZ)"
+  # NOTE: never put a timestamp (or anything else that changes per run) in here.
+  # The change detection below is a byte comparison against the installed config;
+  # a per-run value makes every comparison differ, so every timer tick would copy
+  # the file and reload Apache. Use the file's mtime to see when it last changed.
   echo
   # mod_md fetches/renews a certificate for each managed domain.
   for d in "${DOMAINS[@]}"; do

@@ -25,13 +25,20 @@ TXT _msk-forms.apply.x.com      to 127.0.0.1:3008                      and serve
    `http-01` on port 80). When the cert is installed, `MDMessageCmd` reloads
    Apache again so it goes live within seconds — no waiting for the next cycle.
 
-> **Latency:** the periodic timer (every 3 min) is only a safety net. The normal
+> **Apache is only reloaded when something actually changed.** The sync compares
+> the generated config byte-for-byte against the installed one and exits early if
+> they match, so a timer tick on an unchanged domain list touches nothing. Keep
+> the generated file free of per-run values (timestamps, counters) — one of those
+> defeats the comparison and turns every tick into a reload, which disrupts
+> everything else Apache serves.
+
+> **Latency:** the periodic timer (every 30 min) is only a safety net. The normal
 > path is event-driven (verify → trigger file → `.path` unit → sync), and the
 > cert is activated the moment it's issued (`MDMessageCmd`). Verify-to-live is
 > typically ~10–30s (the ACME round-trip), not minutes. Without the `.path` unit
 > and `MDMessageCmd` a domain can show **503 + a fallback/foreign certificate**
-> for up to several minutes while it waits for the timer and the next mod_md
-> maintenance cycle.
+> until the next timer tick (up to 30 min) and the next mod_md maintenance cycle,
+> so both are worth installing.
 
 ## One-time server setup (run as root)
 
@@ -96,7 +103,10 @@ Description=Periodically sync MSK Forms custom domains (safety net)
 
 [Timer]
 OnBootSec=2min
-OnUnitActiveSec=3min
+# Safety net only — the .path unit handles the normal case within ~1s. A short
+# interval buys nothing and just re-queries the DB; the sync is a no-op unless
+# the domain list changed.
+OnUnitActiveSec=30min
 Unit=msk-forms-domains.service
 
 [Install]
