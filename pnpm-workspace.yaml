@@ -16,7 +16,10 @@ allowBuilds:
 overrides:
   "esbuild@<0.28.1": ">=0.28.1"
   "postcss@<8.5.10": ">=8.5.10"
-  "undici@<6.27.0": "^6.27.0"
+  # GHSA-8xcm-r25x-g524 / GHSA-m8rv-5g2x-5cg5 / GHSA-v3r7-h72x-cjcm — three undici
+  # advisories all first patched in 6.28.0. Transitive via discord.js, which pins
+  # the version exactly, so the bot only gets the fix through this override.
+  "undici@<6.28.0": "^6.28.0"
   # GHSA-w5hq-g745-h8pq — uuid missing buffer bounds check in v3/v5/v6 (transitive
   # via exceljs, which only uses v4). Force the patched line; v4 API is unchanged.
   "uuid@<11.1.1": ">=11.1.1"
@@ -24,9 +27,10 @@ overrides:
   # @prisma/dev swapped hono for a pinned find-my-way 9.6.0. Dev-only, patched in
   # 9.7.0; the override is needed because the dependency is pinned exactly.
   "find-my-way@<9.7.0": ">=9.7.0 <10"
-  # GHSA-4c8g-83qw-93j6 — fast-uri host confusion via failed IDN canonicalization
+  # GHSA-4c8g-83qw-93j6 — fast-uri host confusion via failed IDN canonicalization,
+  # then GHSA-7p8r-x3mc-p8w7 on top, which flags everything below 3.1.5
   # (transitive via ajv, dev-only). Stay on the 3.x line ajv asks for.
-  "fast-uri@<3.1.3": ">=3.1.3 <4"
+  "fast-uri@<3.1.5": ">=3.1.5 <4"
   # GHSA-f88m-g3jw-g9cj — libvips CVEs inherited by sharp. We depend on 0.35.x
   # directly; this only lifts the older copy next pulls in as an optional dep.
   "sharp@<0.35.0": ">=0.35.0"
