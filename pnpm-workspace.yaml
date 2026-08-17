@@ -39,8 +39,14 @@ overrides:
   # below 5.0.7, so the old 1.x/2.x lines stay flagged no matter how far we patch
   # inside them. They only existed because glob@7 (archiver-utils, rimraf@2) and
   # readdir-glob@1 (archiver, via exceljs) pull minimatch 3.x/5.x, so lift
-  # minimatch itself to 10 — it depends on brace-expansion ^5, which leaves 5.0.8
-  # as the single copy in the tree. Both consumers construct `new Minimatch(...)`
-  # rather than calling the export as a function, which is what breaks under 10.
+  # minimatch itself to 10 — it depends on brace-expansion ^5, which leaves a
+  # single copy in the tree. Both consumers construct `new Minimatch(...)` rather
+  # than calling the export as a function, which is what breaks under 10.
+  #
+  # GHSA-rgw5-rvv9-x895 is the third round: unbounded intermediate arrays, which
+  # bypasses the CVE-2026-14257 mitigation, fixed in 5.0.9. Note the shape of the
+  # bound below — it tracks the newest advisory rather than the range of one
+  # specific report, because an override whose floor sits a generation too low
+  # looks resolved while leaving the flagged version installed.
   "minimatch@<10": ">=10 <11"
-  "brace-expansion@>=3.0.0 <5.0.8": ">=5.0.8"
+  "brace-expansion@<5.0.9": ">=5.0.9"
