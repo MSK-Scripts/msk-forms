@@ -17,6 +17,7 @@ import {
 } from "discord.js";
 
 import { config } from "./config.js";
+import { isExhausted, isTerminalDmCode, nextAttemptAt } from "./delivery-policy.js";
 import { fmt, guildStrings } from "./guild-i18n.js";
 import { dmStrings, localizedStatus } from "./i18n.js";
 import { postBranded } from "./posting.js";
@@ -27,19 +28,32 @@ const MSK_GREEN = 0x00e676;
 const LOG_RED = 0xff5252;
 const LOG_BLURPLE = 0x5865f2;
 const BATCH = 25;
-/** Discord error code: "Cannot send messages to this user" (DMs closed / no mutual guild). */
-const CANNOT_DM = 50007;
 /** Permanent channel errors: Unknown Channel / Missing Access / Missing Permissions. */
 const CHANNEL_GONE = [10003, 50001, 50013];
 
 /** Guards against overlapping ticks if a batch outlives the poll interval. */
 let running = false;
 
+/**
+ * What to do with a row after an attempt. `true` retires it — delivered, or
+ * permanently undeliverable, which for an outbox amounts to the same thing.
+ * Anything else is transient and carries the reason, so a row that keeps
+ * failing can be diagnosed from the table instead of from a log that has
+ * long since rotated away.
+ */
+type Outcome = true | { retry: string };
+
+const retry = (err: unknown): Outcome => ({
+  retry: err instanceof Error ? err.message.slice(0, 500) : String(err).slice(0, 500),
+});
+
 type PendingRow = {
   id: string;
   type: string;
   payload: unknown;
   guildId: string | null;
+  /** Failed deliveries so far. Drives the backoff and the give-up threshold. */
+  attempts: number;
   user: { discordId: string; locale: string } | null;
 };
 
@@ -82,7 +96,7 @@ function buildMessage(
  * channel. Drops (marks read) when there's no guild, no configured channel, or
  * the channel is permanently unreachable; retries on transient errors.
  */
-async function deliverReview(client: Client, row: PendingRow): Promise<boolean> {
+async function deliverReview(client: Client, row: PendingRow): Promise<Outcome> {
   if (!row.guildId) return true;
   const payload = row.payload as Partial<SubmissionReviewNotification>;
   if (!payload?.submissionId) return true;
@@ -137,7 +151,7 @@ async function deliverReview(client: Client, row: PendingRow): Promise<boolean> 
       return true;
     }
     console.error(`[bot] failed to post review embed to ${channelId}:`, err);
-    return false;
+    return retry(err);
   }
 }
 
@@ -166,7 +180,7 @@ const LOG_PRESENTATION: Record<string, { emoji: string; title: string; color: nu
  * (marks read) when there's no guild, no configured log channel, or the channel
  * is permanently unreachable; retries on transient errors.
  */
-async function deliverLog(client: Client, row: PendingRow): Promise<boolean> {
+async function deliverLog(client: Client, row: PendingRow): Promise<Outcome> {
   if (!row.guildId) return true;
   const payload = row.payload as Partial<LogNotification>;
   if (!payload?.action) return true;
@@ -236,7 +250,7 @@ async function deliverLog(client: Client, row: PendingRow): Promise<boolean> {
       return true;
     }
     console.error(`[bot] failed to post log entry to ${channelId}:`, err);
-    return false;
+    return retry(err);
   }
 }
 
@@ -245,7 +259,7 @@ async function deliverLog(client: Client, row: PendingRow): Promise<boolean> {
  * read — on success, when there's no recipient, or on a permanent "can't DM"
  * error. Returns false for transient failures so the next tick retries.
  */
-async function deliverOne(client: Client, row: PendingRow): Promise<boolean> {
+async function deliverOne(client: Client, row: PendingRow): Promise<Outcome> {
   if (row.type === "submission_review") return deliverReview(client, row);
   if (row.type === "log") return deliverLog(client, row);
 
@@ -298,12 +312,14 @@ async function deliverOne(client: Client, row: PendingRow): Promise<boolean> {
     await user.send(message);
     return true;
   } catch (err) {
-    if (err instanceof DiscordAPIError && Number(err.code) === CANNOT_DM) {
-      console.warn(`[bot] can't DM user ${discordId} — dropping notification ${row.id}.`);
+    if (err instanceof DiscordAPIError && isTerminalDmCode(err.code)) {
+      console.warn(
+        `[bot] can't DM user ${discordId} (${err.code}) — dropping notification ${row.id}.`,
+      );
       return true;
     }
     console.error(`[bot] failed to DM user ${discordId}:`, err);
-    return false;
+    return retry(err);
   }
 }
 
@@ -312,9 +328,11 @@ export async function deliverPendingNotifications(client: Client): Promise<void>
   if (running) return;
   running = true;
   try {
+    const now = new Date();
     const pending = (await prisma.notification.findMany({
       where: {
         readAt: null,
+        nextAttemptAt: { lte: now },
         type: { in: ["status_change", "message", "submission_review", "log"] },
       },
       orderBy: { createdAt: "asc" },
@@ -324,6 +342,7 @@ export async function deliverPendingNotifications(client: Client): Promise<void>
         type: true,
         payload: true,
         guildId: true,
+        attempts: true,
         user: { select: { discordId: true, locale: true } },
       },
     })) as PendingRow[];
@@ -331,17 +350,48 @@ export async function deliverPendingNotifications(client: Client): Promise<void>
     // Deliver each row independently (one failure must not abort the batch),
     // collect the ones to retire, then mark them all read in a single write.
     const deliveredIds: string[] = [];
+    const failures: { id: string; attempts: number; error: string }[] = [];
     for (const row of pending) {
       try {
-        if (await deliverOne(client, row)) deliveredIds.push(row.id);
+        const outcome = await deliverOne(client, row);
+        if (outcome === true) deliveredIds.push(row.id);
+        else failures.push({ id: row.id, attempts: row.attempts + 1, error: outcome.retry });
       } catch (err) {
+        // A throw escaping deliverOne is transient by definition: the row never
+        // reached a verdict, so it must not be retired on the strength of it.
         console.error(`[bot] delivery failed for notification ${row.id}:`, err);
+        failures.push({
+          id: row.id,
+          attempts: row.attempts + 1,
+          error: err instanceof Error ? err.message.slice(0, 500) : String(err).slice(0, 500),
+        });
       }
     }
     if (deliveredIds.length > 0) {
       await prisma.notification.updateMany({
         where: { id: { in: deliveredIds } },
         data: { readAt: new Date() },
+      });
+    }
+    // Record each failure with its own backoff, and retire the ones that have
+    // run out of attempts. Without this a row that can never succeed sits at
+    // the head of the queue forever and, once enough of them pile up, starves
+    // every newer notification out of the batch.
+    for (const f of failures) {
+      const done = isExhausted(f.attempts);
+      if (done) {
+        console.warn(
+          `[bot] giving up on notification ${f.id} after ${f.attempts} attempts: ${f.error}`,
+        );
+      }
+      await prisma.notification.update({
+        where: { id: f.id },
+        data: {
+          attempts: f.attempts,
+          lastError: f.error,
+          nextAttemptAt: nextAttemptAt(f.attempts, new Date()),
+          ...(done ? { readAt: new Date() } : {}),
+        },
       });
     }
   } catch (err) {

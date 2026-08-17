@@ -331,6 +331,13 @@ model Notification {
   readAt    DateTime? @map("read_at")
   createdAt DateTime  @default(now()) @map("created_at")
 
+  // Retry bounds, same shape as WebhookDelivery. `readAt` marks a row as
+  // retired, which covers both "delivered" and "will never be deliverable";
+  // `lastError` is what tells the two apart afterwards.
+  attempts      Int      @default(0)
+  lastError     String?  @map("last_error")
+  nextAttemptAt DateTime @default(now()) @map("next_attempt_at")
+
   user  User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
   guild Guild? @relation(fields: [guildId], references: [id], onDelete: Cascade)
 
