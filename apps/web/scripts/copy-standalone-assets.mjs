@@ -7,6 +7,11 @@
 // into the bundle under Turbopack — at runtime sharp then fails with
 // "Could not load the sharp module … libvips-cpp.so… cannot open shared object
 // file". So we copy sharp + its platform `@img/*` binaries in explicitly.
+//
+// Same story for `@swc/helpers`, whose ESM half 16.3.1 leaves behind. Both are
+// the same lesson: a green build says nothing about whether the bundle it
+// produced can actually boot, so anything Next declines to trace has to be put
+// back here by hand.
 import { cpSync, existsSync, readdirSync, realpathSync, rmSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -89,11 +94,47 @@ function copySharp() {
   }
 }
 
+/**
+ * Restore `@swc/helpers` in the bundle's pnpm store.
+ *
+ * Next 16.3.1 traces only the `cjs/` half of the package into
+ * `output: standalone`, but its own `require-hook` loads the ESM entry point.
+ * The bundle therefore starts and then dies on the first request that needs a
+ * helper: "Cannot find module …/@swc/helpers/esm/_interop_require_default.js",
+ * raised as an unhandledRejection. The process stays alive without ever binding
+ * the port, so PM2 reports it as online while every request 503s. This took the
+ * site down on 2026-08-17 (next 16.2.12 -> 16.3.1).
+ *
+ * Copy the whole package rather than just the missing directory, so a future
+ * change to which half gets traced cannot reintroduce this. Version-matched per
+ * store entry: mixing the `esm/` of one version into another happens to work
+ * but is not something to ship.
+ */
+function copySwcHelpers() {
+  const standalonePnpm = join(webRoot, ".next", "standalone", "node_modules", ".pnpm");
+  const sourcePnpm = join(webRoot, "..", "..", "node_modules", ".pnpm");
+  if (!existsSync(standalonePnpm) || !existsSync(sourcePnpm)) return;
+
+  for (const entry of readdirSync(standalonePnpm)) {
+    if (!entry.startsWith("@swc+helpers@")) continue;
+    const src = join(sourcePnpm, entry, "node_modules", "@swc", "helpers");
+    const dst = join(standalonePnpm, entry, "node_modules", "@swc", "helpers");
+    if (!existsSync(src)) {
+      console.log(`${entry}: no source copy found, leaving the traced one alone.`);
+      continue;
+    }
+    rmSync(dst, { recursive: true, force: true });
+    cpSync(src, dst, { recursive: true, dereference: true });
+    console.log(`restored ${entry} -> ${dst}`);
+  }
+}
+
 if (!existsSync(standaloneWeb)) {
   console.log("No standalone output found; skipping standalone asset copy.");
 } else {
   mirror(join(".next", "static"), join(standaloneWeb, ".next", "static"));
   mirror("public", join(standaloneWeb, "public"));
   copySharp();
+  copySwcHelpers();
   console.log("Standalone assets ready.");
 }
