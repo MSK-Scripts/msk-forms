@@ -20,6 +20,11 @@ export function getRedis(): Redis | null {
   }
 
   const client = new Redis(url, {
+    // ioredis 6 negotiates RESP3 by default. Stay on the v5 wire protocol: the
+    // only consumer is the rate limiter's EVAL, which gains nothing from RESP3,
+    // and a failed handshake would be silent (the limiter fails open, see
+    // below). Revisit deliberately, with a check against the live server.
+    protocol: 2,
     // Fail fast instead of queueing/retrying forever, so a Redis outage can't
     // stall request handling — the rate limiter just falls open.
     maxRetriesPerRequest: 1,
