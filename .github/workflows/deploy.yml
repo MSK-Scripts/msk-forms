@@ -36,6 +36,9 @@ jobs:
 
             echo "-> Pull latest"
             git fetch --all --prune
+            # Remember where we came from, so a failed release can be undone.
+            PREV_SHA="$(git rev-parse HEAD)"
+            echo "Previous release: ${PREV_SHA}"
             git reset --hard origin/main
 
             echo "-> Install dependencies (frozen)"
@@ -48,35 +51,68 @@ jobs:
             pnpm prisma migrate deploy
             pnpm prisma generate
 
-            echo "-> Build (clean .next first to avoid stale standalone chunks)"
-            rm -rf apps/web/.next
+            echo "-> Build (keeping the previous bundle as a fallback)"
+            rm -rf apps/web/.next.prev
+            if [ -d apps/web/.next ]; then mv apps/web/.next apps/web/.next.prev; fi
             pnpm run build
 
             echo "-> Reload services via PM2 (zero-downtime)"
             pm2 reload ecosystem.config.cjs --update-env
-
-            echo "-> Save PM2 process list"
-            pm2 save
 
             # PM2 reporting "online" only means the process exists, which is not
             # the same as it serving. On 2026-08-17 a bundle missing part of
             # @swc/helpers died on startup without ever binding the port: PM2
             # showed online, this workflow reported success, and the site
             # returned 503 for 40 minutes. Ask the port, not the supervisor.
+            serving() {
+              code=""
+              for i in $(seq 1 20); do
+                code="$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 http://127.0.0.1:3008/ || true)"
+                if [ "$code" = "200" ]; then echo "Serving after ${i} attempt(s)."; return 0; fi
+                sleep 3
+              done
+              echo "Not serving on :3008 (last status: ${code:-none})"
+              return 1
+            }
+
             echo "-> Health check"
-            code=""
-            for i in $(seq 1 20); do
-              code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 http://127.0.0.1:3008/ || true)
-              [ "$code" = "200" ] && { echo "Serving after ${i} attempt(s)."; break; }
-              sleep 3
-            done
-            if [ "$code" != "200" ]; then
-              echo "::error::Web process is not serving on :3008 (last status: ${code:-none})"
-              pm2 logs msk-forms-web --lines 40 --nostream --err || true
+            if serving; then
+              rm -rf apps/web/.next.prev
+              echo "-> Save PM2 process list"
+              pm2 save
+              echo "Deploy finished"
+              exit 0
+            fi
+
+            # From here the new release is known bad. Put the previous one back
+            # rather than leaving the site down until someone reads the log.
+            #
+            # Note what this does NOT undo: `prisma migrate deploy` already ran
+            # and migrations are forward-only. That is tolerable because they are
+            # additive in practice (older code ignores columns it does not know),
+            # but a migration that drops or renames something still needs a human.
+            echo "::error::New release is not serving — rolling back to ${PREV_SHA}"
+            pm2 logs msk-forms-web --lines 40 --nostream --err || true
+
+            if [ ! -d apps/web/.next.prev ]; then
+              echo "::error::No previous bundle kept (first deploy?). Leaving the failed release in place."
               exit 1
             fi
 
-            echo "Deploy finished"
+            git reset --hard "${PREV_SHA}"
+            pnpm install --frozen-lockfile --prod=false
+            pnpm prisma generate
+            rm -rf apps/web/.next
+            mv apps/web/.next.prev apps/web/.next
+            pm2 reload ecosystem.config.cjs --update-env
+
+            if serving; then
+              echo "::error::Rolled back to ${PREV_SHA}. The site is up on the previous release; the pushed commit is NOT live."
+              exit 1
+            fi
+
+            echo "::error::Rollback did not come up either — manual intervention required."
+            exit 1
 
       - name: Notify Discord (optional)
         if: always()
