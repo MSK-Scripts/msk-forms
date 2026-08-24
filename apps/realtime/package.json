@@ -17,10 +17,10 @@
     "ws": "^8.21.3"
   },
   "devDependencies": {
-    "@types/pg": "^8.21.0",
+    "@types/pg": "^8.23.1",
     "@types/ws": "^8.5.13",
     "tsx": "^4.23.12",
     "typescript": "^5.7.2",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   }
 }
