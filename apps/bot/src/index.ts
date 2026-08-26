@@ -7,6 +7,7 @@ import { syncAllGuilds, syncGuild, updateGuildMeta } from "./guilds.js";
 import { deliverPendingNotifications } from "./notifications.js";
 import { handleReviewButton, isReviewButton } from "./review-actions.js";
 import { deliverPendingWebhooks } from "./webhooks.js";
+import { describeError } from "./log.js";
 
 /**
  * MSK Forms Discord bot — multi-tenant (concept §11).
@@ -42,7 +43,9 @@ export function createClient(): Client {
   client.on(Events.GuildCreate, (guild) => {
     syncGuild(guild)
       .then(() => console.info(`[bot] Linked guild ${guild.name} (${guild.id}).`))
-      .catch((err) => console.error(`[bot] Failed to link guild ${guild.id}:`, err));
+      .catch((err) =>
+        console.error(`[bot] Failed to link guild ${guild.id}: ${describeError(err)}`),
+      );
   });
 
   // A linked guild changed its name or icon → refresh the cached values so the
@@ -52,7 +55,7 @@ export function createClient(): Client {
   client.on(Events.GuildUpdate, (oldGuild, newGuild) => {
     if (oldGuild.icon === newGuild.icon && oldGuild.name === newGuild.name) return;
     updateGuildMeta(newGuild).catch((err) =>
-      console.error(`[bot] Failed to refresh guild ${newGuild.id}:`, err),
+      console.error(`[bot] Failed to refresh guild ${newGuild.id}: ${describeError(err)}`),
     );
   });
 
@@ -70,7 +73,7 @@ export function createClient(): Client {
         await handleFormsCommand(interaction);
       }
     } catch (err) {
-      console.error("[bot] Interaction handler error:", err);
+      console.error(`[bot] Interaction handler error: ${describeError(err)}`);
       if (interaction.isRepliable() && !interaction.replied && !interaction.deferred) {
         await interaction
           .reply({
@@ -95,6 +98,8 @@ async function main(): Promise<void> {
 // Only start when run directly (not on test import).
 if (process.env.NODE_ENV !== "test") {
   main().catch((err) => {
+    // Deliberately the raw error, not describeError: this fires once and the
+    // process exits straight after, so the full stack trace is worth having.
     console.error("[bot] Fatal error:", err);
     process.exit(1);
   });
