@@ -15,6 +15,11 @@ try {
 // Snapshot the resolved environment so every app inherits the secrets.
 const baseEnv = { ...process.env };
 
+// Prefix every log line with a timestamp. PM2 omits them by default, which cost
+// real time once: a 4.8 GB bot error log had to be dated from file mtimes and
+// PostgreSQL's own log, because nothing in it said when anything happened.
+const timestamps = { time: true };
+
 module.exports = {
   apps: [
     {
@@ -30,6 +35,7 @@ module.exports = {
         HOSTNAME: "127.0.0.1",
       },
       instances: 1,
+      ...timestamps,
       exec_mode: "cluster",
       max_memory_restart: "512M",
     },
@@ -51,6 +57,7 @@ module.exports = {
         NODE_ENV: "production",
       },
       instances: 1,
+      ...timestamps,
       max_memory_restart: "256M",
     },
     {
@@ -64,6 +71,7 @@ module.exports = {
         REALTIME_PORT: "3009",
       },
       instances: 1,
+      ...timestamps,
       max_memory_restart: "256M",
     },
   ],

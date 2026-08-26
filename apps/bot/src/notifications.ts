@@ -18,6 +18,7 @@ import {
 
 import { config } from "./config.js";
 import { isExhausted, isTerminalDmCode, nextAttemptAt } from "./delivery-policy.js";
+import { describeError } from "./log.js";
 import { fmt, guildStrings } from "./guild-i18n.js";
 import { dmStrings, localizedStatus } from "./i18n.js";
 import { postBranded } from "./posting.js";
@@ -78,7 +79,9 @@ function buildMessage(
     .setFooter({ text: "MSK Forms" });
 
   if (row.type === "status_change") {
-    embed.setDescription(s.statusNow(localizedStatus(locale, payload.toStatus, payload.toStatusLabel)));
+    embed.setDescription(
+      s.statusNow(localizedStatus(locale, payload.toStatus, payload.toStatusLabel)),
+    );
   } else if (row.type === "message" && payload.message) {
     embed.setDescription(s.newMessage(payload.message));
   } else {
@@ -108,8 +111,7 @@ async function deliverReview(client: Client, row: PendingRow): Promise<Outcome> 
     select: { form: { select: { settings: true } }, guild: { select: { botConfig: true } } },
   });
   const botCfg = parseBotConfig(sub?.guild.botConfig);
-  const channelId =
-    parseFormSettings(sub?.form.settings).reviewChannelId ?? botCfg.reviewChannelId;
+  const channelId = parseFormSettings(sub?.form.settings).reviewChannelId ?? botCfg.reviewChannelId;
   if (!channelId) return true; // no review channel configured → nothing to do
   const s = guildStrings(botCfg.locale);
 
@@ -150,7 +152,7 @@ async function deliverReview(client: Client, row: PendingRow): Promise<Outcome> 
       console.warn(`[bot] review channel ${channelId} gone (${err.code}) — dropping ${row.id}.`);
       return true;
     }
-    console.error(`[bot] failed to post review embed to ${channelId}:`, err);
+    console.error(`[bot] failed to post review embed to ${channelId}: ${describeError(err)}`);
     return retry(err);
   }
 }
@@ -249,7 +251,7 @@ async function deliverLog(client: Client, row: PendingRow): Promise<Outcome> {
       console.warn(`[bot] log channel ${channelId} gone (${err.code}) — dropping ${row.id}.`);
       return true;
     }
-    console.error(`[bot] failed to post log entry to ${channelId}:`, err);
+    console.error(`[bot] failed to post log entry to ${channelId}: ${describeError(err)}`);
     return retry(err);
   }
 }
@@ -318,7 +320,7 @@ async function deliverOne(client: Client, row: PendingRow): Promise<Outcome> {
       );
       return true;
     }
-    console.error(`[bot] failed to DM user ${discordId}:`, err);
+    console.error(`[bot] failed to DM user ${discordId}: ${describeError(err)}`);
     return retry(err);
   }
 }
@@ -359,7 +361,7 @@ export async function deliverPendingNotifications(client: Client): Promise<void>
       } catch (err) {
         // A throw escaping deliverOne is transient by definition: the row never
         // reached a verdict, so it must not be retired on the strength of it.
-        console.error(`[bot] delivery failed for notification ${row.id}:`, err);
+        console.error(`[bot] delivery failed for notification ${row.id}: ${describeError(err)}`);
         failures.push({
           id: row.id,
           attempts: row.attempts + 1,
@@ -395,7 +397,7 @@ export async function deliverPendingNotifications(client: Client): Promise<void>
       });
     }
   } catch (err) {
-    console.error("[bot] notification delivery error:", err);
+    console.error(`[bot] notification delivery error: ${describeError(err)}`);
   } finally {
     running = false;
   }
