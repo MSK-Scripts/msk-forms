@@ -50,3 +50,9 @@ overrides:
   # looks resolved while leaving the flagged version installed.
   "minimatch@<10": ">=10 <11"
   "brace-expansion@<5.0.9": ">=5.0.9"
+  # GHSA-3f6p-5ww8-9rcr — mysql2 complies with an auth switch to
+  # mysql_clear_password without checking that TLS is on, so a rogue server can
+  # ask for the password in the clear. Dev-only here (the prisma CLI pins it
+  # exactly at 3.15.3 for its MySQL datasource support, and this project talks to
+  # Postgres), but the exact pin means the fix only lands through an override.
+  "mysql2@<3.22.0": ">=3.22.0 <4"
