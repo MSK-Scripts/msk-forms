@@ -68,6 +68,18 @@ describe("buildOrderConfirmation", () => {
     expect(mail.text).toContain("<script>alert(1)</script>");
   });
 
+  it("names a reachable contact instead of inviting a reply", () => {
+    // MAIL_FROM on the server is noreply@, so a mail that says "just reply"
+    // would point at a mailbox nobody reads. Art. 246a EGBGB wants the trader
+    // reachable, and this is the document the customer keeps.
+    for (const lang of ["de", "en"] as const) {
+      const mail = buildOrderConfirmation({ lang, ...base });
+      expect(mail.text).toContain("info@msk-scripts.de");
+      expect(mail.text.toLowerCase()).not.toContain("reply to this email");
+      expect(mail.text).not.toContain("antworte einfach");
+    }
+  });
+
   it("says Enterprise when that is the plan", () => {
     const mail = buildOrderConfirmation({ lang: "en", ...base, planLabel: "Enterprise" });
     expect(mail.subject).toContain("MSK Forms Enterprise");

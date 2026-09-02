@@ -18,6 +18,12 @@ export type MailLang = "de" | "en";
 
 const SHOP_URL = "https://www.msk-scripts.de";
 
+// The mail goes out as noreply@msk-scripts.de, so it names the contact address
+// instead of inviting a reply into a mailbox nobody reads. Art. 246a EGBGB
+// wants the trader reachable anyway, and this is the document the customer
+// keeps.
+const CONTACT = "info@msk-scripts.de";
+
 /** Escape the few characters that could break out of the HTML body. */
 function escapeHtml(value: string): string {
   return value
@@ -96,7 +102,7 @@ export function buildOrderConfirmation(input: OrderConfirmationInput): BuiltEmai
         `Unsere AGB: ${links.terms}`,
         `Dein Dashboard: ${dashboardUrl}`,
         "",
-        "Bei Fragen antworte einfach auf diese E-Mail.",
+        `Bei Fragen erreichst du uns unter ${CONTACT}.`,
       ]
     : [
         "thank you for your order. We hereby confirm the contract on a durable medium.",
@@ -110,7 +116,7 @@ export function buildOrderConfirmation(input: OrderConfirmationInput): BuiltEmai
         `Our Terms and Conditions: ${links.terms}`,
         `Your dashboard: ${dashboardUrl}`,
         "",
-        "If you have any questions, simply reply to this email.",
+        `If you have any questions, write to us at ${CONTACT}.`,
       ];
 
   const text = [subject, "", ...body].join("\n");
