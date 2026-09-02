@@ -115,6 +115,12 @@ model Guild {
   /// The secret is stored encrypted; the site key is public.
   captchaSiteKey String? @map("captcha_site_key")
   captchaSecret  String? @map("captcha_secret")
+  /// When the guild accepted the data processing agreement (Art. 28 GDPR).
+  /// Asked once, before the first form can be created. Null means pending.
+  dpaAcceptedAt DateTime? @map("dpa_accepted_at")
+  /// Send lock for the order confirmation required by § 312f BGB. Holds the
+  /// subscription id the confirmation was sent for; see the billing webhook.
+  orderConfirmationSubId String? @map("order_confirmation_sub_id")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 

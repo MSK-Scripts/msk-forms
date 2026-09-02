@@ -2,7 +2,10 @@ import { prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
 
-import { stripe, tierForPrice, webhookSecret } from "@/lib/stripe";
+import { buildOrderConfirmation, pickMailLang } from "@/lib/emails/order-confirmation";
+import { sendMail } from "@/lib/mail";
+import { formatSubscriptionPrice, stripe, tierForPrice, webhookSecret } from "@/lib/stripe";
+import { appBaseUrl } from "@/lib/url";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,6 +29,78 @@ async function resolveGuildId(
     select: { id: true },
   });
   return guild?.id ?? null;
+}
+
+/**
+ * Send the order confirmation required by § 312f BGB, exactly once per
+ * subscription.
+ *
+ * A mail cannot be made idempotent the way the rest of this handler is, by
+ * writing the same state twice, and Stripe delivers events more than once. So
+ * the guild row carries a send lock: whoever manages to claim it with this
+ * subscription id sends, everyone else returns. If sending fails the lock is
+ * released again and the error is rethrown, which makes Stripe retry.
+ *
+ * Without SMTP configured sendMail returns false and logs. The subscription is
+ * still live and the customer still has the platform; the confirmation is then
+ * simply missing, which is a thing to fix in the environment rather than a
+ * reason to fail the webhook.
+ */
+async function sendOrderConfirmation(
+  client: Stripe,
+  guildId: string,
+  sub: Stripe.Subscription,
+): Promise<void> {
+  // Claim the lock. The explicit OR is deliberate: `{ not: id }` alone would
+  // never match a row where the column is still NULL, which is every guild
+  // ordering for the first time.
+  const claimed = await prisma.guild.updateMany({
+    where: {
+      id: guildId,
+      OR: [{ orderConfirmationSubId: null }, { orderConfirmationSubId: { not: sub.id } }],
+    },
+    data: { orderConfirmationSubId: sub.id },
+  });
+  if (claimed.count === 0) return;
+
+  const release = async () => {
+    await prisma.guild.updateMany({
+      where: { id: guildId, orderConfirmationSubId: sub.id },
+      data: { orderConfirmationSubId: null },
+    });
+  };
+
+  try {
+    const id = customerId(sub.customer as string | { id: string } | null);
+    const customer = id ? await client.customers.retrieve(id) : null;
+    const to = customer && !customer.deleted ? (customer.email ?? "") : "";
+    if (!to) {
+      console.warn(`[stripe] no customer email for guild ${guildId}, cannot confirm the order`);
+      await release();
+      return;
+    }
+
+    const lang = pickMailLang(customer && !customer.deleted ? customer.preferred_locales : null);
+    const guild = await prisma.guild.findUnique({
+      where: { id: guildId },
+      select: { name: true },
+    });
+    const tier = tierForPrice(sub.items?.data?.[0]?.price?.id);
+
+    await sendMail({
+      to,
+      ...buildOrderConfirmation({
+        lang,
+        planLabel: tier === "enterprise" ? "Enterprise" : "Pro",
+        guildLabel: guild?.name ?? guildId,
+        price: formatSubscriptionPrice(sub, lang),
+        dashboardUrl: `${appBaseUrl()}/dashboard/${guildId}/forms`,
+      }),
+    });
+  } catch (err) {
+    await release();
+    throw err;
+  }
 }
 
 /**
@@ -80,6 +155,11 @@ export async function POST(request: NextRequest) {
               stripeSubscriptionId: sub.id,
             },
           });
+          // Confirm the contract once it is actually live. Hooked here rather
+          // than on checkout.session.completed because that event carries no
+          // price and no status, and this one arrives for both a fresh order
+          // and a Pro to Enterprise change.
+          if (ACTIVE.has(sub.status)) await sendOrderConfirmation(client, guildId, sub);
         }
         break;
       }

@@ -2,6 +2,7 @@ import { prisma } from "@msk-forms/db";
 import { Card } from "@msk-forms/ui";
 
 import { UpgradeActions } from "@/components/billing/upgrade-button";
+import { upgradeCopy } from "@/lib/upgrade-copy";
 import { CaptchaForm } from "@/components/domain/captcha-form";
 import { DomainForm } from "@/components/domain/domain-form";
 import { HandleForm } from "@/components/domain/handle-form";
@@ -75,6 +76,7 @@ export default async function DomainPage({
             stripeEnabled() ? (
               <UpgradeActions
                 guildId={guildId}
+                copy={await upgradeCopy()}
                 proLabel={dict.pro.upgrade}
                 enterpriseLabel={enterpriseEnabled() ? dict.pro.upgradeEnterprise : undefined}
               />

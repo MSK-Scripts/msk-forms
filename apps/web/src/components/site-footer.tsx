@@ -1,5 +1,6 @@
 import { Wordmark } from "@/components/landing/wordmark";
-import { getDict } from "@/i18n";
+import { shopLegalUrl } from "@/lib/legal";
+import { getDict, getLocale } from "@/i18n";
 
 interface FooterLink {
   label: string;
@@ -32,6 +33,7 @@ function Column({ title, links }: { title: string; links: FooterLink[] }) {
 
 export async function SiteFooter() {
   const t = await getDict();
+  const locale = await getLocale();
 
   const product: FooterLink[] = [
     { label: t.pricing.nav, href: "/pricing" },
@@ -49,6 +51,18 @@ export async function SiteFooter() {
     { label: t.footer.imprint, href: "/terms/imprint" },
     { label: t.footer.privacy, href: "/terms/privacy" },
     { label: t.footer.terms, href: "/terms" },
+    { label: t.legal.withdrawalInfo, href: shopLegalUrl(locale, "/terms/widerruf") },
+    { label: t.legal.dpa, href: shopLegalUrl(locale, "/terms/avv") },
+  ];
+  // The three buttons the law asks for, in their own column rather than among
+  // the document links above. § 356a and § 312k BGB want them clearly visible,
+  // and a seventh entry in a list of legal texts is the opposite of that. The
+  // German labels are prescribed and must not be shortened to "Kuendigung" or
+  // "Widerruf".
+  const duties: FooterLink[] = [
+    { label: t.legal.revoke, href: shopLegalUrl(locale, "/vertrag-widerrufen") },
+    { label: t.legal.cancel, href: shopLegalUrl(locale, "/vertrag-kuendigen") },
+    { label: t.legal.report, href: shopLegalUrl(locale, "/report") },
   ];
 
   return (
@@ -60,10 +74,11 @@ export async function SiteFooter() {
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">{t.footer.tagline}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-10 sm:grid-cols-3 lg:flex lg:gap-16">
+          <div className="grid grid-cols-2 gap-10 sm:grid-cols-4 lg:flex lg:gap-16">
             <Column title={t.footer.product} links={product} />
             <Column title={t.footer.ecosystem} links={ecosystem} />
             <Column title={t.footer.legal} links={legal} />
+            <Column title={t.legal.footerDuties} links={duties} />
           </div>
         </div>
 

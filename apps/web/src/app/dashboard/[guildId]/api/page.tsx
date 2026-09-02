@@ -2,6 +2,7 @@ import { prisma } from "@msk-forms/db";
 import { Card } from "@msk-forms/ui";
 
 import { UpgradeActions } from "@/components/billing/upgrade-button";
+import { upgradeCopy } from "@/lib/upgrade-copy";
 import { ApiKeysManager, type ApiKeyRow } from "@/components/api/api-keys-manager";
 import { IntegrationsCard } from "@/components/api/integrations-card";
 import { ProNotice } from "@/components/pro-notice";
@@ -42,7 +43,11 @@ export default async function ApiPage({
           body={t.enterpriseBody}
           action={
             stripeEnabled() && enterpriseEnabled() ? (
-              <UpgradeActions guildId={guildId} enterpriseLabel={dict.pro.upgradeEnterprise} />
+              <UpgradeActions
+                guildId={guildId}
+                copy={await upgradeCopy()}
+                enterpriseLabel={dict.pro.upgradeEnterprise}
+              />
             ) : undefined
           }
         />

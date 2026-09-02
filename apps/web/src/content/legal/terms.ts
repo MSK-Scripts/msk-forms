@@ -4,7 +4,7 @@
 export const terms = {
   en: `# Terms & Conditions
 
-*Last updated: June 2026*
+*Last updated: September 2026*
 
 ## 1. Scope
 
@@ -60,6 +60,8 @@ If you create forms on a server, **you decide which questions to ask and what da
 
 MSK Scripts processes that data on your behalf as part of providing the platform. See our [Privacy Policy](/terms/privacy) for details on the respective roles.
 
+Because we process the data on your behalf, Article 28 GDPR requires a data processing agreement between us. It forms part of these terms and is available at [Data Processing Agreement](https://www.msk-scripts.de/terms/avv). The dashboard asks you to accept it once, before you create a form.
+
 ---
 
 ## 6. Plans, Subscriptions and Billing
@@ -68,13 +70,18 @@ MSK Forms offers a **Free** plan and paid **Pro** and **Enterprise** plans. Plan
 
 - **Payment** is processed by **Stripe** (Stripe Payments Europe, Ltd.). We never receive or store your card details. By subscribing, you also agree to Stripe's terms.
 - Subscriptions are billed **monthly** and renew automatically until cancelled.
-- You can **cancel** at any time via the **Manage subscription** button (Stripe customer portal). On cancellation, the plan remains active until the end of the current billing period, after which the server is downgraded to Free. Plan-specific features (e.g. custom domain, automations, API access) are deactivated on downgrade.
+- You can **cancel** at any time via the **Manage subscription** button (Stripe customer portal) or via **Cancel contracts here** in the footer (§ 312k BGB). On cancellation, the plan remains active until the end of the current billing period, after which the server is downgraded to Free. Plan-specific features (e.g. custom domain, automations, API access) are deactivated on downgrade.
+- After you order, we confirm the contract by email on a durable medium (§ 312f BGB), naming the service, the total price and the term.
 - No partial refunds are provided for unused subscription time, except where required by mandatory law.
 - We may change plans, prices, or limits going forward; material changes will be announced with reasonable notice and apply from the next billing period.
 
 ### Right of withdrawal (consumers)
 
-If you are a consumer in the EU, you have a statutory right of withdrawal for paid subscriptions. By starting a paid subscription and requesting that the service begin immediately, you agree that performance begins before the withdrawal period expires; the statutory right of withdrawal expires once the service has been fully provided.
+If you are a consumer, you may withdraw from a paid subscription within fourteen days. The details, including the model withdrawal form, are in our [Withdrawal Instructions](https://www.msk-scripts.de/terms/widerruf).
+
+You can declare the withdrawal online through **Withdraw from contract** in the footer (§ 356a BGB). We confirm receipt without undue delay on a durable medium, including the content of your declaration and the date and time it arrived.
+
+The right of withdrawal lapses under § 356 Abs. 4 BGB only where we have fully performed the service and you expressly agreed to that before performance began and acknowledged that you thereby lose the right. For a running monthly subscription that is regularly not the case within the first fourteen days.
 
 ---
 
@@ -139,7 +146,7 @@ These Terms are governed by the laws of the **Federal Republic of Germany**. To 
 
   de: `# Allgemeine Geschäftsbedingungen
 
-*Zuletzt aktualisiert: Juni 2026*
+*Zuletzt aktualisiert: September 2026*
 
 ## 1. Geltungsbereich
 
@@ -195,6 +202,8 @@ Wenn Sie auf einem Server Formulare erstellen, **entscheiden Sie, welche Fragen 
 
 MSK Scripts verarbeitet diese Daten in Ihrem Auftrag im Rahmen der Bereitstellung der Plattform. Einzelheiten zu den jeweiligen Rollen finden Sie in unserer [Datenschutzerklärung](/terms/privacy).
 
+Weil wir die Daten in Ihrem Auftrag verarbeiten, verlangt Art. 28 DSGVO eine Vereinbarung zur Auftragsverarbeitung zwischen uns. Sie ist Bestandteil dieser AGB und unter [Auftragsverarbeitung](https://www.msk-scripts.de/de/terms/avv) abrufbar. Das Dashboard bittet Sie einmalig um die Annahme, bevor Sie ein Formular anlegen.
+
 ---
 
 ## 6. Tarife, Abonnements und Abrechnung
@@ -203,13 +212,18 @@ MSK Forms bietet einen **Free**-Tarif sowie kostenpflichtige Tarife **Pro** und 
 
 - Die **Zahlung** wird über **Stripe** (Stripe Payments Europe, Ltd.) abgewickelt. Wir erhalten und speichern keine Kartendaten. Mit dem Abschluss eines Abos stimmen Sie auch den Bedingungen von Stripe zu.
 - Abonnements werden **monatlich** abgerechnet und verlängern sich automatisch bis zur Kündigung.
-- Sie können jederzeit über die Schaltfläche **Abo verwalten** (Stripe-Kundenportal) **kündigen**. Bei Kündigung bleibt der Tarif bis zum Ende des laufenden Abrechnungszeitraums aktiv und wird danach auf Free herabgestuft. Tarifspezifische Funktionen (z. B. eigene Domain, Automatisierungen, API-Zugang) werden bei Herabstufung deaktiviert.
+- Sie können jederzeit über die Schaltfläche **Abo verwalten** (Stripe-Kundenportal) oder über **Verträge hier kündigen** im Seitenfuß **kündigen** (§ 312k BGB). Bei Kündigung bleibt der Tarif bis zum Ende des laufenden Abrechnungszeitraums aktiv und wird danach auf Free herabgestuft. Tarifspezifische Funktionen (z. B. eigene Domain, Automatisierungen, API-Zugang) werden bei Herabstufung deaktiviert.
+- Nach der Bestellung bestätigen wir Ihnen den Vertrag per E-Mail auf einem dauerhaften Datenträger (§ 312f BGB), unter Angabe der Leistung, des Gesamtpreises und der Laufzeit.
 - Für nicht genutzte Abozeit werden keine anteiligen Rückerstattungen gewährt, soweit nicht zwingendes Recht etwas anderes vorschreibt.
 - Wir können Tarife, Preise oder Grenzen für die Zukunft ändern; wesentliche Änderungen werden mit angemessener Frist angekündigt und gelten ab dem nächsten Abrechnungszeitraum.
 
 ### Widerrufsrecht (Verbraucher)
 
-Sind Sie Verbraucher in der EU, steht Ihnen für kostenpflichtige Abonnements ein gesetzliches Widerrufsrecht zu. Mit dem Beginn eines kostenpflichtigen Abonnements und dem Verlangen, dass der Dienst sofort beginnt, stimmen Sie zu, dass die Leistung vor Ablauf der Widerrufsfrist beginnt; das gesetzliche Widerrufsrecht erlischt mit vollständiger Erbringung der Leistung.
+Sind Sie Verbraucher, können Sie ein kostenpflichtiges Abonnement binnen vierzehn Tagen widerrufen. Die Einzelheiten samt Muster-Widerrufsformular stehen in unserer [Widerrufsbelehrung](https://www.msk-scripts.de/de/terms/widerruf).
+
+Sie können den Widerruf auch online über **Vertrag widerrufen** im Seitenfuß erklären (§ 356a BGB). Wir bestätigen Ihnen den Eingang unverzüglich auf einem dauerhaften Datenträger, einschließlich des Inhalts Ihrer Erklärung sowie des Datums und der Uhrzeit des Eingangs.
+
+Das Widerrufsrecht erlischt nach § 356 Abs. 4 BGB nur dann, wenn wir die Leistung vollständig erbracht haben und Sie dem vor Beginn ausdrücklich zugestimmt und bestätigt haben, dass Sie dadurch Ihr Widerrufsrecht verlieren. Bei einem laufenden Monatsabonnement ist das innerhalb der ersten vierzehn Tage regelmäßig nicht der Fall.
 
 ---
 

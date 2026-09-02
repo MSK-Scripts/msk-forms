@@ -2,6 +2,7 @@ import { prisma } from "@msk-forms/db";
 import { Card } from "@msk-forms/ui";
 
 import { UpgradeActions } from "@/components/billing/upgrade-button";
+import { upgradeCopy } from "@/lib/upgrade-copy";
 import { ProNotice } from "@/components/pro-notice";
 import { WebhooksManager, type WebhookRow } from "@/components/webhooks/webhooks-manager";
 import { requireUser } from "@/lib/auth";
@@ -42,6 +43,7 @@ export default async function WebhooksPage({
             stripeEnabled() ? (
               <UpgradeActions
                 guildId={guildId}
+                copy={await upgradeCopy()}
                 proLabel={dict.pro.upgrade}
                 enterpriseLabel={enterpriseEnabled() ? dict.pro.upgradeEnterprise : undefined}
               />

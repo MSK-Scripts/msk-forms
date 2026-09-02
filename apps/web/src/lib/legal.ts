@@ -131,3 +131,28 @@ function inline(text: string): string {
     // Relative in-app links (e.g. [Privacy Policy](/terms/privacy)) — same tab.
     .replace(/\[(.+?)\]\((\/[^)]*?)\)/g, '<a href="$2">$1</a>');
 }
+
+// ── Links to the legal pages on msk-scripts.de ──────────────────────────────
+//
+// The withdrawal instructions, the data processing agreement and the two forms
+// required by § 356a and § 312k BGB live once, on the shop domain. MSK Scripts
+// is a single trader, and both documents there already name MSK Forms Pro and
+// Enterprise by name. A second copy on this domain would only drift, and the
+// drifting one is always the one nobody looks at.
+//
+// Only German and English exist over there, so every other locale gets the
+// English page.
+
+const SHOP_URL = "https://www.msk-scripts.de";
+
+export type ShopLegalPage =
+  | "/terms"
+  | "/terms/widerruf"
+  | "/terms/avv"
+  | "/vertrag-widerrufen"
+  | "/vertrag-kuendigen"
+  | "/report";
+
+export function shopLegalUrl(locale: string, page: ShopLegalPage): string {
+  return `${SHOP_URL}${locale === "de" ? "/de" : ""}${page}`;
+}

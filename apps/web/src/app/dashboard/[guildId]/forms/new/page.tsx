@@ -3,14 +3,17 @@ import { FREE_FORM_LIMIT } from "@msk-forms/shared";
 import { Card } from "@msk-forms/ui";
 
 import { UpgradeActions } from "@/components/billing/upgrade-button";
+import { upgradeCopy } from "@/lib/upgrade-copy";
 import { FormBuilder } from "@/components/builder/form-builder";
+import { DpaGate } from "@/components/legal/dpa-gate";
 import { ProNotice } from "@/components/pro-notice";
 import { requireUser } from "@/lib/auth";
 import { getGuildCategories, getStatusOptionsForGuild } from "@/lib/forms";
 import { canManageForms } from "@/lib/guild";
+import { shopLegalUrl } from "@/lib/legal";
 import { isGuildPro } from "@/lib/plan";
 import { enterpriseEnabled, stripeEnabled } from "@/lib/stripe";
-import { getDict } from "@/i18n";
+import { getDict, getLocale } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -31,6 +34,29 @@ export default async function NewFormPage({
     );
   }
 
+  // Art. 28 GDPR: the agreement has to be in place before the processing
+  // starts, and it starts when a live form collects its first answer. Creating
+  // a form is the last moment at which nothing has been collected yet, so the
+  // builder stays behind this gate until the guild has accepted once.
+  const guild = await prisma.guild.findUnique({
+    where: { id: guildId },
+    select: { dpaAcceptedAt: true },
+  });
+  if (!guild?.dpaAcceptedAt) {
+    return (
+      <div className="flex flex-col gap-4">
+        <h2 className="font-heading text-xl font-semibold text-foreground">
+          {t.dashboard.newFormTitle}
+        </h2>
+        <DpaGate
+          guildId={guildId}
+          t={t.legal}
+          href={shopLegalUrl(await getLocale(), "/terms/avv")}
+        />
+      </div>
+    );
+  }
+
   const pro = await isGuildPro(guildId);
   if (!pro && (await prisma.form.count({ where: { guildId } })) >= FREE_FORM_LIMIT) {
     return (
@@ -45,6 +71,7 @@ export default async function NewFormPage({
             stripeEnabled() ? (
               <UpgradeActions
                 guildId={guildId}
+                copy={await upgradeCopy()}
                 proLabel={t.pro.upgrade}
                 enterpriseLabel={enterpriseEnabled() ? t.pro.upgradeEnterprise : undefined}
               />

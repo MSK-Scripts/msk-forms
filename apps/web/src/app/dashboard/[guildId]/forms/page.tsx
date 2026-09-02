@@ -7,6 +7,7 @@ import QRCode from "qrcode";
 
 import { ManageBillingButton } from "@/components/billing/manage-billing-button";
 import { UpgradeActions } from "@/components/billing/upgrade-button";
+import { upgradeCopy } from "@/lib/upgrade-copy";
 import { DeleteFormButton } from "@/components/dashboard/delete-form-button";
 import { ImportFormButton, ReplaceFormButton } from "@/components/dashboard/form-io";
 import { ShareButton } from "@/components/dashboard/share-button";
@@ -94,7 +95,11 @@ export default async function GuildFormsPage({
         </h2>
         <div className="flex flex-wrap items-center gap-2">
         {canUpgradeToEnterprise && (
-          <UpgradeActions guildId={guildId} enterpriseLabel={dict.pro.upgradeEnterprise} />
+          <UpgradeActions
+            guildId={guildId}
+            copy={await upgradeCopy()}
+            enterpriseLabel={dict.pro.upgradeEnterprise}
+          />
         )}
         {guildBilling?.stripeSubscriptionId && (
           <ManageBillingButton guildId={guildId} label={dict.pro.manage} />

@@ -52,6 +52,24 @@ export function tierForPrice(priceId: string | null | undefined): PaidTier {
   return "pro";
 }
 
+/**
+ * The subscription's monthly price, formatted for the order confirmation
+ * (§ 312j Abs. 2 and § 312f BGB both want the total price named).
+ *
+ * Taken from the subscription rather than the pricing dictionary: the
+ * dictionary is a display text that can drift from what Stripe actually
+ * charges, and this mail is the document the customer keeps.
+ */
+export function formatSubscriptionPrice(sub: Stripe.Subscription, lang: "de" | "en"): string {
+  const price = sub.items.data[0]?.price;
+  const amount = price?.unit_amount;
+  if (amount == null) return "";
+  return new Intl.NumberFormat(lang === "de" ? "de-DE" : "en-GB", {
+    style: "currency",
+    currency: (price?.currency ?? "eur").toUpperCase(),
+  }).format(amount / 100);
+}
+
 /** Webhook signing secret, or null. */
 export function webhookSecret(): string | null {
   return process.env.STRIPE_WEBHOOK_SECRET || null;
