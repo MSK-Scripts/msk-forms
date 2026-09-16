@@ -1,6 +1,7 @@
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
 
@@ -27,12 +28,17 @@ export async function PATCH(
 
   // Scope the update to this guild so one guild can't toggle another's webhook.
   const result = await prisma.webhook.updateMany({
-    where: { id: webhookId, guildId },
+    where: { id: webhookId, guildId, kind: "event" },
     data: { active: body.active },
   });
   if (result.count === 0) {
     return NextResponse.json({ error: "Webhook not found." }, { status: 404 });
   }
+  await logGuildActivitySafe(guildId, {
+    action: "webhook_updated",
+    ...actor(user),
+    detail: body.active ? "Webhook enabled" : "Webhook disabled",
+  });
   return NextResponse.json({ ok: true });
 }
 
@@ -49,9 +55,10 @@ export async function DELETE(
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
-  const result = await prisma.webhook.deleteMany({ where: { id: webhookId, guildId } });
+  const result = await prisma.webhook.deleteMany({ where: { id: webhookId, guildId, kind: "event" } });
   if (result.count === 0) {
     return NextResponse.json({ error: "Webhook not found." }, { status: 404 });
   }
+  await logGuildActivitySafe(guildId, { action: "webhook_deleted", ...actor(user), detail: "Event webhook" });
   return NextResponse.json({ ok: true });
 }

@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { webhookSubscribeSchema } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if ((await prisma.webhook.count({ where: { guildId: auth.guildId } })) >= MAX_WEBHOOKS) {
+  if ((await prisma.webhook.count({ where: { guildId: auth.guildId, kind: "event" } })) >= MAX_WEBHOOKS) {
     return NextResponse.json({ error: "Too many webhooks." }, { status: 422 });
   }
 
@@ -45,6 +45,11 @@ export async function POST(request: NextRequest) {
     select: { id: true, url: true, events: true, secret: true, source: true, createdAt: true },
   });
 
+  await logGuildActivitySafe(auth.guildId, {
+    action: "webhook_created",
+    actorName: `API key (${parsed.data.source})`,
+    detail: `Subscribed to ${parsed.data.event}`,
+  });
   return NextResponse.json({ hook }, { status: 201 });
 }
 
@@ -54,7 +59,7 @@ export async function GET(request: NextRequest) {
   if (auth instanceof NextResponse) return auth;
 
   const hooks = await prisma.webhook.findMany({
-    where: { guildId: auth.guildId },
+    where: { guildId: auth.guildId, kind: "event" },
     orderBy: { createdAt: "asc" },
     select: { id: true, url: true, events: true, active: true, source: true, createdAt: true },
   });

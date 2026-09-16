@@ -2,6 +2,7 @@ import { logGuildActivitySafe, Prisma, prisma } from "@msk-forms/db";
 import { FREE_FORM_LIMIT } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { formInputSchema } from "@/lib/form-input";
 import { resolveGuildCategoryId } from "@/lib/forms";
@@ -74,8 +75,9 @@ export async function POST(
     });
     await logGuildActivitySafe(guildId, {
       action: "form_created",
-      actorName: user.username,
+      ...actor(user),
       formTitle: input.title,
+      formId: form.id,
     });
     return NextResponse.json({ id: form.id }, { status: 201 });
   } catch (err) {

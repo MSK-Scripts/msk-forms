@@ -1,6 +1,7 @@
 import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { countsTowardTeam } from "@/lib/access";
 import { getCurrentUser } from "@/lib/auth";
 import { discordAvatarUrl, fetchDiscordUserById } from "@/lib/discord";
@@ -87,7 +88,7 @@ export async function POST(
   });
   await logGuildActivitySafe(guildId, {
     action: "member_added",
-    actorName: user.username,
+    ...actor(user),
     detail: `${target.username} → ${role}`,
   });
   return NextResponse.json({ ok: true });

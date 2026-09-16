@@ -5,6 +5,7 @@ import { formDefinitionSchema } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { resolveOrCreateCategoryByName } from "@/lib/forms";
 import { canManageForms } from "@/lib/guild";
@@ -90,8 +91,10 @@ export async function POST(
     });
     await logGuildActivitySafe(guildId, {
       action: "form_updated",
-      actorName: user.username,
+      ...actor(user),
       formTitle: f.title,
+      formId,
+      detail: "Replaced from an imported definition",
     });
     return NextResponse.json({ id: formId });
   }
@@ -106,8 +109,10 @@ export async function POST(
       });
       await logGuildActivitySafe(guildId, {
         action: "form_created",
-        actorName: user.username,
+        ...actor(user),
         formTitle: f.title,
+        formId: form.id,
+        detail: "Imported from a definition file",
       });
       return NextResponse.json({ id: form.id, slug: form.slug }, { status: 201 });
     } catch (err) {

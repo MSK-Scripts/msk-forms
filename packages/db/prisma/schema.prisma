@@ -383,13 +383,18 @@ model Webhook {
   /// Optional form scope: when set, the webhook only fires for this form's
   /// events; null (default) means every form in the guild.
   formId    String?  @map("form_id") @db.Uuid
+  /// "event" (generic submission-event hook, Pro) or "audit" (Discord audit-log
+  /// hook subscribed to `log.<action>` events, available on every plan).
+  kind      String   @default("event")
+  /// Optional dashboard label, e.g. "Mod log". Only used for audit hooks.
+  name      String?
   createdAt DateTime @default(now()) @map("created_at")
 
   guild      Guild             @relation(fields: [guildId], references: [id], onDelete: Cascade)
   form       Form?             @relation(fields: [formId], references: [id], onDelete: Cascade)
   deliveries WebhookDelivery[]
 
-  @@index([guildId])
+  @@index([guildId, kind])
   @@index([formId])
   @@map("webhooks")
 }

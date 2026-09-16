@@ -1,9 +1,10 @@
 import { randomBytes } from "node:crypto";
 
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { webhookInputSchema } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
@@ -28,7 +29,7 @@ export async function GET(
   }
 
   const webhooks = await prisma.webhook.findMany({
-    where: { guildId },
+    where: { guildId, kind: "event" },
     orderBy: { createdAt: "asc" },
     select: {
       id: true,
@@ -68,7 +69,7 @@ export async function POST(
     );
   }
 
-  if ((await prisma.webhook.count({ where: { guildId } })) >= MAX_WEBHOOKS) {
+  if ((await prisma.webhook.count({ where: { guildId, kind: "event" } })) >= MAX_WEBHOOKS) {
     return NextResponse.json({ error: "Too many webhooks." }, { status: 422 });
   }
 
@@ -102,6 +103,11 @@ export async function POST(
       formId: true,
       createdAt: true,
     },
+  });
+  await logGuildActivitySafe(guildId, {
+    action: "webhook_created",
+    ...actor(user),
+    detail: `${webhook.format === "discord" ? "Discord" : "JSON"} webhook, ${webhook.events.join(", ")}`,
   });
   return NextResponse.json({ webhook }, { status: 201 });
 }

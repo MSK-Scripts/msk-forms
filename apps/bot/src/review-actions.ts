@@ -73,6 +73,7 @@ export async function handleReviewButton(interaction: ButtonInteraction): Promis
     submissionId,
     toStatus,
     actorName: interaction.user.username,
+    actorDiscordId: interaction.user.id,
     toStatusLabel: statusLabel(toStatus),
     notify:
       submission.userId && notify

@@ -1,8 +1,9 @@
-import { Prisma, prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, Prisma, prisma } from "@msk-forms/db";
 import { type Branding } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 import sharp from "sharp";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { parseBranding } from "@/lib/branding";
 import { canManageForms } from "@/lib/guild";
@@ -91,6 +92,7 @@ export async function POST(
   });
   if (previous && previous !== key) await deleteObject(previous);
 
+  await logGuildActivitySafe(guildId, { action: "branding_updated", ...actor(user), detail: "Logo uploaded" });
   return NextResponse.json({ ok: true });
 }
 
@@ -116,6 +118,9 @@ export async function DELETE(
       data: { branding: rest as Prisma.InputJsonValue },
     });
     await deleteObject(branding.logoKey);
+  }
+  if (branding.logoKey) {
+    await logGuildActivitySafe(guildId, { action: "branding_updated", ...actor(user), detail: "Logo removed" });
   }
   return NextResponse.json({ ok: true });
 }

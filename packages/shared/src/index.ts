@@ -12,6 +12,7 @@ export * from "./branding";
 export * from "./bot-config";
 export * from "./status-defs";
 export * from "./webhooks";
+export * from "./audit-log";
 export * from "./domains";
 export * from "./plans";
 export * from "./scoring";

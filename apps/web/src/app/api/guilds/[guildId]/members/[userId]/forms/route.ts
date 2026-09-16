@@ -1,6 +1,7 @@
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { countsTowardTeam } from "@/lib/access";
 import { getCurrentUser } from "@/lib/auth";
 import { canManageForms, countTeamMembers } from "@/lib/guild";
@@ -50,7 +51,7 @@ export async function PUT(
 
   const member = await prisma.guildMember.findUnique({
     where: { guildId_userId: { guildId, userId } },
-    select: { role: true },
+    select: { role: true, user: { select: { username: true } } },
   });
   if (!member) return NextResponse.json({ error: "Member not found." }, { status: 404 });
 
@@ -87,5 +88,24 @@ export async function PUT(
         ]
       : []),
   ]);
+  const titles = new Map(
+    (
+      await prisma.form.findMany({
+        where: { id: { in: grants.map((g) => g.formId) } },
+        select: { id: true, title: true },
+      })
+    ).map((f) => [f.id, f.title]),
+  );
+  await logGuildActivitySafe(guildId, {
+    action: "member_access_changed",
+    ...actor(user),
+    detail: `${member.user?.username ?? userId}: ${
+      grants.length
+        ? grants
+            .map((g) => `${titles.get(g.formId) ?? g.formId} (${g.manage ? "manage" : "review"})`)
+            .join(", ")
+        : "no form access"
+    }`,
+  });
   return NextResponse.json({ ok: true });
 }

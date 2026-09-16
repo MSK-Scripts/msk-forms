@@ -1,6 +1,7 @@
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
 
@@ -33,10 +34,13 @@ export async function POST(
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
-  await prisma.guild.updateMany({
+  const accepted = await prisma.guild.updateMany({
     where: { id: guildId, dpaAcceptedAt: null },
     data: { dpaAcceptedAt: new Date() },
   });
+  if (accepted.count > 0) {
+    await logGuildActivitySafe(guildId, { action: "dpa_accepted", ...actor(user) });
+  }
 
   return NextResponse.json({ ok: true });
 }
