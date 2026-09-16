@@ -37,7 +37,10 @@ export const formDefinitionSchema = z.object({
     category: z.string().max(60).nullish(),
   }),
   spec: formSpecSchema,
-  settings: formSettingsSchema.default({}),
+  // `prefault` (not `default`): a missing `settings` is parsed as `{}` so the
+  // inner defaults (automations, singleSubmission) are still filled in. Zod 4's
+  // `default` would return the bare `{}` without running the schema.
+  settings: formSettingsSchema.prefault({}),
 });
 
 export type FormDefinition = z.infer<typeof formDefinitionSchema>;
