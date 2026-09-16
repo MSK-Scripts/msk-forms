@@ -56,7 +56,8 @@ export default async function WebhooksPage({
 
   const [rawWebhooks, forms] = await Promise.all([
     prisma.webhook.findMany({
-      where: { guildId },
+      // Audit-log hooks have their own page.
+      where: { guildId, kind: "event" },
       orderBy: { createdAt: "asc" },
       select: {
         id: true,

@@ -26,6 +26,7 @@ export async function DELETE(
     where: { id },
     select: {
       guildId: true,
+      formId: true,
       files: { select: { storageKey: true } },
       form: { select: { title: true } },
       user: { select: { username: true } },
@@ -46,6 +47,8 @@ export async function DELETE(
     actorName: submission.user?.username ?? "Applicant",
     applicantName: submission.user?.username ?? "Anonymous",
     formTitle: submission.form.title,
+    formId: submission.formId,
+    detail: "Erased by the applicant",
   });
 
   return NextResponse.json({ ok: true });

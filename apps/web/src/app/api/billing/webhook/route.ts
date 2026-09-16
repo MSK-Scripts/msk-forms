@@ -1,4 +1,4 @@
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
 
@@ -104,6 +104,24 @@ async function sendOrderConfirmation(
 }
 
 /**
+ * Record a plan change in the guild's activity log. Only real changes: Stripe
+ * resends `subscription.updated` for things that leave the plan as it was.
+ */
+async function logPlanChange(
+  guildId: string,
+  from: string | undefined,
+  to: string,
+  subscriptionStatus: string,
+): Promise<void> {
+  if (from === to) return;
+  await logGuildActivitySafe(guildId, {
+    action: "plan_changed",
+    actorName: "Stripe",
+    detail: `${from ?? "unknown"} → ${to} (subscription ${subscriptionStatus})`,
+  });
+}
+
+/**
  * Stripe webhook. Verifies the signature against STRIPE_WEBHOOK_SECRET, then
  * maps subscription lifecycle events onto the guild's plan. Grandfathered guilds
  * stay Pro regardless (resolved in lib/plan.ts), so a downgrade here is safe.
@@ -148,13 +166,19 @@ export async function POST(request: NextRequest) {
         if (guildId) {
           // Derive the tier from the subscription's price (pro vs enterprise).
           const tier = tierForPrice(sub.items?.data?.[0]?.price?.id);
+          const nextPlan = ACTIVE.has(sub.status) ? tier : "free";
+          const before = await prisma.guild.findUnique({
+            where: { id: guildId },
+            select: { plan: true },
+          });
           await prisma.guild.update({
             where: { id: guildId },
             data: {
-              plan: ACTIVE.has(sub.status) ? tier : "free",
+              plan: nextPlan,
               stripeSubscriptionId: sub.id,
             },
           });
+          await logPlanChange(guildId, before?.plan, nextPlan, sub.status);
           // Confirm the contract once it is actually live. Hooked here rather
           // than on checkout.session.completed because that event carries no
           // price and no status, and this one arrives for both a fresh order
@@ -167,10 +191,15 @@ export async function POST(request: NextRequest) {
         const sub = event.data.object as Stripe.Subscription;
         const guildId = await resolveGuildId(sub.metadata?.guildId, customerId(sub.customer));
         if (guildId) {
+          const before = await prisma.guild.findUnique({
+            where: { id: guildId },
+            select: { plan: true },
+          });
           await prisma.guild.update({
             where: { id: guildId },
             data: { plan: "free", stripeSubscriptionId: null },
           });
+          await logPlanChange(guildId, before?.plan, "free", "canceled");
         }
         break;
       }

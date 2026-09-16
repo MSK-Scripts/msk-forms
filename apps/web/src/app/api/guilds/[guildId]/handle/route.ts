@@ -1,7 +1,8 @@
-import { Prisma, prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, Prisma, prisma } from "@msk-forms/db";
 import { handleSchema, normalizeHandle } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
 
@@ -30,6 +31,7 @@ export async function PATCH(
   // Empty/null clears the handle.
   if (raw == null || (typeof raw === "string" && raw.trim() === "")) {
     await prisma.guild.update({ where: { id: guildId }, data: { handle: null } });
+    await logGuildActivitySafe(guildId, { action: "handle_updated", ...actor(user), detail: "Removed" });
     return NextResponse.json({ handle: null });
   }
   if (typeof raw !== "string") {
@@ -52,5 +54,10 @@ export async function PATCH(
     }
     throw err;
   }
+  await logGuildActivitySafe(guildId, {
+    action: "handle_updated",
+    ...actor(user),
+    detail: `Set to /${parsed.data}`,
+  });
   return NextResponse.json({ handle: parsed.data });
 }

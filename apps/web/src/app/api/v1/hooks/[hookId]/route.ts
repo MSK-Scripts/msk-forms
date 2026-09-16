@@ -1,4 +1,4 @@
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { authorizeV1 } from "@/lib/v1-auth";
@@ -22,7 +22,16 @@ export async function DELETE(
 
   // Guild-scoped delete: deleteMany never throws on a no-match, which keeps the
   // call idempotent and prevents probing for hooks in other guilds.
-  await prisma.webhook.deleteMany({ where: { id: hookId, guildId: auth.guildId } });
+  const removed = await prisma.webhook.deleteMany({
+    where: { id: hookId, guildId: auth.guildId, kind: "event" },
+  });
+  if (removed.count > 0) {
+    await logGuildActivitySafe(auth.guildId, {
+      action: "webhook_deleted",
+      actorName: "API key",
+      detail: "Integration unsubscribed",
+    });
+  }
 
   return new NextResponse(null, { status: 204 });
 }

@@ -1,6 +1,7 @@
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { generateApiKey } from "@/lib/api-key";
 import { getCurrentUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
@@ -66,5 +67,6 @@ export async function POST(
     select: { id: true, name: true, createdAt: true },
   });
   // The plaintext is shown exactly once — only the hash is stored.
+  await logGuildActivitySafe(guildId, { action: "api_key_created", ...actor(user), detail: name });
   return NextResponse.json({ key, secret: plain }, { status: 201 });
 }

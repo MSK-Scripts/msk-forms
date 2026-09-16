@@ -24,6 +24,8 @@ export async function enqueueWebhooks(
   const hooks = await db.webhook.findMany({
     where: {
       guildId,
+      // Audit-log hooks subscribe to `log.*` events and are fed by enqueueGuildLog.
+      kind: "event",
       active: true,
       events: { has: event },
       // Guild-wide hooks (formId null) always match; scoped hooks only their form.

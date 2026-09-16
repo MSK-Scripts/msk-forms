@@ -1,6 +1,7 @@
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { encryptSecret } from "@/lib/crypto";
 import { canManageForms } from "@/lib/guild";
@@ -59,6 +60,11 @@ export async function PATCH(
     where: { id: guildId },
     data: { captchaSiteKey: siteKey, captchaSecret: secretToStore },
   });
+  await logGuildActivitySafe(guildId, {
+    action: "captcha_updated",
+    ...actor(user),
+    detail: secret ? "Site key and new secret key saved" : "Site key saved",
+  });
   return NextResponse.json({ ok: true, hasSecret: true });
 }
 
@@ -79,5 +85,6 @@ export async function DELETE(
     where: { id: guildId },
     data: { captchaSiteKey: null, captchaSecret: null },
   });
+  await logGuildActivitySafe(guildId, { action: "captcha_updated", ...actor(user), detail: "Removed" });
   return NextResponse.json({ ok: true });
 }

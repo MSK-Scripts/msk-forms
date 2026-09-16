@@ -1,7 +1,8 @@
-import { Prisma, prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, Prisma, prisma } from "@msk-forms/db";
 import { parseStatusMessages, statusMessagesSchema } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
 
@@ -35,5 +36,6 @@ export async function PATCH(
     where: { id: guildId },
     data: { statusMessages: messages as Prisma.InputJsonValue },
   });
+  await logGuildActivitySafe(guildId, { action: "status_messages_updated", ...actor(user) });
   return NextResponse.json({ ok: true });
 }

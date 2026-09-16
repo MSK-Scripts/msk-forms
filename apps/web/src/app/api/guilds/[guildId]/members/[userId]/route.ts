@@ -1,6 +1,7 @@
 import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { countsTowardTeam } from "@/lib/access";
 import { getCurrentUser } from "@/lib/auth";
 import { canManageForms, countTeamMembers } from "@/lib/guild";
@@ -61,7 +62,7 @@ export async function PATCH(
   });
   await logGuildActivitySafe(guildId, {
     action: "member_role_changed",
-    actorName: user.username,
+    ...actor(user),
     detail: `${member.user?.username ?? userId}: ${member.role} → ${role}`,
   });
   return NextResponse.json({ ok: true });
@@ -96,7 +97,7 @@ export async function DELETE(
   ]);
   await logGuildActivitySafe(guildId, {
     action: "member_removed",
-    actorName: user.username,
+    ...actor(user),
     detail: member.user?.username ?? userId,
   });
   return NextResponse.json({ ok: true });
