@@ -128,6 +128,7 @@ export async function handleFormsCommand(
     await logGuildActivitySafe(guildId, {
       action: "bot_config_updated",
       actorName: interaction.user.username,
+      actorId: interaction.user.id,
       detail: `language → ${LOCALE_NAMES[choice] ?? choice}`,
     });
     // Confirm in the newly chosen language.
@@ -158,7 +159,7 @@ export async function handleFormsCommand(
     const slug = interaction.options.getString("form", true);
     const form = await prisma.form.findFirst({
       where: { slug, guildId, status: "live" },
-      select: { slug: true, title: true, description: true },
+      select: { id: true, slug: true, title: true, description: true },
     });
     if (!form) {
       await interaction.reply({ content: s.postFormUnavailable, flags: MessageFlags.Ephemeral });
@@ -189,7 +190,9 @@ export async function handleFormsCommand(
     await logGuildActivitySafe(guildId, {
       action: "form_posted",
       actorName: interaction.user.username,
+      actorId: interaction.user.id,
       formTitle: form.title,
+      formId: form.id,
       detail: `Posted in #${channel.name}`,
     });
     await interaction.reply({

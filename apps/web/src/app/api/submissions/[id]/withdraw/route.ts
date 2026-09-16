@@ -33,6 +33,7 @@ export async function POST(
       select: {
         status: true,
         guildId: true,
+        formId: true,
         form: { select: { title: true } },
         user: { select: { username: true } },
       },
@@ -62,6 +63,7 @@ export async function POST(
       actorName: submission.user?.username ?? "Applicant",
       applicantName: submission.user?.username ?? "Anonymous",
       formTitle: submission.form.title,
+      formId: submission.formId,
       submissionId: id,
     });
     return { code: 200 as const };

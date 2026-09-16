@@ -1,7 +1,8 @@
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { categoriesSchema } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
 
@@ -81,6 +82,11 @@ export async function PUT(
     ),
   ];
   await prisma.$transaction(ops);
+  await logGuildActivitySafe(guildId, {
+    action: "categories_updated",
+    ...actor(user),
+    detail: parsed.data.length ? parsed.data.map((c) => c.name).join(", ") : "All categories removed",
+  });
 
   // Return the saved set so the client can pick up new ids (avoids re-creating
   // freshly-added rows on a second save).

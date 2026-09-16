@@ -2,6 +2,7 @@ import { logGuildActivitySafe, Prisma, prisma } from "@msk-forms/db";
 import { botConfigSchema } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
 
@@ -35,7 +36,7 @@ export async function PATCH(
   });
   await logGuildActivitySafe(guildId, {
     action: "bot_config_updated",
-    actorName: user.username,
+    ...actor(user),
   });
   return NextResponse.json({ ok: true });
 }

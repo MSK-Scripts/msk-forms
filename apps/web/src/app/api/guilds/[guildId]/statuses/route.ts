@@ -1,7 +1,8 @@
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { statusDefsSchema } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
 
@@ -66,5 +67,10 @@ export async function PUT(
       })),
     }),
   ]);
+  await logGuildActivitySafe(guildId, {
+    action: "statuses_updated",
+    ...actor(user),
+    detail: parsed.data.length ? parsed.data.map((d) => d.label).join(", ") : "Custom statuses removed",
+  });
   return NextResponse.json({ ok: true });
 }

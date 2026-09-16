@@ -12,6 +12,7 @@ import {
 } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { resolveStatus } from "@/lib/forms";
 import { canReviewForm } from "@/lib/guild";
@@ -118,6 +119,15 @@ export async function POST(
         visibility: "internal",
       },
     });
+    // Log that a note exists and who wrote it, not what it says: the log channel
+    // may be readable by more people than the submission itself.
+    await logGuildActivitySafe(guildId, {
+      action: "note_added",
+      ...actor(user),
+      formTitle: submission.form.title,
+      formId: submission.formId,
+      submissionId: id,
+    });
     return NextResponse.json({ ok: true });
   }
 
@@ -154,8 +164,9 @@ export async function POST(
   await notifySubmissionChange(id);
   await logGuildActivitySafe(guildId, {
     action: "message_sent",
-    actorName: user.username,
+    ...actor(user),
     formTitle: submission.form.title,
+    formId: submission.formId,
     submissionId: id,
     detail: action.message.slice(0, 1024),
   });
