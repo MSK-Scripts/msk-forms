@@ -62,19 +62,11 @@ MDMessageCmd /usr/local/sbin/msk-forms-md-message.sh
 EOF
 a2enconf msk-forms-md
 
-# 3. Port-80 vhost: let mod_md answer ACME challenges, redirect everything else
-#    to https. (mod_md intercepts /.well-known/acme-challenge automatically.)
-cat >/etc/apache2/sites-available/msk-forms-acme.conf <<'EOF'
-<VirtualHost *:80>
-  ServerName forms.msk-scripts.de
-  ServerAlias *
-  RewriteEngine On
-  # Don't redirect ACME challenge requests.
-  RewriteCond %{REQUEST_URI} !^/\.well-known/acme-challenge/
-  RewriteRule ^/(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
-</VirtualHost>
-EOF
-a2ensite msk-forms-acme
+# 3. Port 80: nothing to set up. The sync script writes one :80 vhost per
+#    customer domain (HTTPS redirect with an exception for the ACME path).
+#    Do NOT add a catch-all vhost with `ServerAlias *` here. It used to exist
+#    (msk-forms-acme.conf) and silently overrode the :80 block of every other
+#    site on the server that sorted after it.
 
 # 4. Install the sync script + systemd units (event-driven .path + safety-net timer).
 install -m 0755 /opt/msk-forms/infra/custom-domains/sync-custom-domains.sh \
@@ -131,12 +123,30 @@ and watched by `msk-forms-domains.path` at the same location.
 
 `sync-custom-domains.sh` reads verified domains
 (`custom_domain_verified_at IS NOT NULL`) from the DB and writes
-`/etc/apache2/conf-available/msk-forms-domains.conf`:
+`/etc/apache2/sites-available/msk-forms-domains.conf` (enabled via `a2ensite`):
 
-- one `MDomain <domain>` line per domain (so `mod_md` manages its cert), and
+- one `MDomain <domain>` line per domain (so `mod_md` manages its cert),
+- one `<VirtualHost *:80>` per domain redirecting to HTTPS, except
+  `/.well-known/acme-challenge/` so `mod_md` can answer `http-01`, and
 - one `<VirtualHost *:443>` per domain proxying to `127.0.0.1:3008` (and
   `/realtime` to the websocket on `127.0.0.1:3009`), with the duplicate Apache
   security headers stripped (Next.js sets them itself).
+
+The file must live in `sites-available`, not `conf-available`. `apache2.conf`
+includes `conf-enabled` before `sites-enabled`, and the first `*:80` vhost
+Apache reads becomes the default for that port, so a customer domain would
+otherwise replace `000-default.conf` as the fallback for unknown hosts.
+
+**Upgrading a server set up with an older version of this runbook** (conf in
+`conf-available`, catch-all `msk-forms-acme.conf`):
+
+```bash
+install -m 0755 /opt/msk-forms/infra/custom-domains/sync-custom-domains.sh /usr/local/sbin/
+/usr/local/sbin/sync-custom-domains.sh      # writes + enables the sites-available file
+a2disconf msk-forms-domains; rm -f /etc/apache2/conf-available/msk-forms-domains.conf
+a2dissite msk-forms-acme;    rm -f /etc/apache2/sites-available/msk-forms-acme.conf
+apache2ctl configtest && systemctl reload apache2
+```
 
 It only rewrites + `systemctl reload apache2` when the output changes, and runs
 `apache2ctl configtest` before reloading.
