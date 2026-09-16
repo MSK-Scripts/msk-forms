@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --port 3000",
-    "build": "next build && node scripts/copy-standalone-assets.mjs",
+    "build": "node scripts/assert-build-env.mjs && next build && node scripts/copy-standalone-assets.mjs",
     "start": "next start --port 3000",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
