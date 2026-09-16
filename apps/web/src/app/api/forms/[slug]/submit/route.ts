@@ -270,8 +270,10 @@ export async function POST(
   await logGuildActivitySafe(form.guildId, {
     action: "submission_created",
     actorName: user?.username ?? "Anonymous",
+    actorId: user?.discordId,
     applicantName: user?.username ?? "Anonymous",
     formTitle: form.title,
+    formId: form.id,
     submissionId: submission.id,
   });
 

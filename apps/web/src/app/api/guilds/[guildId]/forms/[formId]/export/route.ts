@@ -1,7 +1,8 @@
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import ExcelJS from "exceljs";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { getSubmissionsTable } from "@/lib/forms";
 import { canReviewForm } from "@/lib/guild";
@@ -59,7 +60,7 @@ export async function GET(
 
   const form = await prisma.form.findUnique({
     where: { id: formId },
-    select: { slug: true },
+    select: { slug: true, title: true },
   });
 
   const statusLabels = (await getDict()).statusLabels;
@@ -68,6 +69,16 @@ export async function GET(
     return NextResponse.json({ error: "Form not found." }, { status: 404 });
   }
   const { columns, rows } = table;
+
+  // Exports copy applicant data out of the dashboard, so they are part of the
+  // trail: who took which form's data, in which format, how many rows.
+  await logGuildActivitySafe(guildId, {
+    action: "submissions_exported",
+    ...actor(user),
+    formTitle: form.title,
+    formId,
+    detail: `${format.toUpperCase()}, ${rows.length} ${rows.length === 1 ? "submission" : "submissions"}`,
+  });
 
   const base = `${form.slug || "submissions"}-${new Date().toISOString().slice(0, 10)}`;
   const download = (body: BodyInit, type: string, ext: string) =>

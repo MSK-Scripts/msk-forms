@@ -1,6 +1,7 @@
 import { logGuildActivitySafe, Prisma, prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { formInputSchema } from "@/lib/form-input";
 import { resolveGuildCategoryId } from "@/lib/forms";
@@ -69,8 +70,9 @@ export async function PATCH(
     });
     await logGuildActivitySafe(guildId, {
       action: "form_updated",
-      actorName: user.username,
+      ...actor(user),
       formTitle: input.title,
+      formId,
     });
     return NextResponse.json({ id: formId });
   } catch (err) {
@@ -118,7 +120,7 @@ export async function DELETE(
 
   await logGuildActivitySafe(guildId, {
     action: "form_deleted",
-    actorName: user.username,
+    ...actor(user),
     formTitle: existing.title,
   });
 

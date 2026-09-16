@@ -1,6 +1,7 @@
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
 
@@ -20,9 +21,11 @@ export async function DELETE(
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
+  const key = await prisma.apiKey.findFirst({ where: { id: keyId, guildId }, select: { name: true } });
   const result = await prisma.apiKey.deleteMany({ where: { id: keyId, guildId } });
   if (result.count === 0) {
     return NextResponse.json({ error: "Key not found." }, { status: 404 });
   }
+  await logGuildActivitySafe(guildId, { action: "api_key_revoked", ...actor(user), detail: key?.name });
   return NextResponse.json({ ok: true });
 }

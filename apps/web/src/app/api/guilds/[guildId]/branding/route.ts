@@ -2,6 +2,7 @@ import { logGuildActivitySafe, Prisma, prisma } from "@msk-forms/db";
 import { brandingColorSchema, sanitizeCustomCss, type Branding } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { parseBranding } from "@/lib/branding";
 import { canManageForms } from "@/lib/guild";
@@ -52,7 +53,7 @@ export async function PATCH(
   });
   await logGuildActivitySafe(guildId, {
     action: "branding_updated",
-    actorName: user.username,
+    ...actor(user),
   });
   return NextResponse.json({ ok: true });
 }

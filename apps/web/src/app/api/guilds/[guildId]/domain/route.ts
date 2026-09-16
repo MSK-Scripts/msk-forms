@@ -4,6 +4,7 @@ import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { customDomainSchema } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { primaryHostname } from "@/lib/custom-domain";
 import { requestDomainSync } from "@/lib/domain-sync";
@@ -69,7 +70,7 @@ export async function PATCH(
   });
   await logGuildActivitySafe(guildId, {
     action: "domain_updated",
-    actorName: user.username,
+    ...actor(user),
     detail: `Set to ${domain}`,
   });
   return NextResponse.json({ ok: true, token });
@@ -98,7 +99,7 @@ export async function DELETE(
 
   await logGuildActivitySafe(guildId, {
     action: "domain_updated",
-    actorName: user.username,
+    ...actor(user),
     detail: "Removed",
   });
 

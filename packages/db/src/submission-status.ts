@@ -50,6 +50,11 @@ export interface ChangeSubmissionStatusArgs {
   actorUserId?: string | null;
   /** Human-readable actor for the activity log (e.g. reviewer name, "Bot"). */
   actorName?: string | null;
+  /**
+   * The actor's Discord user ID for the activity log. Optional: when omitted
+   * but `actorUserId` is set, it is looked up from the user row.
+   */
+  actorDiscordId?: string | null;
   /** Status label for the activity log; falls back to the status key. */
   toStatusLabel?: string | null;
   /** When set, queue an outbox DM for the applicant in the same transaction. */
@@ -96,6 +101,7 @@ export async function changeSubmissionStatus(
     toStatus,
     actorUserId = null,
     actorName = null,
+    actorDiscordId = null,
     toStatusLabel = null,
     notify = null,
     eventVisibility = "public",
@@ -190,16 +196,27 @@ export async function changeSubmissionStatus(
       }
     }
 
-    // Activity log: record the transition for the guild's log channel.
+    // Activity log: record the transition for the guild's log sinks. Resolve the
+    // actor's Discord ID so the entry stays attributable after a rename.
+    const actorId =
+      actorDiscordId ??
+      (actorUserId
+        ? ((
+            await tx.user.findUnique({ where: { id: actorUserId }, select: { discordId: true } })
+          )?.discordId ?? null)
+        : null);
     await enqueueGuildLog(tx, current.guildId, {
       action: "status_changed",
       actorName: actorName ?? undefined,
+      actorId: actorId ?? undefined,
       formTitle: current.form?.title,
+      formId: current.formId,
       applicantName: current.user?.username ?? "Anonymous",
       fromStatus: current.status,
       toStatus,
       toStatusLabel: toStatusLabel ?? undefined,
       submissionId,
+      detail: eventVisibility === "internal" ? "Hidden from the applicant" : undefined,
     });
 
     // Queue any subscribed webhook deliveries (atomic with the transition).

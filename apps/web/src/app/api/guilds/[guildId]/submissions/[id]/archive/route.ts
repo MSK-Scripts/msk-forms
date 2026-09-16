@@ -1,7 +1,8 @@
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { canReviewForm } from "@/lib/guild";
 
@@ -26,7 +27,7 @@ export async function POST(
 
   const submission = await prisma.submission.findUnique({
     where: { id },
-    select: { guildId: true, formId: true },
+    select: { guildId: true, formId: true, archivedAt: true, form: { select: { title: true } } },
   });
   if (!submission || submission.guildId !== guildId) {
     return NextResponse.json({ error: "Submission not found." }, { status: 404 });
@@ -44,5 +45,15 @@ export async function POST(
     where: { id },
     data: { archivedAt: parsed.data.archived ? new Date() : null },
   });
+  // Only log a real change, so a double click doesn't produce two entries.
+  if (Boolean(submission.archivedAt) !== parsed.data.archived) {
+    await logGuildActivitySafe(guildId, {
+      action: parsed.data.archived ? "submission_archived" : "submission_restored",
+      ...actor(user),
+      formTitle: submission.form.title,
+      formId: submission.formId,
+      submissionId: id,
+    });
+  }
   return NextResponse.json({ ok: true });
 }

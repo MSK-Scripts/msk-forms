@@ -40,6 +40,7 @@ export async function grantAcceptedRole(client: Client, submissionId: string): P
     where: { id: submissionId },
     select: {
       guildId: true,
+      formId: true,
       user: { select: { discordId: true, username: true } },
       form: { select: { title: true, settings: true } },
       guild: { select: { discordGuildId: true, botConfig: true } },
@@ -66,6 +67,7 @@ export async function grantAcceptedRole(client: Client, submissionId: string): P
         actorName: "Bot",
         applicantName: submission.user?.username ?? "Applicant",
         formTitle: submission.form.title,
+        formId: submission.formId,
         submissionId,
         detail: names.join(", "),
       });

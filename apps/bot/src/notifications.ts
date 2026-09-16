@@ -19,6 +19,7 @@ import {
 import { config } from "./config.js";
 import { isExhausted, isTerminalDmCode, nextAttemptAt } from "./delivery-policy.js";
 import { describeError } from "./log.js";
+import { buildLogEmbed } from "./log-embed.js";
 import { fmt, guildStrings } from "./guild-i18n.js";
 import { dmStrings, localizedStatus } from "./i18n.js";
 import { postBranded } from "./posting.js";
@@ -26,8 +27,6 @@ import { grantAcceptedRole } from "./roles.js";
 import { dashboardSubmissionUrl, statusUrl } from "./urls.js";
 
 const MSK_GREEN = 0x00e676;
-const LOG_RED = 0xff5252;
-const LOG_BLURPLE = 0x5865f2;
 const BATCH = 25;
 /** Permanent channel errors: Unknown Channel / Missing Access / Missing Permissions. */
 const CHANNEL_GONE = [10003, 50001, 50013];
@@ -157,26 +156,6 @@ async function deliverReview(client: Client, row: PendingRow): Promise<Outcome> 
   }
 }
 
-/** Per-action presentation for the guild activity log: emoji, title, colour. */
-const LOG_PRESENTATION: Record<string, { emoji: string; title: string; color: number }> = {
-  submission_created: { emoji: "📝", title: "New submission", color: MSK_GREEN },
-  status_changed: { emoji: "🔄", title: "Status changed", color: LOG_BLURPLE },
-  message_sent: { emoji: "💬", title: "Message sent to applicant", color: LOG_BLURPLE },
-  submission_withdrawn: { emoji: "↩️", title: "Submission withdrawn", color: LOG_RED },
-  submission_deleted: { emoji: "🗑️", title: "Submission deleted", color: LOG_RED },
-  role_granted: { emoji: "✅", title: "Role granted", color: MSK_GREEN },
-  form_created: { emoji: "✨", title: "Form created", color: MSK_GREEN },
-  form_updated: { emoji: "✏️", title: "Form updated", color: LOG_BLURPLE },
-  form_deleted: { emoji: "🗑️", title: "Form deleted", color: LOG_RED },
-  form_posted: { emoji: "📤", title: "Form posted", color: LOG_BLURPLE },
-  member_added: { emoji: "➕", title: "Member added", color: MSK_GREEN },
-  member_role_changed: { emoji: "👤", title: "Member role changed", color: LOG_BLURPLE },
-  member_removed: { emoji: "➖", title: "Member removed", color: LOG_RED },
-  bot_config_updated: { emoji: "⚙️", title: "Bot config updated", color: LOG_BLURPLE },
-  branding_updated: { emoji: "🎨", title: "Branding updated", color: LOG_BLURPLE },
-  domain_updated: { emoji: "🌐", title: "Domain updated", color: LOG_BLURPLE },
-};
-
 /**
  * Post one activity-log entry to the guild's configured log channel. Drops
  * (marks read) when there's no guild, no configured log channel, or the channel
@@ -196,11 +175,14 @@ async function deliverLog(client: Client, row: PendingRow): Promise<Outcome> {
   if (!channelId) return true; // no log channel configured → nothing to do
   const s = guildStrings(botCfg.locale);
 
-  const meta = LOG_PRESENTATION[payload.action] ?? {
-    emoji: "•",
-    title: payload.action,
-    color: LOG_BLURPLE,
-  };
+  const dashboardUrl = payload.submissionId
+    ? dashboardSubmissionUrl(config.apiBaseUrl, row.guildId, payload.submissionId)
+    : null;
+  const embed = buildLogEmbed(payload, s);
+  if (!embed) {
+    console.warn(`[bot] log entry ${row.id} has an unknown action — dropping.`);
+    return true;
+  }
 
   try {
     const channel = await client.channels.fetch(channelId);
@@ -209,42 +191,16 @@ async function deliverLog(client: Client, row: PendingRow): Promise<Outcome> {
       return true;
     }
 
-    const fields: { name: string; value: string; inline?: boolean }[] = [];
-    if (payload.formTitle)
-      fields.push({ name: s.logField.form, value: payload.formTitle, inline: true });
-    if (payload.applicantName)
-      fields.push({ name: s.logField.applicant, value: payload.applicantName, inline: true });
-    if (payload.actorName)
-      fields.push({ name: s.logField.by, value: payload.actorName, inline: true });
-    if (payload.action === "status_changed" && payload.toStatus) {
-      const to = payload.toStatusLabel ?? payload.toStatus;
-      fields.push({
-        name: s.logField.status,
-        value: payload.fromStatus ? `${payload.fromStatus} → ${to}` : to,
-        inline: true,
-      });
-    }
-    if (payload.detail)
-      fields.push({ name: s.logField.details, value: payload.detail.slice(0, 1024) });
-
-    const embed = new EmbedBuilder()
-      .setColor(meta.color)
-      .setTitle(`${meta.emoji} ${s.log[payload.action!] ?? meta.title}`)
-      .setFooter({ text: "MSK Forms" })
-      .setTimestamp();
-    if (fields.length) embed.addFields(fields);
-
     const components: ActionRowBuilder<ButtonBuilder>[] = [];
-    if (payload.submissionId) {
-      const url = dashboardSubmissionUrl(config.apiBaseUrl, row.guildId, payload.submissionId);
+    if (dashboardUrl) {
       components.push(
         new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel(s.btnOpenDashboard).setURL(url),
+          new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel(s.btnOpenDashboard).setURL(dashboardUrl),
         ),
       );
     }
 
-    await postBranded(channel, row.guildId, { embeds: [embed], components });
+    await postBranded(channel, row.guildId, { embeds: [new EmbedBuilder(embed)], components });
     return true;
   } catch (err) {
     if (err instanceof DiscordAPIError && CHANNEL_GONE.includes(Number(err.code))) {

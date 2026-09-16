@@ -1,6 +1,7 @@
-import { prisma } from "@msk-forms/db";
+import { logGuildActivitySafe, prisma } from "@msk-forms/db";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { encryptSecret } from "@/lib/crypto";
 import { canManageForms } from "@/lib/guild";
@@ -60,6 +61,13 @@ export async function PATCH(
     where: { id: guildId },
     data: { oauthClientId: clientId, oauthClientSecret: secretToStore },
   });
+  await logGuildActivitySafe(guildId, {
+    action: "login_config_updated",
+    ...actor(user),
+    detail: clientSecret
+      ? `Discord application ${clientId}, new client secret`
+      : `Discord application ${clientId}`,
+  });
   return NextResponse.json({ ok: true, hasSecret: true });
 }
 
@@ -80,5 +88,6 @@ export async function DELETE(
     where: { id: guildId },
     data: { oauthClientId: null, oauthClientSecret: null },
   });
+  await logGuildActivitySafe(guildId, { action: "login_config_updated", ...actor(user), detail: "Removed" });
   return NextResponse.json({ ok: true });
 }
