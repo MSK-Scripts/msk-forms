@@ -10,7 +10,12 @@
 set -euo pipefail
 
 ENV_FILE="${MSK_ENV_FILE:-/opt/msk-forms/.env}"
-CONF="${MSK_DOMAINS_CONF:-/etc/apache2/conf-available/msk-forms-domains.conf}"
+# sites-available, not conf-available: apache2.conf includes conf-enabled BEFORE
+# sites-enabled, and the first <VirtualHost *:80> Apache sees becomes the default
+# server for that port. With the blocks below in conf-enabled, the first customer
+# domain took that role over from 000-default.conf, including its
+# "Require all denied" and its ACME exception.
+CONF="${MSK_DOMAINS_CONF:-/etc/apache2/sites-available/msk-forms-domains.conf}"
 BACKEND="${MSK_BACKEND:-http://127.0.0.1:3008}"
 REALTIME="${MSK_REALTIME:-ws://127.0.0.1:3009}"
 
@@ -52,6 +57,27 @@ trap 'rm -f "$TMP"' EXIT
     echo "MDomain $d"
   done
   echo
+  # One plain-HTTP vhost per domain. Everything goes to HTTPS except the ACME
+  # path: MDChallengeDns01 is off, so mod_md answers the http-01 challenge on
+  # port 80 and a redirect there would break issuance and renewal.
+  #
+  # These blocks replace the former catch-all vhost (sites-available/
+  # msk-forms-acme.conf). It matched every hostname on the machine through
+  # `ServerAlias *` and therefore beat the :80 block of every vhost file sorting
+  # after it, other projects included, which turned those blocks into dead code
+  # without any visible sign. Do not bring it back.
+  for d in "${DOMAINS[@]}"; do
+    [ -z "$d" ] && continue
+    cat <<VHOST80
+<VirtualHost *:80>
+  ServerName $d
+  RewriteEngine On
+  RewriteCond %{REQUEST_URI} !^/\.well-known/acme-challenge/
+  RewriteRule ^ https://$d%{REQUEST_URI} [R=301,L]
+</VirtualHost>
+VHOST80
+  done
+  echo
   # One TLS vhost per domain, proxying to the app. mod_md injects the cert for
   # the vhost whose ServerName matches a managed domain.
   for d in "${DOMAINS[@]}"; do
@@ -83,7 +109,7 @@ if cmp -s "$TMP" "$CONF" 2>/dev/null; then
 fi
 
 cp "$TMP" "$CONF"
-a2enconf msk-forms-domains >/dev/null 2>&1 || true
+a2ensite msk-forms-domains.conf >/dev/null 2>&1 || true
 if apache2ctl configtest; then
   systemctl reload apache2
   echo "Updated $CONF (${#DOMAINS[@]} domain(s)); reloaded Apache."
