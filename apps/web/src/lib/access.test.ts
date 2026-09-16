@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  canDeleteFormsFromRole,
   countsTowardTeam,
   isGlobalReviewerRole,
   isManagerRole,
@@ -70,5 +71,25 @@ describe("countsTowardTeam", () => {
   it("counts a viewer only when they have a per-form grant", () => {
     expect(countsTowardTeam("viewer", true)).toBe(true);
     expect(countsTowardTeam("viewer", false)).toBe(false);
+  });
+});
+
+describe("canDeleteFormsFromRole", () => {
+  it("always lets the owner delete", () => {
+    expect(canDeleteFormsFromRole("owner", false)).toBe(true);
+    expect(canDeleteFormsFromRole("owner", true)).toBe(true);
+  });
+
+  it("lets admins delete only when the owner allowed it", () => {
+    expect(canDeleteFormsFromRole("admin", false)).toBe(false);
+    expect(canDeleteFormsFromRole("admin", true)).toBe(true);
+  });
+
+  it("never lets reviewers, viewers or non-members delete", () => {
+    for (const allowed of [false, true]) {
+      expect(canDeleteFormsFromRole("reviewer", allowed)).toBe(false);
+      expect(canDeleteFormsFromRole("viewer", allowed)).toBe(false);
+      expect(canDeleteFormsFromRole(null, allowed)).toBe(false);
+    }
   });
 });

@@ -47,6 +47,18 @@ export function manageScopeFromRole(role: string | null, manageFormIds: string[]
 }
 
 /**
+ * Who may permanently delete an archived form. Archiving and restoring belong to
+ * everyone who manages the form; deleting for good is narrower on purpose: the
+ * owner always, admins only when the owner switched that on, per-form managers
+ * never. A per-form "manage" grant is handed out easily, and it used to include
+ * deleting, which is how a form of a customer's guild got lost.
+ */
+export function canDeleteFormsFromRole(role: string | null, adminsCanDelete: boolean): boolean {
+  if (role === "owner") return true;
+  return role === "admin" && adminsCanDelete;
+}
+
+/**
  * Whether a user counts toward the plan member cap: a manager/global reviewer,
  * or anyone with at least one per-form grant. Plain viewers with no grants don't.
  */

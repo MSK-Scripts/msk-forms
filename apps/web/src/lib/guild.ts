@@ -4,6 +4,7 @@ import { prisma } from "@msk-forms/db";
 import { notFound } from "next/navigation";
 
 import {
+  canDeleteFormsFromRole,
   isGlobalReviewerRole,
   isManagerRole,
   manageScopeFromRole,
@@ -33,6 +34,18 @@ export type ReviewScope = PureReviewScope;
 /** True if the user may manage (create/edit) the guild's forms. */
 export async function canManageForms(guildId: string, userId: string): Promise<boolean> {
   return isManagerRole(await getGuildRole(guildId, userId));
+}
+
+/**
+ * True if the user may permanently delete (archived) forms of the guild: the
+ * owner, or an admin when the guild allows it. See canDeleteFormsFromRole.
+ */
+export async function canDeleteForms(guildId: string, userId: string): Promise<boolean> {
+  const membership = await prisma.guildMember.findUnique({
+    where: { guildId_userId: { guildId, userId } },
+    select: { role: true, guild: { select: { adminsCanDeleteForms: true } } },
+  });
+  return canDeleteFormsFromRole(membership?.role ?? null, Boolean(membership?.guild.adminsCanDeleteForms));
 }
 
 /**
@@ -146,7 +159,7 @@ export async function getUserGuilds(userId: string) {
           name: true,
           icon: true,
           branding: true,
-          _count: { select: { forms: true, submissions: true } },
+          _count: { select: { forms: { where: { archivedAt: null } }, submissions: true } },
         },
       },
     },
@@ -182,6 +195,7 @@ export async function getGuildForms(guildId: string, scope: ReviewScope) {
   return prisma.form.findMany({
     where: {
       guildId,
+      archivedAt: null,
       ...(scope.all ? {} : { id: { in: scope.formIds } }),
     },
     orderBy: { updatedAt: "desc" },
@@ -196,6 +210,44 @@ export async function getGuildForms(guildId: string, scope: ReviewScope) {
       closeAt: true,
       settings: true,
       _count: { select: { submissions: true } },
+    },
+  });
+}
+
+/**
+ * Archived forms the user may manage (and therefore restore), newest first.
+ * Pass the manage scope, not the review scope: seeing the archive means being
+ * able to act on it.
+ */
+export async function getArchivedForms(guildId: string, scope: ReviewScope) {
+  if (!scope.all && scope.formIds.length === 0) return [];
+  return prisma.form.findMany({
+    where: {
+      guildId,
+      archivedAt: { not: null },
+      ...(scope.all ? {} : { id: { in: scope.formIds } }),
+    },
+    orderBy: { archivedAt: "desc" },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      status: true,
+      archivedAt: true,
+      archivedBy: { select: { username: true } },
+      _count: { select: { submissions: true } },
+    },
+  });
+}
+
+/** How many archived forms of the guild the user could restore. */
+export async function countArchivedForms(guildId: string, scope: ReviewScope): Promise<number> {
+  if (!scope.all && scope.formIds.length === 0) return 0;
+  return prisma.form.count({
+    where: {
+      guildId,
+      archivedAt: { not: null },
+      ...(scope.all ? {} : { id: { in: scope.formIds } }),
     },
   });
 }
@@ -216,6 +268,9 @@ export async function getGuildSubmissions(
       guildId,
       ...(scope.all ? {} : { formId: { in: scope.formIds } }),
       archivedAt: opts.archived ? { not: null } : null,
+      // Submissions of an archived form leave the lists with their form; they
+      // are reachable from the form archive instead.
+      form: { archivedAt: null },
     },
     orderBy: { submittedAt: "desc" },
     take: 100,
@@ -242,6 +297,7 @@ export async function countArchivedSubmissions(
       guildId,
       ...(scope.all ? {} : { formId: { in: scope.formIds } }),
       archivedAt: { not: null },
+      form: { archivedAt: null },
     },
   });
 }

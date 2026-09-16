@@ -1,9 +1,10 @@
 import { prisma } from "@msk-forms/db";
 import { Card } from "@msk-forms/ui";
 
+import { FormDeletionSetting } from "@/components/members/form-deletion-setting";
 import { MembersManager, type MemberRow } from "@/components/members/members-manager";
 import { requireUser } from "@/lib/auth";
-import { canManageForms, countTeamMembers } from "@/lib/guild";
+import { canManageForms, countTeamMembers, getGuildRole } from "@/lib/guild";
 import { getGuildPlan } from "@/lib/plan";
 import { getDict } from "@/i18n";
 
@@ -19,7 +20,8 @@ export default async function MembersPage({
 }) {
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/members`);
-  const t = (await getDict()).members;
+  const dict = await getDict();
+  const t = dict.members;
 
   if (!(await canManageForms(guildId, user.id))) {
     return (
@@ -29,7 +31,7 @@ export default async function MembersPage({
     );
   }
 
-  const [members, grants, forms, plan, teamCount] = await Promise.all([
+  const [members, grants, forms, plan, teamCount, role, guild] = await Promise.all([
     prisma.guildMember.findMany({
       where: { guildId },
       select: { role: true, user: { select: { id: true, username: true, avatar: true } } },
@@ -38,13 +40,25 @@ export default async function MembersPage({
       where: { form: { guildId } },
       select: { userId: true, formId: true, canManage: true },
     }),
-    prisma.form.findMany({
-      where: { guildId },
-      orderBy: { createdAt: "desc" },
-      select: { id: true, title: true },
-    }),
+    // Archived forms stay in this list: saving a member's access replaces all of
+    // their grants, so leaving them out would silently drop access to a form
+    // that may be restored later.
+    prisma.form
+      .findMany({
+        where: { guildId },
+        orderBy: { createdAt: "desc" },
+        select: { id: true, title: true, archivedAt: true },
+      })
+      .then((rows) =>
+        rows.map((f) => ({
+          id: f.id,
+          title: f.archivedAt ? `${f.title} (${dict.dashboard.formArchive.archivedSuffix})` : f.title,
+        })),
+      ),
     getGuildPlan(guildId),
     countTeamMembers(guildId),
+    getGuildRole(guildId, user.id),
+    prisma.guild.findUnique({ where: { id: guildId }, select: { adminsCanDeleteForms: true } }),
   ]);
 
   // Per-user, per-form access level: "manage" (full) or "review" (read).
@@ -77,6 +91,13 @@ export default async function MembersPage({
         memberLimit={plan.memberLimit}
         t={t}
       />
+      {role === "owner" && (
+        <FormDeletionSetting
+          guildId={guildId}
+          initial={Boolean(guild?.adminsCanDeleteForms)}
+          t={dict.members.formDeletion}
+        />
+      )}
     </div>
   );
 }

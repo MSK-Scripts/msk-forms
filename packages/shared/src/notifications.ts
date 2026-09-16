@@ -68,6 +68,8 @@ export const LOG_ACTIONS = [
   // Form administration
   "form_created",
   "form_updated",
+  "form_archived",
+  "form_restored",
   "form_deleted",
   "form_posted",
   "categories_updated",
@@ -91,6 +93,7 @@ export const LOG_ACTIONS = [
   "webhook_deleted",
   "api_key_created",
   "api_key_revoked",
+  "form_delete_setting_updated",
   // Plan & agreements
   "plan_changed",
   "dpa_accepted",

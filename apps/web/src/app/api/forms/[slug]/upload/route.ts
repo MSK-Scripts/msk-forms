@@ -47,9 +47,9 @@ export async function POST(
 
   const form = await prisma.form.findUnique({
     where: { slug },
-    select: { id: true, status: true, schema: true },
+    select: { id: true, status: true, schema: true, archivedAt: true },
   });
-  if (!form || form.status !== "live") {
+  if (!form || form.status !== "live" || form.archivedAt) {
     return NextResponse.json({ error: "Form not available." }, { status: 404 });
   }
 

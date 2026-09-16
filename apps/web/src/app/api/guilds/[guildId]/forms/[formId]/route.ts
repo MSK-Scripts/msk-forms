@@ -5,7 +5,7 @@ import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { formInputSchema } from "@/lib/form-input";
 import { resolveGuildCategoryId } from "@/lib/forms";
-import { canManageForm } from "@/lib/guild";
+import { canDeleteForms, canManageForm } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
 import { deleteObject } from "@/lib/s3";
 
@@ -84,10 +84,12 @@ export async function PATCH(
 }
 
 /**
- * Delete a form and everything under it (versions, submissions, events, files,
- * status defs all cascade). Requires a guild manager or per-form manager, form ∈
- * guild. Stored file objects are purged from object storage best-effort after
- * the row is gone.
+ * Permanently delete a form with its submissions, events and stored files.
+ *
+ * Only for forms that are already archived, and only for the owner (or an admin
+ * when the guild allows it). Everyone who manages a form archives it instead, via
+ * POST .../archive, which can be undone. Stored objects are collected before the
+ * cascade and removed best-effort once the row is gone.
  */
 export async function DELETE(
   _request: NextRequest,
@@ -97,16 +99,22 @@ export async function DELETE(
 
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-  if (!(await canManageForm(guildId, user.id, formId))) {
-    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+  if (!(await canDeleteForms(guildId, user.id))) {
+    return NextResponse.json({ error: "Forbidden.", code: "delete_not_allowed" }, { status: 403 });
   }
 
   const existing = await prisma.form.findUnique({
     where: { id: formId },
-    select: { guildId: true, title: true },
+    select: { guildId: true, title: true, archivedAt: true, _count: { select: { submissions: true } } },
   });
   if (!existing || existing.guildId !== guildId) {
     return NextResponse.json({ error: "Form not found." }, { status: 404 });
+  }
+  if (!existing.archivedAt) {
+    return NextResponse.json(
+      { error: "Archive the form before deleting it.", code: "not_archived" },
+      { status: 409 },
+    );
   }
 
   // Collect stored object keys before the cascade removes the rows.
@@ -122,6 +130,7 @@ export async function DELETE(
     action: "form_deleted",
     ...actor(user),
     formTitle: existing.title,
+    detail: `Permanently deleted from the archive, ${existing._count.submissions} submissions`,
   });
 
   return NextResponse.json({ ok: true });

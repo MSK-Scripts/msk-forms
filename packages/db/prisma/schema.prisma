@@ -79,6 +79,7 @@ model User {
   memberships   GuildMember[]
   submissions   Submission[]
   createdForms  Form[]              @relation("FormCreatedBy")
+  archivedForms Form[]              @relation("FormArchivedBy")
   events        SubmissionEvent[]
   notifications Notification[]
   formReviews   FormReviewer[]
@@ -118,6 +119,9 @@ model Guild {
   /// When the guild accepted the data processing agreement (Art. 28 GDPR).
   /// Asked once, before the first form can be created. Null means pending.
   dpaAcceptedAt DateTime? @map("dpa_accepted_at")
+  /// Whether admins may permanently delete archived forms. The owner always
+  /// may; per-form managers never. Off by default, only the owner can change it.
+  adminsCanDeleteForms Boolean @default(false) @map("admins_can_delete_forms")
   /// Send lock for the order confirmation required by § 312f BGB. Holds the
   /// subscription id the confirmation was sent for; see the billing webhook.
   orderConfirmationSubId String? @map("order_confirmation_sub_id")
@@ -183,6 +187,12 @@ model Form {
   openAt      DateTime?      @map("open_at")
   closeAt     DateTime?      @map("close_at")
   categoryId  String?        @map("category_id") @db.Uuid
+  /// Soft delete. An archived form is gone from the dashboard list, the public
+  /// link, the hub and the bot, but keeps its submissions and can be restored.
+  /// Independent of `status`, so restoring brings back whatever it was before.
+  /// Permanent deletion only works from the archive (see canDeleteForms).
+  archivedAt   DateTime?     @map("archived_at")
+  archivedById String?       @map("archived_by") @db.Uuid
   createdById String         @map("created_by") @db.Uuid
   createdAt   DateTime       @default(now()) @map("created_at")
   updatedAt   DateTime       @updatedAt @map("updated_at")
@@ -190,6 +200,7 @@ model Form {
   guild        Guild           @relation(fields: [guildId], references: [id], onDelete: Cascade)
   category     FormCategory?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   createdBy    User            @relation("FormCreatedBy", fields: [createdById], references: [id])
+  archivedBy   User?           @relation("FormArchivedBy", fields: [archivedById], references: [id], onDelete: SetNull)
   versions     FormVersion[]
   submissions  Submission[]
   formStatuses FormStatusDef[]
@@ -199,6 +210,7 @@ model Form {
 
   @@index([guildId, status])
   @@index([guildId, categoryId])
+  @@index([guildId, archivedAt])
   @@map("forms")
 }
 

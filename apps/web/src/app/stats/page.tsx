@@ -21,7 +21,7 @@ export default async function StatsPage() {
     prisma.guild.count(),
     prisma.form.count(),
     prisma.submission.count(),
-    prisma.form.count({ where: { status: "live" } }),
+    prisma.form.count({ where: { status: "live", archivedAt: null } }),
   ]);
 
   const metrics = [
