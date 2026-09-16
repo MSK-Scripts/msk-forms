@@ -42,7 +42,9 @@ export default async function GuildLayout({
           { href: `/dashboard/${guildId}/categories`, label: t.categoriesTab, prefix: true },
           { href: `/dashboard/${guildId}/branding`, label: t.brandingTab, prefix: true },
           { href: `/dashboard/${guildId}/bot`, label: t.botTab, prefix: true },
-          { href: `/dashboard/${guildId}/logs`, label: t.logsTab, prefix: true },
+          // Not "/logs": the root .gitignore ignores every logs/ directory, so a
+          // page there silently never gets committed (that happened once).
+          { href: `/dashboard/${guildId}/audit-log`, label: t.logsTab, prefix: true },
           { href: `/dashboard/${guildId}/webhooks`, label: t.webhooksTab, prefix: true },
           { href: `/dashboard/${guildId}/domain`, label: t.domainTab, prefix: true },
           { href: `/dashboard/${guildId}/api`, label: t.apiTab, prefix: true },
