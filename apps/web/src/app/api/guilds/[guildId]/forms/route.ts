@@ -38,7 +38,7 @@ export async function POST(
   // automations. Strip automations rather than failing the whole save.
   const pro = await isGuildPro(guildId);
   if (!pro) {
-    const count = await prisma.form.count({ where: { guildId } });
+    const count = await prisma.form.count({ where: { guildId, archivedAt: null } });
     if (count >= FREE_FORM_LIMIT) {
       return NextResponse.json(
         { error: "Free plan form limit reached.", code: "pro_required" },

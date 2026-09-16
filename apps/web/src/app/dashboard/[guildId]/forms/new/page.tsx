@@ -58,7 +58,7 @@ export default async function NewFormPage({
   }
 
   const pro = await isGuildPro(guildId);
-  if (!pro && (await prisma.form.count({ where: { guildId } })) >= FREE_FORM_LIMIT) {
+  if (!pro && (await prisma.form.count({ where: { guildId, archivedAt: null } })) >= FREE_FORM_LIMIT) {
     return (
       <div className="flex flex-col gap-4">
         <h2 className="font-heading text-xl font-semibold text-foreground">

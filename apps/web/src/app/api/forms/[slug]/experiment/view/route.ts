@@ -29,9 +29,9 @@ export async function POST(
 
   const form = await prisma.form.findUnique({
     where: { slug },
-    select: { id: true, settings: true },
+    select: { id: true, settings: true, archivedAt: true },
   });
-  if (!form) return new NextResponse(null, { status: 404 });
+  if (!form || form.archivedAt) return new NextResponse(null, { status: 404 });
 
   const exp = parseFormSettings(form.settings).experiment;
   // Unknown variant or inactive experiment → ignore quietly.

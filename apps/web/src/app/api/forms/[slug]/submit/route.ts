@@ -99,10 +99,11 @@ export async function POST(
       settings: true,
       openAt: true,
       closeAt: true,
+      archivedAt: true,
     },
   });
 
-  if (!form || form.status !== "live") {
+  if (!form || form.status !== "live" || form.archivedAt) {
     return NextResponse.json({ error: "Form not available." }, { status: 404 });
   }
 

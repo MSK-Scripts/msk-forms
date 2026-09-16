@@ -323,7 +323,6 @@ export function FormBuilder({
                 { value: "draft", label: t.statusDraft },
                 { value: "live", label: t.statusLive },
                 { value: "closed", label: t.statusClosed },
-                { value: "archived", label: t.statusArchived },
               ]}
             />
           </Field>

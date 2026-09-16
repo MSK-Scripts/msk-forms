@@ -8,13 +8,19 @@ import QRCode from "qrcode";
 import { ManageBillingButton } from "@/components/billing/manage-billing-button";
 import { UpgradeActions } from "@/components/billing/upgrade-button";
 import { upgradeCopy } from "@/lib/upgrade-copy";
-import { DeleteFormButton } from "@/components/dashboard/delete-form-button";
+import { FormActionButton } from "@/components/dashboard/form-action-button";
 import { ImportFormButton, ReplaceFormButton } from "@/components/dashboard/form-io";
 import { ShareButton } from "@/components/dashboard/share-button";
 import { LocalDateTime } from "@/components/public/local-datetime";
 import { requireUser } from "@/lib/auth";
 import { appBaseUrl } from "@/lib/url";
-import { canManageForms, getGuildForms, getManageScope, getReviewScope } from "@/lib/guild";
+import {
+  canManageForms,
+  countArchivedForms,
+  getGuildForms,
+  getManageScope,
+  getReviewScope,
+} from "@/lib/guild";
 import { getGuildPlan } from "@/lib/plan";
 import { enterpriseEnabled, stripeEnabled } from "@/lib/stripe";
 import { getDict } from "@/i18n";
@@ -26,7 +32,6 @@ const FORM_STATUS_COLORS: Record<string, string> = {
   draft: "#6b6b72",
   live: "#5eb131",
   closed: "#f5a623",
-  archived: "#6b6b72",
 };
 
 export default async function GuildFormsPage({
@@ -43,6 +48,7 @@ export default async function GuildFormsPage({
     getManageScope(guildId, user.id),
     getGuildPlan(guildId),
   ]);
+  const archivedCount = await countArchivedForms(guildId, manageScope);
   // Whether the viewer may fully manage a given form (guild manager or a per-form
   // manage grant). Drives the per-form edit/preview/delete/export-definition buttons.
   const manages = (formId: string) => manageScope.all || manageScope.formIds.includes(formId);
@@ -74,7 +80,6 @@ export default async function GuildFormsPage({
     draft: dict.builder.statusDraft,
     live: dict.builder.statusLive,
     closed: dict.builder.statusClosed,
-    archived: dict.builder.statusArchived,
   };
 
   // Pre-render a QR code (server-side, no client dependency) for each live form.
@@ -94,6 +99,14 @@ export default async function GuildFormsPage({
           {forms.length} {forms.length === 1 ? t.countForm : t.countForms}
         </h2>
         <div className="flex flex-wrap items-center gap-2">
+        {archivedCount > 0 && (
+          <Link
+            href={`/dashboard/${guildId}/forms/archived` as Route}
+            className="rounded-md border border-border px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+          >
+            {t.formArchive.link} ({archivedCount})
+          </Link>
+        )}
         {canUpgradeToEnterprise && (
           <UpgradeActions
             guildId={guildId}
@@ -272,15 +285,17 @@ export default async function GuildFormsPage({
                       </Link>
                     )}
                     {manages(form.id) && (
-                      <DeleteFormButton
-                        guildId={guildId}
-                        formId={form.id}
+                      <FormActionButton
+                        url={`/api/guilds/${guildId}/forms/${form.id}/archive`}
+                        method="POST"
+                        body={{ archived: true }}
+                        variant="danger"
                         t={{
-                          delete: t.deleteForm,
-                          title: t.deleteFormTitle,
-                          confirm: t.deleteFormConfirm,
+                          label: t.formArchive.archive,
+                          title: t.formArchive.archiveTitle,
+                          confirm: t.formArchive.archiveConfirm,
                           cancel: t.cancel,
-                          failed: t.deleteFormFailed,
+                          failed: t.formArchive.archiveFailed,
                         }}
                       />
                     )}

@@ -29,6 +29,8 @@ const PRESENTATION: Record<LogAction, { emoji: string; color: number }> = {
   role_granted: { emoji: "✅", color: GREEN },
   form_created: { emoji: "✨", color: GREEN },
   form_updated: { emoji: "✏️", color: BLURPLE },
+  form_archived: { emoji: "📦", color: AMBER },
+  form_restored: { emoji: "♻️", color: GREEN },
   form_deleted: { emoji: "🗑️", color: RED },
   form_posted: { emoji: "📤", color: BLURPLE },
   categories_updated: { emoji: "🗂️", color: BLURPLE },
@@ -49,6 +51,7 @@ const PRESENTATION: Record<LogAction, { emoji: string; color: number }> = {
   webhook_deleted: { emoji: "🪝", color: RED },
   api_key_created: { emoji: "🗝️", color: AMBER },
   api_key_revoked: { emoji: "🗝️", color: RED },
+  form_delete_setting_updated: { emoji: "🔐", color: AMBER },
   plan_changed: { emoji: "💳", color: BLURPLE },
   dpa_accepted: { emoji: "📄", color: GREEN },
 };

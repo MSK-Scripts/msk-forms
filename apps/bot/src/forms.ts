@@ -44,7 +44,7 @@ async function resolveGuild(
 /** The guild's live forms, newest first (capped for Discord's 25-choice limit). */
 async function liveForms(guildId: string, take = 25) {
   return prisma.form.findMany({
-    where: { guildId, status: "live" },
+    where: { guildId, status: "live", archivedAt: null },
     orderBy: { updatedAt: "desc" },
     take,
     select: { slug: true, title: true, description: true },
@@ -158,7 +158,7 @@ export async function handleFormsCommand(
 
     const slug = interaction.options.getString("form", true);
     const form = await prisma.form.findFirst({
-      where: { slug, guildId, status: "live" },
+      where: { slug, guildId, status: "live", archivedAt: null },
       select: { id: true, slug: true, title: true, description: true },
     });
     if (!form) {

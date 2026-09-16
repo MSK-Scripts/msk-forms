@@ -64,7 +64,8 @@ export async function POST(
   const common = {
     title: f.title,
     description: f.description ?? null,
-    status: f.status,
+    // The old "archived" status is now the separate form archive.
+    status: f.status === "archived" ? ("closed" as const) : f.status,
     visibility: f.visibility,
     schema: definition.spec as Prisma.InputJsonValue,
     settings: definition.settings as Prisma.InputJsonValue,

@@ -185,7 +185,7 @@ export async function getFormForEdit(formId: string, guildId: string) {
 /** Live (published) forms for a guild, for the public form hub (grouped by category). */
 export async function getLiveFormsForGuild(guildId: string) {
   const forms = await prisma.form.findMany({
-    where: { guildId, status: "live" },
+    where: { guildId, status: "live", archivedAt: null },
     orderBy: { createdAt: "desc" },
     select: {
       slug: true,
@@ -273,11 +273,19 @@ export async function getLiveFormBySlug(slug: string) {
       settings: true,
       openAt: true,
       closeAt: true,
+      archivedAt: true,
       guild: { select: { name: true, branding: true } },
     },
   });
   if (!form) return null;
-  return { ...form, spec: parseFormSpec(form.schema) };
+  // An archived form shows the regular "closed" notice. A 404 would tell an
+  // applicant following an old Discord post that the link is broken.
+  const { archivedAt, ...rest } = form;
+  return {
+    ...rest,
+    status: archivedAt ? ("closed" as const) : form.status,
+    spec: parseFormSpec(form.schema),
+  };
 }
 
 /**

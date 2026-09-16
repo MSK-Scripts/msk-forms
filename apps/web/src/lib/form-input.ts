@@ -14,7 +14,8 @@ export const formInputSchema = z.object({
     .min(1)
     .max(80)
     .regex(/^[a-z0-9-]+$/, "Use lowercase letters, numbers and hyphens only."),
-  status: z.enum(["draft", "live", "closed", "archived"]),
+  // "archived" is no longer a status; archiving goes through POST .../archive.
+  status: z.enum(["draft", "live", "closed"]),
   visibility: z.enum(["public", "authenticated", "password", "role_required"]),
   spec: formSpecSchema,
   settings: formSettingsSchema.optional(),
