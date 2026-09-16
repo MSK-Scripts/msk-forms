@@ -16,10 +16,10 @@
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {
-    "zod": "^4.5.4"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "typescript": "^5.7.2",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.1"
   }
 }

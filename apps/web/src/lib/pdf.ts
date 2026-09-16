@@ -58,7 +58,6 @@ export async function submissionsPdf(table: SubmissionsTable): Promise<Uint8Arra
           continue;
         }
         if (line.trim()) lines.push(line.trimEnd());
-        line = "";
         let chunk = "";
         for (const ch of word) {
           if (f.widthOfTextAtSize(chunk + ch, size) > maxWidth && chunk) {
