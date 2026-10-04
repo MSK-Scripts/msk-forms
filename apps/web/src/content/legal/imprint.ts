@@ -9,9 +9,8 @@ This imprint applies to the website and service **MSK Forms** at **forms.msk-scr
 ## Information pursuant to § 5 DDG
 
 **Moritz Kohm**
-c/o Impressumservice Dein-Impressum
-Stettiner Str. 41
-35410 Hungen
+Hauptstraße 103
+68535 Edingen-Neckarhausen
 Germany
 
 **Contact:**
@@ -28,9 +27,8 @@ In accordance with § 19 UStG, no VAT is charged or shown (small business regula
 ## Responsible for content pursuant to § 18 (2) MStV
 
 **Moritz Kohm**
-c/o Impressumservice Dein-Impressum
-Stettiner Str. 41
-35410 Hungen
+Hauptstraße 103
+68535 Edingen-Neckarhausen
 Germany
 
 ---
@@ -82,9 +80,8 @@ Dieses Impressum gilt für die Website und den Dienst **MSK Forms** unter **form
 ## Angaben gemäß § 5 DDG
 
 **Moritz Kohm**
-c/o Impressumservice Dein-Impressum
-Stettiner Str. 41
-35410 Hungen
+Hauptstraße 103
+68535 Edingen-Neckarhausen
 Deutschland
 
 **Kontakt:**
@@ -101,9 +98,8 @@ Gemäß § 19 UStG wird keine Umsatzsteuer erhoben und ausgewiesen (Kleinunterne
 ## Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV
 
 **Moritz Kohm**
-c/o Impressumservice Dein-Impressum
-Stettiner Str. 41
-35410 Hungen
+Hauptstraße 103
+68535 Edingen-Neckarhausen
 Deutschland
 
 ---
