@@ -43,9 +43,8 @@ We take the protection of your personal data very seriously. We treat your perso
 The party responsible for the operation of the platform is:
 
 **Moritz Kohm**
-c/o Impressumservice Dein-Impressum
-Stettiner Str. 41
-35410 Hungen
+Hauptstraße 103
+68535 Edingen-Neckarhausen
 Germany
 
 Email: [info@msk-scripts.de](mailto:info@msk-scripts.de)
@@ -264,9 +263,8 @@ Wir nehmen den Schutz Ihrer personenbezogenen Daten sehr ernst. Wir behandeln Ih
 Verantwortlich für den Betrieb der Plattform ist:
 
 **Moritz Kohm**
-c/o Impressumservice Dein-Impressum
-Stettiner Str. 41
-35410 Hungen
+Hauptstraße 103
+68535 Edingen-Neckarhausen
 Deutschland
 
 E-Mail: [info@msk-scripts.de](mailto:info@msk-scripts.de)
