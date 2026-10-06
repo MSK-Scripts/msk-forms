@@ -85,7 +85,7 @@ export function KanbanBoard({
                 {cards.map((s) => (
                   <div
                     key={s.id}
-                    className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3 shadow-sm transition-colors hover:border-primary/40"
+                    className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3 shadow-xs transition-colors hover:border-primary/40"
                   >
                     <div className="flex flex-col gap-0.5">
                       <span className="text-sm font-medium text-foreground">{s.applicant}</span>

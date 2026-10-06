@@ -54,7 +54,7 @@ Embed Links — the minimum needed to post forms into a channel.
 | Area | Technology |
 |---|---|
 | Frontend/SSR | Next.js 16 (App Router), TypeScript |
-| Styling | Tailwind CSS 3 |
+| Styling | Tailwind CSS 4 |
 | Database | PostgreSQL + Prisma |
 | Cache | Redis |
 | Bot | Node.js + discord.js v14 |

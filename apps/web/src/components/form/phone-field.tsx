@@ -61,7 +61,7 @@ export function PhoneField({
           onClick={() => setOpen((o) => !o)}
           aria-haspopup="listbox"
           aria-expanded={open}
-          className="flex shrink-0 items-center gap-1.5 border-e border-input bg-muted/40 px-2.5 text-sm text-foreground outline-none transition-colors hover:bg-muted/70 disabled:opacity-50"
+          className="flex shrink-0 items-center gap-1.5 border-e border-input bg-muted/40 px-2.5 text-sm text-foreground outline-hidden transition-colors hover:bg-muted/70 disabled:opacity-50"
         >
           <span className="text-base leading-none">{flagOf(country.code)}</span>
           <span className="tabular-nums">+{country.dial}</span>
@@ -76,7 +76,7 @@ export function PhoneField({
           placeholder={placeholder ?? `+${country.dial}`}
           disabled={disabled}
           onChange={(e) => update(code, e.target.value.replace(/[^\d]/g, ""))}
-          className="w-full bg-transparent px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground disabled:opacity-50"
+          className="w-full bg-transparent px-3 py-2 text-sm text-foreground outline-hidden placeholder:text-muted-foreground disabled:opacity-50"
         />
       </div>
 
@@ -101,7 +101,7 @@ export function PhoneField({
               >
                 <span className="text-base leading-none">{flagOf(c.code)}</span>
                 <span className="flex-1 truncate text-foreground">{c.name}</span>
-                <span className="tabular-nums text-muted-foreground">+{c.dial}</span>
+                <span className="text-muted-foreground tabular-nums">+{c.dial}</span>
               </button>
             </li>
           ))}

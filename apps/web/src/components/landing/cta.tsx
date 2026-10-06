@@ -15,10 +15,10 @@ export async function CtaBand({
 
   return (
     <section className="container py-20 lg:py-28">
-      <Card className="relative overflow-hidden border-primary/20 bg-primary/[0.04]">
+      <Card className="relative overflow-hidden border-primary/20 bg-primary/4">
         <div
           aria-hidden
-          className="absolute -top-24 left-1/2 h-64 w-[36rem] -translate-x-1/2 rounded-full bg-primary/15 blur-3xl"
+          className="absolute -top-24 left-1/2 h-64 w-xl -translate-x-1/2 rounded-full bg-primary/15 blur-3xl"
         />
         <CardContent className="relative px-8 py-16 text-center">
           <h2 className="mx-auto max-w-2xl text-balance font-heading text-3xl font-bold tracking-tight md:text-4xl">

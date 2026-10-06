@@ -58,7 +58,7 @@ export default async function FormPreviewPage({
 
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2">
         <span className="flex items-center gap-2 text-sm font-medium text-primary">
-          <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-primary-foreground">
+          <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-semibold tracking-wide text-primary-foreground uppercase">
             {dict.dashboard.preview}
           </span>
           {dict.dashboard.previewNotice}
@@ -82,7 +82,7 @@ export default async function FormPreviewPage({
         {form.description && <p className="text-muted-foreground">{form.description}</p>}
       </header>
 
-      <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+      <div className="rounded-lg border border-border bg-card p-6 shadow-xs">
         <FormRenderer
           slug={form.slug}
           spec={spec}

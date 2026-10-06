@@ -69,7 +69,7 @@ export default async function SubmissionStatusPage({
       </header>
 
       {submission.events.length > 0 && (
-        <section className="rounded-lg border border-border bg-card p-6 shadow-sm">
+        <section className="rounded-lg border border-border bg-card p-6 shadow-xs">
           <h2 className="mb-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {t.activity}
           </h2>
@@ -91,7 +91,7 @@ export default async function SubmissionStatusPage({
       )}
 
       {submission.spec && (
-        <section className="rounded-lg border border-border bg-card p-6 shadow-sm">
+        <section className="rounded-lg border border-border bg-card p-6 shadow-xs">
           <h2 className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {t.yourAnswers}
           </h2>
@@ -104,7 +104,7 @@ export default async function SubmissionStatusPage({
         </section>
       )}
 
-      <section className="rounded-lg border border-border bg-card p-6 shadow-sm">
+      <section className="rounded-lg border border-border bg-card p-6 shadow-xs">
         <SubmissionActions
           id={submission.id}
           canWithdraw={!TERMINAL.has(submission.status)}

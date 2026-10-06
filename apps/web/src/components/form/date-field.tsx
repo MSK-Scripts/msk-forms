@@ -160,7 +160,7 @@ export function DateField({
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const minutes = Array.from({ length: 60 }, (_, i) => i);
   const selectClass =
-    "h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+    "h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring";
 
   return (
     <div ref={ref} className="relative">
@@ -171,7 +171,7 @@ export function DateField({
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className={`flex h-10 w-full items-center justify-between rounded-md border bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`flex h-10 w-full items-center justify-between rounded-md border bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 ${
           invalid ? "border-destructive" : "border-input"
         } ${displayValue ? "text-foreground" : "text-muted-foreground"}`}
       >
@@ -186,7 +186,7 @@ export function DateField({
       {open && (
         <div
           role="dialog"
-          className="absolute start-0 z-50 mt-1.5 w-72 rounded-lg border border-border bg-popover p-3 text-popover-foreground shadow-md"
+          className="absolute inset-s-0 z-50 mt-1.5 w-72 rounded-lg border border-border bg-popover p-3 text-popover-foreground shadow-md"
         >
           {showCalendar && (
             <>

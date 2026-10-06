@@ -46,7 +46,7 @@ export function MobileMenu({ children, label }: { children: React.ReactNode; lab
         <div
           role="menu"
           onClick={() => setOpen(false)}
-          className="absolute end-0 z-50 mt-1.5 w-56 rounded-md border border-border bg-popover p-2 text-popover-foreground shadow-md"
+          className="absolute inset-e-0 z-50 mt-1.5 w-56 rounded-md border border-border bg-popover p-2 text-popover-foreground shadow-md"
         >
           {children}
         </div>

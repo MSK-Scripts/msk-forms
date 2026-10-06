@@ -1,6 +1,150 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@source '../../../../packages/ui/src/**/*.{ts,tsx}';
+
+@custom-variant dark (&:is(.dark *));
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+  @media (width >= --theme(--breakpoint-sm)) {
+    max-width: none;
+  }
+  @media (width >= 1180px) {
+    max-width: 1180px;
+  }
+}
+
+@theme {
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-card-hover: 0 8px 24px -8px rgb(0 0 0 / 0.12);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-slide-up: slide-up 0.3s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+
+  /* Tailwind v4 dropped `cursor: pointer` on buttons from its preflight; keep
+     the v3 behaviour so clickable controls still show the hand cursor. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/* ============================================================================
+   PWA safe-area insets. env() is 0 in a normal browser tab, so these are no-ops
+   there and only take effect in an installed/standalone PWA (viewport-fit=cover)
+   — keeping content clear of the notch (landscape) and the home indicator.
+   Uses logical `padding-inline` so it mirrors correctly under RTL.
+   ============================================================================ */
+
+@utility pwa-safe-x {
+  padding-inline-start: max(1.5rem, env(safe-area-inset-left));
+  padding-inline-end: max(1.5rem, env(safe-area-inset-right));
+}
+
+@utility pwa-safe-b {
+  padding-bottom: max(3rem, env(safe-area-inset-bottom));
+}
+
+@utility pwa-safe-top {
+  padding-top: env(safe-area-inset-top);
+}
 
 /* shadcn/ui theme — Neutral base + Emerald primary + Yellow charts. */
 @layer base {
@@ -74,25 +218,6 @@
   }
   ::selection {
     @apply bg-primary/20;
-  }
-}
-
-/* ============================================================================
-   PWA safe-area insets. env() is 0 in a normal browser tab, so these are no-ops
-   there and only take effect in an installed/standalone PWA (viewport-fit=cover)
-   — keeping content clear of the notch (landscape) and the home indicator.
-   Uses logical `padding-inline` so it mirrors correctly under RTL.
-   ============================================================================ */
-@layer utilities {
-  .pwa-safe-x {
-    padding-inline-start: max(1.5rem, env(safe-area-inset-left));
-    padding-inline-end: max(1.5rem, env(safe-area-inset-right));
-  }
-  .pwa-safe-b {
-    padding-bottom: max(3rem, env(safe-area-inset-bottom));
-  }
-  .pwa-safe-top {
-    padding-top: env(safe-area-inset-top);
   }
 }
 

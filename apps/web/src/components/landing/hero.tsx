@@ -29,7 +29,7 @@ export async function Hero({
             {t.hero.badge}
           </Badge>
 
-          <h1 className="mt-6 max-w-xl text-balance font-heading text-4xl font-bold leading-[1.08] tracking-tight md:text-5xl lg:text-6xl">
+          <h1 className="mt-6 max-w-xl text-balance font-heading text-4xl font-bold leading-[1.08] tracking-tight md:text-5xl md:leading-none lg:text-6xl">
             {t.hero.headPre}
             <span className="text-primary">{t.hero.headAccent}</span>
             {t.hero.headPost}

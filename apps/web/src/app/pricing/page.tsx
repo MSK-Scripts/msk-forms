@@ -112,7 +112,7 @@ export default async function PricingPage() {
             }
           >
             {highlight && (
-              <Badge className="absolute -top-3 start-6 border-transparent bg-primary text-primary-foreground shadow-sm">
+              <Badge className="absolute -top-3 inset-s-6 border-transparent bg-primary text-primary-foreground shadow-xs">
                 {t.badgePopular}
               </Badge>
             )}
