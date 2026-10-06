@@ -111,7 +111,7 @@ export function GuildFormsHub({
                 <li key={form.slug}>
                   <Link
                     href={`/f/${form.slug}` as Route}
-                    className="flex flex-col gap-1 rounded-lg border border-border bg-card p-5 shadow-sm transition-colors hover:border-primary/40"
+                    className="flex flex-col gap-1 rounded-lg border border-border bg-card p-5 shadow-xs transition-colors hover:border-primary/40"
                   >
                     <span className="flex items-center gap-2 font-heading text-lg font-semibold text-foreground">
                       {form.title}

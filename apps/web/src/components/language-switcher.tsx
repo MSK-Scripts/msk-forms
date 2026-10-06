@@ -53,7 +53,7 @@ export function LanguageSwitcher({ locale }: { locale: string }) {
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className="inline-flex h-9 items-center gap-1.5 rounded-md border border-input bg-background px-2.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="inline-flex h-9 items-center gap-1.5 rounded-md border border-input bg-background px-2.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-hidden"
       >
         <IconWorld size={15} stroke={1.75} className="text-muted-foreground" />
         {current.short}
@@ -67,7 +67,7 @@ export function LanguageSwitcher({ locale }: { locale: string }) {
       {open && (
         <ul
           role="listbox"
-          className="absolute end-0 z-50 mt-1.5 min-w-[8rem] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md"
+          className="absolute inset-e-0 z-50 mt-1.5 min-w-32 overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md"
         >
           {LOCALES.map((l) => {
             const active = l.value === locale;
@@ -83,7 +83,7 @@ export function LanguageSwitcher({ locale }: { locale: string }) {
                   }`}
                 >
                   <span className="flex items-center gap-2">
-                    <span className="w-5 font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
+                    <span className="w-5 font-mono text-[10px] tracking-wide text-muted-foreground uppercase">
                       {l.short}
                     </span>
                     {l.label}
