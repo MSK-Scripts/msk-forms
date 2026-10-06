@@ -90,7 +90,7 @@ export default async function SubmissionDetailPage({
       <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
         <div className="flex flex-col gap-6">
           {submission.spec && (
-            <section className="rounded-lg border border-border bg-card p-6 shadow-sm">
+            <section className="rounded-lg border border-border bg-card p-6 shadow-xs">
               <h2 className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {t.answers}
               </h2>
@@ -103,7 +103,7 @@ export default async function SubmissionDetailPage({
             </section>
           )}
 
-          <section className="rounded-lg border border-border bg-card p-6 shadow-sm">
+          <section className="rounded-lg border border-border bg-card p-6 shadow-xs">
             <h2 className="mb-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">
               {t.timeline}
             </h2>
@@ -159,7 +159,7 @@ export default async function SubmissionDetailPage({
             t={t}
           />
         ) : (
-          <aside className="rounded-lg border border-border bg-card p-5 text-sm text-muted-foreground shadow-sm">
+          <aside className="rounded-lg border border-border bg-card p-5 text-sm text-muted-foreground shadow-xs">
             {t.noPermReview}
           </aside>
         )}
