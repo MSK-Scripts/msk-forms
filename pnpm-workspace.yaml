@@ -19,7 +19,9 @@ overrides:
   # GHSA-8xcm-r25x-g524 / GHSA-m8rv-5g2x-5cg5 / GHSA-v3r7-h72x-cjcm — three undici
   # advisories all first patched in 6.28.0. Transitive via discord.js, which pins
   # the version exactly, so the bot only gets the fix through this override.
-  "undici@<6.28.0": "^6.28.0"
+  # GHSA-rfgv-xxqx-mfg5 / GHSA-3wwx-pv8p-q78v / GHSA-r53p-7pc4-xj5r (WebSocket
+  # subprotocol crash, inflater limit, retry response splitting) need 6.28.1.
+  "undici@<6.28.1": "^6.28.1"
   # GHSA-w5hq-g745-h8pq — uuid missing buffer bounds check in v3/v5/v6 (transitive
   # via exceljs, which only uses v4). Force the patched line; v4 API is unchanged.
   "uuid@<11.1.1": ">=11.1.1"
@@ -30,7 +32,10 @@ overrides:
   # GHSA-4c8g-83qw-93j6 — fast-uri host confusion via failed IDN canonicalization,
   # then GHSA-7p8r-x3mc-p8w7 on top, which flags everything below 3.1.5
   # (transitive via ajv, dev-only). Stay on the 3.x line ajv asks for.
-  "fast-uri@<3.1.5": ">=3.1.5 <4"
+  # GHSA-qw65-cvwx-89v3 / GHSA-58mr-gqgx-xq4g / GHSA-hrr3-gc8f-f4qj are the next
+  # rounds (now via prisma's @prisma/dev > @prisma/streams-local > ajv), the last
+  # one fixed in 3.1.8.
+  "fast-uri@<3.1.8": ">=3.1.8 <4"
   # GHSA-f88m-g3jw-g9cj — libvips CVEs inherited by sharp. We depend on 0.35.x
   # directly; this only lifts the older copy next pulls in as an optional dep.
   "sharp@<0.35.0": ">=0.35.0"
@@ -56,3 +61,16 @@ overrides:
   # exactly at 3.15.3 for its MySQL datasource support, and this project talks to
   # Postgres), but the exact pin means the fix only lands through an override.
   "mysql2@<3.22.0": ">=3.22.0 <4"
+  # GHSA-ggr8-5vv4-36mx — deepmerge-ts stack exhaustion on recursive object graphs.
+  # @prisma/config pins 7.1.5 exactly and Prisma only moves to 8.x in 8.1.
+  # @prisma/config only calls deepmerge(), which the v8 breaking changes
+  # (deepmergeInto aliasing, renamed meta-data types) leave untouched.
+  "deepmerge-ts@<8.0.0": ">=8.0.0 <9"
+  # GHSA-68fv-2mgg-jv7q — source-map-js event-loop DoS via indexed source-map
+  # section offsets. Dev-only (postcss under vite/vitest), patched in 1.2.2.
+  "source-map-js@<1.2.2": ">=1.2.2 <2"
+  # GHSA-rj75-hqrm-r3gf — postcss-selector-parser, only patched on the 7.x line
+  # (7.1.6). Comes in via tailwindcss 3 and postcss-nested, which ask for ^6.
+  # The only breaking change in 7.0.0 makes insertions during iteration safe;
+  # the generated CSS is byte-identical with the bump.
+  "postcss-selector-parser@<7.1.6": ">=7.1.6 <8"
