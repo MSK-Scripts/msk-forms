@@ -13,12 +13,12 @@
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {
-    "pg": "^8.23.0",
-    "ws": "^8.21.3"
+    "pg": "^8.23.1",
+    "ws": "^8.22.0"
   },
   "devDependencies": {
     "@types/pg": "^8.23.1",
-    "@types/ws": "^8.5.13",
+    "@types/ws": "^8.18.2",
     "tsx": "^4.23.15",
     "typescript": "^5.7.2",
     "vitest": "^5.0.3"
