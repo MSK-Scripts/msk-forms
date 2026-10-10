@@ -4,7 +4,7 @@
 export const privacy = {
   en: `# Privacy Policy
 
-*Last updated: June 2026*
+*Last updated: October 2026*
 
 ## Privacy at a Glance
 
@@ -29,6 +29,12 @@ We host MSK Forms with the following provider:
 When you use the service, netcup, acting as a processor, automatically records information transmitted by your browser in server log files: browser type and version, operating system used, referrer URL, hostname of the accessing computer, time of the server request, and the IP address. This data is not merged with other data sources.
 
 **Legal basis:** the legitimate interest in the technically error-free provision and security of our service (Art. 6(1)(f) GDPR). We have concluded a data processing agreement (DPA) with the provider. The server, the database, and all uploaded files are located within the **European Union**.
+
+### Backups
+
+Encrypted backups of the database and the uploaded files are additionally stored outside the production server with **Hetzner Online GmbH**, Industriestr. 25, D-91710 Gunzenhausen, Germany, in a data centre in Falkenstein, Germany. The backups are encrypted on our server before they are transferred (AES-256); Hetzner cannot read their content. Daily copies are kept for 30 days, monthly copies for 12 months. Hetzner acts as a processor on the basis of a data processing agreement.
+
+**Legal basis:** the legitimate interest in the availability and restorability of our service (Art. 6(1)(f) GDPR in conjunction with Art. 32 GDPR).
 
 ---
 
@@ -224,7 +230,7 @@ We reserve the right to update this privacy policy to reflect changes to our ser
 
   de: `# Datenschutzerklärung
 
-*Zuletzt aktualisiert: Juni 2026*
+*Zuletzt aktualisiert: Oktober 2026*
 
 ## Datenschutz auf einen Blick
 
@@ -249,6 +255,12 @@ Wir hosten MSK Forms beim folgenden Anbieter:
 Wenn Sie den Dienst nutzen, erfasst netcup als Auftragsverarbeiter automatisch von Ihrem Browser übermittelte Informationen in Server-Logfiles: Browsertyp und -version, verwendetes Betriebssystem, Referrer-URL, Hostname des zugreifenden Rechners, Uhrzeit der Serveranfrage und die IP-Adresse. Diese Daten werden nicht mit anderen Datenquellen zusammengeführt.
 
 **Rechtsgrundlage:** das berechtigte Interesse an der technisch fehlerfreien Bereitstellung und Sicherheit unseres Dienstes (Art. 6 Abs. 1 lit. f DSGVO). Mit dem Anbieter besteht ein Auftragsverarbeitungsvertrag (AVV). Der Server, die Datenbank und alle hochgeladenen Dateien befinden sich innerhalb der **Europäischen Union**.
+
+### Datensicherung
+
+Verschlüsselte Sicherungen der Datenbank und der hochgeladenen Dateien werden zusätzlich außerhalb des Produktivservers bei der **Hetzner Online GmbH**, Industriestr. 25, D-91710 Gunzenhausen, Deutschland, in einem Rechenzentrum in Falkenstein (Deutschland) abgelegt. Die Sicherungen werden vor der Übertragung auf unserem Server verschlüsselt (AES-256), Hetzner kann ihren Inhalt nicht lesen. Tagesstände werden 30 Tage, Monatsstände 12 Monate aufbewahrt. Hetzner wird als Auftragsverarbeiter auf Grundlage eines Auftragsverarbeitungsvertrags tätig.
+
+**Rechtsgrundlage:** das berechtigte Interesse an der Verfügbarkeit und Wiederherstellbarkeit unseres Dienstes (Art. 6 Abs. 1 lit. f DSGVO in Verbindung mit Art. 32 DSGVO).
 
 ---
 
