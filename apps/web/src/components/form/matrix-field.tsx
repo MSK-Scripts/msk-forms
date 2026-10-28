@@ -29,15 +29,12 @@ export function MatrixField({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-sm">
+      <table className="w-full border-collapse">
         <thead>
           <tr>
-            <th className="p-2" />
+            <td className="p-2" />
             {cols.map((col) => (
-              <th
-                key={col.value}
-                className="p-2 text-center text-xs font-medium text-muted-foreground"
-              >
+              <th key={col.value} scope="col" className="p-2 text-center text-small font-semibold text-muted-foreground">
                 {col.label}
               </th>
             ))}
@@ -46,11 +43,14 @@ export function MatrixField({
         <tbody>
           {rows.map((row) => (
             <tr key={row.id} className="border-t border-border">
-              <td className="p-2 text-foreground">{row.label}</td>
+              <th scope="row" className="p-2 text-start font-normal text-foreground">
+                {row.label}
+              </th>
               {cols.map((col) => {
                 const name = `${field.id}-${row.id}`;
                 return (
-                  <td key={col.value} className="p-2 text-center">
+                  <td key={col.value} className="p-0 text-center">
+                    <label className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center">
                     <input
                       type="radio"
                       name={name}
@@ -59,8 +59,9 @@ export function MatrixField({
                       checked={current[row.id] === col.value}
                       disabled={disabled}
                       onChange={() => pick(row.id, col.value)}
-                      className="h-4 w-4 accent-primary"
+                      className="h-5 w-5 accent-primary"
                     />
+                    </label>
                   </td>
                 );
               })}

@@ -32,6 +32,7 @@ import {
   Clock as ClockBase,
   Copy as CopyBase,
   DotsThree as DotsThreeBase,
+  DownloadSimple as DownloadSimpleBase,
   FloppyDisk as FloppyDiskBase,
   Globe as GlobeBase,
   HourglassMedium as HourglassMediumBase,
@@ -49,6 +50,8 @@ import {
   Sparkle as SparkleBase,
   Star as StarBase,
   Sun as SunBase,
+  Trash as TrashBase,
+  Tray as TrayBase,
   TrendDown as TrendDownBase,
   TrendUp as TrendUpBase,
   UploadSimple as UploadSimpleBase,
@@ -88,6 +91,7 @@ export const CircleNotch = decorative(CircleNotchBase);
 export const Clock = decorative(ClockBase);
 export const Copy = decorative(CopyBase);
 export const DotsThree = decorative(DotsThreeBase);
+export const DownloadSimple = decorative(DownloadSimpleBase);
 export const FloppyDisk = decorative(FloppyDiskBase);
 export const Globe = decorative(GlobeBase);
 export const HourglassMedium = decorative(HourglassMediumBase);
@@ -105,6 +109,8 @@ export const SignOut = decorative(SignOutBase);
 export const Sparkle = decorative(SparkleBase);
 export const Star = decorative(StarBase);
 export const Sun = decorative(SunBase);
+export const Trash = decorative(TrashBase);
+export const Tray = decorative(TrayBase);
 export const TrendDown = decorative(TrendDownBase);
 export const TrendUp = decorative(TrendUpBase);
 export const UploadSimple = decorative(UploadSimpleBase);

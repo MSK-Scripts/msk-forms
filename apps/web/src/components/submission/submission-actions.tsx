@@ -1,10 +1,11 @@
 "use client";
 
-import { Button } from "@msk-forms/ui";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { ConfirmDialog } from "@/components/confirm-dialog";
+import { ConfirmDialog } from "@/components/dashboard-kit/confirm-dialog";
+import { DownloadSimple, Trash, WarningCircle } from "@/components/icons";
+import { Button } from "@/components/ui/button";
 
 export interface SubmissionActionLabels {
   yourData: string;
@@ -21,6 +22,8 @@ export interface SubmissionActionLabels {
 /**
  * Applicant self-service on the public status page (capability = the UUID):
  * withdraw, export own data as JSON, or delete the submission entirely (§19).
+ * Withdrawing and deleting ask first, in a native <dialog> whose buttons name
+ * the consequence.
  */
 export function SubmissionActions({
   id,
@@ -65,6 +68,7 @@ export function SubmissionActions({
         const data = (await res.json().catch(() => null)) as { error?: string } | null;
         throw new Error(data?.error ?? t.actionFailed);
       }
+      setConfirming(null);
       setDeleted(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : t.actionFailed);
@@ -72,17 +76,26 @@ export function SubmissionActions({
     }
   }
 
-  if (deleted) return <p className="text-sm text-muted-foreground">{t.deleted}</p>;
+  if (deleted) {
+    return (
+      <p role="status" className="text-muted-foreground">
+        {t.deleted}
+      </p>
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-3">
-      <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-        {t.yourData}
-      </h2>
+    <div className="grid gap-3">
       <div className="flex flex-wrap gap-3">
+        <Button asChild variant="outline">
+          <a href={`/api/submissions/${id}/export`} download>
+            <DownloadSimple className="h-4 w-4" />
+            {t.exportData}
+          </a>
+        </Button>
         {canWithdraw && (
           <Button
-            variant="ghost"
+            variant="outline"
             onClick={() => {
               setError(null);
               setConfirming("withdraw");
@@ -92,47 +105,48 @@ export function SubmissionActions({
             {t.withdraw}
           </Button>
         )}
-        <a
-          href={`/api/submissions/${id}/export`}
-          className="inline-flex items-center justify-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-        >
-          {t.exportData}
-        </a>
         <Button
-          variant="ghost"
+          variant="outline"
           onClick={() => {
             setError(null);
             setConfirming("delete");
           }}
           disabled={busy}
-          className="text-destructive hover:text-destructive"
+          className="text-danger hover:border-danger"
         >
+          <Trash className="h-4 w-4" />
           {t.deleteData}
         </Button>
       </div>
-      {error && !confirming && <p className="text-sm text-destructive">{error}</p>}
+      {error && !confirming && (
+        <p role="alert" className="flex items-start gap-1.5 text-small font-semibold text-danger">
+          <WarningCircle className="mt-0.5 h-4 w-4 shrink-0" weight="bold" />
+          {error}
+        </p>
+      )}
 
       <ConfirmDialog
         open={confirming === "withdraw"}
         title={t.withdraw}
-        message={t.withdrawConfirm}
+        description={t.withdrawConfirm}
         confirmLabel={t.withdraw}
         cancelLabel={t.cancel}
+        tone="primary"
         busy={busy}
         error={confirming === "withdraw" ? error : null}
         onConfirm={withdraw}
-        onCancel={() => setConfirming(null)}
+        onClose={() => setConfirming(null)}
       />
       <ConfirmDialog
         open={confirming === "delete"}
         title={t.deleteData}
-        message={t.deleteConfirm}
+        description={t.deleteConfirm}
         confirmLabel={t.deleteData}
         cancelLabel={t.cancel}
         busy={busy}
         error={confirming === "delete" ? error : null}
         onConfirm={remove}
-        onCancel={() => setConfirming(null)}
+        onClose={() => setConfirming(null)}
       />
     </div>
   );

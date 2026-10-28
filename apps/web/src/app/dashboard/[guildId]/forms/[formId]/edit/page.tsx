@@ -14,6 +14,7 @@ import {
 import { canManageForm } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
 import { getDict } from "@/i18n";
+import { dateLabels } from "@/components/form/form-labels";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -59,7 +60,7 @@ export default async function EditFormPage({
         isPro={pro}
         automationsProBody={t.pro.automationsBody}
         experimentProBody={t.pro.experimentBody}
-        dateLabels={{ today: t.form.dateToday, clear: t.form.dateClear, now: t.form.dateNow }}
+        dateLabels={dateLabels(t)}
         initial={{
           title: form.title,
           description: form.description ?? "",

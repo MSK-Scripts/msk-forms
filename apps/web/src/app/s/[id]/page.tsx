@@ -2,15 +2,16 @@ import { DEFAULT_STATUSES } from "@msk-forms/shared";
 import { StatusBadge } from "@msk-forms/ui";
 import { notFound } from "next/navigation";
 
-import { CustomCss } from "@/components/branding/custom-css";
-import { PoweredBy } from "@/components/public/powered-by";
-import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
-import { isGuildPro } from "@/lib/plan";
+import { LocalDateTime } from "@/components/public/local-datetime";
+import { PublicHead, PublicSection } from "@/components/public/public-content";
+import { PublicFrame } from "@/components/public/public-frame";
 import { AnswerSummary } from "@/components/submission/answer-summary";
 import { StatusLive } from "@/components/submission/status-live";
 import { SubmissionActions } from "@/components/submission/submission-actions";
-import { brandProps, logoUrl, parseBranding } from "@/lib/branding";
+import { parseBranding } from "@/lib/branding";
+import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 import { getSubmissionForStatus, resolveStatus } from "@/lib/forms";
+import { isGuildPro } from "@/lib/plan";
 import { getDict } from "@/i18n";
 
 const TERMINAL = new Set<string>(DEFAULT_STATUSES.filter((s) => s.terminal).map((s) => s.key));
@@ -18,19 +19,21 @@ const TERMINAL = new Set<string>(DEFAULT_STATUSES.filter((s) => s.terminal).map(
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export default async function SubmissionStatusPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+/**
+ * The applicant's status page: where the submission stands, what happened
+ * (status changes and the guild's messages), the answers, and the
+ * applicant's own data. It refreshes itself when a reviewer acts.
+ */
+export default async function SubmissionStatusPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const submission = await getSubmissionForStatus(id);
   if (!submission) notFound();
 
   // On a custom domain, only serve submissions owned by that domain's guild.
   const host = await requestHostname();
-  if (host && !isPrimaryHostname(host)) {
-    const domainGuild = await getGuildByDomain(host);
+  const onCustomDomain = Boolean(host) && !isPrimaryHostname(host!);
+  if (onCustomDomain) {
+    const domainGuild = await getGuildByDomain(host!);
     if (!domainGuild || domainGuild.id !== submission.form.guildId) notFound();
   }
 
@@ -41,45 +44,42 @@ export default async function SubmissionStatusPage({
   // event, no DM), and it must not surface here. Fall back to the stored status
   // for legacy submissions with no public status_change event.
   const lastVisibleStatus =
-    [...submission.events].reverse().find((e) => e.type === "status_change" && e.toStatus)
-      ?.toStatus ?? submission.status;
+    [...submission.events].reverse().find((e) => e.type === "status_change" && e.toStatus)?.toStatus ??
+    submission.status;
   const status = resolveStatus(lastVisibleStatus, submission.statusDefs, dict.statusLabels);
   const answers = (submission.answers ?? {}) as Record<string, unknown>;
   const branding = parseBranding(submission.form.guild.branding);
-  const brand = brandProps(branding);
-  const showBadge = !(await isGuildPro(submission.form.guildId));
-  const logo = logoUrl(submission.form.guildId, branding);
+  const poweredBy = !(await isGuildPro(submission.form.guildId));
 
   return (
-    <main id="main" className="msk-form pwa-safe-x pwa-safe-b mx-auto flex max-w-2xl flex-col gap-6 pt-12" {...brand}>
-      <CustomCss css={branding.customCss} />
+    <PublicFrame
+      guild={{ id: submission.form.guildId, name: submission.form.guild.name, branding }}
+      hubHref={onCustomDomain ? "/" : `/g/${submission.form.guildId}`}
+      returnTo={`/s/${submission.id}`}
+      poweredBy={poweredBy}
+    >
       <StatusLive submissionId={submission.id} />
-      <header className="flex flex-col gap-3">
-        {logo && <img src={logo} alt="" className="h-12 w-auto self-start" />}
-        <span className="text-sm font-medium text-primary">{t.yourSubmission}</span>
-        <h1 className="font-heading text-3xl font-bold text-foreground">
-          {submission.form.title}
-        </h1>
-        <div className="flex items-center gap-3">
-          <StatusBadge label={status.label} color={status.color} />
-          <span className="text-xs text-muted-foreground">
-            {t.submitted} {submission.submittedAt.toISOString().slice(0, 10)}
+      <PublicHead kicker={t.yourSubmission} title={submission.form.title}>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          {/* Announced when the page refreshes itself after a reviewer acts. */}
+          <div role="status" aria-live="polite">
+            <StatusBadge label={status.label} color={status.color} />
+          </div>
+          <span className="text-small text-muted-foreground">
+            {t.submitted} <LocalDateTime iso={submission.submittedAt.toISOString()} />
           </span>
         </div>
-      </header>
+      </PublicHead>
 
       {submission.events.length > 0 && (
-        <section className="rounded-lg border border-border bg-card p-6 shadow-xs">
-          <h2 className="mb-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {t.activity}
-          </h2>
-          <ol className="flex flex-col gap-4">
+        <PublicSection id="activity-title" title={t.activity}>
+          <ol className="grid gap-4">
             {submission.events.map((ev) => (
-              <li key={ev.id} className="flex flex-col gap-1 border-s-2 border-primary ps-3">
-                <span className="text-xs text-muted-foreground">
-                  {ev.createdAt.toISOString().slice(0, 16).replace("T", " ")}
+              <li key={ev.id} className="grid gap-1 border-s-[3px] border-primary ps-4">
+                <span className="text-small text-muted-foreground">
+                  <LocalDateTime iso={ev.createdAt.toISOString()} />
                 </span>
-                <span className="text-sm text-foreground">
+                <span className="whitespace-pre-line text-foreground">
                   {ev.type === "status_change" && ev.toStatus
                     ? `${t.statusChangedTo} “${resolveStatus(ev.toStatus, submission.statusDefs, dict.statusLabels).label}”`
                     : (ev.message ?? t.update)}
@@ -87,24 +87,21 @@ export default async function SubmissionStatusPage({
               </li>
             ))}
           </ol>
-        </section>
+        </PublicSection>
       )}
 
       {submission.spec && (
-        <section className="rounded-lg border border-border bg-card p-6 shadow-xs">
-          <h2 className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {t.yourAnswers}
-          </h2>
+        <PublicSection id="answers-title" title={t.yourAnswers}>
           <AnswerSummary
             spec={submission.spec}
             answers={answers}
             labels={{ notAnswered: t.notAnswered, yes: t.yes, no: t.no }}
             files={submission.files}
           />
-        </section>
+        </PublicSection>
       )}
 
-      <section className="rounded-lg border border-border bg-card p-6 shadow-xs">
+      <PublicSection id="data-title" title={t.yourData}>
         <SubmissionActions
           id={submission.id}
           canWithdraw={!TERMINAL.has(submission.status)}
@@ -120,9 +117,7 @@ export default async function SubmissionStatusPage({
             cancel: t.cancel,
           }}
         />
-      </section>
-
-      {showBadge && <PoweredBy label={t.poweredBy} />}
-    </main>
+      </PublicSection>
+    </PublicFrame>
   );
 }

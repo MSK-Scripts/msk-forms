@@ -1,14 +1,7 @@
 "use client";
 
 import { EMOJI_SCALE, scaleBounds, type FileAnswer, type FormField } from "@msk-forms/shared";
-import {
-  Checkbox,
-  CheckboxGroup,
-  Input,
-  RadioGroup,
-  Select,
-  Textarea,
-} from "@msk-forms/ui";
+import { Checkbox, CheckboxGroup, Input, RadioGroup, Select, Textarea, fieldClass } from "@msk-forms/ui";
 
 import { DateField, type DateFieldLabels } from "./date-field";
 import { FileField, type FileFieldLabels } from "./file-field";
@@ -17,14 +10,43 @@ import { PhoneField } from "./phone-field";
 import { ScaleButtons, SliderInput, StarRating } from "./rating-fields";
 import { SignatureField } from "./signature-field";
 
-export type FieldValue =
-  | string
-  | number
-  | boolean
-  | string[]
-  | FileAnswer
-  | Record<string, string>
-  | undefined;
+export type FieldValue = string | number | boolean | string[] | FileAnswer | Record<string, string> | undefined;
+
+/** Copy the controls need beyond the field's own texts. */
+export interface FieldInputLabels {
+  yes: string;
+  no: string;
+  /** Placeholder of a dropdown without one of its own. */
+  selectPlaceholder: string;
+  /** Label of a consent box without one of its own. */
+  agree: string;
+  /** What a calculated field shows before there is anything to calculate. */
+  calculatedEmpty: string;
+  countryCode: string;
+  file: FileFieldLabels;
+  date: DateFieldLabels;
+}
+
+/**
+ * Field types made of several controls (radios, checkboxes, a scale, a
+ * matrix): Field renders them as a fieldset whose legend is the question, so
+ * the question is announced with every option.
+ */
+const GROUP_TYPES = new Set<string>([
+  "single_choice",
+  "multi_choice",
+  "multi_select",
+  "yes_no",
+  "rating_stars",
+  "nps",
+  "emoji_scale",
+  "matrix",
+  "signature",
+]);
+
+export function isGroupField(type: string): boolean {
+  return GROUP_TYPES.has(type);
+}
 
 interface FieldInputProps {
   field: FormField;
@@ -32,48 +54,48 @@ interface FieldInputProps {
   onChange: (value: FieldValue) => void;
   invalid?: boolean;
   disabled?: boolean;
-  /** The form slug + labels — needed by file fields to drive uploads. */
+  /** Hint or error of the field, for the control's aria-describedby. */
+  describedBy?: string;
+  /** The form slug, needed by file fields to drive uploads. */
   slug: string;
-  fileLabels: FileFieldLabels;
-  dateLabels: DateFieldLabels;
-  yesNoLabels: { yes: string; no: string };
+  labels: FieldInputLabels;
 }
 
 /** Renders the interactive control for a single (non-layout) form field. */
-export function FieldInput({
-  field,
-  value,
-  onChange,
-  invalid,
-  disabled,
-  slug,
-  fileLabels,
-  dateLabels,
-  yesNoLabels,
-}: FieldInputProps) {
+export function FieldInput({ field, value, onChange, invalid, disabled, describedBy, slug, labels }: FieldInputProps) {
   const id = field.id;
   const options = (field.options ?? []).map((o) => ({ value: o.value, label: o.label }));
+  const described = { "aria-describedby": describedBy };
 
   switch (field.type) {
     // Calculated: read-only, derived from other answers. The value is computed
-    // by the renderer and passed in; the applicant never edits it.
-    case "calculated":
+    // by the renderer and passed in; the applicant never edits it. An <output>
+    // can carry the field's label.
+    case "calculated": {
+      const empty = value === undefined || value === "";
       return (
-        <div className="flex min-h-10 items-center rounded-md border border-input bg-muted px-3 py-2 text-sm font-medium text-foreground">
-          {value === undefined || value === "" ? "—" : String(value)}
-        </div>
+        <output
+          id={id}
+          {...described}
+          className={`${fieldClass} flex items-center border-input bg-muted font-semibold tabular-nums ${empty ? "font-normal text-muted-foreground" : ""}`}
+        >
+          {empty ? labels.calculatedEmpty : String(value)}
+        </output>
       );
+    }
 
     case "file_upload":
     case "image_upload":
       return (
         <FileField
+          id={id}
+          describedBy={describedBy}
           slug={slug}
           field={field}
           value={value as FileAnswer | undefined}
           onChange={onChange}
           disabled={disabled}
-          labels={fileLabels}
+          labels={labels.file}
         />
       );
 
@@ -81,6 +103,7 @@ export function FieldInput({
       return (
         <Textarea
           id={id}
+          {...described}
           value={(value as string) ?? ""}
           placeholder={field.placeholder}
           invalid={invalid}
@@ -93,7 +116,9 @@ export function FieldInput({
       return (
         <Input
           id={id}
+          {...described}
           type="number"
+          inputMode="decimal"
           value={value === undefined ? "" : String(value)}
           placeholder={field.placeholder}
           invalid={invalid}
@@ -104,21 +129,13 @@ export function FieldInput({
 
     case "rating_stars": {
       const { max } = scaleBounds(field);
-      return (
-        <StarRating value={value as number | undefined} max={max} disabled={disabled} onChange={onChange} />
-      );
+      return <StarRating value={value as number | undefined} max={max} disabled={disabled} onChange={onChange} />;
     }
 
     case "nps": {
       const { min, max } = scaleBounds(field);
       return (
-        <ScaleButtons
-          value={value as number | undefined}
-          min={min}
-          max={max}
-          disabled={disabled}
-          onChange={onChange}
-        />
+        <ScaleButtons value={value as number | undefined} min={min} max={max} disabled={disabled} onChange={onChange} />
       );
     }
 
@@ -140,6 +157,8 @@ export function FieldInput({
       const { min, max, step } = scaleBounds(field);
       return (
         <SliderInput
+          id={id}
+          describedBy={describedBy}
           value={value as number | undefined}
           min={min}
           max={max}
@@ -167,7 +186,7 @@ export function FieldInput({
           field={field}
           value={value as FileAnswer | undefined}
           disabled={disabled}
-          labels={fileLabels}
+          labels={labels.file}
           onChange={onChange}
         />
       );
@@ -179,6 +198,7 @@ export function FieldInput({
           options={options}
           value={value as string | undefined}
           disabled={disabled}
+          invalid={invalid}
           onChange={onChange}
         />
       );
@@ -187,8 +207,9 @@ export function FieldInput({
       return (
         <Select
           id={id}
+          {...described}
           options={options}
-          placeholder={field.placeholder ?? "Select…"}
+          placeholder={field.placeholder ?? labels.selectPlaceholder}
           value={(value as string) ?? ""}
           invalid={invalid}
           disabled={disabled}
@@ -204,6 +225,7 @@ export function FieldInput({
           options={options}
           value={(value as string[]) ?? []}
           disabled={disabled}
+          invalid={invalid}
           onChange={onChange}
         />
       );
@@ -213,11 +235,12 @@ export function FieldInput({
         <RadioGroup
           name={id}
           options={[
-            { value: "yes", label: yesNoLabels.yes },
-            { value: "no", label: yesNoLabels.no },
+            { value: "yes", label: labels.yes },
+            { value: "no", label: labels.no },
           ]}
           value={value === true ? "yes" : value === false ? "no" : undefined}
           disabled={disabled}
+          invalid={invalid}
           onChange={(v) => onChange(v === "yes")}
         />
       );
@@ -227,7 +250,9 @@ export function FieldInput({
       return (
         <Checkbox
           id={id}
-          label={field.placeholder ?? field.description ?? "I agree"}
+          {...described}
+          aria-invalid={invalid || undefined}
+          label={field.placeholder ?? field.description ?? labels.agree}
           checked={value === true}
           disabled={disabled}
           onChange={(e) => onChange(e.target.checked)}
@@ -240,13 +265,14 @@ export function FieldInput({
       return (
         <DateField
           id={id}
+          describedBy={describedBy}
           mode={field.type}
           value={value as string | undefined}
           onChange={onChange}
           invalid={invalid}
           disabled={disabled}
           placeholder={field.placeholder}
-          labels={dateLabels}
+          labels={labels.date}
         />
       );
 
@@ -254,27 +280,24 @@ export function FieldInput({
       return (
         <PhoneField
           id={id}
+          describedBy={describedBy}
           value={value as string | undefined}
           onChange={onChange}
           invalid={invalid}
           disabled={disabled}
           placeholder={field.placeholder}
+          countryLabel={labels.countryCode}
         />
       );
 
     // short_text, email, url, password and any other single-line text.
     default: {
       const inputType =
-        field.type === "email"
-          ? "email"
-          : field.type === "url"
-            ? "url"
-            : field.type === "password"
-              ? "password"
-              : "text";
+        field.type === "email" ? "email" : field.type === "url" ? "url" : field.type === "password" ? "password" : "text";
       return (
         <Input
           id={id}
+          {...described}
           type={inputType}
           value={(value as string) ?? ""}
           placeholder={field.placeholder}

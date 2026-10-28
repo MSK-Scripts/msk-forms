@@ -75,7 +75,7 @@ export async function SiteFooter() {
   ];
 
   return (
-    <footer className="surface-band pwa-safe-b">
+    <footer className="surface-band pb-[env(safe-area-inset-bottom)]">
       <div className="container-page grid gap-12 py-[clamp(3rem,2rem+3vw,6rem)]">
         <div className="@container">
           <div className="grid gap-x-10 gap-y-10 @lg:grid-cols-2 @4xl:grid-cols-4 @7xl:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,1fr))]">

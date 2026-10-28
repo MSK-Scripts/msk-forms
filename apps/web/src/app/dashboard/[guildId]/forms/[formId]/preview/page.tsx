@@ -11,6 +11,7 @@ import { brandProps, logoUrl, parseBranding } from "@/lib/branding";
 import { getFormForEdit, parseFormSpec } from "@/lib/forms";
 import { canManageForm } from "@/lib/guild";
 import { getDict } from "@/i18n";
+import { formLabels } from "@/components/form/form-labels";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -29,7 +30,7 @@ export default async function FormPreviewPage({
   const { guildId, formId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/forms/${formId}/preview`);
   const dict = await getDict();
-  const t = dict.form;
+
 
   if (!(await canManageForm(guildId, user.id, formId))) {
     return (
@@ -87,26 +88,7 @@ export default async function FormPreviewPage({
           slug={form.slug}
           spec={spec}
           preview
-          labels={{
-            submit: t.submit,
-            submitting: t.submitting,
-            required: t.required,
-            submitFailed: t.submitFailed,
-            captchaRequired: t.captchaRequired,
-            fileUploading: t.fileUploading,
-            fileRemove: t.fileRemove,
-            uploadFailed: t.uploadFailed,
-            signatureClear: t.signatureClear,
-            next: t.next,
-            back: t.back,
-            step: t.step,
-            dateToday: t.dateToday,
-            dateClear: t.dateClear,
-            dateNow: t.dateNow,
-            previewNote: t.previewNote,
-            yes: t.yes,
-            no: t.no,
-          }}
+          labels={formLabels(dict)}
         />
       </div>
     </div>

@@ -24,5 +24,5 @@ export default async function HandleHubPage({
 
   const guild = await getGuildByHandle(handle);
   if (!guild) notFound();
-  return <GuildHub guild={guild} />;
+  return <GuildHub guild={guild} path={`/${handle}`} />;
 }

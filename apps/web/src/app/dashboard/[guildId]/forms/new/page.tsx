@@ -14,6 +14,7 @@ import { shopLegalUrl } from "@/lib/legal";
 import { isGuildPro } from "@/lib/plan";
 import { enterpriseEnabled, stripeEnabled } from "@/lib/stripe";
 import { getDict, getLocale } from "@/i18n";
+import { dateLabels } from "@/components/form/form-labels";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -100,7 +101,7 @@ export default async function NewFormPage({
         isPro={pro}
         automationsProBody={t.pro.automationsBody}
         experimentProBody={t.pro.experimentBody}
-        dateLabels={{ today: t.form.dateToday, clear: t.form.dateClear, now: t.form.dateNow }}
+        dateLabels={dateLabels(t)}
         initial={{
           title: "",
           description: "",

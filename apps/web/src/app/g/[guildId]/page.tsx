@@ -22,5 +22,5 @@ export default async function GuildHubPage({
     select: { id: true, name: true, branding: true },
   });
   if (!guild) notFound();
-  return <GuildHub guild={guild} />;
+  return <GuildHub guild={guild} path={`/g/${guild.id}`} />;
 }

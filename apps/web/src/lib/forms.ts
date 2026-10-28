@@ -333,7 +333,7 @@ export async function getSubmissionForStatus(id: string) {
           title: true,
           schema: true,
           guildId: true,
-          guild: { select: { branding: true } },
+          guild: { select: { name: true, branding: true } },
         },
       },
       events: {

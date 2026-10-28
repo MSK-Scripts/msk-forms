@@ -3,6 +3,8 @@
 import type { FileAnswer, FormField } from "@msk-forms/shared";
 import { useRef, useState } from "react";
 
+import { CheckCircle, WarningCircle } from "@/components/icons";
+
 import type { FileFieldLabels } from "./file-field";
 
 /**
@@ -112,20 +114,32 @@ export function SignatureField({
         onPointerMove={move}
         onPointerUp={end}
         onPointerLeave={end}
-        className="h-40 w-full touch-none rounded-md border border-input bg-white"
+        className="h-40 w-full touch-none rounded-md border-[1.5px] border-input bg-white"
       />
-      <div className="flex items-center gap-3 text-xs">
+      <div className="flex flex-wrap items-center gap-x-3 text-small">
         <button
           type="button"
           onClick={clear}
           disabled={disabled || uploading}
-          className="font-medium text-muted-foreground transition-colors hover:text-destructive disabled:opacity-50"
+          className="inline-flex min-h-11 items-center rounded-md px-1 font-semibold text-muted-foreground transition-colors hover:text-danger disabled:opacity-50"
         >
           {labels.clear}
         </button>
-        {uploading && <span className="text-muted-foreground">{labels.uploading}</span>}
-        {!uploading && value && <span className="text-primary">✓</span>}
-        {error && <span className="text-destructive">{error}</span>}
+        <span role="status" className="inline-flex items-center gap-1.5">
+          {uploading && <span className="text-muted-foreground">{labels.uploading}</span>}
+          {!uploading && value && (
+            <span className="inline-flex items-center gap-1.5 font-semibold text-primary">
+              <CheckCircle className="h-4 w-4" weight="bold" />
+              {labels.uploaded}
+            </span>
+          )}
+        </span>
+        {error && (
+          <span role="alert" className="inline-flex items-center gap-1.5 font-semibold text-danger">
+            <WarningCircle className="h-4 w-4" weight="bold" />
+            {error}
+          </span>
+        )}
       </div>
     </div>
   );

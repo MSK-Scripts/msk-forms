@@ -1,22 +1,24 @@
 import type { InputHTMLAttributes } from "react";
 
+/**
+ * The field look of the shop: 44 px or more, a 1.5 px border that reaches
+ * 3:1 on card and ground, text of 16 px or more (no zoom on iOS), the global
+ * focus outline, and a red border once the field is invalid.
+ */
+export const fieldClass =
+  "w-full min-h-11 rounded-md border-[1.5px] bg-card px-3 py-2 text-base text-foreground " +
+  "placeholder:text-muted-foreground transition-colors duration-150 focus-visible:border-primary " +
+  "disabled:cursor-not-allowed disabled:opacity-50";
+
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  /** Reddens the border to signal a validation error. */
+  /** Reddens the border and sets aria-invalid. */
   invalid?: boolean;
 }
-
-// text-base on mobile (≥16px) prevents iOS Safari from auto-zooming on focus;
-// drops back to text-sm from sm: up.
-const base =
-  "flex h-10 w-full rounded-md border bg-background px-3 py-2 text-base sm:text-sm text-foreground " +
-  "placeholder:text-muted-foreground transition-colors focus-visible:outline-hidden focus-visible:border-primary " +
-  "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background " +
-  "disabled:cursor-not-allowed disabled:opacity-50";
 
 export function Input({ invalid, className = "", ...props }: InputProps) {
   return (
     <input
-      className={`${base} ${invalid ? "border-destructive" : "border-input"} ${className}`}
+      className={`${fieldClass} ${invalid ? "border-danger" : "border-input"} ${className}`}
       aria-invalid={invalid || undefined}
       {...props}
     />

@@ -28,7 +28,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   if (host && !isPrimaryHostname(host)) {
     const guild = await getGuildByDomain(host);
     if (!guild) notFound();
-    return <GuildHub guild={guild} />;
+    return <GuildHub guild={guild} path="/" />;
   }
 
   const [t, user, { auth }] = await Promise.all([getDict(), getCurrentUser(), searchParams]);

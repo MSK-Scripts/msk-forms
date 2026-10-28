@@ -7,7 +7,7 @@ import { getDict } from "@/i18n";
  * the custom-domain landing, the `/g/[guildId]` route and the `/[handle]` vanity
  * route so they stay identical.
  */
-export async function GuildHub({ guild }: { guild: HubGuild }) {
+export async function GuildHub({ guild, path }: { guild: HubGuild; path: string }) {
   const t = await getDict();
   const [forms, categories] = await Promise.all([
     getLiveFormsForGuild(guild.id),
@@ -16,6 +16,7 @@ export async function GuildHub({ guild }: { guild: HubGuild }) {
   return (
     <GuildFormsHub
       guild={guild}
+      path={path}
       forms={forms}
       categories={categories}
       labels={{
@@ -25,6 +26,7 @@ export async function GuildHub({ guild }: { guild: HubGuild }) {
         opensAt: t.form.opensAt,
         opensIn: t.form.opensIn,
         otherForms: t.domainHome.otherForms,
+        units: t.publicForm,
       }}
     />
   );

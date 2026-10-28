@@ -316,6 +316,8 @@
   --page-column: clamp(72rem, 84vw, 180rem);
   --grid-card: clamp(18rem, 16.25rem + 6.3vw, 30rem);
   --grid-card-wide: clamp(20.5rem, 18.75rem + 6.3vw, 32.5rem);
+  /* Content width of a guild's public pages (`public-column`). */
+  --public-column: clamp(36rem, 28rem + 14vw, 56rem);
 
   /* App shell of the dashboard (components/dashboard-kit). Denser than the
      public pages: a smaller top bar and gutter, because the content is
@@ -419,6 +421,16 @@
   padding-inline: max(var(--page-gutter), env(safe-area-inset-left, 0px)) max(var(--page-gutter), env(safe-area-inset-right, 0px));
 }
 
+/* The column of a guild's public pages (form, status page, form index):
+   narrower than the site column, because a form reads best at a form's
+   width, and fluid up to UWQHD. Header, content and footer share it. */
+@utility public-column {
+  width: 100%;
+  max-width: calc(var(--public-column) + 2 * var(--page-gutter));
+  margin-inline: auto;
+  padding-inline: max(var(--page-gutter), env(safe-area-inset-left, 0px)) max(var(--page-gutter), env(safe-area-inset-right, 0px));
+}
+
 /* Extends the hit area of a control to 44 px without changing its visible
    size (WCAG 2.2 SC 2.5.8 asks for 24 px; 44 px because the dashboard gets
    used on phones). */
@@ -489,65 +501,11 @@
   transform: translateY(0);
 }
 
-/* PWA safe-area insets. env() is 0 in a normal browser tab, so these only
-   take effect in an installed PWA (viewport-fit=cover). Logical padding so
-   it mirrors under RTL. */
-@utility pwa-safe-x {
-  padding-inline-start: max(1.5rem, env(safe-area-inset-left));
-  padding-inline-end: max(1.5rem, env(safe-area-inset-right));
-}
-
-@utility pwa-safe-b {
-  padding-bottom: max(3rem, env(safe-area-inset-bottom));
-}
-
+/* PWA safe-area inset at the top of a sticky header. env() is 0 in a normal
+   browser tab, so it only takes effect in an installed PWA
+   (viewport-fit=cover). */
 @utility pwa-safe-top {
   padding-top: env(safe-area-inset-top);
-}
-
-/* ----------------------------------------------------------------------------
-   Legacy, kept until the pages that use them are restyled
-   ----------------------------------------------------------------------------
-   `container` (1180 px column) is replaced by `container-page` and the app
-   shell; `.eyebrow` (monospace kicker with a leading dash, on the exclusion
-   list) by `.kicker`; `.hero-decor-gradient` has no successor. Remove each
-   with its last use. */
-@utility container {
-  margin-inline: auto;
-  padding-inline: 1.5rem;
-  @media (width >= --theme(--breakpoint-sm)) {
-    max-width: none;
-  }
-  @media (width >= 1180px) {
-    max-width: 1180px;
-  }
-}
-
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: hsl(var(--primary));
-}
-.eyebrow::before {
-  content: "";
-  display: block;
-  width: 24px;
-  height: 1px;
-  background: hsl(var(--primary));
-}
-
-.hero-decor-gradient {
-  background: radial-gradient(
-    ellipse 60% 50% at 30% 20%,
-    hsl(var(--primary) / 0.12),
-    transparent 70%
-  );
 }
 
 /* ============================================================================

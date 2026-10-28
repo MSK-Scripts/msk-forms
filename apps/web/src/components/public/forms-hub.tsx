@@ -1,11 +1,11 @@
 import { formScheduleStatus } from "@msk-forms/shared";
-import type { Route } from "next";
-import Link from "next/link";
 
-import { CustomCss } from "@/components/branding/custom-css";
-import { Countdown } from "@/components/public/countdown";
+import { ArrowRight, Clock, HourglassMedium, Tray } from "@/components/icons";
+import { Countdown, type CountdownUnits } from "@/components/public/countdown";
 import { LocalDateTime } from "@/components/public/local-datetime";
-import { brandProps, logoUrl, parseBranding } from "@/lib/branding";
+import { PublicHead } from "@/components/public/public-content";
+import { PublicFrame } from "@/components/public/public-frame";
+import { parseBranding } from "@/lib/branding";
 
 export interface HubForm {
   slug: string;
@@ -37,28 +37,31 @@ export interface HubLabels {
   opensAt: string;
   opensIn: string;
   otherForms: string;
+  units: CountdownUnits;
 }
 
 /**
  * Public branded index of a guild's live forms, grouped by category. Shared by
- * the custom-domain landing and the primary-domain hub page (`/g/[guildId]`).
- * Forms whose window has already closed are dropped; when the guild defines no
- * categories the list renders flat (no headings) to preserve prior behavior.
+ * the custom-domain landing, `/g/[guildId]` and `/[handle]`. Forms whose
+ * window has already closed are dropped; when the guild defines no categories
+ * the list renders flat (no headings) to preserve prior behaviour. Each form
+ * is a card, because it is clicked.
  */
 export function GuildFormsHub({
   guild,
   forms,
   categories,
   labels,
+  path,
 }: {
   guild: HubGuild;
   forms: HubForm[];
   categories: HubCategory[];
   labels: HubLabels;
+  /** The address of this index on the current host. */
+  path: string;
 }) {
   const branding = parseBranding(guild.branding);
-  const brand = brandProps(branding);
-  const logo = logoUrl(guild.id, branding);
   const now = new Date();
 
   // Keep open + scheduled forms, drop already-closed ones.
@@ -81,69 +84,70 @@ export function GuildFormsHub({
   }
 
   return (
-    <main id="main" className="msk-form mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12" {...brand}>
-      <CustomCss css={branding.customCss} />
-      <header className="flex flex-col gap-2">
-        {logo && <img src={logo} alt="" className="mb-2 h-12 w-auto self-start" />}
-        <h1 translate="no" className="font-heading text-3xl font-bold text-foreground">
-          {guild.name}
-        </h1>
-      </header>
+    <PublicFrame guild={{ id: guild.id, name: guild.name, branding }} hubHref={path} returnTo={path}>
+      <PublicHead title={guild.name} />
 
       {visible.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{labels.noForms}</p>
+        <p className="flex items-center gap-3 text-lead text-muted-foreground">
+          <Tray className="h-6 w-6 shrink-0" />
+          {labels.noForms}
+        </p>
       ) : (
         groups.map((group) => (
-          <section key={group.key} className="flex flex-col gap-3">
+          <section
+            key={group.key}
+            aria-labelledby={group.title ? `group-${group.key}` : undefined}
+            className="grid gap-3"
+          >
             {group.title && (
-              <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <h2 id={`group-${group.key}`} className="flex items-center gap-2.5 font-display text-lead font-[650]">
                 {group.color && (
-                  <span
-                    className="inline-block h-2.5 w-2.5 rounded-full"
-                    style={{ backgroundColor: group.color }}
-                  />
+                  // The guild's own category colour, beside the name and never alone.
+                  <span aria-hidden className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: group.color }} />
                 )}
                 {group.title}
               </h2>
             )}
-            <ul className="flex flex-col gap-3">
+            <ul className="grid gap-3">
               {group.items.map(({ form, schedule }) => (
                 <li key={form.slug}>
-                  <Link
-                    href={`/f/${form.slug}` as Route}
-                    className="flex flex-col gap-1 rounded-lg border border-border bg-card p-5 shadow-xs transition-colors hover:border-primary/40"
+                  <a
+                    href={`/f/${form.slug}`}
+                    className="group grid gap-2 rounded-lg border border-border bg-card p-[clamp(1.125rem,0.875rem+1vw,1.75rem)] text-card-foreground shadow-[var(--shadow-card)] transition-[border-color,box-shadow] duration-150 hover:border-primary hover:shadow-[var(--shadow-card-hover)]"
                   >
-                    <span className="flex items-center gap-2 font-heading text-lg font-semibold text-foreground">
-                      {form.title}
-                      {schedule.endingSoon && (
-                        <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-600 dark:text-amber-400">
-                          ⏳ {labels.endingSoon}
-                        </span>
-                      )}
-                    </span>
-                    {form.description && (
-                      <span className="text-sm text-muted-foreground">{form.description}</span>
-                    )}
-                    {schedule.state === "scheduled" && form.openAt ? (
-                      form.showCountdown ? (
-                        <Countdown targetIso={form.openAt.toISOString()} label={labels.opensIn} />
-                      ) : (
-                        <span className="mt-1 text-sm text-muted-foreground">
-                          {labels.opensAt} <LocalDateTime iso={form.openAt.toISOString()} />
-                        </span>
-                      )
-                    ) : (
-                      <span className="mt-1 text-sm font-medium text-primary">
-                        {labels.chooseForm} →
+                    <span className="font-display text-h3 font-[650] text-balance">{form.title}</span>
+                    {schedule.endingSoon && (
+                      <span className="inline-flex items-center gap-1.5 self-start rounded-sm bg-accent-soft px-2.5 py-1 text-small font-semibold text-primary">
+                        <HourglassMedium className="h-4 w-4" weight="bold" />
+                        {labels.endingSoon}
                       </span>
                     )}
-                  </Link>
+                    {form.description && (
+                      <span className="max-w-[60ch] whitespace-pre-line text-muted-foreground">{form.description}</span>
+                    )}
+                    {schedule.state === "scheduled" && form.openAt ? (
+                      <div className="mt-1 grid gap-2">
+                        {form.showCountdown && (
+                          <Countdown targetIso={form.openAt.toISOString()} label={labels.opensIn} units={labels.units} size="sm" />
+                        )}
+                        <span className="flex flex-wrap items-center gap-x-2 text-small text-muted-foreground">
+                          <Clock className="h-4 w-4 shrink-0" />
+                          {labels.opensAt} <LocalDateTime iso={form.openAt.toISOString()} />
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="mt-1 inline-flex items-center gap-1.5 font-semibold text-primary">
+                        {labels.chooseForm}
+                        <ArrowRight className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-[3px]" />
+                      </span>
+                    )}
+                  </a>
                 </li>
               ))}
             </ul>
           </section>
         ))
       )}
-    </main>
+    </PublicFrame>
   );
 }

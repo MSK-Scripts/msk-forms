@@ -3,12 +3,16 @@
 import type { FileAnswer, FormField } from "@msk-forms/shared";
 import { useRef, useState } from "react";
 
+import { UploadSimple, WarningCircle } from "@/components/icons";
+
 export interface FileFieldLabels {
   uploading: string;
   remove: string;
   uploadFailed: string;
   /** Used by the signature pad's clear button. */
   clear: string;
+  /** The signature pad's word for a stored signature. */
+  uploaded: string;
 }
 
 function formatSize(bytes: number): string {
@@ -23,6 +27,8 @@ function formatSize(bytes: number): string {
  * answer. The bytes never go through the submit request.
  */
 export function FileField({
+  id,
+  describedBy,
   slug,
   field,
   value,
@@ -30,6 +36,8 @@ export function FileField({
   disabled,
   labels,
 }: {
+  id: string;
+  describedBy?: string;
   slug: string;
   field: FormField;
   value: FileAnswer | undefined;
@@ -72,8 +80,8 @@ export function FileField({
 
   if (value) {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-md border border-input bg-background px-3 py-2 text-sm">
-        <span className="truncate text-foreground">
+      <div className="flex min-h-11 items-center justify-between gap-3 rounded-md border-[1.5px] border-input bg-card py-1 ps-3 pe-1">
+        <span className="min-w-0 truncate text-foreground">
           {value.name}{" "}
           <span className="text-muted-foreground">({formatSize(value.size)})</span>
         </span>
@@ -84,7 +92,7 @@ export function FileField({
             setError(null);
           }}
           disabled={disabled}
-          className="shrink-0 text-xs font-medium text-muted-foreground transition-colors hover:text-destructive"
+          className="inline-flex min-h-11 shrink-0 items-center rounded-md px-3 font-semibold text-muted-foreground transition-colors hover:text-danger"
         >
           {labels.remove}
         </button>
@@ -93,17 +101,31 @@ export function FileField({
   }
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="grid gap-1.5">
       <input
         ref={inputRef}
+        id={id}
+        aria-describedby={describedBy}
         type="file"
         accept={accept}
         disabled={disabled || uploading}
         onChange={onSelect}
-        className="block w-full text-sm text-muted-foreground file:me-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-secondary-foreground hover:file:bg-secondary/80 disabled:opacity-50"
+        className="block w-full text-base text-muted-foreground file:me-3 file:min-h-11 file:cursor-pointer file:rounded-md file:border-[1.5px] file:border-input file:bg-card file:px-4 file:py-2 file:font-semibold file:text-foreground hover:file:border-foreground disabled:opacity-50"
       />
-      {uploading && <p className="text-xs text-muted-foreground">{labels.uploading}</p>}
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      <p role="status" className="text-small text-muted-foreground empty:hidden">
+        {uploading && (
+          <span className="inline-flex items-center gap-1.5">
+            <UploadSimple className="h-4 w-4" />
+            {labels.uploading}
+          </span>
+        )}
+      </p>
+      {error && (
+        <p role="alert" className="flex items-start gap-1.5 text-small font-semibold text-danger">
+          <WarningCircle className="mt-0.5 h-4 w-4 shrink-0" weight="bold" />
+          {error}
+        </p>
+      )}
     </div>
   );
 }

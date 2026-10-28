@@ -40,22 +40,22 @@ export function AnswerSummary({
   const isFileField = (f: FormField) => (FILE_FIELD_TYPES as readonly string[]).includes(f.type);
 
   return (
-    <dl className="flex flex-col divide-y divide-border">
+    <dl className="grid divide-y divide-border">
       {fields.map((field) => {
         const file = isFileField(field) ? files.find((x) => x.fieldId === field.id) : undefined;
         return (
-          <div key={field.id} className="flex flex-col gap-1 py-3">
-            <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <div key={field.id} className="grid gap-1 py-3.5">
+            <dt className="text-small font-semibold text-muted-foreground">
               {field.label ?? field.id}
             </dt>
-            <dd className="text-sm text-foreground">
+            <dd className="break-words text-foreground">
               {isFileField(field) ? (
                 file ? (
                   <a
                     href={`/api/files/${file.id}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-primary hover:underline"
+                    className="font-semibold text-primary underline underline-offset-4 hover:text-primary-hover"
                   >
                     {file.filename}
                   </a>

@@ -18,7 +18,9 @@ export default async function DashboardLayout({
   // keeps the site header and footer it had from the root layout before.
   return (
     <SiteChrome>
-    <div className="container py-8">
+    {/* The site column, capped at the dashboard's old 1180 px until then. */}
+    <div className="container-page py-8">
+    <div className="max-w-[73.75rem]">
       <NavTabs
         tabs={[
           { href: "/dashboard", label: t.guilds },
@@ -26,6 +28,7 @@ export default async function DashboardLayout({
         ]}
       />
       <div className="mt-8">{children}</div>
+    </div>
     </div>
     </SiteChrome>
   );
