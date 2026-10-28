@@ -6,7 +6,7 @@ import tailwind from "@tailwindcss/postcss";
 import postcss from "postcss";
 import { describe, expect, it } from "vitest";
 
-import { brandStyle } from "../lib/branding";
+import { brandProps, GUILD_ACCENT_ATTRIBUTE } from "../lib/branding";
 
 /**
  * The customer branding contract (DESIGN.md, "Customer branding").
@@ -78,13 +78,34 @@ describe("customer branding contract", () => {
     expect(ruleBody(css, utility)).toContain(expected);
   });
 
-  it("brandStyle sets variables that globals.css defines as HSL channels", () => {
-    const style = brandStyle({ accentColor: "#3366cc" }) as Record<string, string>;
-    for (const name of Object.keys(style)) {
-      expect(CSS, `${name} is not a token of globals.css`).toMatch(
-        new RegExp(`${name}:\\s*-?[\\d.]+\\s+[\\d.]+%\\s+[\\d.]+%;`),
-      );
+  it("brandProps sets channels that the accent rule of globals.css reads", () => {
+    const style = brandProps({ accentColor: "#3366cc" }).style as Record<string, string>;
+    for (const [name, value] of Object.entries(style)) {
+      expect(value, name).toMatch(/^-?[\d.]+\s+[\d.]+%\s+[\d.]+%$/);
+      expect(CSS, `${name} is not read by globals.css`).toContain(`var(${name})`);
     }
+  });
+
+  it("maps the accent in a cascade layer, so unlayered custom CSS wins", async () => {
+    // A customer's `.msk-form { --primary: … }` arrives in an unlayered
+    // <style>. It beats the accent (and its readable fallback) only while the
+    // rules that set --primary from the accent sets are inside a layer.
+    const css = await compile([]);
+    const root = postcss.parse(css);
+    const accentRules: postcss.Rule[] = [];
+    root.walkRules((rule) => {
+      if (rule.selector.includes(`[${GUILD_ACCENT_ATTRIBUTE}]`)) accentRules.push(rule);
+    });
+    expect(accentRules.length).toBeGreaterThan(0);
+    for (const rule of accentRules) {
+      let layered = false;
+      for (let p: postcss.Node | undefined = rule.parent as postcss.Node | undefined; p; p = p.parent as postcss.Node | undefined) {
+        if (p.type === "atrule" && (p as postcss.AtRule).name === "layer") layered = true;
+      }
+      expect(layered, `${rule.selector} is not in a cascade layer`).toBe(true);
+    }
+    const setsPrimary = accentRules.filter((rule) => rule.nodes.some((n) => n.type === "decl" && n.prop === "--primary"));
+    expect(setsPrimary.map((r) => r.selector).sort()).toEqual([`.dark [${GUILD_ACCENT_ATTRIBUTE}]`, `[${GUILD_ACCENT_ATTRIBUTE}]`]);
   });
 
   it("no source file reads a theme colour through var(--color-…)", () => {

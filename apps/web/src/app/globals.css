@@ -260,6 +260,47 @@
 }
 
 /* ----------------------------------------------------------------------------
+   Customer accent on the public pages (lib/branding.ts, DESIGN.md)
+   ----------------------------------------------------------------------------
+   `brandProps` puts the guild's accent on the page's wrapper as two sets of
+   channels, one per theme: the customer's colour, or where it fails WCAG
+   contrast in that theme a readable variant of the same hue. These rules map
+   the set of the current theme onto `--primary` and its label.
+
+   In a cascade layer on purpose: a customer's custom CSS is unlayered, so
+   `.msk-form { --primary: … }` wins over the accent and its fallback. And the
+   label follows whichever accent is in effect: where the browser knows
+   relative colours, `--primary-foreground` is computed from `--primary`
+   itself, white below the luminance where both labels read equally well
+   (0.1938) and #0e150e above it, the same choice `labelFor` makes. The
+   per-theme labels from lib/branding.ts are the fallback for older browsers.
+
+   The same text is in lib/guild-accent-css.ts for the custom CSS preview;
+   src/test/css-preview-sync.test.ts holds the two together, and
+   lib/branding.test.ts checks the constants. */
+@layer base {
+  [data-guild-accent] {
+    --primary: var(--guild-accent-light);
+    --primary-foreground: var(--guild-accent-light-label);
+  }
+  .dark [data-guild-accent] {
+    --primary: var(--guild-accent-dark);
+    --primary-foreground: var(--guild-accent-dark-label);
+  }
+  .msk-form,
+  [data-guild-accent] {
+    --ring: var(--primary);
+  }
+  @supports (color: hsl(from red h s l)) {
+    .msk-form,
+    [data-guild-accent],
+    .dark [data-guild-accent] {
+      --primary-foreground: from color(from hsl(var(--primary)) xyz-d65 calc(0.0053 + 0.9452 * clamp(0, (0.1938 - y) * 1000000, 1)) calc(0.0066 + 0.9934 * clamp(0, (0.1938 - y) * 1000000, 1)) calc(0.0052 + 1.0839 * clamp(0, (0.1938 - y) * 1000000, 1))) h s l;
+    }
+  }
+}
+
+/* ----------------------------------------------------------------------------
    Layout tokens
    ----------------------------------------------------------------------------
    Column, gutter, card minimum and rhythm grow with the window through

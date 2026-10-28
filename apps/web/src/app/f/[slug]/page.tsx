@@ -2,8 +2,6 @@ import { cookies, headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import Script from "next/script";
 
-import type { CSSProperties } from "react";
-
 import {
   experimentActive,
   formScheduleStatus,
@@ -20,7 +18,7 @@ import { LocalDateTime } from "@/components/public/local-datetime";
 import { PoweredBy } from "@/components/public/powered-by";
 import { experimentCookieName } from "@/lib/experiment";
 import { getCurrentUser } from "@/lib/auth";
-import { brandStyle, logoUrl, parseBranding } from "@/lib/branding";
+import { brandProps, logoUrl, parseBranding, type BrandProps } from "@/lib/branding";
 import { getGuildCaptchaSiteKey } from "@/lib/guild-captcha";
 import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 import { isGuildPro } from "@/lib/plan";
@@ -56,13 +54,13 @@ export default async function PublicFormPage({
   const loginHref = `/api/auth/discord/login?returnTo=${encodeURIComponent(`/f/${slug}`)}`;
 
   const branding = parseBranding(form.guild.branding);
-  const brand = brandStyle(branding);
+  const brand = brandProps(branding);
   const logo = logoUrl(form.guildId, branding);
   const badge = (await isGuildPro(form.guildId)) ? null : <PoweredBy label={t.poweredBy} />;
 
   if (form.status !== "live") {
     return (
-      <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
+      <Shell guildName={form.guild.name} title={form.title} brand={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
         <p className="text-sm text-muted-foreground">{t.notAccepting}</p>
       </Shell>
     );
@@ -84,7 +82,7 @@ export default async function PublicFormPage({
   if (schedule.state === "scheduled") {
     const showCountdown = parseFormSettings(form.settings).showCountdown === true;
     return (
-      <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
+      <Shell guildName={form.guild.name} title={form.title} brand={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
         {showCountdown ? (
           <Countdown targetIso={form.openAt!.toISOString()} label={t.opensIn} celebrate />
         ) : (
@@ -97,7 +95,7 @@ export default async function PublicFormPage({
   }
   if (schedule.state === "closed") {
     return (
-      <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
+      <Shell guildName={form.guild.name} title={form.title} brand={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
         <p className="text-sm text-muted-foreground">{t.closedAt}</p>
       </Shell>
     );
@@ -106,7 +104,7 @@ export default async function PublicFormPage({
   if (form.visibility === "authenticated") {
     if (!user) {
       return (
-        <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
+        <Shell guildName={form.guild.name} title={form.title} brand={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
           <p className="text-sm text-muted-foreground">{t.needLogin}</p>
           <a
             href={loginHref}
@@ -121,7 +119,7 @@ export default async function PublicFormPage({
 
   if (form.visibility === "password" || form.visibility === "role_required") {
     return (
-      <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
+      <Shell guildName={form.guild.name} title={form.title} brand={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
         <p className="text-sm text-muted-foreground">{t.accessRestricted}</p>
       </Shell>
     );
@@ -151,7 +149,7 @@ export default async function PublicFormPage({
   }
 
   return (
-    <Shell guildName={form.guild.name} title={title} description={description} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
+    <Shell guildName={form.guild.name} title={title} description={description} brand={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
       {variantId && <ExperimentView slug={form.slug} variant={variantId} />}
       {siteKey && (
         <Script
@@ -207,7 +205,7 @@ function Shell({
   title,
   description,
   children,
-  style,
+  brand,
   logoSrc,
   customCss,
   poweredBy,
@@ -216,13 +214,13 @@ function Shell({
   title: string;
   description?: string | null;
   children: React.ReactNode;
-  style?: CSSProperties;
+  brand: BrandProps;
   logoSrc?: string | null;
   customCss?: string;
   poweredBy?: React.ReactNode;
 }) {
   return (
-    <main className="msk-form pwa-safe-x pwa-safe-b mx-auto flex max-w-2xl flex-col gap-6 pt-12" style={style}>
+    <main className="msk-form pwa-safe-x pwa-safe-b mx-auto flex max-w-2xl flex-col gap-6 pt-12" {...brand}>
       <CustomCss css={customCss} />
       <header className="flex flex-col gap-1">
         {logoSrc && <img src={logoSrc} alt="" className="mb-2 h-12 w-auto self-start" />}

@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { PREVIEW_BASE_CSS } from "../components/branding/css-preview-base";
+import { brandVariables } from "../lib/branding";
+import { GUILD_ACCENT_CSS } from "../lib/guild-accent-css";
 
-import { blockDeclarations, sourceTokens } from "./tokens";
+import { blockDeclarations, GLOBALS_CSS, sourceTokens } from "./tokens";
 
 /**
  * The custom CSS preview on the branding page renders in a sandboxed iframe
@@ -25,7 +27,23 @@ describe("custom CSS preview", () => {
   });
 
   it("declares every variable its rules read", () => {
+    // The accent sets come inline on the wrapper, as brandVariables builds them.
+    const inline = Object.keys(brandVariables("#3366cc")!).map((name) => name.slice(2));
     const read = [...PREVIEW_BASE_CSS.matchAll(/var\(--([a-z0-9-]+)\)/g)].map(([, name]) => name!);
-    expect([...new Set(read)].filter((name) => !(name in preview.light))).toEqual([]);
+    expect([...new Set(read)].filter((name) => !(name in preview.light) && !inline.includes(name))).toEqual([]);
+  });
+
+  it("maps the accent with the same rules as globals.css, in a layer", () => {
+    // Whitespace and comments aside, the text must be identical, so the
+    // preview shows the readable fallback and lets custom CSS win as the
+    // live page does.
+    const normalise = (css: string) =>
+      css
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(/\s+/g, " ")
+        .replace(/\s*([{};:,])\s*/g, "$1")
+        .trim();
+    expect(normalise(GLOBALS_CSS)).toContain(normalise(`@layer base {${GUILD_ACCENT_CSS}}`));
+    expect(normalise(PREVIEW_BASE_CSS)).toContain(normalise(`@layer base {${GUILD_ACCENT_CSS}}`));
   });
 });

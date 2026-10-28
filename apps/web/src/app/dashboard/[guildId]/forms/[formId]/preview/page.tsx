@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 import { CustomCss } from "@/components/branding/custom-css";
 import { FormRenderer } from "@/components/form/form-renderer";
 import { requireUser } from "@/lib/auth";
-import { brandStyle, logoUrl, parseBranding } from "@/lib/branding";
+import { brandProps, logoUrl, parseBranding } from "@/lib/branding";
 import { getFormForEdit, parseFormSpec } from "@/lib/forms";
 import { canManageForm } from "@/lib/guild";
 import { getDict } from "@/i18n";
@@ -49,11 +49,11 @@ export default async function FormPreviewPage({
     select: { name: true, branding: true },
   });
   const branding = parseBranding(guild?.branding);
-  const brand = brandStyle(branding);
+  const brand = brandProps(branding);
   const logo = logoUrl(guildId, branding);
 
   return (
-    <main className="msk-form mx-auto flex max-w-2xl flex-col gap-6" style={brand}>
+    <main className="msk-form mx-auto flex max-w-2xl flex-col gap-6" {...brand}>
       <CustomCss css={branding.customCss} />
 
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2">

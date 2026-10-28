@@ -5,7 +5,7 @@ import Link from "next/link";
 import { CustomCss } from "@/components/branding/custom-css";
 import { Countdown } from "@/components/public/countdown";
 import { LocalDateTime } from "@/components/public/local-datetime";
-import { brandStyle, logoUrl, parseBranding } from "@/lib/branding";
+import { brandProps, logoUrl, parseBranding } from "@/lib/branding";
 
 export interface HubForm {
   slug: string;
@@ -57,7 +57,7 @@ export function GuildFormsHub({
   labels: HubLabels;
 }) {
   const branding = parseBranding(guild.branding);
-  const brand = brandStyle(branding);
+  const brand = brandProps(branding);
   const logo = logoUrl(guild.id, branding);
   const now = new Date();
 
@@ -81,7 +81,7 @@ export function GuildFormsHub({
   }
 
   return (
-    <main className="msk-form mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12" style={brand}>
+    <main className="msk-form mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12" {...brand}>
       <CustomCss css={branding.customCss} />
       <header className="flex flex-col gap-2">
         {logo && <img src={logo} alt="" className="mb-2 h-12 w-auto self-start" />}

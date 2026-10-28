@@ -1,6 +1,20 @@
 import { brandingSchema, type Branding } from "@msk-forms/shared";
 import type { CSSProperties } from "react";
 
+import {
+  channelsToHex,
+  contrastRatio,
+  hexToRgb,
+  hslChannels,
+  hslToRgb,
+  mixOklab,
+  rgbToHex,
+  rgbToHsl,
+  type Hsl,
+} from "./color";
+
+export { contrastRatio } from "./color";
+
 /** Parse a stored Guild.branding JSON blob, falling back to empty branding. */
 export function parseBranding(json: unknown): Branding {
   const result = brandingSchema.safeParse(json);
@@ -18,82 +32,158 @@ export function logoUrl(guildId: string, branding: Branding): string | null {
 
 /**
  * Convert `#rrggbb` to the `H S% L%` channel triplet used by the theme's HSL
- * tokens (e.g. `--primary: 161 94% 30%`). Returns null for malformed input.
+ * tokens (e.g. `--primary: 125.3 50.3% 30.8%`), one decimal like the tokens
+ * in globals.css. Returns null for malformed input.
  */
 export function hexToHslChannels(hex: string): string | null {
-  const match = /^#([0-9a-fA-F]{6})$/.exec(hex);
-  if (!match) return null;
-  const int = parseInt(match[1]!, 16);
-  const r = ((int >> 16) & 255) / 255;
-  const g = ((int >> 8) & 255) / 255;
-  const b = (int & 255) / 255;
+  const rgb = hexToRgb(hex);
+  return rgb ? hslChannels(rgbToHsl(rgb)) : null;
+}
 
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  const l = (max + min) / 2;
-  const d = max - min;
+// ── Readable fallback accent ────────────────────────────────────────────────
+//
+// A customer's accent is one colour for both themes, and one colour cannot
+// read well on both a near-white and a near-black ground: yellow vanishes as
+// link text on white, navy on anthracite. Where the accent fails, that theme
+// gets a variant of the same hue and saturation with its lightness moved until
+// it passes: darker in light, lighter in dark.
+//
+// On the public pages `--primary` is link text and kicker as well as the fill
+// of the main button, so the text threshold of WCAG 2.2 (4.5:1) decides; the
+// 3:1 for fills and focus rings is met on the way. It is measured against
+// every surface the accent sits on in that theme: the ground, a card and the
+// accent's own soft surface (`accent-soft` in globals.css).
 
-  let h = 0;
-  let s = 0;
-  if (d !== 0) {
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
-    else if (max === g) h = (b - r) / d + 2;
-    else h = (r - g) / d + 4;
-    h /= 6;
-  }
-  return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+export type Theme = "light" | "dark";
+
+/** WCAG 2.2 AA for text (1.4.3) and for UI components and focus (1.4.11). */
+export const TEXT_CONTRAST = 4.5;
+export const UI_CONTRAST = 3;
+
+/**
+ * A fallback is not searched to the edge of the threshold: 8-bit rounding and
+ * the soft surface's mix would put it back below. DESIGN.md asks for about
+ * 4.6:1 when a colour is chosen by computing.
+ */
+const MARGIN = 0.1;
+
+/**
+ * The surfaces of each theme, from the source tokens of globals.css
+ * (`--background`, `--card`, `--accent-soft-amount`). The branding test reads
+ * globals.css and fails when these drift.
+ */
+export const THEME_SURFACES: Record<Theme, { background: string; card: string; softAmount: number }> = {
+  light: { background: "#f6f6f4", card: "#ffffff", softAmount: 0.07 },
+  dark: { background: "#18191b", card: "#212225", softAmount: 0.1 },
+};
+
+/** Lowest contrast of an accent against the surfaces it sits on in a theme. */
+export function accentContrast(hex: string, theme: Theme): number {
+  const { background, card, softAmount } = THEME_SURFACES[theme];
+  const soft = mixOklab(hex, background, softAmount);
+  return Math.min(contrastRatio(hex, background), contrastRatio(hex, card), contrastRatio(hex, soft));
 }
 
 /**
- * Labels a customer accent can carry: white, or the near-black label of the
- * dark theme (#0e150e). The accent is the same in both themes, so its label
- * is chosen from the colour itself, not from the theme: the theme's own
- * `--primary-foreground` is white in light and dark in dark.
+ * The accent a theme shows: the customer's own colour where it reaches `min`
+ * on every surface of the theme, else the nearest variant of the same hue and
+ * saturation that does, with a small margin. Works on the one-decimal channel
+ * triplet the page receives, so what is measured here is what is painted.
  */
-const LABELS = [
+export function readableAccent(hex: string, theme: Theme, min: number = TEXT_CONTRAST): Hsl {
+  const rgb = hexToRgb(hex);
+  if (!rgb) throw new Error(`not a #rrggbb colour: ${hex}`);
+  const round = (v: number) => Math.round(v * 10) / 10;
+  const own = rgbToHsl(rgb);
+  const start: Hsl = { h: round(own.h), s: round(own.s), l: round(own.l) };
+  const paint = (hsl: Hsl) => rgbToHex(hslToRgb(hsl));
+
+  if (accentContrast(paint(start), theme) >= min) return start;
+
+  // Darker on the light ground, lighter on the dark one: each step only adds
+  // contrast there. Black and white pass on every surface, so this ends.
+  const step = theme === "light" ? -0.1 : 0.1;
+  const target = min + MARGIN;
+  for (let l = start.l; l >= 0 && l <= 100; l = round(l + step)) {
+    const candidate = { ...start, l };
+    if (accentContrast(paint(candidate), theme) >= target) return candidate;
+  }
+  return { ...start, l: theme === "light" ? 0 : 100 };
+}
+
+/**
+ * Labels an accent can carry: white, or the near-black label of the dark
+ * theme (#0e150e). The accent differs from MSK green, so its label is chosen
+ * from the colour itself, not from the theme.
+ */
+export const LABELS = [
   { hex: "#ffffff", channels: "0 0% 100%" },
   { hex: "#0e150e", channels: "120 20% 6.9%" },
 ] as const;
 
-function luminance(hex: string): number {
-  const int = parseInt(hex.slice(1), 16);
-  const [r, g, b] = [(int >> 16) & 255, (int >> 8) & 255, int & 255].map((v) => {
-    const c = v / 255;
-    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-  });
-  return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!;
+/** Whichever label reads better on `hex`; white on a tie. */
+export function labelFor(hex: string): (typeof LABELS)[number] {
+  return contrastRatio(LABELS[0].hex, hex) >= contrastRatio(LABELS[1].hex, hex) ? LABELS[0] : LABELS[1];
 }
 
-/** WCAG 2.2 contrast ratio of two `#rrggbb` colours. */
-export function contrastRatio(a: string, b: string): number {
-  const [x, y] = [luminance(a), luminance(b)];
-  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+export interface AccentSet {
+  /** HSL channels of the accent the theme shows. */
+  accent: string;
+  /** HSL channels of the label on it. */
+  label: string;
+  /** True when the customer's colour failed in this theme and was adjusted. */
+  adjusted: boolean;
+}
+
+/** The accent and its label per theme, or null for malformed input. */
+export function accentSets(hex: string): Record<Theme, AccentSet> | null {
+  if (!hexToRgb(hex)) return null;
+  const own = hexToHslChannels(hex)!;
+  const set = (theme: Theme): AccentSet => {
+    const accent = hslChannels(readableAccent(hex, theme));
+    return { accent, label: labelFor(channelsToHex(accent)!).channels, adjusted: accent !== own };
+  };
+  return { light: set("light"), dark: set("dark") };
 }
 
 /**
- * The CSS variables a customer accent sets on a branded wrapper, as HSL
- * channels: the accent itself as `--primary` and `--ring`, and as
- * `--primary-foreground` whichever label reads better on it. Hover fill and
- * soft surface derive from `--primary` in globals.css. Null for malformed
- * input.
+ * The CSS variables a customer accent sets on a branded wrapper: the accent
+ * and its label for each theme, as HSL channels. A rule in globals.css (and
+ * its copy in the custom CSS preview) maps the set of the current theme onto
+ * `--primary`, `--primary-foreground` and `--ring`. That rule sits in a
+ * cascade layer, so a customer's own custom CSS, which is unlayered, wins
+ * over it; setting `--primary` inline here would beat the custom CSS
+ * instead. Hover fill and soft surface derive from `--primary`. Null for
+ * malformed input.
  */
 export function brandVariables(hex: string): Record<string, string> | null {
-  const channels = hexToHslChannels(hex);
-  if (!channels) return null;
-  const [white, dark] = LABELS.map((label) => contrastRatio(label.hex, hex));
-  const label = white! >= dark! ? LABELS[0] : LABELS[1];
-  return { "--primary": channels, "--primary-foreground": label.channels, "--ring": channels };
+  const sets = accentSets(hex);
+  if (!sets) return null;
+  return {
+    "--guild-accent-light": sets.light.accent,
+    "--guild-accent-light-label": sets.light.label,
+    "--guild-accent-dark": sets.dark.accent,
+    "--guild-accent-dark-label": sets.dark.label,
+  };
+}
+
+/** The data attribute the accent rule of globals.css selects on. */
+export const GUILD_ACCENT_ATTRIBUTE = "data-guild-accent";
+
+export interface BrandProps {
+  style?: CSSProperties;
+  [GUILD_ACCENT_ATTRIBUTE]?: "";
 }
 
 /**
- * Inline style that sets the guild's accent on a wrapper. Because CSS custom
+ * Props that put the guild's accent on a wrapper: the variables above and the
+ * attribute the rule selects on. Spread onto the element. Because custom
  * properties cascade and every colour utility resolves them on the element
- * (`@theme inline` in globals.css), everything accent-coloured inside the
- * wrapper adopts the brand colour, no component edits.
+ * (`@theme inline` in globals.css), everything accent-coloured inside takes
+ * the brand colour, no component edits. Empty without an accent.
  */
-export function brandStyle(branding: Branding): CSSProperties | undefined {
-  if (!branding.accentColor) return undefined;
+export function brandProps(branding: Branding): BrandProps {
+  if (!branding.accentColor) return {};
   const vars = brandVariables(branding.accentColor);
-  return vars ? (vars as CSSProperties) : undefined;
+  return vars ? { style: vars as CSSProperties, [GUILD_ACCENT_ATTRIBUTE]: "" } : {};
 }

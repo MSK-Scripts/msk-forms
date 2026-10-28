@@ -9,7 +9,7 @@ import { isGuildPro } from "@/lib/plan";
 import { AnswerSummary } from "@/components/submission/answer-summary";
 import { StatusLive } from "@/components/submission/status-live";
 import { SubmissionActions } from "@/components/submission/submission-actions";
-import { brandStyle, logoUrl, parseBranding } from "@/lib/branding";
+import { brandProps, logoUrl, parseBranding } from "@/lib/branding";
 import { getSubmissionForStatus, resolveStatus } from "@/lib/forms";
 import { getDict } from "@/i18n";
 
@@ -46,12 +46,12 @@ export default async function SubmissionStatusPage({
   const status = resolveStatus(lastVisibleStatus, submission.statusDefs, dict.statusLabels);
   const answers = (submission.answers ?? {}) as Record<string, unknown>;
   const branding = parseBranding(submission.form.guild.branding);
-  const brand = brandStyle(branding);
+  const brand = brandProps(branding);
   const showBadge = !(await isGuildPro(submission.form.guildId));
   const logo = logoUrl(submission.form.guildId, branding);
 
   return (
-    <main className="msk-form pwa-safe-x pwa-safe-b mx-auto flex max-w-2xl flex-col gap-6 pt-12" style={brand}>
+    <main className="msk-form pwa-safe-x pwa-safe-b mx-auto flex max-w-2xl flex-col gap-6 pt-12" {...brand}>
       <CustomCss css={branding.customCss} />
       <StatusLive submissionId={submission.id} />
       <header className="flex flex-col gap-3">
