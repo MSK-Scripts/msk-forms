@@ -21,7 +21,7 @@ describe("kit copy", () => {
     const switcher: GuildSwitcherCopy = dict.kit.guildSwitcher;
     const copyField: CopyFieldCopy = dict.kit.copyField;
     const saveBar: SaveBarCopy = dict.kit.saveBar;
-    const all = strings([shell, switcher, copyField, saveBar, dict.kit.breadcrumb, dict.kit.dismiss, dict.kit.cancel]);
+    const all = strings([shell, switcher, copyField, saveBar, dict.kit.breadcrumb, dict.kit.dismiss]);
     expect(all.filter((s) => s.trim() === "")).toEqual([]);
   });
 

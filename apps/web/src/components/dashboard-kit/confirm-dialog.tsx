@@ -41,7 +41,7 @@ export function ConfirmDialog({
   description: ReactNode;
   /** Verb and object: "Delete form". */
   confirmLabel: string;
-  /** `kit.cancel` of the dictionary, unless the page has a better word. */
+  /** The page's word for backing out, "Cancel" in most places. */
   cancelLabel: string;
   tone?: "danger" | "primary";
   /** The action is running; the button shows it and both stay disabled. */
