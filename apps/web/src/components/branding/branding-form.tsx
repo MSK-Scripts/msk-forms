@@ -5,10 +5,9 @@ import { useRouter } from "next/navigation";
 import { useId, useMemo, useState } from "react";
 
 import { CssPreview } from "@/components/branding/css-preview";
-import { FormField, FormSection } from "@/components/dashboard-kit";
+import { ColorField, FormField, FormSection, HEX_COLOR } from "@/components/dashboard-kit";
 import { ArrowCounterClockwise, Plus } from "@/components/icons";
 import { ProNotice } from "@/components/pro-notice";
-import { ColorField, HEX_COLOR } from "@/components/settings/color-field";
 import { SettingsSaveBar, type SaveResult, type SettingsSaveCopy } from "@/components/settings/settings-save-bar";
 import { Button } from "@/components/ui/button";
 import { fieldClassName } from "@/components/ui/input";

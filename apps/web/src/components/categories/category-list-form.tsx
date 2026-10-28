@@ -5,14 +5,13 @@ import { ColorDot } from "@msk-forms/ui";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-import { EmptyState, FormField, FormSection } from "@/components/dashboard-kit";
+import { ColorField, EmptyState, FormField, FormSection, HEX_COLOR } from "@/components/dashboard-kit";
 import { ArrowDown, ArrowUp, Plus, Trash } from "@/components/icons";
-import { ColorField, HEX_COLOR } from "@/components/settings/color-field";
 import { SettingsSaveBar, type SaveResult, type SettingsSaveCopy } from "@/components/settings/settings-save-bar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { dotColors } from "@/lib/color-dot";
 import type { Dictionary } from "@/i18n";
+import { dotColors } from "@/lib/color-dot";
 
 type CategoriesDict = Dictionary["dashboard"]["categories"];
 

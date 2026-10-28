@@ -9,9 +9,8 @@ import {
 } from "@msk-forms/shared";
 import { useId } from "react";
 
-import { CheckboxField } from "@/components/builder/checkbox-field";
 import { ConditionEditor } from "@/components/builder/condition-editor";
-import { FormField as KitField } from "@/components/dashboard-kit";
+import { Checkbox, FormField as KitField } from "@/components/dashboard-kit";
 import { Plus, X } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { fieldClassName, Input } from "@/components/ui/input";
@@ -375,7 +374,7 @@ export function FieldEditor({ field, fields, pages, onChange, onChangeType, t }:
             )}
 
             {!needsFormula(field.type) && (
-              <CheckboxField
+              <Checkbox
                 label={t.required}
                 checked={field.validation.required}
                 onChange={(required) => patch({ validation: { ...field.validation, required } })}

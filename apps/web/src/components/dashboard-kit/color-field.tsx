@@ -2,8 +2,9 @@
 
 import { useState, type ReactNode } from "react";
 
-import { FormField } from "@/components/dashboard-kit";
 import { Input } from "@/components/ui/input";
+
+import { FormField } from "./form-field";
 
 /** A colour as the API stores it: `#rrggbb`. */
 export const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;

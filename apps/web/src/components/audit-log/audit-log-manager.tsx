@@ -9,6 +9,7 @@ import {
 import { useId, useState, type FormEvent } from "react";
 
 import {
+  Checkbox,
   ConfirmDialog,
   EmptyState,
   FormField,
@@ -134,18 +135,12 @@ function ActionPicker({
                   <p className="max-w-[65ch] text-small text-muted-foreground">{t.securityHint}</p>
                 )}
                 {actions.map((action) => (
-                  <label
+                  <Checkbox
                     key={action}
-                    className="flex min-h-11 w-fit cursor-pointer items-center gap-3"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={value.has(action)}
-                      onChange={() => setMany([action], !value.has(action))}
-                      className="h-5 w-5 shrink-0 accent-primary"
-                    />
-                    <span>{t.actions[action]}</span>
-                  </label>
+                    label={t.actions[action]}
+                    checked={value.has(action)}
+                    onChange={(on) => setMany([action], on)}
+                  />
                 ))}
               </fieldset>
             </div>

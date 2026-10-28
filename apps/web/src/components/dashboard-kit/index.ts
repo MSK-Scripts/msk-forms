@@ -13,6 +13,8 @@
  * @msk-forms/ui. `ConfirmDialog` here is the only confirmation dialog.
  */
 export { AppShell, type ShellAccount, type ShellCopy } from "./app-shell";
+export { Checkbox } from "./checkbox";
+export { ColorField, HEX_COLOR } from "./color-field";
 export { ConfirmDialog } from "./confirm-dialog";
 export { CopyField, type CopyFieldCopy } from "./copy-field";
 export { DataTable, type DataColumn } from "./data-table";

@@ -4,14 +4,13 @@ import type { StatusDefInput } from "@msk-forms/shared";
 import { SubmissionStatusBadge } from "@msk-forms/ui";
 import { useEffect, useRef, useState } from "react";
 
-import { EmptyState, FormField, FormSection } from "@/components/dashboard-kit";
+import { Checkbox, ColorField, EmptyState, FormField, FormSection, HEX_COLOR } from "@/components/dashboard-kit";
 import { Plus, Trash } from "@/components/icons";
-import { ColorField, HEX_COLOR } from "@/components/settings/color-field";
 import { SettingsSaveBar, type SaveResult, type SettingsSaveCopy } from "@/components/settings/settings-save-bar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { dotColors } from "@/lib/color-dot";
 import type { Dictionary } from "@/i18n";
+import { dotColors } from "@/lib/color-dot";
 
 type StatusesDict = Dictionary["dashboard"]["statuses"];
 
@@ -191,24 +190,16 @@ export function StatusDefsForm({
                           fallback={NEW_STATUS_COLOR}
                         />
                         <div className="flex flex-wrap gap-x-6">
-                          <label className="flex min-h-11 items-center gap-3">
-                            <input
-                              type="checkbox"
-                              checked={row.isTerminal}
-                              onChange={(e) => patch(i, { isTerminal: e.target.checked })}
-                              className="h-5 w-5 shrink-0 accent-primary"
-                            />
-                            {t.terminal}
-                          </label>
-                          <label className="flex min-h-11 items-center gap-3">
-                            <input
-                              type="checkbox"
-                              checked={row.visibleToApplicant}
-                              onChange={(e) => patch(i, { visibleToApplicant: e.target.checked })}
-                              className="h-5 w-5 shrink-0 accent-primary"
-                            />
-                            {t.visible}
-                          </label>
+                          <Checkbox
+                            label={t.terminal}
+                            checked={row.isTerminal}
+                            onChange={(isTerminal) => patch(i, { isTerminal })}
+                          />
+                          <Checkbox
+                            label={t.visible}
+                            checked={row.visibleToApplicant}
+                            onChange={(visibleToApplicant) => patch(i, { visibleToApplicant })}
+                          />
                         </div>
                         <Button
                           ref={(el) => {

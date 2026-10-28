@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { Checkbox } from "@/components/dashboard-kit";
 import { ArrowSquareOut, CircleNotch, WarningCircle } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -80,21 +81,17 @@ export function DpaGate({
         <ArrowSquareOut className="h-4 w-4 shrink-0" />
       </a>
 
-      <label className="flex min-h-11 cursor-pointer items-start gap-3 py-2">
-        <input
-          type="checkbox"
-          checked={checked}
-          disabled={busy}
-          aria-invalid={error === t.dpaUnchecked ? true : undefined}
-          aria-describedby={error ? errorId : undefined}
-          onChange={(e) => {
-            setChecked(e.target.checked);
-            if (e.target.checked) setError(null);
-          }}
-          className="mt-1 h-5 w-5 shrink-0 cursor-pointer accent-primary disabled:cursor-not-allowed"
-        />
-        <span className="max-w-[65ch]">{t.dpaCheckbox}</span>
-      </label>
+      <Checkbox
+        label={t.dpaCheckbox}
+        checked={checked}
+        disabled={busy}
+        invalid={error === t.dpaUnchecked}
+        describedBy={error ? errorId : undefined}
+        onChange={(on) => {
+          setChecked(on);
+          if (on) setError(null);
+        }}
+      />
 
       {error && (
         <p id={errorId} role="alert" className="flex items-start gap-1.5 text-small font-semibold text-danger">

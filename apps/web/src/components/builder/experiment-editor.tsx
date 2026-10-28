@@ -3,8 +3,7 @@
 import type { Experiment, ExperimentVariant } from "@msk-forms/shared";
 import { useId } from "react";
 
-import { CheckboxField } from "@/components/builder/checkbox-field";
-import { FormField as KitField } from "@/components/dashboard-kit";
+import { Checkbox, FormField as KitField } from "@/components/dashboard-kit";
 import { Plus, X } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { fieldClassName, Input } from "@/components/ui/input";
@@ -56,7 +55,7 @@ export function ExperimentEditor({
 
   return (
     <div className="@container grid gap-4">
-      <CheckboxField label={t.enable} checked={experiment.enabled} onChange={setEnabled} />
+      <Checkbox label={t.enable} checked={experiment.enabled} onChange={setEnabled} />
 
       {experiment.enabled && (
         <>

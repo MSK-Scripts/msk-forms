@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { FormSection, Notice } from "@/components/dashboard-kit";
+import { Checkbox, FormSection, Notice } from "@/components/dashboard-kit";
 
 /**
  * Owner-only switch: may admins permanently delete archived forms? Saves on
@@ -47,17 +47,7 @@ export function FormDeletionSetting({
 
   return (
     <FormSection title={t.title} description={t.hint}>
-      <label className="flex min-h-11 w-fit cursor-pointer items-center gap-3">
-        <input
-          id="admins-can-delete-forms"
-          type="checkbox"
-          checked={allowed}
-          disabled={busy}
-          onChange={toggle}
-          className="h-5 w-5 shrink-0 accent-primary"
-        />
-        <span>{t.label}</span>
-      </label>
+      <Checkbox id="admins-can-delete-forms" label={t.label} checked={allowed} disabled={busy} onChange={toggle} />
       {message && (
         <Notice
           tone={message.ok ? "success" : "danger"}

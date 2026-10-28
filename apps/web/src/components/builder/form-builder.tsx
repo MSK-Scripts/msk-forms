@@ -15,11 +15,11 @@ import { useEffect, useId, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 
 import { AutomationsEditor } from "@/components/builder/automations-editor";
-import { CheckboxField } from "@/components/builder/checkbox-field";
 import { ExperimentEditor } from "@/components/builder/experiment-editor";
 import { FieldEditor } from "@/components/builder/field-editor";
 import { FieldOutline } from "@/components/builder/field-outline";
 import {
+  Checkbox,
   EmptyState,
   FormField as KitField,
   FormSection,
@@ -662,7 +662,7 @@ export function FormBuilder({
                 )}
               </KitField>
             </div>
-            <CheckboxField
+            <Checkbox
               label={t.countdownLabel}
               hint={t.countdownHint}
               checked={showCountdown}
@@ -697,7 +697,7 @@ export function FormBuilder({
           </FormSection>
 
           <FormSection title={t.submissionsTitle} description={t.submissionsIntro}>
-            <CheckboxField
+            <Checkbox
               label={t.singleSubmissionLabel}
               hint={t.singleSubmissionHint}
               checked={singleSubmission}

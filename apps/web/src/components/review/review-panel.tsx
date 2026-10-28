@@ -1,9 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useId, useState } from "react";
+import { useState } from "react";
 
-import { FormField, Notice, SectionCard } from "@/components/dashboard-kit";
+import { Checkbox, FormField, Notice, SectionCard } from "@/components/dashboard-kit";
 import { CircleNotch } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { fieldClassName } from "@/components/ui/input";
@@ -40,7 +40,6 @@ export function ReviewPanel({
   dismissLabel: string;
 }) {
   const router = useRouter();
-  const hideId = useId();
   const [status, setStatus] = useState(currentStatus);
   const [hidden, setHidden] = useState(false);
   const [note, setNote] = useState("");
@@ -120,21 +119,12 @@ export function ReviewPanel({
           )}
         </FormField>
 
-        <div className="grid gap-1">
-          <label className="flex min-h-11 items-center gap-3 font-semibold">
-            <input
-              type="checkbox"
-              checked={hidden}
-              onChange={(e) => setHidden(e.target.checked)}
-              aria-describedby={`${hideId}-hint`}
-              className="h-5 w-5 shrink-0 accent-primary"
-            />
-            {t.hideFromApplicant}
-          </label>
-          <p id={`${hideId}-hint`} className="ps-8 text-small text-muted-foreground">
-            {t.hideFromApplicantHint}
-          </p>
-        </div>
+        <Checkbox
+          label={t.hideFromApplicant}
+          hint={t.hideFromApplicantHint}
+          checked={hidden}
+          onChange={setHidden}
+        />
 
         {!hidden && (
           <FormField label={t.statusMessageLabel} hint={t.statusMessageHint}>

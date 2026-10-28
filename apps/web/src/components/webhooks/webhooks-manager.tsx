@@ -4,6 +4,7 @@ import { WEBHOOK_EVENTS, type WebhookEvent, type WebhookFormat } from "@msk-form
 import { useId, useState, type FormEvent } from "react";
 
 import {
+  Checkbox,
   ConfirmDialog,
   CopyField,
   EmptyState,
@@ -232,15 +233,12 @@ export function WebhooksManager({
           <fieldset className="grid gap-1">
             <legend className="mb-1 font-semibold">{t.events}</legend>
             {WEBHOOK_EVENTS.map((event) => (
-              <label key={event} className="flex min-h-11 w-fit cursor-pointer items-center gap-3">
-                <input
-                  type="checkbox"
-                  checked={events.has(event)}
-                  onChange={() => toggleEvent(event)}
-                  className="h-5 w-5 shrink-0 accent-primary"
-                />
-                <span>{eventLabel(event, t)}</span>
-              </label>
+              <Checkbox
+                key={event}
+                label={eventLabel(event, t)}
+                checked={events.has(event)}
+                onChange={() => toggleEvent(event)}
+              />
             ))}
           </fieldset>
 
