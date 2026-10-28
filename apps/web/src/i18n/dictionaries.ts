@@ -896,7 +896,7 @@ const en = {
     close: "Close",
     shell: {
       nav: "Dashboard", mobileNav: "Shortcuts", menuOpen: "Open menu", menuClose: "Close menu",
-      backToSite: "Back to the website", signOut: "Log out", language: "Language",
+      account: "Account", backToSite: "Back to the website", signOut: "Log out", language: "Language",
       theme: { group: "Appearance", system: "System", light: "Light", dark: "Dark" },
     },
     guildSwitcher: {
@@ -1801,7 +1801,7 @@ const de: Dictionary = {
     close: "Schließen",
     shell: {
       nav: "Dashboard", mobileNav: "Schnellzugriff", menuOpen: "Menü öffnen", menuClose: "Menü schließen",
-      backToSite: "Zurück zur Website", signOut: "Abmelden", language: "Sprache",
+      account: "Konto", backToSite: "Zurück zur Website", signOut: "Abmelden", language: "Sprache",
       theme: { group: "Darstellung", system: "System", light: "Hell", dark: "Dunkel" },
     },
     guildSwitcher: {
@@ -2701,7 +2701,7 @@ const hu: Dictionary = {
     close: "Bezárás",
     shell: {
       nav: "Vezérlőpult", mobileNav: "Gyorselérés", menuOpen: "Menü megnyitása", menuClose: "Menü bezárása",
-      backToSite: "Vissza a weboldalra", signOut: "Kijelentkezés", language: "Nyelv",
+      account: "Fiók", backToSite: "Vissza a weboldalra", signOut: "Kijelentkezés", language: "Nyelv",
       theme: { group: "Megjelenés", system: "Rendszer", light: "Világos", dark: "Sötét" },
     },
     guildSwitcher: {
@@ -3601,7 +3601,7 @@ const fr: Dictionary = {
     close: "Fermer",
     shell: {
       nav: "Tableau de bord", mobileNav: "Accès rapide", menuOpen: "Ouvrir le menu", menuClose: "Fermer le menu",
-      backToSite: "Retour au site", signOut: "Déconnexion", language: "Langue",
+      account: "Compte", backToSite: "Retour au site", signOut: "Déconnexion", language: "Langue",
       theme: { group: "Apparence", system: "Système", light: "Clair", dark: "Sombre" },
     },
     guildSwitcher: {
@@ -4502,7 +4502,7 @@ const es: Dictionary = {
     close: "Cerrar",
     shell: {
       nav: "Panel", mobileNav: "Accesos rápidos", menuOpen: "Abrir menú", menuClose: "Cerrar menú",
-      backToSite: "Volver al sitio web", signOut: "Cerrar sesión", language: "Idioma",
+      account: "Cuenta", backToSite: "Volver al sitio web", signOut: "Cerrar sesión", language: "Idioma",
       theme: { group: "Apariencia", system: "Sistema", light: "Claro", dark: "Oscuro" },
     },
     guildSwitcher: {
@@ -5403,7 +5403,7 @@ const pt: Dictionary = {
     close: "Fechar",
     shell: {
       nav: "Painel", mobileNav: "Acesso rápido", menuOpen: "Abrir menu", menuClose: "Fechar menu",
-      backToSite: "Voltar ao site", signOut: "Sair", language: "Idioma",
+      account: "Conta", backToSite: "Voltar ao site", signOut: "Sair", language: "Idioma",
       theme: { group: "Aparência", system: "Sistema", light: "Claro", dark: "Escuro" },
     },
     guildSwitcher: {
@@ -6304,7 +6304,7 @@ const pl: Dictionary = {
     close: "Zamknij",
     shell: {
       nav: "Panel", mobileNav: "Szybki dostęp", menuOpen: "Otwórz menu", menuClose: "Zamknij menu",
-      backToSite: "Powrót do strony", signOut: "Wyloguj się", language: "Język",
+      account: "Konto", backToSite: "Powrót do strony", signOut: "Wyloguj się", language: "Język",
       theme: { group: "Wygląd", system: "Systemowy", light: "Jasny", dark: "Ciemny" },
     },
     guildSwitcher: {

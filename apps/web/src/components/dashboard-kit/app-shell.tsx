@@ -4,24 +4,29 @@ import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type MouseEvent, type ReactNode } from "react";
 
-import { ArrowLeft, List, Lock, SignOut, X } from "@/components/icons";
+import { ArrowLeft, CaretDown, List, Lock, SignOut, User, X, type IconComponent } from "@/components/icons";
 import type { Locale } from "@/i18n/dictionaries";
 import { cn } from "@/lib/utils";
 
 import { LanguageSelect } from "./language-select";
 import { currentNavId, type ShellNavGroup } from "./nav";
 import { ThemeSwitch, type ThemeSwitchLabels } from "./theme-switch";
+import { useAnchoredPopover } from "./use-anchored-popover";
 
 /**
  * The app shell of the dashboard, after the shop's AppShell.
  *
- * - A top bar with the MSK green stripe, the product name and, below the
- *   sidebar breakpoint, the menu button and the title of the current page.
- * - A sidebar with labelled groups, the guild switcher at the top and
- *   appearance, language, account and the way back to the website at the
- *   bottom.
+ * - A top bar with the MSK green stripe, the product name, the account menu
+ *   at the inline end and, below the sidebar breakpoint, the menu button and
+ *   the title of the current page. The account menu holds what belongs to
+ *   the person rather than to a guild: their own places, appearance,
+ *   language, the way back to the website and signing out. That keeps the
+ *   sidebar to the guild's areas, so all of them fit a 1440 x 900 window.
+ * - A sidebar with the guild switcher at the top and labelled groups. Where
+ *   the window is too short for them it scrolls, and a shadow at the edge
+ *   says there is more.
  * - Below 64rem the sidebar becomes a drawer on the native `<dialog>`: focus
  *   trap, Escape and the inert page come from the browser, and no `<style>`
  *   is injected at runtime. Up to four areas marked `mobile` also sit in a
@@ -36,6 +41,8 @@ import { ThemeSwitch, type ThemeSwitchLabels } from "./theme-switch";
 export interface ShellCopy {
   /** Name of the sidebar navigation landmark. */
   nav: string;
+  /** "Account": names the account menu ("Account: name"). */
+  account: string;
   /** Name of the bottom bar landmark on a phone. */
   mobileNav: string;
   menuOpen: string;
@@ -49,6 +56,8 @@ export interface ShellCopy {
 export interface ShellAccount {
   name: string;
   detail?: ReactNode;
+  /** The person's own places (all servers, their submissions), listed first in the account menu. */
+  links?: { id: string; href: string; label: string; icon: IconComponent; current?: boolean }[];
   /** The sign-out Server Action (lib/auth-actions.ts), posted by a form, so it works before hydration. */
   signOut: (formData: FormData) => void | Promise<void>;
 }
@@ -97,11 +106,11 @@ function NavList({
   label: string;
 }) {
   return (
-    <nav aria-label={label} className="grid gap-5">
+    <nav aria-label={label} className="grid gap-3">
       {nav.map((group) => (
         <div key={group.id} className="grid gap-1">
           {group.label && <h2 className={groupLabelClass}>{group.label}</h2>}
-          <ul className="grid gap-0.5">
+          <ul className="grid">
             {group.items.map(({ id, href, label: itemLabel, icon: Icon, locked }) => (
               <li key={id}>
                 {locked ? (
@@ -136,70 +145,105 @@ function NavList({
   );
 }
 
-function SidebarFooter({ account, copy, locale }: Pick<AppShellProps, "account" | "copy" | "locale">) {
+/**
+ * The account menu at the end of the top bar: the person's name, their own
+ * places, appearance, language, the way back to the website and sign-out.
+ * A native popover opened through `popovertarget`, so it opens, and the
+ * sign-out form inside it posts, before the page has hydrated.
+ */
+function AccountMenu({ account, copy, locale }: { account: ShellAccount; copy: ShellCopy; locale: Locale }) {
+  const id = useId();
+  const { panelRef, triggerRef, hide } = useAnchoredPopover<HTMLButtonElement>();
   return (
-    <div className="@container grid gap-4 border-t border-border pt-4">
-      {/* The three choices share the width. In a narrow sidebar the icons give
-          way to the words, which carry the meaning. */}
-      <ThemeSwitch
-        labels={copy.theme}
-        className="w-full [&>button]:flex-1 [&>button]:px-1.5 @max-[17rem]:[&_svg]:hidden"
-      />
-      <LanguageSelect locale={locale} label={copy.language} />
-      {account && (
-        <div className="grid gap-2 rounded-md bg-muted p-3">
-          <div className="min-w-0">
+    <>
+      <button
+        ref={triggerRef}
+        type="button"
+        popoverTarget={id}
+        className="-mr-2 inline-flex min-h-11 min-w-11 max-w-[14rem] shrink-0 items-center justify-center gap-1.5 rounded-md px-2 font-medium text-foreground transition-colors duration-150 hover:bg-muted"
+      >
+        <User className="h-5 w-5 shrink-0" />
+        <span className="sr-only">{copy.account}: </span>
+        <span translate="no" className="truncate max-sm:sr-only">
+          {account.name}
+        </span>
+        <CaretDown className="h-3.5 w-3.5 shrink-0" />
+      </button>
+      <div
+        ref={panelRef}
+        id={id}
+        popover="auto"
+        aria-label={copy.account}
+        className="fixed inset-auto m-0 w-[min(20rem,calc(100vw-1rem))] rounded-lg border border-border bg-card p-3 text-card-foreground shadow-[var(--shadow-card-hover)]"
+      >
+        <div className="grid gap-3">
+          <div className="grid min-w-0 gap-0.5 px-3 pt-1">
             <p translate="no" className="truncate font-semibold">
               {account.name}
             </p>
             {account.detail && <div className="text-small text-muted-foreground">{account.detail}</div>}
           </div>
-          <form action={account.signOut}>
-            <button
-              type="submit"
-              className={cn(
-                "inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md border-[1.5px] border-input bg-card px-3 font-semibold",
-                "transition-colors duration-150 hover:border-foreground",
-              )}
-            >
-              <SignOut className="h-4 w-4" />
-              {copy.signOut}
-            </button>
-          </form>
+          {account.links && account.links.length > 0 && (
+            <ul className="grid">
+              {account.links.map(({ id: linkId, href, label, icon: Icon, current }) => (
+                <li key={linkId}>
+                  <Link
+                    href={href as Route}
+                    prefetch={false}
+                    aria-current={current ? "page" : undefined}
+                    onClick={hide}
+                    className={navItemClass}
+                  >
+                    <Icon className="h-5 w-5 shrink-0" />
+                    <span className="min-w-0 truncate">{label}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="grid gap-3 border-t border-border pt-3">
+            {/* The three choices share the width of the panel. */}
+            <ThemeSwitch labels={copy.theme} className="w-full [&>button]:flex-1 [&>button]:px-1.5" />
+            <LanguageSelect locale={locale} label={copy.language} />
+          </div>
+          <div className="grid border-t border-border pt-2">
+            {/* A document request on purpose: the public site has a layout of its
+                own, and the way back should not keep any dashboard state. */}
+            <a href="/" className={navItemClass}>
+              <ArrowLeft className="h-5 w-5 shrink-0" />
+              {copy.backToSite}
+            </a>
+            <form action={account.signOut}>
+              <button type="submit" className={cn(navItemClass, "w-full font-semibold")}>
+                <SignOut className="h-5 w-5 shrink-0" />
+                {copy.signOut}
+              </button>
+            </form>
+          </div>
         </div>
-      )}
-      {/* A document request on purpose: the public site has a layout of its
-          own, and the way back should not keep any dashboard state. */}
-      <a href="/" className={navItemClass}>
-        <ArrowLeft className="h-5 w-5 shrink-0" />
-        {copy.backToSite}
-      </a>
-    </div>
+      </div>
+    </>
   );
 }
 
-function SidebarBody(
-  props: {
-    nav: ShellNavGroup[];
-    current: string | undefined;
-    switcher?: ReactNode;
-    onNavigate?: AppShellProps["onNavigate"];
-    onAfterNavigate?: () => void;
-  } & Pick<AppShellProps, "account" | "copy" | "locale">,
-) {
+function SidebarBody(props: {
+  nav: ShellNavGroup[];
+  current: string | undefined;
+  switcher?: ReactNode;
+  onNavigate?: AppShellProps["onNavigate"];
+  onAfterNavigate?: () => void;
+  label: string;
+}) {
   return (
-    <div className="flex flex-1 flex-col gap-6 p-3">
+    <div className="flex flex-1 flex-col gap-4 p-3">
       {props.switcher}
       <NavList
         nav={props.nav}
         current={props.current}
         onNavigate={props.onNavigate}
         onAfterNavigate={props.onAfterNavigate}
-        label={props.copy.nav}
+        label={props.label}
       />
-      <div className="mt-auto">
-        <SidebarFooter account={props.account} copy={props.copy} locale={props.locale} />
-      </div>
     </div>
   );
 }
@@ -315,21 +359,18 @@ export function AppShell({
               {pageTitle}
             </span>
           )}
+          {signedIn && account && (
+            <div className="ml-auto flex shrink-0">
+              <AccountMenu account={account} copy={copy} locale={locale} />
+            </div>
+          )}
         </div>
       </header>
 
       {signedIn && nav ? (
         <div className="flex flex-1">
-          <aside className="sticky top-[calc(var(--app-topbar)+5px)] hidden h-[calc(100dvh-var(--app-topbar)-5px)] w-[var(--app-sidebar)] shrink-0 flex-col overflow-y-auto border-r border-border bg-card lg:flex">
-            <SidebarBody
-              nav={nav}
-              current={current}
-              switcher={switcher}
-              onNavigate={onNavigate}
-              account={account}
-              copy={copy}
-              locale={locale}
-            />
+          <aside className="scroll-shadow-y sticky top-[calc(var(--app-topbar)+5px)] hidden h-[calc(100dvh-var(--app-topbar)-5px)] w-[var(--app-sidebar)] shrink-0 flex-col overflow-y-auto overscroll-contain border-r border-border lg:flex">
+            <SidebarBody nav={nav} current={current} switcher={switcher} onNavigate={onNavigate} label={copy.nav} />
           </aside>
 
           <NavDrawer
@@ -344,9 +385,7 @@ export function AppShell({
               switcher={switcher}
               onNavigate={onNavigate}
               onAfterNavigate={() => setDrawerOpen(false)}
-              account={account}
-              copy={copy}
-              locale={locale}
+              label={copy.nav}
             />
           </NavDrawer>
 

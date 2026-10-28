@@ -76,8 +76,10 @@ export interface DashboardShellCopy {
 
 /**
  * The dashboard inside the kit's AppShell: the guild switcher at the top of
- * the sidebar, the guild's areas in labelled groups, the account group with
- * all servers and the person's own submissions, sign-out at the foot.
+ * the sidebar and the guild's areas in labelled groups. All servers and the
+ * person's own submissions are the account's places: in the account menu of
+ * the top bar everywhere, and the sidebar's only group outside a guild, where
+ * there are no areas.
  *
  * The server decides which areas are listed (`areas`, from
  * lib/dashboard-nav.ts) and hands over plain data; icons and links are put
@@ -124,17 +126,15 @@ export function DashboardShell({
       if (items.length > 0) nav.push({ id: group.id, label: copy.groups[group.id], items });
     }
   }
-  nav.push({
-    id: "account",
-    label: copy.groups.account,
-    items: [
-      // `exact`: inside a guild every address lies below /dashboard.
-      { id: "servers", href: "/dashboard", label: copy.allServers, icon: SquaresFour, exact: true, mobile: !guildId },
-      { id: "me", href: "/dashboard/me", label: copy.mySubmissions, icon: PaperPlaneTilt, mobile: !guildId },
-    ],
-  });
+  const accountItems = [
+    // `exact`: inside a guild every address lies below /dashboard.
+    { id: "servers", href: "/dashboard", label: copy.allServers, icon: SquaresFour, exact: true, mobile: true },
+    { id: "me", href: "/dashboard/me", label: copy.mySubmissions, icon: PaperPlaneTilt, mobile: true },
+  ];
+  if (!guildId) nav.push({ id: "account", label: copy.groups.account, items: accountItems });
 
   const current = currentNavId(nav, pathname);
+  const accountCurrent = currentNavId([{ id: "account", label: "", items: accountItems }], pathname);
   const pageTitle = nav.flatMap((g) => g.items).find((item) => item.id === current)?.label;
 
   return (
@@ -145,7 +145,11 @@ export function DashboardShell({
       currentId={current}
       pageTitle={pageTitle}
       switcher={<GuildSwitcher guilds={guilds} currentId={guildId} addHref={inviteHref} copy={copy.switcher} />}
-      account={{ name: userName, signOut: logoutAction }}
+      account={{
+        name: userName,
+        links: accountItems.map(({ id, href, label, icon }) => ({ id, href, label, icon, current: id === accountCurrent })),
+        signOut: logoutAction,
+      }}
       locale={locale}
       copy={copy.shell}
     >

@@ -509,6 +509,20 @@
   padding-top: env(safe-area-inset-top);
 }
 
+/* A vertical scroll container on the card surface that shows a soft shadow
+   at an edge only while there is more to scroll that way (the dashboard
+   sidebar on a short window). Pure CSS: two card-coloured covers scroll with
+   the content (`local`) and hide the two shadows, which stay at the edges
+   (`scroll`), whenever the content reaches that edge. */
+@utility scroll-shadow-y {
+  background:
+    linear-gradient(hsl(var(--card)) 30%, hsl(var(--card) / 0)) center top / 100% 3rem no-repeat local,
+    linear-gradient(hsl(var(--card) / 0), hsl(var(--card)) 70%) center bottom / 100% 3rem no-repeat local,
+    radial-gradient(farthest-side at 50% 0, hsl(var(--foreground) / 0.2), transparent) center top / 100% 1rem no-repeat scroll,
+    radial-gradient(farthest-side at 50% 100%, hsl(var(--foreground) / 0.2), transparent) center bottom / 100% 1rem no-repeat scroll,
+    hsl(var(--card));
+}
+
 /* ============================================================================
    Scrollbars
    ============================================================================ */
