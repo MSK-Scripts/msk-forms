@@ -5,10 +5,9 @@ import type { Route } from "next";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 
-import { Notice } from "@/components/dashboard-kit";
+import { Notice, RowMenu } from "@/components/dashboard-kit";
 import { LocalDateTime } from "@/components/public/local-datetime";
-
-import { MoveMenu } from "./move-menu";
+import { dotColors } from "@/lib/color-dot";
 
 export interface BoardColumn {
   key: string;
@@ -73,9 +72,9 @@ export function KanbanBoard({
   }
   const [error, setError] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
-  const rootRef = useRef<HTMLDivElement>(null);
   const focusCard = useRef<string | null>(null);
   const baseId = useId();
+  const moveId = (cardId: string) => `${baseId}-move-${cardId}`;
 
   // After a move the card sits in another column: put the focus back on its
   // Move button there, so the keyboard stays with the card.
@@ -83,7 +82,7 @@ export function KanbanBoard({
     const id = focusCard.current;
     if (!id) return;
     focusCard.current = null;
-    rootRef.current?.querySelector<HTMLElement>(`[data-move-trigger="${CSS.escape(id)}"]`)?.focus();
+    document.getElementById(moveId(id))?.focus();
   }, [items]);
 
   const name = (s: BoardSubmission) => s.applicant ?? labels.anonymous;
@@ -111,7 +110,7 @@ export function KanbanBoard({
   }
 
   return (
-    <div ref={rootRef} className="grid gap-3">
+    <div className="grid gap-3">
       <p role="status" className="sr-only">
         {announcement}
       </p>
@@ -146,7 +145,7 @@ export function KanbanBoard({
                   id={headId}
                   className="sticky top-0 z-20 -mx-2 -mt-2 flex items-center justify-between gap-2 rounded-t-lg bg-muted px-3 pt-3 pb-1"
                 >
-                  <SubmissionStatusBadge label={col.label} color={col.color} />
+                  <SubmissionStatusBadge label={col.label} {...dotColors(col.color)} />
                   <span className="text-small font-semibold text-muted-foreground tabular-nums">
                     {cards.length}
                     <span className="sr-only">
@@ -187,13 +186,17 @@ export function KanbanBoard({
                         </span>
                         {targets.length > 0 && (
                           <div className="relative z-10 mt-1.5 flex justify-end">
-                            <MoveMenu
-                              cardId={s.id}
+                            <RowMenu
+                              triggerId={moveId(s.id)}
                               label={fill(labels.moveCard, { name: name(s) })}
-                              text={labels.move}
+                              trigger={labels.move}
                               heading={labels.moveTo}
-                              targets={targets}
-                              onPick={(key) => move(s, key)}
+                              items={targets.map((target) => ({
+                                id: target.key,
+                                label: target.label,
+                                dot: target.color,
+                                onSelect: () => move(s, target.key),
+                              }))}
                             />
                           </div>
                         )}
