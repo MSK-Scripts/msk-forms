@@ -10,6 +10,7 @@ The full concept document is maintained internally.
 |---|---|
 | Frontend/SSR | Next.js 16 (App Router), TypeScript |
 | Styling | Tailwind CSS 4 |
+| Design | Archivo and Source Sans 3 via `@fontsource-variable`, Phosphor icons, design system in [DESIGN.md](../DESIGN.md) |
 | Database | PostgreSQL + Prisma |
 | Cache | Redis |
 | Bot | Node.js + discord.js v14 |
@@ -17,6 +18,10 @@ The full concept document is maintained internally.
 | i18n | 7 languages (EN/DE/HU/FR/ES/PT/PL) |
 | Monorepo | pnpm Workspaces + Turborepo |
 | Hosting | Debian + Apache2 + PM2 |
+
+The fonts are self-hosted: they come from the `@fontsource-variable` packages and
+are bundled with the app, so the build fetches nothing from Google and the
+browser loads no font from another host.
 
 ## Project structure
 
