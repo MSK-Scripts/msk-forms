@@ -1,29 +1,47 @@
 "use client";
 
 import { verificationRecordName, verificationRecordValue } from "@msk-forms/shared";
-import { Button, Card, Field, Input } from "@msk-forms/ui";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { ConfirmDialog } from "@/components/confirm-dialog";
+import {
+  ConfirmDialog,
+  CopyField,
+  FormField,
+  Notice,
+  SectionCard,
+  StatusBadge,
+  type CopyFieldCopy,
+} from "@/components/dashboard-kit";
+import { Clock, Trash } from "@/components/icons";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type { Dictionary } from "@/i18n";
 
 type DomainDict = Dictionary["domain"];
 
+/**
+ * The guild's own domain: the domain, the two DNS records to copy, the check
+ * and the verification state as a badge (verified, pending, check failed).
+ * Removing it drops the token, so using the domain again means new records and
+ * a new check; the confirmation asks to type the domain.
+ */
 export function DomainForm({
   guildId,
   cnameTarget,
   initial,
   t,
+  copy,
 }: {
   guildId: string;
   cnameTarget: string;
   initial: { domain: string; token: string; verified: boolean };
   t: DomainDict;
+  copy: CopyFieldCopy;
 }) {
   const router = useRouter();
   const [domain, setDomain] = useState(initial.domain);
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<"save" | "verify" | "remove" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [verifyMsg, setVerifyMsg] = useState<string | null>(null);
   const [confirmRemove, setConfirmRemove] = useState(false);
@@ -39,7 +57,7 @@ export function DomainForm({
 
   async function save() {
     setError(null);
-    setBusy(true);
+    setBusy("save");
     try {
       const res = await fetch(`/api/guilds/${guildId}/domain`, {
         method: "PATCH",
@@ -54,14 +72,14 @@ export function DomainForm({
     } catch (err) {
       setError(err instanceof Error ? err.message : t.errSave);
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
   }
 
   async function verify() {
     setError(null);
     setVerifyMsg(null);
-    setBusy(true);
+    setBusy("verify");
     try {
       const res = await fetch(`/api/guilds/${guildId}/domain/verify`, { method: "POST" });
       const data = (await res.json().catch(() => null)) as { verified?: boolean } | null;
@@ -70,111 +88,122 @@ export function DomainForm({
     } catch {
       setVerifyMsg(t.verifyFailed);
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
   }
 
   async function remove() {
-    setBusy(true);
+    setBusy("remove");
     try {
       await fetch(`/api/guilds/${guildId}/domain`, { method: "DELETE" });
       setDomain("");
       setConfirmRemove(false);
       router.refresh();
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
   }
 
+  const badge = !records ? undefined : initial.verified ? (
+    <StatusBadge tone="success">{t.statusVerified}</StatusBadge>
+  ) : verifyMsg ? (
+    <StatusBadge tone="danger">{t.statusFailed}</StatusBadge>
+  ) : (
+    <StatusBadge tone="warning" icon={Clock}>
+      {t.statusPending}
+    </StatusBadge>
+  );
+
   return (
-    <Card className="flex flex-col gap-4 p-5">
-      <Field label={t.label}>
-        <div className="flex gap-2">
-          <Input
-            value={domain}
-            placeholder={t.placeholder}
-            onChange={(e) => setDomain(e.target.value)}
-          />
+    <SectionCard title={t.title} description={t.intro} actions={badge}>
+      <div className="grid gap-6">
+        <div className="flex flex-wrap items-end gap-3">
+          <FormField label={t.label} className="min-w-0 flex-1 basis-64">
+            {(field) => (
+              <Input
+                {...field}
+                value={domain}
+                placeholder={t.placeholder}
+                onChange={(e) => setDomain(e.target.value)}
+                inputMode="url"
+                autoComplete="off"
+                autoCapitalize="off"
+                spellCheck={false}
+                className="font-mono"
+              />
+            )}
+          </FormField>
           <Button
-            type="button"
+            variant={records ? "outline" : "primary"}
             onClick={save}
-            disabled={busy || !domain.trim() || domain.trim() === initial.domain}
+            disabled={busy !== null || !domain.trim() || domain.trim() === initial.domain}
+            aria-busy={busy === "save" || undefined}
           >
-            {busy ? t.saving : t.save}
+            {busy === "save" ? t.saving : t.save}
           </Button>
         </div>
-      </Field>
 
-      {records && (
-        <div className="flex flex-col gap-4 border-t border-border pt-4">
-          <Record label={t.step1}>
-            <Row name={t.recordName} value={records.cnameName} />
-            <Row name="CNAME" value={`→ ${cnameTarget}`} />
-          </Record>
-          <Record label={t.step2}>
-            <Row name={t.recordName} value={records.txtName} />
-            <Row name="TXT" value={records.txtValue} />
-          </Record>
+        {error && <Notice tone="danger" role="alert" title={error} />}
 
-          <div className="flex flex-wrap items-center gap-3">
+        {records && (
+          <div className="grid gap-6 border-t border-border pt-6">
+            <div className="grid gap-3">
+              <h3 className="font-semibold">{t.step1}</h3>
+              <div className="grid gap-4 @3xl:grid-cols-2">
+                <CopyField label={t.recordName} value={records.cnameName} copy={copy} />
+                <CopyField label={t.target} value={cnameTarget} copy={copy} />
+              </div>
+            </div>
+            <div className="grid gap-3">
+              <h3 className="font-semibold">{t.step2}</h3>
+              <div className="grid gap-4 @3xl:grid-cols-2">
+                <CopyField label={t.recordName} value={records.txtName} copy={copy} />
+                <CopyField label={t.recordValue} value={records.txtValue} copy={copy} />
+              </div>
+            </div>
+
             {initial.verified ? (
-              <span className="text-sm font-medium text-primary">✓ {t.verified}</span>
+              <Notice tone="success" title={t.verified} />
             ) : (
-              <>
-                <Button type="button" onClick={verify} disabled={busy}>
-                  {busy ? t.verifying : t.verify}
+              <div className="grid justify-items-start gap-3">
+                <p className="max-w-[65ch]">{t.pending}</p>
+                <p className="max-w-[65ch] text-small text-muted-foreground">{t.propagation}</p>
+                <Button onClick={verify} disabled={busy !== null} aria-busy={busy === "verify" || undefined}>
+                  {busy === "verify" ? t.verifying : t.verify}
                 </Button>
-                <span className="text-sm text-muted-foreground">{t.pending}</span>
-              </>
+              </div>
             )}
-            <button
-              type="button"
-              onClick={() => setConfirmRemove(true)}
-              className="ml-auto text-sm font-medium text-muted-foreground transition-colors hover:text-destructive"
-            >
-              {t.remove}
-            </button>
+            {verifyMsg && <Notice tone="danger" role="alert" title={verifyMsg} />}
+
+            <div className="border-t border-border pt-6">
+              <Button
+                variant="outline"
+                onClick={() => setConfirmRemove(true)}
+                disabled={busy !== null}
+                className="text-danger"
+              >
+                <Trash className="h-4 w-4" />
+                {t.remove}
+              </Button>
+            </div>
           </div>
-
-          {!initial.verified && <p className="text-xs text-muted-foreground">{t.propagation}</p>}
-          {verifyMsg && <p className="text-sm text-destructive">{verifyMsg}</p>}
-        </div>
-      )}
-
-      {error && <p className="text-sm text-destructive">{error}</p>}
+        )}
+      </div>
 
       <ConfirmDialog
         open={confirmRemove}
+        onClose={() => {
+          if (busy !== "remove") setConfirmRemove(false);
+        }}
+        onConfirm={remove}
         title={t.remove}
-        message={t.removeConfirm}
+        description={`${t.removeConfirm} ${t.removeUndo}`}
         confirmLabel={t.remove}
         cancelLabel={t.cancel}
-        busy={busy}
-        onConfirm={remove}
-        onCancel={() => setConfirmRemove(false)}
+        tone="danger"
+        busy={busy === "remove"}
+        typeToConfirm={{ expected: initial.domain, label: t.typeDomain.replace("{domain}", initial.domain) }}
       />
-    </Card>
-  );
-}
-
-function Record({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <p className="text-sm font-medium text-foreground">{label}</p>
-      <div className="flex flex-col gap-1 rounded-md border border-border bg-muted/40 p-3">
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function Row({ name, value }: { name: string; value: string }) {
-  return (
-    <div className="flex flex-wrap items-baseline gap-2 text-xs">
-      <span className="w-16 shrink-0 font-medium uppercase tracking-wide text-muted-foreground">
-        {name}
-      </span>
-      <code className="break-all font-mono text-foreground">{value}</code>
-    </div>
+    </SectionCard>
   );
 }

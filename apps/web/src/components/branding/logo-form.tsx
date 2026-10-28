@@ -1,13 +1,28 @@
 "use client";
 
-import { Button, Card, Field } from "@msk-forms/ui";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
+import { FormField, FormSection, Notice } from "@/components/dashboard-kit";
+import { Trash } from "@/components/icons";
+import { Button } from "@/components/ui/button";
 import type { Dictionary } from "@/i18n";
 
 type BrandingDict = Dictionary["branding"];
 
+/** The native file input, its button drawn like an outline button. */
+const FILE_INPUT = [
+  "block w-full max-w-md cursor-pointer text-muted-foreground",
+  "file:me-3 file:min-h-11 file:cursor-pointer file:rounded-md file:border-[1.5px] file:border-solid file:border-input",
+  "file:bg-transparent file:px-4 file:py-2 file:font-semibold file:text-foreground",
+  "file:transition-colors file:duration-150 hover:file:border-foreground",
+  "disabled:cursor-not-allowed disabled:opacity-50",
+].join(" ");
+
+/**
+ * The guild's logo. Uploading or removing takes effect at once, so this
+ * section is not part of the page's SaveBar.
+ */
 export function LogoForm({
   guildId,
   logoUrl,
@@ -49,37 +64,37 @@ export function LogoForm({
   }
 
   return (
-    <Card className="flex flex-col gap-4 p-5">
-      <Field label={t.logo} hint={t.logoHint}>
-        {logoUrl && (
+    <FormSection title={t.logo} description={t.logoHint}>
+      {logoUrl && (
+        <div className="flex flex-wrap items-center gap-4">
           <img
             src={logoUrl}
-            alt=""
-            className="mb-2 h-16 w-auto self-start max-w-full object-contain rounded-md border border-border bg-background p-2"
+            alt={t.logoCurrent}
+            className="h-16 w-auto max-w-full rounded-md border border-border bg-card object-contain p-2"
+          />
+          <Button variant="outline" disabled={busy} onClick={() => call("DELETE")}>
+            <Trash className="h-4 w-4" />
+            {t.logoRemove}
+          </Button>
+        </div>
+      )}
+      <FormField label={t.logoFile}>
+        {(field) => (
+          <input
+            {...field}
+            ref={inputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            disabled={busy}
+            onChange={onSelect}
+            className={FILE_INPUT}
           />
         )}
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/png,image/jpeg,image/webp,image/gif"
-          disabled={busy}
-          onChange={onSelect}
-          className="block w-full text-sm text-muted-foreground file:me-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-secondary-foreground hover:file:bg-secondary/80 disabled:opacity-50"
-        />
-      </Field>
-
-      {logoUrl && (
-        <Button
-          variant="ghost"
-          className="self-start text-destructive hover:text-destructive"
-          disabled={busy}
-          onClick={() => call("DELETE")}
-        >
-          {t.logoRemove}
-        </Button>
-      )}
-      {busy && <p className="text-xs text-muted-foreground">{t.logoUploading}</p>}
-      {error && <p className="text-sm text-destructive">{error}</p>}
-    </Card>
+      </FormField>
+      <p role="status" className="text-small text-muted-foreground empty:hidden">
+        {busy ? t.logoUploading : ""}
+      </p>
+      {error && <Notice tone="danger" role="alert" title={error} />}
+    </FormSection>
   );
 }

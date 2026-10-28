@@ -1,8 +1,10 @@
 "use client";
 
-import { Button, Card, Field, Input } from "@msk-forms/ui";
 import { useState } from "react";
 
+import { CopyField, FormField, Notice, SectionCard, StatusBadge, type CopyFieldCopy } from "@/components/dashboard-kit";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type { Dictionary } from "@/i18n";
 
 type CaptchaDict = Dictionary["domain"]["captcha"];
@@ -12,12 +14,14 @@ export function CaptchaForm({
   customDomain,
   initial,
   t,
+  copy,
 }: {
   guildId: string;
   /** The verified custom domain, or "" when none is verified yet. */
   customDomain: string;
   initial: { siteKey: string; hasSecret: boolean };
   t: CaptchaDict;
+  copy: CopyFieldCopy;
 }) {
   const [siteKey, setSiteKey] = useState(initial.siteKey);
   const [secret, setSecret] = useState("");
@@ -71,71 +75,78 @@ export function CaptchaForm({
   }
 
   return (
-    <Card className="flex flex-col gap-4 p-5">
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="font-heading text-lg font-semibold text-foreground">{t.title}</h3>
-        {configured && (
-          <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-            {t.active}
-          </span>
-        )}
-      </div>
-      <p className="text-sm text-muted-foreground">{t.intro}</p>
-
+    <SectionCard
+      title={t.title}
+      description={t.intro}
+      actions={configured ? <StatusBadge tone="success">{t.active}</StatusBadge> : undefined}
+    >
       {!customDomain ? (
-        <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
-          {t.needDomain}
-        </p>
+        <Notice tone="info">{t.needDomain}</Notice>
       ) : (
-        <>
-          <ol className="ms-4 flex list-decimal flex-col gap-1 text-sm text-muted-foreground">
+        <div className="grid gap-5">
+          <ol className="grid max-w-[65ch] list-decimal gap-2 ps-5">
             <li>{t.step1}</li>
             <li>
-              {t.step2} <span className="font-mono text-foreground">{customDomain}</span>
+              {t.step2}
+              <CopyField value={customDomain} copy={copy} className="mt-2" />
             </li>
             <li>{t.step3}</li>
           </ol>
 
-          <Field label={t.siteKey}>
-            <Input
-              value={siteKey}
-              onChange={(e) => setSiteKey(e.target.value)}
-              placeholder="0x4AAAAAAA…"
-            />
-          </Field>
+          <FormField label={t.siteKey}>
+            {(field) => (
+              <Input
+                {...field}
+                value={siteKey}
+                onChange={(e) => {
+                  setSiteKey(e.target.value);
+                  setSaved(false);
+                }}
+                placeholder="0x4AAAAAAA…"
+                autoComplete="off"
+                autoCapitalize="off"
+                spellCheck={false}
+                className="max-w-xl font-mono"
+              />
+            )}
+          </FormField>
 
-          <Field label={t.secretLabel}>
-            <Input
-              type="password"
-              value={secret}
-              onChange={(e) => {
-                setSecret(e.target.value);
-                setSaved(false);
-              }}
-              placeholder={hasSecret ? t.secretPlaceholderSet : t.secretPlaceholderNew}
-              autoComplete="off"
-            />
-          </Field>
+          <FormField label={t.secretLabel}>
+            {(field) => (
+              <Input
+                {...field}
+                type="password"
+                value={secret}
+                onChange={(e) => {
+                  setSecret(e.target.value);
+                  setSaved(false);
+                }}
+                placeholder={hasSecret ? t.secretPlaceholderSet : t.secretPlaceholderNew}
+                autoComplete="off"
+                className="max-w-xl font-mono"
+              />
+            )}
+          </FormField>
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && <Notice tone="danger" role="alert" title={error} />}
           {saved && !error && (
-            <p className="rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-primary">
+            <Notice tone="success" role="status">
               {t.saved}
-            </p>
+            </Notice>
           )}
 
-          <div className="flex items-center gap-2">
-            <Button type="button" onClick={save} disabled={saving || !siteKey.trim()}>
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={save} disabled={saving || !siteKey.trim()} aria-busy={saving || undefined}>
               {saving ? t.saving : t.save}
             </Button>
             {configured && (
-              <Button type="button" variant="ghost" onClick={remove} disabled={removing}>
+              <Button variant="outline" onClick={remove} disabled={removing} aria-busy={removing || undefined}>
                 {removing ? t.removing : t.remove}
               </Button>
             )}
           </div>
-        </>
+        </div>
       )}
-    </Card>
+    </SectionCard>
   );
 }

@@ -37,10 +37,13 @@ function esc(s: string): string {
 export function CssPreview({
   css,
   accentColor,
+  title,
   labels,
 }: {
   css: string;
   accentColor: string;
+  /** Name of the frame for a screen reader, the visible "Live preview". */
+  title: string;
   labels: CssPreviewLabels;
 }) {
   const { resolvedTheme } = useTheme();
@@ -60,7 +63,7 @@ export function CssPreview({
 
   return (
     <iframe
-      title="preview"
+      title={title}
       sandbox=""
       srcDoc={srcDoc}
       className="h-[440px] w-full rounded-md border border-border bg-background"

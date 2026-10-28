@@ -1,17 +1,30 @@
 "use client";
 
 import type { Branding } from "@msk-forms/shared";
-import { Button, Card, Field, Input, Textarea } from "@msk-forms/ui";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useId, useMemo, useState } from "react";
 
 import { CssPreview } from "@/components/branding/css-preview";
+import { FormField, FormSection } from "@/components/dashboard-kit";
+import { ArrowCounterClockwise, Plus } from "@/components/icons";
+import { ProNotice } from "@/components/pro-notice";
+import { ColorField, HEX_COLOR } from "@/components/settings/color-field";
+import { SettingsSaveBar, type SaveResult, type SettingsSaveCopy } from "@/components/settings/settings-save-bar";
+import { Button } from "@/components/ui/button";
+import { fieldClassName } from "@/components/ui/input";
 import type { Dictionary } from "@/i18n";
+import { accentSets } from "@/lib/branding";
+import { cn } from "@/lib/utils";
 
 type BrandingDict = Dictionary["branding"];
 
-const DEFAULT_ACCENT = "#5eb131";
-const HEX = /^#[0-9a-fA-F]{6}$/;
+/**
+ * MSK green as the light theme paints it: the value of `--primary` in `:root`
+ * of app/globals.css. The picker shows it while no accent is chosen, because
+ * that is what a guild without an accent gets. Display only: an empty accent
+ * is saved as no accent, never as this value.
+ */
+const MSK_GREEN = "#27762e";
 
 /**
  * Beginner-friendly starter rules. Each targets `.msk-form` or a CSS variable
@@ -28,29 +41,61 @@ const CSS_SNIPPETS: { key: keyof BrandingDict["snip"]; css: string }[] = [
   { key: "heading", css: ".msk-form h1 {\n  color: hsl(var(--primary));\n  font-weight: 800;\n}" },
 ];
 
+interface Values {
+  color: string;
+  css: string;
+}
+
+/**
+ * Accent colour and custom CSS of the guild's public pages. The accent is a
+ * swatch picker plus its hex code; where the colour would be hard to read in a
+ * theme, the public pages show a readable shade of it (lib/branding.ts), and
+ * the field says so. Custom CSS (Pro) has Quick Styles that add a starter
+ * rule and a live preview in a sandboxed frame, beside the editor where the
+ * column is wide enough and below it otherwise. The kit SaveBar saves both.
+ */
 export function BrandingForm({
   guildId,
   initial,
   canCss,
   cssProBody,
+  proTitle,
   t,
+  kit,
 }: {
   guildId: string;
   initial: Branding;
   canCss: boolean;
   cssProBody: string;
+  proTitle: string;
   t: BrandingDict;
+  kit: SettingsSaveCopy;
 }) {
   const router = useRouter();
-  const [color, setColor] = useState(initial.accentColor ?? "");
-  const [css, setCss] = useState(initial.customCss ?? "");
+  const snippetsId = useId();
+  const [values, setValues] = useState<Values>({ color: initial.accentColor ?? "", css: initial.customCss ?? "" });
+  const [saved, setSaved] = useState<Values>(values);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
+  const [result, setResult] = useState<SaveResult>(null);
+  const { color, css } = values;
+
+  const dirty = color !== saved.color || css !== saved.css;
+
+  // Whether the public pages show a readable shade instead of the colour itself.
+  const adjusted = useMemo(() => {
+    const trimmed = color.trim();
+    if (!HEX_COLOR.test(trimmed)) return false;
+    const sets = accentSets(trimmed);
+    return Boolean(sets && (sets.light.adjusted || sets.dark.adjusted));
+  }, [color]);
+
+  function update(partial: Partial<Values>) {
+    setValues((v) => ({ ...v, ...partial }));
+    setResult(null);
+  }
 
   async function save() {
-    setError(null);
-    setSaved(false);
+    setResult(null);
     setSaving(true);
     try {
       const body: { accentColor?: string; customCss?: string } = {};
@@ -65,125 +110,118 @@ export function BrandingForm({
         const data = (await res.json().catch(() => null)) as { error?: string } | null;
         throw new Error(data?.error ?? t.errSave);
       }
-      setSaved(true);
+      setSaved(values);
+      setResult({ tone: "success", message: t.saved });
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.errSave);
+      setResult({ tone: "danger", message: err instanceof Error ? err.message : t.errSave });
     } finally {
       setSaving(false);
     }
   }
 
-  function addSnippet(snippet: string) {
-    setCss((prev) => (prev.trim() ? `${prev.trimEnd()}\n\n${snippet}` : snippet));
-    setSaved(false);
+  function discard() {
+    setValues(saved);
+    setResult(null);
   }
 
-  const swatch = HEX.test(color.trim()) ? color.trim() : DEFAULT_ACCENT;
+  function addSnippet(snippet: string) {
+    update({ css: css.trim() ? `${css.trimEnd()}\n\n${snippet}` : snippet });
+  }
 
   return (
-    <Card className="flex flex-col gap-4 p-5">
-      <Field label={t.accentColor} hint={t.accentHint}>
-        <div className="flex items-center gap-3">
-          <input
-            type="color"
-            aria-label={t.accentColor}
-            value={swatch}
-            onChange={(e) => {
-              setColor(e.target.value);
-              setSaved(false);
-            }}
-            className="h-10 w-14 cursor-pointer rounded-md border border-input bg-background"
+    <>
+      <FormSection title={t.accentColor} description={t.accentHint}>
+        <div className="flex flex-wrap items-end gap-3">
+          <ColorField
+            label={t.hexLabel}
+            pickerLabel={t.colorPicker}
+            hint={!color.trim() ? t.accentDefault : adjusted ? t.accentAdjusted : undefined}
+            invalidText={t.hexError}
+            value={color}
+            onChange={(next) => update({ color: next })}
+            fallback={MSK_GREEN}
+            optional
+            placeholder={MSK_GREEN}
+            className="max-w-[45ch]"
           />
-          <div className="w-32">
-            <Input
-              value={color}
-              placeholder={DEFAULT_ACCENT}
-              onChange={(e) => {
-                setColor(e.target.value);
-                setSaved(false);
-              }}
-            />
-          </div>
           {color.trim() && (
-            <button
-              type="button"
-              onClick={() => {
-                setColor("");
-                setSaved(false);
-              }}
-              className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
+            <Button variant="ghost" onClick={() => update({ color: "" })}>
+              <ArrowCounterClockwise className="h-4 w-4" />
               {t.reset}
-            </button>
+            </Button>
           )}
         </div>
-      </Field>
+      </FormSection>
 
-      {canCss ? (
-        <Field label={t.customCss} hint={t.customCssHint}>
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-foreground">{t.cssSnippets}</span>
-              <div className="flex flex-wrap gap-2">
-                {CSS_SNIPPETS.map((s) => (
-                  <button
-                    key={s.key}
-                    type="button"
-                    onClick={() => addSnippet(s.css)}
-                    className="rounded-md border border-border bg-card px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-                  >
-                    + {t.snip[s.key]}
-                  </button>
-                ))}
+      <FormSection title={t.customCss}>
+        {canCss ? (
+          <div className="@container">
+            <div className="grid gap-6 @4xl:grid-cols-2">
+              <div className="grid content-start gap-5">
+                <div role="group" aria-labelledby={snippetsId} className="grid gap-2">
+                  <p id={snippetsId} className="font-semibold">
+                    {t.cssSnippets}
+                  </p>
+                  <p className="text-small text-muted-foreground">{t.cssSnippetsHint}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {CSS_SNIPPETS.map((s) => (
+                      <Button key={s.key} variant="outline" onClick={() => addSnippet(s.css)}>
+                        <Plus className="h-4 w-4" />
+                        {t.snip[s.key]}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                <FormField label={t.cssCode} hint={t.customCssHint}>
+                  {(field) => (
+                    <textarea
+                      {...field}
+                      value={css}
+                      rows={12}
+                      spellCheck={false}
+                      autoCapitalize="off"
+                      autoComplete="off"
+                      placeholder=".msk-form { ... }"
+                      className={cn(fieldClassName, "font-mono")}
+                      onChange={(e) => update({ css: e.target.value })}
+                    />
+                  )}
+                </FormField>
               </div>
-              <span className="text-xs text-muted-foreground">{t.cssSnippetsHint}</span>
-            </div>
-            <Textarea
-              value={css}
-              rows={6}
-              spellCheck={false}
-              placeholder=".msk-form { ... }"
-              className="font-mono text-xs"
-              onChange={(e) => {
-                setCss(e.target.value);
-                setSaved(false);
-              }}
-            />
-            <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-foreground">{t.cssPreviewTitle}</span>
-              <CssPreview
-                css={css}
-                accentColor={color}
-                labels={{
-                  guild: t.sample.guild,
-                  title: t.sample.title,
-                  desc: t.sample.desc,
-                  field: t.sample.field,
-                  field2: t.sample.field2,
-                  submit: t.sample.submit,
-                }}
-              />
-              <span className="text-xs text-muted-foreground">{t.cssPreviewNote}</span>
+              <div className="grid content-start gap-2">
+                <h3 className="font-semibold">{t.cssPreviewTitle}</h3>
+                <CssPreview
+                  css={css}
+                  accentColor={color}
+                  title={t.cssPreviewTitle}
+                  labels={{
+                    guild: t.sample.guild,
+                    title: t.sample.title,
+                    desc: t.sample.desc,
+                    field: t.sample.field,
+                    field2: t.sample.field2,
+                    submit: t.sample.submit,
+                  }}
+                />
+                <p className="text-small text-muted-foreground">{t.cssPreviewNote}</p>
+              </div>
             </div>
           </div>
-        </Field>
-      ) : (
-        <Field label={t.customCss}>
-          <p className="rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
-            ★ {cssProBody}
-          </p>
-        </Field>
-      )}
+        ) : (
+          <ProNotice title={proTitle} body={cssProBody} />
+        )}
+      </FormSection>
 
-      <div className="flex items-center gap-3">
-        <Button type="button" onClick={save} disabled={saving}>
-          {saving ? t.saving : t.save}
-        </Button>
-        {saved && <span className="text-sm text-primary">{t.saved}</span>}
-      </div>
-
-      {error && <p className="text-sm text-destructive">{error}</p>}
-    </Card>
+      <SettingsSaveBar
+        dirty={dirty}
+        busy={saving}
+        result={result}
+        onSave={save}
+        onDiscard={discard}
+        onDismissResult={() => setResult(null)}
+        copy={kit}
+      />
+    </>
   );
 }
