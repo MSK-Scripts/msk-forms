@@ -745,7 +745,6 @@ const en = {
     link: "Public link",
     copy: "Copy", copied: "Copied!",
     qrCode: "QR code",
-    embedCode: "Embed code",
   },
   experiment: {
     title: "A/B test results",
@@ -1556,7 +1555,6 @@ const de: Dictionary = {
     link: "Öffentlicher Link",
     copy: "Kopieren", copied: "Kopiert!",
     qrCode: "QR-Code",
-    embedCode: "Embed-Code",
   },
   experiment: {
     title: "A/B-Test-Ergebnisse",
@@ -2360,7 +2358,6 @@ const hu: Dictionary = {
     link: "Nyilvános link",
     copy: "Másolás", copied: "Másolva!",
     qrCode: "QR-kód",
-    embedCode: "Beágyazási kód",
   },
   experiment: {
     title: "A/B-teszt eredmények",
@@ -3161,7 +3158,6 @@ const fr: Dictionary = {
     link: "Lien public",
     copy: "Copier", copied: "Copié !",
     qrCode: "QR code",
-    embedCode: "Code d'intégration",
   },
   experiment: {
     title: "Résultats du test A/B",
@@ -3963,7 +3959,6 @@ const es: Dictionary = {
     link: "Enlace público",
     copy: "Copiar", copied: "¡Copiado!",
     qrCode: "Código QR",
-    embedCode: "Código de incrustación",
   },
   experiment: {
     title: "Resultados de la prueba A/B",
@@ -4765,7 +4760,6 @@ const pt: Dictionary = {
     link: "Link público",
     copy: "Copiar", copied: "Copiado!",
     qrCode: "Código QR",
-    embedCode: "Código de incorporação",
   },
   experiment: {
     title: "Resultados do teste A/B",
@@ -5567,7 +5561,6 @@ const pl: Dictionary = {
     link: "Publiczny link",
     copy: "Kopiuj", copied: "Skopiowano!",
     qrCode: "Kod QR",
-    embedCode: "Kod osadzenia",
   },
   experiment: {
     title: "Wyniki testu A/B",

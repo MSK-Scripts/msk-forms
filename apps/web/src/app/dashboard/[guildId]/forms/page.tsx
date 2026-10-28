@@ -46,7 +46,7 @@ export default async function GuildFormsPage({
   // Whether the viewer may fully manage a given form (guild manager or a per-form
   // manage grant). Drives the per-form edit/preview/archive/export-definition actions.
   const manages = (formId: string) => manageScope.all || manageScope.formIds.includes(formId);
-  // Public form links (share link, QR, embed) point at the guild's verified
+  // Public form links (share link, QR code) point at the guild's verified
   // custom domain when it has one, falling back to the primary domain otherwise.
   const guildDomain = await prisma.guild.findUnique({
     where: { id: guildId },

@@ -8,13 +8,16 @@ export interface ShareLabels {
   share: string;
   link: string;
   qrCode: string;
-  embedCode: string;
 }
 
 /**
- * Where a live form can be shared: the public link, a QR code (rendered on
- * the server, so no script draws it) and an embed snippet, each value as a
- * CopyField that stays selectable text. A dialog, opened from the form's row.
+ * Where a live form can be shared: the public link as a CopyField that stays
+ * selectable text, and a QR code rendered on the server, so no script draws
+ * it. A dialog, opened from the form's row.
+ *
+ * No iframe embed snippet: the CSP forbids framing every page
+ * (`frame-ancestors 'none'` and `X-Frame-Options: DENY` in proxy.ts), so an
+ * embedded form never loaded.
  */
 export function ShareDialog({
   open,
@@ -38,7 +41,6 @@ export function ShareDialog({
   t: ShareLabels;
   copy: CopyFieldCopy;
 }) {
-  const embed = `<iframe src="${url}" width="100%" height="600" style="border:0" title="MSK Forms"></iframe>`;
   return (
     <Dialog
       open={open}
@@ -55,7 +57,6 @@ export function ShareDialog({
               <img src={qrDataUrl} alt={qrAlt} width={176} height={176} className="rounded-md bg-white p-1" />
             </figure>
           )}
-          <CopyField label={t.embedCode} value={embed} copy={copy} />
         </div>
       }
     >
