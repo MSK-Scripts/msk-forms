@@ -5,7 +5,8 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   // tsconfig keeps JSX for Next ("preserve"); tests compile it with the
   // automatic runtime, so component modules render without importing React.
-  esbuild: { jsx: "automatic" },
+  // Vite 8 transforms with oxc, which ignores the old `esbuild` option.
+  oxc: { jsx: { runtime: "automatic" } },
   resolve: {
     alias: {
       // `server-only` only resolves inside the Next build; stub it for unit tests.
