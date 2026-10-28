@@ -15,6 +15,12 @@
   }
 }
 
+/* Colours and radii are `inline`: every utility carries `hsl(var(--primary))`
+   itself instead of reading `--color-primary`, so the value resolves on the
+   element that uses it. A public page sets `--primary` and `--ring` on its
+   wrapper (lib/branding.ts) and Pro customers override any of these variables
+   in their custom CSS; without `inline` the utilities would read the value
+   computed on :root and ignore both. */
 @theme inline {
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
@@ -52,7 +58,9 @@
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+}
 
+@theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
@@ -115,7 +123,7 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
+    border-color: hsl(var(--border));
   }
 
   /* Tailwind v4 dropped `cursor: pointer` on buttons from its preflight; keep
