@@ -10,12 +10,16 @@ interface FooterLink {
   href: string;
 }
 
-/** Another site; the hub of MSK Scripts on this one is not. */
-function isExternal(href: string) {
-  return /^https?:\/\//i.test(href) && !href.startsWith(FORMS_ORIGIN);
-}
-
 const FORMS_ORIGIN = "https://forms.msk-scripts.de";
+
+/**
+ * Another site; the hub of MSK Scripts on this one is not. Compares the
+ * parsed origin, so a host that merely starts with ours counts as external.
+ */
+function isExternal(href: string) {
+  if (!/^https?:\/\//i.test(href)) return false;
+  return new URL(href).origin !== FORMS_ORIGIN;
+}
 
 const linkClass =
   "inline-flex min-h-11 items-center gap-1.5 text-band-muted transition-colors duration-150 " +
