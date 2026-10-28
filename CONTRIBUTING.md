@@ -9,7 +9,7 @@ to the project.
 
 ## Requirements
 
-- **Node.js ≥ 22** and **pnpm ≥ 11** (`corepack enable`)
+- **Node.js ≥ 24** and **pnpm ≥ 11** (`corepack enable`)
 - **Docker** (for local infrastructure: Postgres, Redis, MinIO)
 
 ## Local setup
