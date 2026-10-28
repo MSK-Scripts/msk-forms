@@ -12,18 +12,10 @@ import { SettingsSaveBar, type SaveResult, type SettingsSaveCopy } from "@/compo
 import { Button } from "@/components/ui/button";
 import { fieldClassName } from "@/components/ui/input";
 import type { Dictionary } from "@/i18n";
-import { accentSets } from "@/lib/branding";
+import { accentSets, MSK_GREEN } from "@/lib/branding";
 import { cn } from "@/lib/utils";
 
 type BrandingDict = Dictionary["branding"];
-
-/**
- * MSK green as the light theme paints it: the value of `--primary` in `:root`
- * of app/globals.css. The picker shows it while no accent is chosen, because
- * that is what a guild without an accent gets. Display only: an empty accent
- * is saved as no accent, never as this value.
- */
-const MSK_GREEN = "#27762e";
 
 /**
  * Beginner-friendly starter rules. Each targets `.msk-form` or a CSS variable
@@ -139,6 +131,8 @@ export function BrandingForm({
           invalidText={t.hexError}
           value={color}
           onChange={(next) => update({ color: next })}
+          // What a guild without an accent gets. Display only: an empty
+          // accent is saved as no accent, never as this value.
           fallback={MSK_GREEN}
           optional
           placeholder={MSK_GREEN}

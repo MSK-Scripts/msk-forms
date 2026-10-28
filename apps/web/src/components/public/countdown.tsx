@@ -98,17 +98,17 @@ export function Countdown({
 }
 
 /**
- * The guild's colours for the confetti: its accent as the page shows it and
- * the chart series of the theme, read from the custom properties in effect
- * where the countdown sits. No hard-coded brand green.
+ * The guild's colours for the confetti: its accent as the page shows it, the
+ * chart series of the theme and the text colour, which stands out on either
+ * ground. Read from the custom properties in effect where the countdown sits,
+ * so nothing is hard-coded.
  */
 function confettiColours(el: HTMLElement | null): string[] {
   const style = getComputedStyle(el ?? document.documentElement);
-  const colours = ["--primary", "--chart-2", "--chart-3", "--chart-4", "--chart-5"]
+  return ["--primary", "--chart-2", "--chart-3", "--chart-4", "--chart-5", "--foreground"]
     .map((name) => style.getPropertyValue(name).trim())
     .filter(Boolean)
     .map((channels) => `hsl(${channels})`);
-  return colours.length > 0 ? [...colours, "#ffffff"] : ["#ffffff"];
 }
 
 /** Self-contained canvas confetti burst: no dependency, CSP-safe (no eval). */

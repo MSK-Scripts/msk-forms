@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import { ErrorCopyProvider } from "@/components/site/error-copy";
 import { ThemeProvider } from "@/components/theme-provider";
-import { logoUrl, parseBranding } from "@/lib/branding";
+import { logoUrl, parseBranding, THEME_SURFACES } from "@/lib/branding";
 import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 import { getDict, getDirection, getLocale } from "@/i18n";
 // Fonts come from the @fontsource-variable packages and are served by this
@@ -42,8 +42,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f6f6f4" },
-    { media: "(prefers-color-scheme: dark)", color: "#18191b" },
+    { media: "(prefers-color-scheme: light)", color: THEME_SURFACES.light.background },
+    { media: "(prefers-color-scheme: dark)", color: THEME_SURFACES.dark.background },
   ],
 };
 

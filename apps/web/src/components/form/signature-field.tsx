@@ -8,6 +8,13 @@ import { CheckCircle, WarningCircle } from "@/components/icons";
 import type { FileFieldLabels } from "./file-field";
 
 /**
+ * Ink on the pad. The pad is white paper in both themes, and the signature is
+ * saved as an image that keeps this colour, so the ink is fixed rather than a
+ * theme token.
+ */
+const INK = "#0a0a0a";
+
+/**
  * Signature pad: the applicant draws on a canvas; on each completed stroke the
  * drawing is exported to a PNG and uploaded through the form's normal upload
  * endpoint (server → MinIO), so the answer is a `FileAnswer` like any file field.
@@ -56,7 +63,7 @@ export function SignatureField({
     const { x, y } = pos(e);
     ctx.lineWidth = 2;
     ctx.lineCap = "round";
-    ctx.strokeStyle = "#0a0a0a";
+    ctx.strokeStyle = INK;
     ctx.lineTo(x, y);
     ctx.stroke();
     dirty.current = true;

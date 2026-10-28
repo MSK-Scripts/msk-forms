@@ -14,6 +14,7 @@ import {
   parseBranding,
   readableAccent,
   TEXT_CONTRAST,
+  MSK_GREEN,
   THEME_SURFACES,
   UI_CONTRAST,
   type Theme,
@@ -62,6 +63,7 @@ describe("theme surfaces", () => {
       expect(THEME_SURFACES[theme].muted).toBe(channelsToHex(tokens[theme].muted!));
       expect(THEME_SURFACES[theme].softAmount).toBeCloseTo(Number.parseFloat(tokens[theme]["accent-soft-amount"]!) / 100, 10);
     }
+    expect(MSK_GREEN).toBe(channelsToHex(tokens.light.primary!));
   });
 });
 

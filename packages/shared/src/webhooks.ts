@@ -63,7 +63,7 @@ export const webhookInputSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["url"],
-        message: "This looks like a Discord webhook URL — choose the Discord format.",
+        message: "This looks like a Discord webhook URL. Choose the Discord format.",
       });
     }
   });

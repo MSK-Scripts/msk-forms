@@ -76,6 +76,14 @@ export const THEME_SURFACES: Record<Theme, { background: string; card: string; m
   dark: { background: "#18191b", card: "#212225", muted: "#111214", softAmount: 0.1 },
 };
 
+/**
+ * MSK green as the light theme paints it, the value of `--primary` in `:root`
+ * of globals.css: for places that need a plain colour, such as the web
+ * manifest and the colour picker of a guild without an accent. The branding
+ * test fails when it drifts from the token.
+ */
+export const MSK_GREEN = "#27762e";
+
 /** Lowest contrast of an accent against the surfaces it sits on in a theme. */
 export function accentContrast(hex: string, theme: Theme): number {
   const { background, card, softAmount } = THEME_SURFACES[theme];
