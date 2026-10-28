@@ -42,6 +42,7 @@ import {
   Minus as MinusBase,
   Monitor as MonitorBase,
   Moon as MoonBase,
+  PaperPlaneTilt as PaperPlaneTiltBase,
   Plus as PlusBase,
   SignIn as SignInBase,
   SignOut as SignOutBase,
@@ -97,6 +98,7 @@ export const MagnifyingGlass = decorative(MagnifyingGlassBase);
 export const Minus = decorative(MinusBase);
 export const Monitor = decorative(MonitorBase);
 export const Moon = decorative(MoonBase);
+export const PaperPlaneTilt = decorative(PaperPlaneTiltBase);
 export const Plus = decorative(PlusBase);
 export const SignIn = decorative(SignInBase);
 export const SignOut = decorative(SignOutBase);

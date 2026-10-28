@@ -17,7 +17,8 @@ export default async function PrivacyPage() {
       html={html}
       breadcrumb={dict.footer.privacy}
       href="/terms/privacy"
-      homeLabel={locale === "de" ? "Startseite" : "Home"}
+      homeLabel={dict.site.home}
+      breadcrumbLabel={dict.kit.breadcrumb}
     />
   );
 }

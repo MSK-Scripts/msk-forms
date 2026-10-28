@@ -17,7 +17,8 @@ export default async function TermsPage() {
       html={html}
       breadcrumb={dict.footer.terms}
       href="/terms"
-      homeLabel={locale === "de" ? "Startseite" : "Home"}
+      homeLabel={dict.site.home}
+      breadcrumbLabel={dict.kit.breadcrumb}
     />
   );
 }

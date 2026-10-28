@@ -1,9 +1,8 @@
-import { IconBroadcast, IconForms, IconInbox, IconServer } from "@tabler/icons-react";
 import type { Metadata } from "next";
 
 import { prisma } from "@msk-forms/db";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { PageHero } from "@/components/page/page-hero";
 import { getDict, getLocale } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -12,9 +11,16 @@ export const revalidate = 300;
 
 export const metadata: Metadata = { title: "Stats · MSK Forms" };
 
+/**
+ * Platform statistics after the shop's statistics pages: the head on the
+ * anthracite band, the figures as a definition list grouped by hairlines
+ * instead of a grid of icon cards. Every figure is a count from the
+ * database; nothing here is estimated.
+ */
 export default async function StatsPage() {
-  const t = (await getDict()).stats;
-  const nf = new Intl.NumberFormat(await getLocale());
+  const [dict, locale] = await Promise.all([getDict(), getLocale()]);
+  const t = dict.stats;
+  const nf = new Intl.NumberFormat(locale);
 
   // Aggregate counts only. Nothing here identifies a guild, form, or person.
   const [guilds, forms, submissions, liveForms] = await Promise.all([
@@ -24,41 +30,37 @@ export default async function StatsPage() {
     prisma.form.count({ where: { status: "live", archivedAt: null } }),
   ]);
 
-  const metrics = [
-    { icon: IconServer, label: t.guilds, value: guilds },
-    { icon: IconForms, label: t.forms, value: forms },
-    { icon: IconInbox, label: t.submissions, value: submissions },
-    { icon: IconBroadcast, label: t.liveForms, value: liveForms },
+  const figures = [
+    { label: t.guilds, value: guilds },
+    { label: t.forms, value: forms },
+    { label: t.submissions, value: submissions },
+    { label: t.liveForms, value: liveForms },
   ];
 
   return (
-    <main className="container py-16 lg:py-24">
-      <div className="mx-auto max-w-2xl text-center">
-        <span className="eyebrow justify-center">{t.eyebrow}</span>
-        <h1 className="mt-4 text-balance font-heading text-4xl font-bold tracking-tight md:text-5xl">
-          {t.title}
-        </h1>
-        <p className="mt-4 text-pretty text-lg leading-relaxed text-muted-foreground">{t.sub}</p>
-      </div>
+    <>
+      <PageHero id="stats-title" kicker={t.eyebrow} title={t.title} lead={t.sub} />
 
-      <div className="mx-auto mt-14 grid max-w-4xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {metrics.map(({ icon: Icon, label, value }) => (
-          <Card
-            key={label}
-            className="transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-card-hover"
-          >
-            <CardContent className="flex flex-col items-center gap-3 p-7 text-center">
-              <Icon size={28} stroke={1.75} className="text-primary" />
-              <span className="font-heading text-4xl font-bold tracking-tight tabular-nums">
-                {nf.format(value)}
-              </span>
-              <span className="text-sm text-muted-foreground">{label}</span>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <p className="mx-auto mt-10 max-w-2xl text-center text-xs text-muted-foreground">{t.note}</p>
-    </main>
+      <section aria-labelledby="stats-figures" className="py-[var(--space-section)]">
+        <div className="container-page grid gap-[var(--space-stack)]">
+          {/* Visible it would repeat the page title; it gives the list its
+              place below the h1. */}
+          <h2 id="stats-figures" className="sr-only">
+            {t.title}
+          </h2>
+          <dl className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,var(--grid-card)),1fr))] gap-x-[clamp(2rem,3vw,4rem)]">
+            {figures.map((f) => (
+              <div key={f.label} className="grid content-start gap-1 border-t border-border py-5">
+                <dt className="font-semibold">{f.label}</dt>
+                <dd className="font-display text-display font-bold tracking-[-0.02em] tabular-nums">
+                  {nf.format(f.value)}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <p className="max-w-[65ch] text-small text-muted-foreground">{t.note}</p>
+        </div>
+      </section>
+    </>
   );
 }

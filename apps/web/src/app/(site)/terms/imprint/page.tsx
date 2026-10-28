@@ -17,7 +17,8 @@ export default async function ImprintPage() {
       html={html}
       breadcrumb={dict.footer.imprint}
       href="/terms/imprint"
-      homeLabel={locale === "de" ? "Startseite" : "Home"}
+      homeLabel={dict.site.home}
+      breadcrumbLabel={dict.kit.breadcrumb}
     />
   );
 }
