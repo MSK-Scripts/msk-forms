@@ -1,9 +1,11 @@
 "use client";
 
-import { Button, Card } from "@msk-forms/ui";
+import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
+import { ArrowSquareOut, CircleNotch, WarningCircle } from "@/components/icons";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import type { Dictionary } from "@/i18n";
 
 /**
@@ -32,6 +34,9 @@ export function DpaGate({
   const [checked, setChecked] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const uid = useId();
+  const headingId = `${uid}-title`;
+  const errorId = `${uid}-error`;
 
   async function accept() {
     if (!checked) {
@@ -54,40 +59,52 @@ export function DpaGate({
     }
   }
 
+  // A task of its own, so a card: read the agreement, tick, accept.
   return (
-    <Card className="flex flex-col items-start gap-3 border-primary/30 bg-primary/5 p-6">
-      <h3 className="font-heading text-base font-semibold text-foreground">{t.dpaTitle}</h3>
-      <p className="text-sm text-muted-foreground">{t.dpaBody}</p>
+    <Card
+      role="region"
+      aria-labelledby={headingId}
+      className="grid max-w-[48rem] justify-items-start gap-3 p-[clamp(1rem,0.8rem+0.6vw,1.5rem)]"
+    >
+      <h2 id={headingId} className="font-display text-h3 font-[650]">
+        {t.dpaTitle}
+      </h2>
+      <p className="max-w-[65ch] text-muted-foreground">{t.dpaBody}</p>
       <a
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-sm text-primary hover:underline"
+        className="inline-flex min-h-11 items-center gap-2 text-primary hover:underline"
       >
         {t.dpaLink}
+        <ArrowSquareOut className="h-4 w-4 shrink-0" />
       </a>
 
-      <label className="mt-1 flex items-start gap-2 text-sm text-foreground">
+      <label className="flex min-h-11 cursor-pointer items-start gap-3 py-2">
         <input
           type="checkbox"
           checked={checked}
           disabled={busy}
+          aria-invalid={error === t.dpaUnchecked ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
           onChange={(e) => {
             setChecked(e.target.checked);
             if (e.target.checked) setError(null);
           }}
-          className="mt-0.5 h-4 w-4 shrink-0 accent-primary"
+          className="mt-1 h-5 w-5 shrink-0 cursor-pointer accent-primary disabled:cursor-not-allowed"
         />
-        <span>{t.dpaCheckbox}</span>
+        <span className="max-w-[65ch]">{t.dpaCheckbox}</span>
       </label>
 
       {error && (
-        <p role="alert" className="text-sm text-destructive">
+        <p id={errorId} role="alert" className="flex items-start gap-1.5 text-small font-semibold text-danger">
+          <WarningCircle className="mt-0.5 h-4 w-4 shrink-0" />
           {error}
         </p>
       )}
 
-      <Button type="button" disabled={busy} onClick={accept}>
+      <Button type="button" disabled={busy} aria-busy={busy || undefined} onClick={accept} className="mt-1">
+        {busy && <CircleNotch className="h-4 w-4 animate-spin" />}
         {busy ? t.dpaBusy : t.dpaAccept}
       </Button>
     </Card>

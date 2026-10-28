@@ -1,17 +1,20 @@
 import { prisma } from "@msk-forms/db";
-import { Card } from "@msk-forms/ui";
 import type { Route } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { CustomCss } from "@/components/branding/custom-css";
+import { EmptyState, Notice, PageHeader } from "@/components/dashboard-kit";
+import { formLabels } from "@/components/form/form-labels";
 import { FormRenderer } from "@/components/form/form-renderer";
+import { ArrowLeft } from "@/components/icons";
+import { PublicCard, PublicHead } from "@/components/public/public-content";
+import { Button } from "@/components/ui/button";
+import { getDict } from "@/i18n";
 import { requireUser } from "@/lib/auth";
 import { brandProps, logoUrl, parseBranding } from "@/lib/branding";
 import { getFormForEdit, parseFormSpec } from "@/lib/forms";
 import { canManageForm } from "@/lib/guild";
-import { getDict } from "@/i18n";
-import { formLabels } from "@/components/form/form-labels";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,13 +33,19 @@ export default async function FormPreviewPage({
   const { guildId, formId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/forms/${formId}/preview`);
   const dict = await getDict();
-
+  const t = dict.dashboard;
+  const formsHref = `/dashboard/${guildId}/forms`;
 
   if (!(await canManageForm(guildId, user.id, formId))) {
     return (
-      <Card className="p-8">
-        <p className="text-muted-foreground">{dict.dashboard.noPermEdit}</p>
-      </Card>
+      <>
+        <PageHeader
+          title={t.preview}
+          breadcrumbs={[{ label: t.formsTab, href: formsHref }, { label: t.preview }]}
+          breadcrumbLabel={dict.kit.breadcrumb}
+        />
+        <EmptyState kind="unavailable" title={t.noPermEdit} />
+      </>
     );
   }
 
@@ -54,42 +63,53 @@ export default async function FormPreviewPage({
   const logo = logoUrl(guildId, branding);
 
   return (
-    <div className="msk-form mx-auto flex max-w-2xl flex-col gap-6" {...brand}>
-      <CustomCss css={branding.customCss} />
+    <div className="grid gap-[var(--app-gutter-y)]">
+      {/* In place of a page head: what this is and the way back. The form's
+          own title is the page's heading, as on the public page. */}
+      <Notice
+        tone="info"
+        title={t.preview}
+        action={
+          <Button asChild variant="outline">
+            <Link href={formsHref as Route} prefetch={false}>
+              <ArrowLeft className="h-4 w-4" />
+              {t.previewExit}
+            </Link>
+          </Button>
+        }
+      >
+        {t.previewNotice}
+      </Notice>
 
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2">
-        <span className="flex items-center gap-2 text-sm font-medium text-primary">
-          <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-semibold tracking-wide text-primary-foreground uppercase">
-            {dict.dashboard.preview}
-          </span>
-          {dict.dashboard.previewNotice}
-        </span>
-        <Link
-          href={`/dashboard/${guildId}/forms` as Route}
-          className="text-sm font-medium text-primary hover:underline"
-        >
-          {dict.dashboard.previewExit} →
-        </Link>
-      </div>
-
-      <header className="flex flex-col gap-1">
-        {logo && <img src={logo} alt="" className="mb-2 h-12 w-auto self-start" />}
-        {guild?.name && (
-          <span translate="no" className="text-sm font-medium text-primary">
-            {guild.name}
-          </span>
-        )}
-        <h1 className="font-heading text-3xl font-bold text-foreground">{form.title}</h1>
-        {form.description && <p className="text-muted-foreground">{form.description}</p>}
-      </header>
-
-      <div className="rounded-lg border border-border bg-card p-6 shadow-xs">
-        <FormRenderer
-          slug={form.slug}
-          spec={spec}
-          preview
-          labels={formLabels(dict)}
-        />
+      {/* The form as its public page shows it: the guild's colour and custom
+          CSS on the frame, its name in the bar, `.msk-form` on the column. */}
+      <div {...brand} className="overflow-hidden rounded-lg border border-border bg-background text-foreground">
+        <CustomCss css={branding.customCss} />
+        <div className="flex min-h-[var(--header-height)] items-center gap-3 border-b border-border bg-card px-[clamp(1rem,0.8rem+0.6vw,1.5rem)]">
+          {logo ? (
+            <img src={logo} alt="" className="h-9 w-auto max-w-[7rem] shrink-0 object-contain" />
+          ) : guild?.name ? (
+            <span
+              aria-hidden
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary font-display font-bold text-primary-foreground"
+            >
+              {guild.name.trim().charAt(0).toUpperCase()}
+            </span>
+          ) : null}
+          {guild?.name && (
+            <span translate="no" className="truncate font-display text-lead font-bold">
+              {guild.name}
+            </span>
+          )}
+        </div>
+        <div className="px-[clamp(1rem,0.8rem+0.6vw,1.5rem)] py-[clamp(2rem,1.25rem+3vw,5rem)]">
+          <div className="msk-form mx-auto grid w-full max-w-[var(--public-column)] gap-[var(--space-stack)]">
+            <PublicHead title={form.title} description={form.description} />
+            <PublicCard>
+              <FormRenderer slug={form.slug} spec={spec} preview labels={formLabels(dict)} />
+            </PublicCard>
+          </div>
+        </div>
       </div>
     </div>
   );

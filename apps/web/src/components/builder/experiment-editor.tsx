@@ -1,8 +1,13 @@
 "use client";
 
 import type { Experiment, ExperimentVariant } from "@msk-forms/shared";
-import { Checkbox, Input, Textarea } from "@msk-forms/ui";
+import { useId } from "react";
 
+import { CheckboxField } from "@/components/builder/checkbox-field";
+import { FormField as KitField } from "@/components/dashboard-kit";
+import { Plus, X } from "@/components/icons";
+import { Button } from "@/components/ui/button";
+import { fieldClassName, Input } from "@/components/ui/input";
 import type { Dictionary } from "@/i18n";
 
 type ExperimentDict = Dictionary["builder"]["exp"];
@@ -17,6 +22,7 @@ export function ExperimentEditor({
   onChange: (experiment: Experiment) => void;
   t: ExperimentDict;
 }) {
+  const uid = useId();
   const variants = experiment.variants;
 
   function setEnabled(enabled: boolean) {
@@ -49,67 +55,86 @@ export function ExperimentEditor({
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <Checkbox
-        label={t.enable}
-        checked={experiment.enabled}
-        onChange={(e) => setEnabled(e.target.checked)}
-      />
+    <div className="@container grid gap-4">
+      <CheckboxField label={t.enable} checked={experiment.enabled} onChange={setEnabled} />
 
       {experiment.enabled && (
-        <div className="flex flex-col gap-3">
-          {variants.map((v, i) => (
-            <div key={v.id} className="flex flex-col gap-2 rounded-md border border-border p-3">
-              <div className="flex items-center gap-2">
-                <div className="flex-1">
-                  <Input
-                    value={v.name}
-                    placeholder={t.namePh}
-                    onChange={(e) => patchVariant(i, { name: e.target.value })}
-                  />
-                </div>
-                <div className="w-20 shrink-0">
-                  <Input
-                    type="number"
-                    min={0}
-                    value={v.weight}
-                    title={t.weight}
-                    onChange={(e) => patchVariant(i, { weight: Number(e.target.value) || 0 })}
-                  />
-                </div>
-                <button
-                  type="button"
-                  aria-label={t.remove}
-                  onClick={() => removeVariant(i)}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-                >
-                  ✕
-                </button>
-              </div>
-              <Input
-                value={v.title ?? ""}
-                placeholder={t.titlePh}
-                onChange={(e) => patchVariant(i, { title: e.target.value || undefined })}
-              />
-              <Textarea
-                rows={2}
-                value={v.description ?? ""}
-                placeholder={t.descPh}
-                onChange={(e) => patchVariant(i, { description: e.target.value || undefined })}
-              />
-            </div>
-          ))}
-          {variants.length < 6 && (
-            <button
-              type="button"
-              onClick={addVariant}
-              className="self-start text-sm font-medium text-primary hover:underline"
-            >
-              + {t.addVariant}
-            </button>
+        <>
+          {variants.length > 0 && (
+            <ol className="grid">
+              {variants.map((v, i) => {
+                const n = String(i + 1);
+                const labelId = `${uid}-variant-${i}`;
+                return (
+                  <li key={v.id} className="border-t border-border py-5 first:border-t-0 first:pt-0">
+                    <div role="group" aria-labelledby={labelId} className="grid gap-4">
+                      <div className="flex items-center justify-between gap-2">
+                        <span id={labelId} className="font-semibold">
+                          {t.variantN.replace("{n}", n)}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label={t.removeN.replace("{n}", n)}
+                          onClick={() => removeVariant(i)}
+                        >
+                          <X className="h-5 w-5" />
+                        </Button>
+                      </div>
+                      <div className="grid gap-4 @xl:grid-cols-[minmax(0,1fr)_10rem]">
+                        <KitField label={t.namePh}>
+                          {(f) => (
+                            <Input {...f} value={v.name} onChange={(e) => patchVariant(i, { name: e.target.value })} />
+                          )}
+                        </KitField>
+                        <KitField label={t.weight}>
+                          {(f) => (
+                            <Input
+                              {...f}
+                              type="number"
+                              min={0}
+                              value={v.weight}
+                              onChange={(e) => patchVariant(i, { weight: Number(e.target.value) || 0 })}
+                              className="tabular-nums"
+                            />
+                          )}
+                        </KitField>
+                      </div>
+                      <KitField label={t.titlePh}>
+                        {(f) => (
+                          <Input
+                            {...f}
+                            value={v.title ?? ""}
+                            onChange={(e) => patchVariant(i, { title: e.target.value || undefined })}
+                          />
+                        )}
+                      </KitField>
+                      <KitField label={t.descPh}>
+                        {(f) => (
+                          <textarea
+                            {...f}
+                            rows={2}
+                            value={v.description ?? ""}
+                            onChange={(e) => patchVariant(i, { description: e.target.value || undefined })}
+                            className={fieldClassName}
+                          />
+                        )}
+                      </KitField>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
           )}
-          <p className="text-xs text-muted-foreground">{t.hint}</p>
-        </div>
+          {variants.length < 6 && (
+            <Button type="button" variant="outline" onClick={addVariant} className="justify-self-start">
+              <Plus className="h-4 w-4" />
+              {t.addVariant}
+            </Button>
+          )}
+          <p className="max-w-[65ch] text-small text-muted-foreground">{t.hint}</p>
+        </>
       )}
     </div>
   );
