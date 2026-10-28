@@ -20,6 +20,7 @@ import { requireUser } from "@/lib/auth";
 import { getSubmissionForReview, resolveStatus } from "@/lib/forms";
 import { getReviewScope } from "@/lib/guild";
 import { cn } from "@/lib/utils";
+import { dotColors } from "@/lib/color-dot";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -90,7 +91,7 @@ export default async function SubmissionDetailPage({
             </span>
           </span>
         }
-        badge={<SubmissionStatusBadge label={status.label} color={status.color} />}
+        badge={<SubmissionStatusBadge label={status.label} {...dotColors(status.color)} />}
         breadcrumbs={[
           { label: dict.dashboard.submissionsTab, href: `/dashboard/${guildId}/submissions` },
           { label: applicant },

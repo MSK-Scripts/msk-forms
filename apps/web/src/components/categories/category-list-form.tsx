@@ -1,6 +1,7 @@
 "use client";
 
 import type { CategoryInput } from "@msk-forms/shared";
+import { ColorDot } from "@msk-forms/ui";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -10,6 +11,7 @@ import { ColorField, HEX_COLOR } from "@/components/settings/color-field";
 import { SettingsSaveBar, type SaveResult, type SettingsSaveCopy } from "@/components/settings/settings-save-bar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { dotColors } from "@/lib/color-dot";
 import type { Dictionary } from "@/i18n";
 
 type CategoriesDict = Dictionary["dashboard"]["categories"];
@@ -171,11 +173,7 @@ export function CategoryListForm({
                   <li key={row.uid} className="py-5 first:pt-0">
                     <fieldset className="min-w-0">
                       <legend className="mb-3 flex items-center gap-2 font-semibold">
-                        <span
-                          aria-hidden="true"
-                          className="h-3 w-3 shrink-0 rounded-full shadow-[0_0_0_1px_hsl(var(--foreground)/0.35)]"
-                          style={{ backgroundColor: swatch }}
-                        />
+                        <ColorDot {...dotColors(swatch)} size="md" />
                         <span translate="no" className="break-words">
                           {name}
                         </span>

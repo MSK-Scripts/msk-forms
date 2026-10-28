@@ -12,6 +12,7 @@ import { parseBranding } from "@/lib/branding";
 import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 import { getSubmissionForStatus, resolveStatus } from "@/lib/forms";
 import { isGuildPro } from "@/lib/plan";
+import { dotColors } from "@/lib/color-dot";
 import { getDict } from "@/i18n";
 
 const TERMINAL = new Set<string>(DEFAULT_STATUSES.filter((s) => s.terminal).map((s) => s.key));
@@ -63,7 +64,7 @@ export default async function SubmissionStatusPage({ params }: { params: Promise
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           {/* Announced when the page refreshes itself after a reviewer acts. */}
           <div role="status" aria-live="polite">
-            <SubmissionStatusBadge label={status.label} color={status.color} />
+            <SubmissionStatusBadge label={status.label} {...dotColors(status.color)} />
           </div>
           <span className="text-small text-muted-foreground">
             {t.submitted} <LocalDateTime iso={submission.submittedAt.toISOString()} />

@@ -133,6 +133,39 @@ function fromOklab([L, a, b]: Rgb): string {
   );
 }
 
+/**
+ * The nearest colour of the same hue and saturation that reaches `min` by
+ * `contrast`, worked out on the one-decimal channel triplet a page receives,
+ * so what is measured is what is painted: the colour itself where it already
+ * reaches `min`, else its lightness moved in steps of 0.1 % (down for
+ * `darker`, up for `lighter`) until it reaches `min + margin`. The margin
+ * keeps 8-bit rounding from putting the result back below. Black and white
+ * end the search, so it always returns.
+ */
+export function shiftLightness(
+  hex: string,
+  contrast: (hex: string) => number,
+  min: number,
+  direction: "darker" | "lighter",
+  margin = 0,
+): Hsl {
+  const rgb = hexToRgb(hex);
+  if (!rgb) throw new Error(`not a #rrggbb colour: ${hex}`);
+  const round = (v: number) => Math.round(v * 10) / 10;
+  const own = rgbToHsl(rgb);
+  const start: Hsl = { h: round(own.h), s: round(own.s), l: round(own.l) };
+  const paint = (hsl: Hsl) => rgbToHex(hslToRgb(hsl));
+
+  if (contrast(paint(start)) >= min) return start;
+
+  const step = direction === "darker" ? -0.1 : 0.1;
+  for (let l = start.l; l >= 0 && l <= 100; l = round(l + step)) {
+    const candidate = { ...start, l };
+    if (contrast(paint(candidate)) >= min + margin) return candidate;
+  }
+  return { ...start, l: direction === "darker" ? 0 : 100 };
+}
+
 /** `color-mix(in oklab, a p, b)` of two opaque colours, `p` in 0..1. */
 export function mixOklab(a: string, b: string, p: number): string {
   const [A, B] = [toOklab(a), toOklab(b)];

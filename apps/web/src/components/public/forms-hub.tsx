@@ -1,4 +1,5 @@
 import { formScheduleStatus } from "@msk-forms/shared";
+import { ColorDot } from "@msk-forms/ui";
 
 import { ArrowRight, Clock, HourglassMedium, Tray } from "@/components/icons";
 import { Countdown, type CountdownUnits } from "@/components/public/countdown";
@@ -6,6 +7,7 @@ import { LocalDateTime } from "@/components/public/local-datetime";
 import { PublicHead } from "@/components/public/public-content";
 import { PublicFrame } from "@/components/public/public-frame";
 import { parseBranding } from "@/lib/branding";
+import { dotColors } from "@/lib/color-dot";
 
 export interface HubForm {
   slug: string;
@@ -103,7 +105,7 @@ export function GuildFormsHub({
               <h2 id={`group-${group.key}`} className="flex items-center gap-2.5 font-display text-lead font-[650]">
                 {group.color && (
                   // The guild's own category colour, beside the name and never alone.
-                  <span aria-hidden className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: group.color }} />
+                  <ColorDot {...dotColors(group.color)} size="md" />
                 )}
                 {group.title}
               </h2>

@@ -59,6 +59,7 @@ describe("theme surfaces", () => {
     for (const theme of THEMES) {
       expect(THEME_SURFACES[theme].background).toBe(channelsToHex(tokens[theme].background!));
       expect(THEME_SURFACES[theme].card).toBe(channelsToHex(tokens[theme].card!));
+      expect(THEME_SURFACES[theme].muted).toBe(channelsToHex(tokens[theme].muted!));
       expect(THEME_SURFACES[theme].softAmount).toBeCloseTo(Number.parseFloat(tokens[theme]["accent-soft-amount"]!) / 100, 10);
     }
   });

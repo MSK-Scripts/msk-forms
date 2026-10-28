@@ -6,6 +6,7 @@ import { EmptyState, FormSection, PageHeader } from "@/components/dashboard-kit"
 import { StatusDefsForm } from "@/components/statuses/status-defs-form";
 import { requireUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
+import { dotColors } from "@/lib/color-dot";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
@@ -45,7 +46,7 @@ export default async function StatusesPage({
           <ul className="flex flex-wrap gap-2">
             {DEFAULT_STATUSES.map((s) => (
               <li key={s.key}>
-                <SubmissionStatusBadge label={dict.statusLabels[s.key] ?? s.label} color={s.color} />
+                <SubmissionStatusBadge label={dict.statusLabels[s.key] ?? s.label} {...dotColors(s.color)} />
               </li>
             ))}
           </ul>

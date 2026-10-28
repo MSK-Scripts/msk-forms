@@ -11,6 +11,7 @@ import { Archive, ArrowCounterClockwise } from "@/components/icons";
 import { LocalDateTime } from "@/components/public/local-datetime";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
+import { dotColors } from "@/lib/color-dot";
 
 export interface SubmissionRow {
   id: string;
@@ -293,7 +294,7 @@ export function SubmissionsTable({
       className: "align-middle",
       cell: (r) => {
         const status = resolve(r.status);
-        return <SubmissionStatusBadge label={status.label} color={status.color} />;
+        return <SubmissionStatusBadge label={status.label} {...dotColors(status.color)} />;
       },
     },
     {

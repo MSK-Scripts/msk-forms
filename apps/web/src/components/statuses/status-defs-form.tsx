@@ -10,6 +10,7 @@ import { ColorField, HEX_COLOR } from "@/components/settings/color-field";
 import { SettingsSaveBar, type SaveResult, type SettingsSaveCopy } from "@/components/settings/settings-save-bar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { dotColors } from "@/lib/color-dot";
 import type { Dictionary } from "@/i18n";
 
 type StatusesDict = Dictionary["dashboard"]["statuses"];
@@ -139,7 +140,7 @@ export function StatusDefsForm({
                     <legend className="mb-4">
                       <SubmissionStatusBadge
                         label={nameOf(row)}
-                        color={HEX_COLOR.test(row.color.trim()) ? row.color.trim() : NEW_STATUS_COLOR}
+                        {...dotColors(HEX_COLOR.test(row.color.trim()) ? row.color.trim() : NEW_STATUS_COLOR)}
                       />
                     </legend>
                     <div className="@container grid gap-4">

@@ -7,6 +7,7 @@ import type { ReactNode } from "react";
 
 import { DataTable, type DataColumn } from "@/components/dashboard-kit";
 import { LocalDateTime } from "@/components/public/local-datetime";
+import { dotColors } from "@/lib/color-dot";
 
 export interface SubmissionRow {
   id: string;
@@ -78,7 +79,7 @@ export function SubmissionRowsTable({
       sortValue: (r) => r.status.label,
       nowrap: true,
       className: "align-middle",
-      cell: (r) => <SubmissionStatusBadge label={r.status.label} color={r.status.color} />,
+      cell: (r) => <SubmissionStatusBadge label={r.status.label} {...dotColors(r.status.color)} />,
     },
     ...(extraColumn ? [extraColumn] : []),
   ];
