@@ -84,9 +84,20 @@ export async function SiteFooter() {
         <div className="@container">
           <div className="grid gap-x-10 gap-y-10 @lg:grid-cols-2 @4xl:grid-cols-4 @7xl:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,1fr))]">
             <div className="grid content-start gap-4 @lg:col-span-2 @4xl:col-span-4 @7xl:col-span-1">
-              <a href="/" className="inline-flex min-h-11 items-center gap-2.5 self-start text-band-foreground">
-                <img src="/logo.png" alt="" width={32} height={32} className="h-8 w-8 rounded-lg object-contain" />
-                <span className="font-display text-lead font-bold [font-stretch:108%]">MSK Forms</span>
+              <a
+                href="/"
+                className="inline-flex min-h-11 items-center gap-2.5 self-start text-band-foreground"
+              >
+                <img
+                  src="/logo.png"
+                  alt=""
+                  width={32}
+                  height={32}
+                  className="h-8 w-8 rounded-lg object-contain"
+                />
+                <span className="font-display text-lead font-bold [font-stretch:108%]">
+                  MSK Forms
+                </span>
               </a>
               <p className="max-w-[40ch] text-small text-band-muted">{t.tagline}</p>
               <div className="grid gap-2">
@@ -104,7 +115,12 @@ export async function SiteFooter() {
                   {col.links.map((link) => (
                     <li key={link.href}>
                       {isExternal(link.href) ? (
-                        <a href={link.href} target="_blank" rel="noopener noreferrer" className={linkClass}>
+                        <a
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={linkClass}
+                        >
                           {link.label}
                           <ArrowSquareOut className="h-3.5 w-3.5" />
                           <span className="sr-only"> {newTab}</span>

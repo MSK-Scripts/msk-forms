@@ -17,7 +17,11 @@ const noSubscription = () => () => {};
 
 /** False on the server and during hydration, true afterwards. */
 function useHydrated(): boolean {
-  return useSyncExternalStore(noSubscription, () => true, () => false);
+  return useSyncExternalStore(
+    noSubscription,
+    () => true,
+    () => false,
+  );
 }
 
 /**

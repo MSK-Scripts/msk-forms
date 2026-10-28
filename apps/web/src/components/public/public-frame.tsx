@@ -59,9 +59,12 @@ export async function PublicFrame({
   const loginHref = `/api/auth/discord/login?returnTo=${encodeURIComponent(returnTo)}`;
 
   return (
-    <div {...brandProps(guild.branding)} className="flex min-h-dvh flex-col bg-background text-foreground">
+    <div
+      {...brandProps(guild.branding)}
+      className="flex min-h-dvh flex-col bg-background text-foreground"
+    >
       <CustomCss css={guild.branding.customCss} />
-      <header className="pwa-safe-top border-b border-border bg-card">
+      <header className="border-b border-border bg-card pwa-safe-top">
         <div className="public-column flex min-h-[var(--header-height)] items-center gap-3">
           <a href={hubHref} className="flex min-h-11 min-w-0 items-center gap-3 text-foreground">
             {logo ? (
@@ -81,13 +84,25 @@ export async function PublicFrame({
           <div className="ms-auto flex shrink-0 items-center gap-1">
             {/* On a phone the guild's name needs the room; the language
                 moves to the footer there. */}
-            <LanguagePicker locale={locale} label={dict.header.language} className="hidden sm:inline-flex" />
+            <LanguagePicker
+              locale={locale}
+              label={dict.header.language}
+              className="hidden sm:inline-flex"
+            />
             {user ? (
               <form action={logoutAction} className="flex items-center gap-2">
                 {user.avatar && (
-                  <img src={user.avatar} alt="" width={28} height={28} className="hidden h-7 w-7 rounded-full sm:block" />
+                  <img
+                    src={user.avatar}
+                    alt=""
+                    width={28}
+                    height={28}
+                    className="hidden h-7 w-7 rounded-full sm:block"
+                  />
                 )}
-                <span className="sr-only">{dict.site.signedInAs.replace("{name}", user.username)}</span>
+                <span className="sr-only">
+                  {dict.site.signedInAs.replace("{name}", user.username)}
+                </span>
                 <span
                   aria-hidden
                   translate="no"
@@ -117,7 +132,11 @@ export async function PublicFrame({
         </div>
       </header>
 
-      <main id="main" tabIndex={-1} className="flex-1 py-[clamp(2rem,1.25rem+3vw,5rem)] focus:outline-none">
+      <main
+        id="main"
+        tabIndex={-1}
+        className="flex-1 py-[clamp(2rem,1.25rem+3vw,5rem)] focus:outline-none"
+      >
         <div className="public-column">
           <div className="msk-form grid gap-[var(--space-stack)]">{children}</div>
         </div>

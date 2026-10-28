@@ -19,11 +19,7 @@ import { getDict } from "@/i18n";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export default async function DomainPage({
-  params,
-}: {
-  params: Promise<{ guildId: string }>;
-}) {
+export default async function DomainPage({ params }: { params: Promise<{ guildId: string }> }) {
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/domain`);
   const dict = await getDict();
@@ -101,14 +97,20 @@ export default async function DomainPage({
             <OAuthForm
               guildId={guildId}
               customDomain={verifiedDomain}
-              initial={{ clientId: guild?.oauthClientId ?? "", hasSecret: Boolean(guild?.oauthClientSecret) }}
+              initial={{
+                clientId: guild?.oauthClientId ?? "",
+                hasSecret: Boolean(guild?.oauthClientSecret),
+              }}
               t={t.oauth}
               copy={copy}
             />
             <CaptchaForm
               guildId={guildId}
               customDomain={verifiedDomain}
-              initial={{ siteKey: guild?.captchaSiteKey ?? "", hasSecret: Boolean(guild?.captchaSecret) }}
+              initial={{
+                siteKey: guild?.captchaSiteKey ?? "",
+                hasSecret: Boolean(guild?.captchaSecret),
+              }}
               t={t.captcha}
               copy={copy}
             />

@@ -22,9 +22,15 @@ describe("shopUrl", () => {
 describe("shopLegalUrl", () => {
   it("links the contract pages under the wording the law prescribes", () => {
     // § 356a and § 312k BGB: the German addresses carry the prescribed words.
-    expect(shopLegalUrl("de", "/withdraw-contract")).toBe("https://www.msk-scripts.de/de/vertrag-widerrufen");
-    expect(shopLegalUrl("de", "/cancel-contract")).toBe("https://www.msk-scripts.de/de/vertrag-kuendigen");
-    expect(shopLegalUrl("en", "/cancel-contract")).toBe("https://www.msk-scripts.de/en/cancel-contract");
+    expect(shopLegalUrl("de", "/withdraw-contract")).toBe(
+      "https://www.msk-scripts.de/de/vertrag-widerrufen",
+    );
+    expect(shopLegalUrl("de", "/cancel-contract")).toBe(
+      "https://www.msk-scripts.de/de/vertrag-kuendigen",
+    );
+    expect(shopLegalUrl("en", "/cancel-contract")).toBe(
+      "https://www.msk-scripts.de/en/cancel-contract",
+    );
   });
 
   it("covers every page the footer and the dashboard link to", () => {
@@ -37,8 +43,12 @@ describe("shopLegalUrl", () => {
       "/report": "/inhalt-melden",
     } as const;
     for (const [page, german] of Object.entries(pages)) {
-      expect(shopLegalUrl("de", page as keyof typeof pages)).toBe(`https://www.msk-scripts.de/de${german}`);
-      expect(shopLegalUrl("pl", page as keyof typeof pages)).toBe(`https://www.msk-scripts.de/en${page}`);
+      expect(shopLegalUrl("de", page as keyof typeof pages)).toBe(
+        `https://www.msk-scripts.de/de${german}`,
+      );
+      expect(shopLegalUrl("pl", page as keyof typeof pages)).toBe(
+        `https://www.msk-scripts.de/en${page}`,
+      );
     }
   });
 });

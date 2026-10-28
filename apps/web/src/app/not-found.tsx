@@ -21,7 +21,9 @@ export default async function NotFound() {
     <div className="container-page py-[clamp(4rem,2rem+6vw,10rem)]">
       <div className="grid max-w-[40rem] gap-5">
         <span className="kicker">{t.notFoundKicker}</span>
-        <h1 className="text-display font-[750] tracking-[-0.02em] text-balance">{t.notFoundTitle}</h1>
+        <h1 className="text-display font-[750] tracking-[-0.02em] text-balance">
+          {t.notFoundTitle}
+        </h1>
         <p className="max-w-[34rem] text-lead text-muted-foreground">{t.notFoundText}</p>
         <div className="mt-3 flex flex-wrap gap-3">
           <Button asChild>
@@ -39,7 +41,11 @@ export default async function NotFound() {
       {guild && (
         <header className="border-b border-border bg-card">
           <div className="container-page flex min-h-[var(--header-height)] items-center">
-            <a href="/" translate="no" className="inline-flex min-h-11 items-center font-display text-lead font-bold">
+            <a
+              href="/"
+              translate="no"
+              className="inline-flex min-h-11 items-center font-display text-lead font-bold"
+            >
               {guild.name}
             </a>
           </div>

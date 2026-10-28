@@ -88,7 +88,11 @@ export function AutomationsEditor({
     return Array.isArray(v) ? v.join(", ") : v == null ? "" : String(v);
   }
   function parseValue(cond: AutomationCondition, raw: string): AutomationCondition["value"] {
-    if (cond.op === "in_list") return raw.split(",").map((s) => s.trim()).filter(Boolean);
+    if (cond.op === "in_list")
+      return raw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     return raw;
   }
 
@@ -141,7 +145,9 @@ export function AutomationsEditor({
                                   <Select
                                     {...f}
                                     value={cond.field}
-                                    onChange={(e) => replaceCondition(ri, ci, { ...cond, field: e.target.value })}
+                                    onChange={(e) =>
+                                      replaceCondition(ri, ci, { ...cond, field: e.target.value })
+                                    }
                                   >
                                     {fieldOptions.map((o) => (
                                       <option key={o.value} value={o.value}>
@@ -178,7 +184,10 @@ export function AutomationsEditor({
                                       {...f}
                                       value={valueText(cond)}
                                       onChange={(e) =>
-                                        replaceCondition(ri, ci, { ...cond, value: parseValue(cond, e.target.value) })
+                                        replaceCondition(ri, ci, {
+                                          ...cond,
+                                          value: parseValue(cond, e.target.value),
+                                        })
                                       }
                                     />
                                   )}

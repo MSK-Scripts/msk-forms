@@ -40,7 +40,11 @@ export function SaveBar({
   useEffect(() => {
     if (show) return;
     const root = rootRef.current;
-    if (hadFocus.current && root && (document.activeElement === document.body || document.activeElement === null)) {
+    if (
+      hadFocus.current &&
+      root &&
+      (document.activeElement === document.body || document.activeElement === null)
+    ) {
       root.focus();
     }
     hadFocus.current = false;
@@ -64,7 +68,11 @@ export function SaveBar({
               {copy.discard}
             </Button>
             <Button onClick={onSave} disabled={busy} aria-busy={busy || undefined}>
-              {busy ? <CircleNotch className="h-4 w-4 animate-spin" /> : <FloppyDisk className="h-4 w-4" />}
+              {busy ? (
+                <CircleNotch className="h-4 w-4 animate-spin" />
+              ) : (
+                <FloppyDisk className="h-4 w-4" />
+              )}
               {copy.save}
             </Button>
           </div>

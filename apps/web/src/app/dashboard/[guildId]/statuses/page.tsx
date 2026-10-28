@@ -12,11 +12,7 @@ import { getDict } from "@/i18n";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export default async function StatusesPage({
-  params,
-}: {
-  params: Promise<{ guildId: string }>;
-}) {
+export default async function StatusesPage({ params }: { params: Promise<{ guildId: string }> }) {
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/statuses`);
   const dict = await getDict();
@@ -46,7 +42,10 @@ export default async function StatusesPage({
           <ul className="flex flex-wrap gap-2">
             {DEFAULT_STATUSES.map((s) => (
               <li key={s.key}>
-                <SubmissionStatusBadge label={dict.statusLabels[s.key] ?? s.label} {...dotColors(s.color)} />
+                <SubmissionStatusBadge
+                  label={dict.statusLabels[s.key] ?? s.label}
+                  {...dotColors(s.color)}
+                />
               </li>
             ))}
           </ul>

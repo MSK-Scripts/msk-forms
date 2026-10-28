@@ -168,7 +168,11 @@ export function DomainForm({
               <div className="grid justify-items-start gap-3">
                 <p className="max-w-[65ch]">{t.pending}</p>
                 <p className="max-w-[65ch] text-small text-muted-foreground">{t.propagation}</p>
-                <Button onClick={verify} disabled={busy !== null} aria-busy={busy === "verify" || undefined}>
+                <Button
+                  onClick={verify}
+                  disabled={busy !== null}
+                  aria-busy={busy === "verify" || undefined}
+                >
                   {busy === "verify" ? t.verifying : t.verify}
                 </Button>
               </div>
@@ -202,7 +206,10 @@ export function DomainForm({
         cancelLabel={t.cancel}
         tone="danger"
         busy={busy === "remove"}
-        typeToConfirm={{ expected: initial.domain, label: t.typeDomain.replace("{domain}", initial.domain) }}
+        typeToConfirm={{
+          expected: initial.domain,
+          label: t.typeDomain.replace("{domain}", initial.domain),
+        }}
       />
     </SectionCard>
   );

@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 
-import { CopyField, FormField, Notice, SectionCard, type CopyFieldCopy } from "@/components/dashboard-kit";
+import {
+  CopyField,
+  FormField,
+  Notice,
+  SectionCard,
+  type CopyFieldCopy,
+} from "@/components/dashboard-kit";
 import { ArrowSquareOut } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,7 +88,7 @@ export function HandleForm({
         <FormField label={t.label} hint={t.hint}>
           {(field) => (
             <div className="flex flex-wrap items-center gap-2">
-              <span translate="no" className="break-all font-mono text-muted-foreground">
+              <span translate="no" className="font-mono break-all text-muted-foreground">
                 {baseUrl}/
               </span>
               <Input

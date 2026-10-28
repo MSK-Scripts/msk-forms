@@ -105,7 +105,11 @@ function renderTable(lines: string[]): string {
   const rows = lines.filter((l) => !/^\|[\s\-:|]+\|$/.test(l.trim()));
   if (rows.length === 0) return "";
 
-  const parseRow = (row: string): string[] => row.split("|").slice(1, -1).map((cell) => cell.trim());
+  const parseRow = (row: string): string[] =>
+    row
+      .split("|")
+      .slice(1, -1)
+      .map((cell) => cell.trim());
 
   const [headerRow, ...bodyRows] = rows;
   const headers = parseRow(headerRow!)
@@ -124,14 +128,19 @@ function renderTable(lines: string[]): string {
 }
 
 function inline(text: string): string {
-  return text
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, "<em>$1</em>")
-    .replace(/`(.+?)`/g, "<code>$1</code>")
-    .replace(/\[(.+?)\]\((https?:\/\/.+?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
-    .replace(/\[(.+?)\]\((mailto:.+?)\)/g, '<a href="$2">$1</a>')
-    // Relative in-app links (e.g. [Privacy Policy](/terms/privacy)) — same tab.
-    .replace(/\[(.+?)\]\((\/[^)]*?)\)/g, '<a href="$2">$1</a>');
+  return (
+    text
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, "<em>$1</em>")
+      .replace(/`(.+?)`/g, "<code>$1</code>")
+      .replace(
+        /\[(.+?)\]\((https?:\/\/.+?)\)/g,
+        '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>',
+      )
+      .replace(/\[(.+?)\]\((mailto:.+?)\)/g, '<a href="$2">$1</a>')
+      // Relative in-app links (e.g. [Privacy Policy](/terms/privacy)) — same tab.
+      .replace(/\[(.+?)\]\((\/[^)]*?)\)/g, '<a href="$2">$1</a>')
+  );
 }
 
 // ── Links to the legal pages on msk-scripts.de ──────────────────────────────

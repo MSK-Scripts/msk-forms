@@ -58,7 +58,12 @@ export default async function PublicFormPage({ params }: { params: Promise<{ slu
   const poweredBy = !(await isGuildPro(form.guildId));
 
   /** The guild's frame around the form's heading and its card. */
-  const page = (title: string, description: string | null | undefined, body: React.ReactNode, before?: React.ReactNode) => (
+  const page = (
+    title: string,
+    description: string | null | undefined,
+    body: React.ReactNode,
+    before?: React.ReactNode,
+  ) => (
     <PublicFrame
       guild={{ id: form.guildId, name: form.guild.name, branding }}
       hubHref={onCustomDomain ? "/" : `/g/${form.guildId}`}
@@ -106,7 +111,12 @@ export default async function PublicFormPage({ params }: { params: Promise<{ slu
       form.description,
       showCountdown ? (
         <div className="grid gap-5">
-          <Countdown targetIso={form.openAt!.toISOString()} label={t.opensIn} units={dict.publicForm} celebrate />
+          <Countdown
+            targetIso={form.openAt!.toISOString()}
+            label={t.opensIn}
+            units={dict.publicForm}
+            celebrate
+          />
           {opens}
         </div>
       ) : (
@@ -181,7 +191,11 @@ export default async function PublicFormPage({ params }: { params: Promise<{ slu
     <>
       {variantId && <ExperimentView slug={form.slug} variant={variantId} />}
       {siteKey && (
-        <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="afterInteractive" nonce={nonce} />
+        <Script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+          strategy="afterInteractive"
+          nonce={nonce}
+        />
       )}
       <FormRenderer
         slug={form.slug}

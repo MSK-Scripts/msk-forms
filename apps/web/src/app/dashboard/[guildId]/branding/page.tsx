@@ -12,11 +12,7 @@ import { getDict } from "@/i18n";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export default async function BrandingPage({
-  params,
-}: {
-  params: Promise<{ guildId: string }>;
-}) {
+export default async function BrandingPage({ params }: { params: Promise<{ guildId: string }> }) {
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/branding`);
   const t = await getDict();

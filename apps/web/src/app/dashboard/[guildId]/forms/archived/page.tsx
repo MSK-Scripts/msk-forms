@@ -33,7 +33,10 @@ export default async function ArchivedFormsPage({
       <PageHeader
         title={a.title}
         description={a.intro}
-        breadcrumbs={[{ label: t.formsTab, href: `/dashboard/${guildId}/forms` }, { label: a.title }]}
+        breadcrumbs={[
+          { label: t.formsTab, href: `/dashboard/${guildId}/forms` },
+          { label: a.title },
+        ]}
         breadcrumbLabel={dict.kit.breadcrumb}
       />
       <div className="grid gap-5">

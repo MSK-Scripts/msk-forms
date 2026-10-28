@@ -83,7 +83,10 @@ export default async function FormPreviewPage({
 
       {/* The form as its public page shows it: the guild's colour and custom
           CSS on the frame, its name in the bar, `.msk-form` on the column. */}
-      <div {...brand} className="overflow-hidden rounded-lg border border-border bg-background text-foreground">
+      <div
+        {...brand}
+        className="overflow-hidden rounded-lg border border-border bg-background text-foreground"
+      >
         <CustomCss css={branding.customCss} />
         <div className="flex min-h-[var(--header-height)] items-center gap-3 border-b border-border bg-card px-[clamp(1rem,0.8rem+0.6vw,1.5rem)]">
           {logo ? (
@@ -106,7 +109,12 @@ export default async function FormPreviewPage({
           <div className="msk-form mx-auto grid w-full max-w-[var(--public-column)] gap-[var(--space-stack)]">
             <PublicHead title={form.title} description={form.description} />
             <PublicCard>
-              <FormRenderer slug={form.slug} spec={spec} preview labels={formLabels(dict, await getLocale())} />
+              <FormRenderer
+                slug={form.slug}
+                spec={spec}
+                preview
+                labels={formLabels(dict, await getLocale())}
+              />
             </PublicCard>
           </div>
         </div>

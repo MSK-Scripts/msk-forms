@@ -55,7 +55,7 @@ export function CopyField({
       <div className="flex min-w-0 flex-wrap items-stretch gap-2">
         <code
           aria-labelledby={label ? labelId : undefined}
-          className="flex min-h-11 min-w-0 flex-1 basis-56 items-center break-all rounded-md border border-border bg-muted px-3 py-2 font-mono text-small"
+          className="flex min-h-11 min-w-0 flex-1 basis-56 items-center rounded-md border border-border bg-muted px-3 py-2 font-mono text-small break-all"
         >
           {value}
         </code>

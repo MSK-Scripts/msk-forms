@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 
-import { CopyField, FormField, Notice, SectionCard, StatusBadge, type CopyFieldCopy } from "@/components/dashboard-kit";
+import {
+  CopyField,
+  FormField,
+  Notice,
+  SectionCard,
+  StatusBadge,
+  type CopyFieldCopy,
+} from "@/components/dashboard-kit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Dictionary } from "@/i18n";
@@ -136,11 +143,20 @@ export function OAuthForm({
           )}
 
           <div className="flex flex-wrap gap-3">
-            <Button onClick={save} disabled={saving || !clientId.trim()} aria-busy={saving || undefined}>
+            <Button
+              onClick={save}
+              disabled={saving || !clientId.trim()}
+              aria-busy={saving || undefined}
+            >
               {saving ? t.saving : t.save}
             </Button>
             {configured && (
-              <Button variant="outline" onClick={remove} disabled={removing} aria-busy={removing || undefined}>
+              <Button
+                variant="outline"
+                onClick={remove}
+                disabled={removing}
+                aria-busy={removing || undefined}
+              >
                 {removing ? t.removing : t.remove}
               </Button>
             )}

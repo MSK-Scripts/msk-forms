@@ -12,18 +12,20 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
  * (a form, a settings block). Groups of facts are built from spacing and
  * hairlines instead. The padding is set by the caller or the parts below.
  */
-const Card = React.forwardRef<HTMLDivElement, CardProps>(({ className, hoverLift = false, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "rounded-lg border border-border bg-card text-card-foreground",
-      "shadow-[var(--shadow-card)] transition-[border-color,box-shadow] duration-150",
-      hoverLift && "hover:border-primary hover:shadow-[var(--shadow-card-hover)]",
-      className,
-    )}
-    {...props}
-  />
-));
+const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, hoverLift = false, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        "rounded-lg border border-border bg-card text-card-foreground",
+        "shadow-[var(--shadow-card)] transition-[border-color,box-shadow] duration-150",
+        hoverLift && "hover:border-primary hover:shadow-[var(--shadow-card-hover)]",
+        className,
+      )}
+      {...props}
+    />
+  ),
+);
 Card.displayName = "Card";
 
 const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
@@ -35,7 +37,11 @@ CardHeader.displayName = "CardHeader";
 
 const CardTitle = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("font-display text-lead font-bold leading-tight", className)} {...props} />
+    <div
+      ref={ref}
+      className={cn("font-display text-lead leading-tight font-bold", className)}
+      {...props}
+    />
   ),
 );
 CardTitle.displayName = "CardTitle";
@@ -48,7 +54,9 @@ const CardDescription = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
 CardDescription.displayName = "CardDescription";
 
 const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />,
+  ({ className, ...props }, ref) => (
+    <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+  ),
 );
 CardContent.displayName = "CardContent";
 

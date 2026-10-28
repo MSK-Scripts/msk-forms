@@ -5,9 +5,19 @@ import { ColorDot } from "@msk-forms/ui";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-import { ColorField, EmptyState, FormField, FormSection, HEX_COLOR } from "@/components/dashboard-kit";
+import {
+  ColorField,
+  EmptyState,
+  FormField,
+  FormSection,
+  HEX_COLOR,
+} from "@/components/dashboard-kit";
 import { ArrowDown, ArrowUp, Plus, Trash } from "@/components/icons";
-import { SettingsSaveBar, type SaveResult, type SettingsSaveCopy } from "@/components/settings/settings-save-bar";
+import {
+  SettingsSaveBar,
+  type SaveResult,
+  type SettingsSaveCopy,
+} from "@/components/settings/settings-save-bar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Dictionary } from "@/i18n";
@@ -26,7 +36,12 @@ type Row = { uid: string; id?: string; name: string; color: string };
 type Move = "up" | "down";
 
 const rowsFrom = (categories: CategoryInput[]): Row[] =>
-  categories.map((c, i) => ({ uid: c.id ?? `saved-${i}`, id: c.id, name: c.name, color: c.color ?? DEFAULT_COLOR }));
+  categories.map((c, i) => ({
+    uid: c.id ?? `saved-${i}`,
+    id: c.id,
+    name: c.name,
+    color: c.color ?? DEFAULT_COLOR,
+  }));
 
 /** What is compared to the last save: everything the payload is made of. */
 const contentOf = (rows: Row[]) => JSON.stringify(rows.map((r) => [r.id ?? null, r.name, r.color]));

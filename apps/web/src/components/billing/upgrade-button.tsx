@@ -126,7 +126,12 @@ export function UpgradeActions({
             >
               {t.orderSubmit}
             </Button>
-            <Button type="button" variant="outline" disabled={busy} onClick={() => setPending(null)}>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={busy}
+              onClick={() => setPending(null)}
+            >
               {t.orderCancel}
             </Button>
           </div>

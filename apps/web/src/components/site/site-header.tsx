@@ -14,7 +14,12 @@ import { aboutLink, productLines, sectionLinks } from "./navigation";
  * bar, which owns the open panels.
  */
 export async function SiteHeader() {
-  const [dict, locale, user, host] = await Promise.all([getDict(), getLocale(), getCurrentUser(), requestHostname()]);
+  const [dict, locale, user, host] = await Promise.all([
+    getDict(),
+    getLocale(),
+    getCurrentUser(),
+    requestHostname(),
+  ]);
   const t = dict.site;
 
   // The dashboard lives only on the primary domain. Login is host-aware: on a

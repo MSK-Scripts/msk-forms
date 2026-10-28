@@ -1,5 +1,10 @@
 import { prisma } from "@msk-forms/db";
-import { experimentActive, FREE_FORM_LIMIT, formScheduleStatus, parseFormSettings } from "@msk-forms/shared";
+import {
+  experimentActive,
+  FREE_FORM_LIMIT,
+  formScheduleStatus,
+  parseFormSettings,
+} from "@msk-forms/shared";
 import type { Route } from "next";
 import Link from "next/link";
 import QRCode from "qrcode";
@@ -29,11 +34,7 @@ import { appBaseUrl } from "@/lib/url";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export default async function GuildFormsPage({
-  params,
-}: {
-  params: Promise<{ guildId: string }>;
-}) {
+export default async function GuildFormsPage({ params }: { params: Promise<{ guildId: string }> }) {
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/forms`);
   const scope = await getReviewScope(guildId, user.id);
@@ -105,7 +106,7 @@ export default async function GuildFormsPage({
         <Link href={`/dashboard/${guildId}/forms/archived` as Route} prefetch={false}>
           <Archive className="h-4 w-4" />
           {t.formArchive.link}
-          <span className="tabular-nums text-muted-foreground">{archivedCount}</span>
+          <span className="text-muted-foreground tabular-nums">{archivedCount}</span>
         </Link>
       </Button>
     ),
@@ -113,7 +114,11 @@ export default async function GuildFormsPage({
       <ImportFormButton
         key="import"
         guildId={guildId}
-        t={{ import: t.formIo.import, importing: t.formIo.importing, importErr: t.formIo.importErr }}
+        t={{
+          import: t.formIo.import,
+          importing: t.formIo.importing,
+          importErr: t.formIo.importErr,
+        }}
       />
     ),
     guildBilling?.stripeSubscriptionId && (
@@ -139,7 +144,11 @@ export default async function GuildFormsPage({
 
       <div className="grid gap-5">
         {tools.length > 0 && (
-          <div role="group" aria-label={t.formsList.tools} className="flex flex-wrap items-start gap-3">
+          <div
+            role="group"
+            aria-label={t.formsList.tools}
+            className="flex flex-wrap items-start gap-3"
+          >
             {tools}
           </div>
         )}
@@ -169,7 +178,8 @@ export default async function GuildFormsPage({
               url: live ? `${base}/f/${form.slug}` : null,
               qr: qrByForm[form.id] ?? null,
               manages: manages(form.id),
-              experiment: canManage && experimentActive(parseFormSettings(form.settings).experiment),
+              experiment:
+                canManage && experimentActive(parseFormSettings(form.settings).experiment),
             };
           })}
           empty={

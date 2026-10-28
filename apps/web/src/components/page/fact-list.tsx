@@ -42,7 +42,7 @@ export function FactList({
         <li key={item.title} className="grid content-start gap-1.5 border-t border-border py-5">
           <h3 className="flex items-baseline gap-2.5 font-display text-lead font-[650]">
             {numbered && (
-              <span className="tabular-nums text-primary">
+              <span className="text-primary tabular-nums">
                 {i + 1}
                 <span className="sr-only">.</span>
               </span>

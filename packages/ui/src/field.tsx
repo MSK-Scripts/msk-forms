@@ -9,7 +9,10 @@ export function fieldErrorId(id: string): string {
 }
 
 /** `aria-describedby` for a control: its hint or its error, whichever is shown. */
-export function fieldDescribedBy(id: string, { hint, error }: { hint?: string; error?: string }): string | undefined {
+export function fieldDescribedBy(
+  id: string,
+  { hint, error }: { hint?: string; error?: string },
+): string | undefined {
   // The error replaces the hint on screen, so it replaces it here too.
   if (error) return fieldErrorId(id);
   return hint ? fieldHintId(id) : undefined;
@@ -41,7 +44,16 @@ export interface FieldProps {
  * fields: the label above the control in the text colour, the hint below it,
  * the error with a sign in the danger colour. The error keeps what was typed.
  */
-export function Field({ htmlFor, label, required, hint, error, group, errorIcon, children }: FieldProps) {
+export function Field({
+  htmlFor,
+  label,
+  required,
+  hint,
+  error,
+  group,
+  errorIcon,
+  children,
+}: FieldProps) {
   const id = htmlFor ?? "";
   const marker = required ? (
     <span aria-hidden="true" className="text-danger">
@@ -50,7 +62,10 @@ export function Field({ htmlFor, label, required, hint, error, group, errorIcon,
     </span>
   ) : null;
   const description = error ? (
-    <p id={fieldErrorId(id)} className="flex items-start gap-1.5 text-small font-semibold text-danger">
+    <p
+      id={fieldErrorId(id)}
+      className="flex items-start gap-1.5 text-small font-semibold text-danger"
+    >
       {errorIcon}
       {error}
     </p>
@@ -62,7 +77,10 @@ export function Field({ htmlFor, label, required, hint, error, group, errorIcon,
 
   if (group) {
     return (
-      <fieldset className="m-0 grid min-w-0 gap-2 border-0 p-0" aria-describedby={fieldDescribedBy(id, { hint, error })}>
+      <fieldset
+        className="m-0 grid min-w-0 gap-2 border-0 p-0"
+        aria-describedby={fieldDescribedBy(id, { hint, error })}
+      >
         {label && (
           <legend className="mb-2 p-0 font-semibold text-foreground">
             {label}

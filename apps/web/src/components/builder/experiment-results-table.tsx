@@ -53,7 +53,13 @@ export function ExperimentResultsTable({
         </span>
       ),
     },
-    { id: "views", header: copy.views, numeric: true, sortValue: (r) => r.views, cell: (r) => r.viewsLabel },
+    {
+      id: "views",
+      header: copy.views,
+      numeric: true,
+      sortValue: (r) => r.views,
+      cell: (r) => r.viewsLabel,
+    },
     {
       id: "submissions",
       header: copy.submissions,
@@ -76,6 +82,13 @@ export function ExperimentResultsTable({
   ];
 
   return (
-    <DataTable caption={copy.caption} captionHidden columns={columns} rows={rows} rowKey={(r) => r.id} empty={empty} />
+    <DataTable
+      caption={copy.caption}
+      captionHidden
+      columns={columns}
+      rows={rows}
+      rowKey={(r) => r.id}
+      empty={empty}
+    />
   );
 }

@@ -29,7 +29,10 @@ export function Section({
   className?: string;
 }) {
   return (
-    <section aria-labelledby={id} className={cn("border-t border-border py-[var(--space-section)]", className)}>
+    <section
+      aria-labelledby={id}
+      className={cn("border-t border-border py-[var(--space-section)]", className)}
+    >
       <div className="container-page grid grid-cols-[minmax(0,1fr)] gap-[var(--space-stack)] min-[1600px]:grid-cols-[clamp(20rem,22vw,36rem)_minmax(0,1fr)] min-[1600px]:gap-x-[clamp(3rem,4vw,8rem)]">
         <div className="grid content-start gap-2.5 self-start min-[1600px]:sticky min-[1600px]:top-[calc(var(--header-height)+2rem)]">
           {kicker && <span className="kicker">{kicker}</span>}
@@ -63,7 +66,9 @@ export function TextLink({
   tone?: "page" | "band";
 }) {
   const colour =
-    tone === "band" ? "text-band-accent hover:text-band-foreground" : "text-primary hover:text-primary-hover";
+    tone === "band"
+      ? "text-band-accent hover:text-band-foreground"
+      : "text-primary hover:text-primary-hover";
   return (
     <a
       href={href}

@@ -94,13 +94,23 @@ export function DpaGate({
       />
 
       {error && (
-        <p id={errorId} role="alert" className="flex items-start gap-1.5 text-small font-semibold text-danger">
+        <p
+          id={errorId}
+          role="alert"
+          className="flex items-start gap-1.5 text-small font-semibold text-danger"
+        >
           <WarningCircle className="mt-0.5 h-4 w-4 shrink-0" />
           {error}
         </p>
       )}
 
-      <Button type="button" disabled={busy} aria-busy={busy || undefined} onClick={accept} className="mt-1">
+      <Button
+        type="button"
+        disabled={busy}
+        aria-busy={busy || undefined}
+        onClick={accept}
+        className="mt-1"
+      >
         {busy && <CircleNotch className="h-4 w-4 animate-spin" />}
         {busy ? t.dpaBusy : t.dpaAccept}
       </Button>

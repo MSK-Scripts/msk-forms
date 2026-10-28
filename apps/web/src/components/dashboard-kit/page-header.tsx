@@ -77,7 +77,7 @@ export function PageHeader({
       <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
         <div className="grid min-w-0 gap-1.5">
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-display text-[clamp(1.625rem,1.3rem+0.9vw,2.5rem)] font-bold leading-tight tracking-[-0.01em]">
+            <h1 className="font-display text-[clamp(1.625rem,1.3rem+0.9vw,2.5rem)] leading-tight font-bold tracking-[-0.01em]">
               {title}
             </h1>
             {badge}

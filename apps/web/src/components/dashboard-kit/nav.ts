@@ -40,6 +40,9 @@ export function currentNavId(nav: readonly ShellNavGroup[], pathname: string): s
   const exact = items.find((item) => item.href === pathname);
   if (exact) return exact.id;
   return items
-    .filter((item) => !item.exact && pathname.startsWith(item.href.endsWith("/") ? item.href : `${item.href}/`))
+    .filter(
+      (item) =>
+        !item.exact && pathname.startsWith(item.href.endsWith("/") ? item.href : `${item.href}/`),
+    )
     .sort((a, b) => b.href.length - a.href.length)[0]?.id;
 }

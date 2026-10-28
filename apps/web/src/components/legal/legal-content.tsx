@@ -26,7 +26,10 @@ export function LegalContent({
       <nav aria-label={breadcrumbLabel} className="mb-6 text-small text-muted-foreground">
         <ol className="flex flex-wrap items-center gap-x-1.5">
           <li>
-            <a href="/" className="inline-flex min-h-11 items-center underline-offset-4 hover:text-foreground hover:underline">
+            <a
+              href="/"
+              className="inline-flex min-h-11 items-center underline-offset-4 hover:text-foreground hover:underline"
+            >
               {homeLabel}
             </a>
           </li>

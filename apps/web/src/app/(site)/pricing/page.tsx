@@ -65,7 +65,10 @@ export default async function PricingPage() {
         { label: c.rows.automations, vals: [false, true, true] },
         { label: c.rows.integrations, vals: [false, false, true] },
         { label: c.rows.formIo, vals: [false, true, true] },
-        { label: c.rows.exports, vals: [c.rows.exportsFree, c.rows.exportsPaid, c.rows.exportsEnt] },
+        {
+          label: c.rows.exports,
+          vals: [c.rows.exportsFree, c.rows.exportsPaid, c.rows.exportsEnt],
+        },
       ],
     },
     {
@@ -117,7 +120,9 @@ export default async function PricingPage() {
                   <h2 className="font-display text-h3 font-[650]">{data.name}</h2>
                   <p className="text-small text-muted-foreground">{data.desc}</p>
                   <p className="mt-2 flex items-baseline gap-1">
-                    <span className="font-display text-h2 font-bold tracking-[-0.015em] tabular-nums">{data.price}</span>
+                    <span className="font-display text-h2 font-bold tracking-[-0.015em] tabular-nums">
+                      {data.price}
+                    </span>
                     <span className="text-small text-muted-foreground">{t.perMonth}</span>
                   </p>
                 </div>
@@ -167,7 +172,10 @@ export default async function PricingPage() {
             <caption className="sr-only">{c.title}</caption>
             <thead>
               <tr className="border-b border-border bg-muted">
-                <th scope="col" className="px-4 py-3 text-start text-label font-semibold tracking-[0.08em] uppercase">
+                <th
+                  scope="col"
+                  className="px-4 py-3 text-start text-label font-semibold tracking-[0.08em] uppercase"
+                >
                   {c.feature}
                 </th>
                 {[c.free, c.pro, c.enterprise].map((name) => (

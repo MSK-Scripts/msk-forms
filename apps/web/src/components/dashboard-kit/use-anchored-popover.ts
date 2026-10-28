@@ -37,7 +37,8 @@ export function useAnchoredPopover<Trigger extends HTMLElement = HTMLButtonEleme
         // Not enough room below: open upwards instead.
         const r = trigger!.getBoundingClientRect();
         const h = panel!.offsetHeight;
-        if (r.bottom + 4 + h > window.innerHeight - 8 && r.top - 4 - h > 8) panel!.style.top = `${r.top - 4 - h}px`;
+        if (r.bottom + 4 + h > window.innerHeight - 8 && r.top - 4 - h > 8)
+          panel!.style.top = `${r.top - 4 - h}px`;
         window.addEventListener("scroll", close, true);
         window.addEventListener("resize", close);
       } else {

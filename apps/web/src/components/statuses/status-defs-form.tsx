@@ -4,9 +4,20 @@ import type { StatusDefInput } from "@msk-forms/shared";
 import { SubmissionStatusBadge } from "@msk-forms/ui";
 import { useEffect, useRef, useState } from "react";
 
-import { Checkbox, ColorField, EmptyState, FormField, FormSection, HEX_COLOR } from "@/components/dashboard-kit";
+import {
+  Checkbox,
+  ColorField,
+  EmptyState,
+  FormField,
+  FormSection,
+  HEX_COLOR,
+} from "@/components/dashboard-kit";
 import { Plus, Trash } from "@/components/icons";
-import { SettingsSaveBar, type SaveResult, type SettingsSaveCopy } from "@/components/settings/settings-save-bar";
+import {
+  SettingsSaveBar,
+  type SaveResult,
+  type SettingsSaveCopy,
+} from "@/components/settings/settings-save-bar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Dictionary } from "@/i18n";
@@ -21,7 +32,12 @@ const NEW_STATUS_COLOR = "#6b6b72";
 type Row = StatusDefInput & { uid: string };
 
 const slugifyKey = (s: string) =>
-  s.toLowerCase().trim().replace(/[^a-z0-9_]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 32);
+  s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9_]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 32);
 
 /** What is sent and compared: the saved fields in their stored order. */
 const payloadOf = (rows: Row[]): StatusDefInput[] =>
@@ -50,7 +66,9 @@ export function StatusDefsForm({
   t: StatusesDict;
   kit: SettingsSaveCopy;
 }) {
-  const [rows, setRows] = useState<Row[]>(() => initial.map((r, i) => ({ ...r, uid: `saved-${i}` })));
+  const [rows, setRows] = useState<Row[]>(() =>
+    initial.map((r, i) => ({ ...r, uid: `saved-${i}` })),
+  );
   const [saved, setSaved] = useState<Row[]>(rows);
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<SaveResult>(null);
@@ -82,11 +100,22 @@ export function StatusDefsForm({
     seq.current += 1;
     const uid = `new-${seq.current}`;
     pendingFocus.current = () => labelInputs.current.get(uid)?.focus();
-    edit([...rows, { uid, key: "", label: "", color: NEW_STATUS_COLOR, isTerminal: false, visibleToApplicant: true }]);
+    edit([
+      ...rows,
+      {
+        uid,
+        key: "",
+        label: "",
+        color: NEW_STATUS_COLOR,
+        isTerminal: false,
+        visibleToApplicant: true,
+      },
+    ]);
   }
   function remove(i: number) {
     const target = rows[i + 1]?.uid ?? rows[i - 1]?.uid;
-    pendingFocus.current = () => (target ? removeButtons.current.get(target) : addButton.current)?.focus();
+    pendingFocus.current = () =>
+      (target ? removeButtons.current.get(target) : addButton.current)?.focus();
     setAnnouncement(t.removed.replace("{name}", nameOf(rows[i]!)));
     edit(rows.filter((_, j) => j !== i));
   }
@@ -139,7 +168,9 @@ export function StatusDefsForm({
                     <legend className="mb-4">
                       <SubmissionStatusBadge
                         label={nameOf(row)}
-                        {...dotColors(HEX_COLOR.test(row.color.trim()) ? row.color.trim() : NEW_STATUS_COLOR)}
+                        {...dotColors(
+                          HEX_COLOR.test(row.color.trim()) ? row.color.trim() : NEW_STATUS_COLOR,
+                        )}
                       />
                     </legend>
                     <div className="@container grid gap-4">

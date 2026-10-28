@@ -26,7 +26,15 @@ interface DialogProps {
  * Buttons go in as children; the confirming one last, red only when the
  * action destroys something.
  */
-export function Dialog({ open, onClose, title, description, body, children, className }: DialogProps) {
+export function Dialog({
+  open,
+  onClose,
+  title,
+  description,
+  body,
+  children,
+  className,
+}: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const descriptionId = useId();

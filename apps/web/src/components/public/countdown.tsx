@@ -72,7 +72,9 @@ export function Countdown({
 
   return (
     <div ref={rootRef} className="grid gap-2">
-      <p className={cn("font-semibold text-muted-foreground", size === "sm" && "text-small")}>{label}</p>
+      <p className={cn("font-semibold text-muted-foreground", size === "sm" && "text-small")}>
+        {label}
+      </p>
       {remaining !== null && (
         <dl aria-hidden className="flex flex-wrap gap-x-[clamp(1rem,0.5rem+1.5vw,2rem)] gap-y-2">
           {parts.map((part) => (
@@ -83,7 +85,7 @@ export function Countdown({
               </dt>
               <dd
                 className={cn(
-                  "order-1 font-display font-bold tabular-nums text-primary",
+                  "order-1 font-display font-bold text-primary tabular-nums",
                   size === "lg" ? "text-display leading-none" : "text-h3",
                 )}
               >
@@ -115,7 +117,8 @@ function confettiColours(el: HTMLElement | null): string[] {
 function fireConfetti(colors: string[]) {
   const canvas = document.createElement("canvas");
   canvas.setAttribute("aria-hidden", "true");
-  canvas.style.cssText = "position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999";
+  canvas.style.cssText =
+    "position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999";
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   document.body.appendChild(canvas);

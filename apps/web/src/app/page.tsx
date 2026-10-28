@@ -22,7 +22,11 @@ export const dynamic = "force-dynamic";
  * host decides, so this page renders its frame itself instead of sitting in
  * the (site) route group.
  */
-export default async function HomePage({ searchParams }: { searchParams: Promise<{ auth?: string }> }) {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ auth?: string }>;
+}) {
   // On a guild's custom domain, the root shows that guild's branded form index.
   const host = await requestHostname();
   if (host && !isPrimaryHostname(host)) {

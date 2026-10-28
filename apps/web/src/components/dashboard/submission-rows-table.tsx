@@ -33,7 +33,14 @@ export function SubmissionRowsTable({
   guildId: string;
   rows: SubmissionRow[];
   empty: ReactNode;
-  copy: { caption: string; applicant: string; anonymous: string; form?: string; date: string; status: string };
+  copy: {
+    caption: string;
+    applicant: string;
+    anonymous: string;
+    form?: string;
+    date: string;
+    status: string;
+  };
 }) {
   const columns: DataColumn<SubmissionRow>[] = [
     {

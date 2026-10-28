@@ -80,13 +80,18 @@ export function GuildFormsHub({
     }
     const known = new Set(categories.map((c) => c.id));
     const other = visible.filter(({ form }) => !form.categoryId || !known.has(form.categoryId));
-    if (other.length) groups.push({ key: "__other", title: labels.otherForms, color: null, items: other });
+    if (other.length)
+      groups.push({ key: "__other", title: labels.otherForms, color: null, items: other });
   } else {
     groups.push({ key: "__all", title: null, color: null, items: visible });
   }
 
   return (
-    <PublicFrame guild={{ id: guild.id, name: guild.name, branding }} hubHref={path} returnTo={path}>
+    <PublicFrame
+      guild={{ id: guild.id, name: guild.name, branding }}
+      hubHref={path}
+      returnTo={path}
+    >
       <PublicHead title={guild.name} />
 
       {visible.length === 0 ? (
@@ -102,7 +107,10 @@ export function GuildFormsHub({
             className="grid gap-3"
           >
             {group.title && (
-              <h2 id={`group-${group.key}`} className="flex items-center gap-2.5 font-display text-lead font-[650]">
+              <h2
+                id={`group-${group.key}`}
+                className="flex items-center gap-2.5 font-display text-lead font-[650]"
+              >
                 {group.color && (
                   // The guild's own category colour, beside the name and never alone.
                   <ColorDot {...dotColors(group.color)} size="md" />
@@ -117,7 +125,9 @@ export function GuildFormsHub({
                     href={`/f/${form.slug}`}
                     className="group grid gap-2 rounded-lg border border-border bg-card p-[clamp(1.125rem,0.875rem+1vw,1.75rem)] text-card-foreground shadow-[var(--shadow-card)] transition-[border-color,box-shadow] duration-150 hover:border-primary hover:shadow-[var(--shadow-card-hover)]"
                   >
-                    <span className="font-display text-h3 font-[650] text-balance">{form.title}</span>
+                    <span className="font-display text-h3 font-[650] text-balance">
+                      {form.title}
+                    </span>
                     {schedule.endingSoon && (
                       <span className="inline-flex items-center gap-1.5 justify-self-start rounded-sm bg-accent-soft px-2.5 py-1 text-small font-semibold text-primary">
                         <HourglassMedium className="h-4 w-4" weight="bold" />
@@ -125,12 +135,19 @@ export function GuildFormsHub({
                       </span>
                     )}
                     {form.description && (
-                      <span className="max-w-[60ch] whitespace-pre-line text-muted-foreground">{form.description}</span>
+                      <span className="max-w-[60ch] whitespace-pre-line text-muted-foreground">
+                        {form.description}
+                      </span>
                     )}
                     {schedule.state === "scheduled" && form.openAt ? (
                       <div className="mt-1 grid gap-2">
                         {form.showCountdown && (
-                          <Countdown targetIso={form.openAt.toISOString()} label={labels.opensIn} units={labels.units} size="sm" />
+                          <Countdown
+                            targetIso={form.openAt.toISOString()}
+                            label={labels.opensIn}
+                            units={labels.units}
+                            size="sm"
+                          />
                         )}
                         <span className="flex flex-wrap items-center gap-x-2 text-small text-muted-foreground">
                           <Clock className="h-4 w-4 shrink-0" />

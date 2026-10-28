@@ -114,7 +114,7 @@ export function RowMenu({
         popover="auto"
         aria-label={heading ? undefined : label}
         aria-labelledby={heading ? headingId : undefined}
-        className="fixed inset-auto m-0 min-w-[13rem] max-w-[min(20rem,calc(100vw-1rem))] rounded-lg border border-border bg-card p-1.5 text-card-foreground shadow-[var(--shadow-card-hover)]"
+        className="fixed inset-auto m-0 max-w-[min(20rem,calc(100vw-1rem))] min-w-[13rem] rounded-lg border border-border bg-card p-1.5 text-card-foreground shadow-[var(--shadow-card-hover)]"
       >
         {heading && (
           <p
@@ -150,7 +150,12 @@ export function RowMenu({
                   </Button>
                 ) : item.external ? (
                   <Button asChild variant="ghost" className={itemClass(item.danger)}>
-                    <a href={item.external} target="_blank" rel="noopener noreferrer" onClick={hide}>
+                    <a
+                      href={item.external}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={hide}
+                    >
                       {content}
                     </a>
                   </Button>

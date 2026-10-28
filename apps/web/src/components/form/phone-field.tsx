@@ -69,8 +69,12 @@ export function PhoneField({
           aria-label={`${countryLabel}: ${country.name} +${country.dial}`}
           className="flex min-h-11 shrink-0 items-center gap-1.5 border-e-[1.5px] border-input bg-muted px-3 text-base text-foreground transition-colors focus-visible:outline-offset-[-3px] disabled:opacity-50"
         >
-          <span aria-hidden className="leading-none">{flagOf(country.code)}</span>
-          <span aria-hidden className="tabular-nums">+{country.dial}</span>
+          <span aria-hidden className="leading-none">
+            {flagOf(country.code)}
+          </span>
+          <span aria-hidden className="tabular-nums">
+            +{country.dial}
+          </span>
           <CaretDown className="h-4 w-4 text-muted-foreground" />
         </button>
         <input
@@ -109,7 +113,9 @@ export function PhoneField({
                   c.code === code ? "bg-accent-soft" : ""
                 }`}
               >
-                <span aria-hidden className="leading-none">{flagOf(c.code)}</span>
+                <span aria-hidden className="leading-none">
+                  {flagOf(c.code)}
+                </span>
                 <span className="flex-1 truncate text-foreground">{c.name}</span>
                 <span className="text-muted-foreground tabular-nums">+{c.dial}</span>
               </button>

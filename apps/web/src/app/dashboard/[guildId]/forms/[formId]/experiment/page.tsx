@@ -32,7 +32,10 @@ export default async function ExperimentResultsPage({
       <>
         <PageHeader
           title={t.title}
-          breadcrumbs={[{ label: dict.dashboard.formsTab, href: formsHref }, { label: dict.dashboard.experimentLink }]}
+          breadcrumbs={[
+            { label: dict.dashboard.formsTab, href: formsHref },
+            { label: dict.dashboard.experimentLink },
+          ]}
           breadcrumbLabel={dict.kit.breadcrumb}
         />
         <EmptyState kind="unavailable" title={dict.dashboard.noPermEdit} />
@@ -57,7 +60,13 @@ export default async function ExperimentResultsPage({
     const s = byId.get(v.id);
     const views = s?.views ?? 0;
     const submissions = s?.submissions ?? 0;
-    return { id: v.id, name: v.name, views, submissions, rate: views > 0 ? submissions / views : 0 };
+    return {
+      id: v.id,
+      name: v.name,
+      views,
+      submissions,
+      rate: views > 0 ? submissions / views : 0,
+    };
   });
   // Highlight the leader (needs a meaningful sample so a 1/1 fluke doesn't "win").
   const ranked = [...rows].filter((r) => r.views >= 10).sort((a, b) => b.rate - a.rate);
@@ -98,7 +107,11 @@ export default async function ExperimentResultsPage({
         <div className="grid gap-5">
           <StatGrid>
             <StatTile label={t.views} value={count.format(totalViews)} hint={t.allVariants} />
-            <StatTile label={t.submissions} value={count.format(totalSubmissions)} hint={t.allVariants} />
+            <StatTile
+              label={t.submissions}
+              value={count.format(totalSubmissions)}
+              hint={t.allVariants}
+            />
             <StatTile
               label={t.rate}
               value={totalViews > 0 ? pct.format(totalSubmissions / totalViews) : t.noViews}

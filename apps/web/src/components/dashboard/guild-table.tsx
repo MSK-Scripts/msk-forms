@@ -27,7 +27,14 @@ export function GuildTable({
 }: {
   rows: GuildRow[];
   empty: ReactNode;
-  copy: { caption: string; server: string; role: string; forms: string; submissions: string; open: string };
+  copy: {
+    caption: string;
+    server: string;
+    role: string;
+    forms: string;
+    submissions: string;
+    open: string;
+  };
 }) {
   const columns: DataColumn<GuildRow>[] = [
     {
@@ -54,7 +61,13 @@ export function GuildTable({
         </Link>
       ),
     },
-    { id: "role", header: copy.role, sortValue: (g) => g.role, cell: (g) => g.role, className: "align-middle" },
+    {
+      id: "role",
+      header: copy.role,
+      sortValue: (g) => g.role,
+      cell: (g) => g.role,
+      className: "align-middle",
+    },
     {
       id: "forms",
       header: copy.forms,

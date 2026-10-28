@@ -12,7 +12,13 @@ const nav: ShellNavGroup[] = [
     items: [
       { id: "forms", href: "/dashboard/1/forms", label: "Forms", icon: Lock },
       { id: "archive", href: "/dashboard/1/forms/archive", label: "Archive", icon: Lock },
-      { id: "members", href: "/dashboard/1/members", label: "Members", icon: Lock, locked: "Needs a role" },
+      {
+        id: "members",
+        href: "/dashboard/1/members",
+        label: "Members",
+        icon: Lock,
+        locked: "Needs a role",
+      },
     ],
   },
 ];
@@ -37,7 +43,10 @@ describe("currentNavId", () => {
   it("marks an exact item on its own address only", () => {
     const withHome: ShellNavGroup[] = [
       ...nav,
-      { id: "account", items: [{ id: "all", href: "/dashboard", label: "All", icon: Lock, exact: true }] },
+      {
+        id: "account",
+        items: [{ id: "all", href: "/dashboard", label: "All", icon: Lock, exact: true }],
+      },
     ];
     expect(currentNavId(withHome, "/dashboard")).toBe("all");
     expect(currentNavId(withHome, "/dashboard/2/forms")).toBeUndefined();

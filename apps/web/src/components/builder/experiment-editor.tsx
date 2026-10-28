@@ -37,7 +37,10 @@ export function ExperimentEditor({
   }
 
   function patchVariant(i: number, patch: Partial<ExperimentVariant>) {
-    onChange({ ...experiment, variants: variants.map((v, j) => (j === i ? { ...v, ...patch } : v)) });
+    onChange({
+      ...experiment,
+      variants: variants.map((v, j) => (j === i ? { ...v, ...patch } : v)),
+    });
   }
   function addVariant() {
     if (variants.length >= 6) return;
@@ -65,7 +68,10 @@ export function ExperimentEditor({
                 const n = String(i + 1);
                 const labelId = `${uid}-variant-${i}`;
                 return (
-                  <li key={v.id} className="border-t border-border py-5 first:border-t-0 first:pt-0">
+                  <li
+                    key={v.id}
+                    className="border-t border-border py-5 first:border-t-0 first:pt-0"
+                  >
                     <div role="group" aria-labelledby={labelId} className="grid gap-4">
                       <div className="flex items-center justify-between gap-2">
                         <span id={labelId} className="font-semibold">
@@ -84,7 +90,11 @@ export function ExperimentEditor({
                       <div className="grid gap-4 @xl:grid-cols-[minmax(0,1fr)_10rem]">
                         <KitField label={t.namePh}>
                           {(f) => (
-                            <Input {...f} value={v.name} onChange={(e) => patchVariant(i, { name: e.target.value })} />
+                            <Input
+                              {...f}
+                              value={v.name}
+                              onChange={(e) => patchVariant(i, { name: e.target.value })}
+                            />
                           )}
                         </KitField>
                         <KitField label={t.weight}>
@@ -94,7 +104,9 @@ export function ExperimentEditor({
                               type="number"
                               min={0}
                               value={v.weight}
-                              onChange={(e) => patchVariant(i, { weight: Number(e.target.value) || 0 })}
+                              onChange={(e) =>
+                                patchVariant(i, { weight: Number(e.target.value) || 0 })
+                              }
                               className="tabular-nums"
                             />
                           )}
@@ -105,7 +117,9 @@ export function ExperimentEditor({
                           <Input
                             {...f}
                             value={v.title ?? ""}
-                            onChange={(e) => patchVariant(i, { title: e.target.value || undefined })}
+                            onChange={(e) =>
+                              patchVariant(i, { title: e.target.value || undefined })
+                            }
                           />
                         )}
                       </KitField>
@@ -115,7 +129,9 @@ export function ExperimentEditor({
                             {...f}
                             rows={2}
                             value={v.description ?? ""}
-                            onChange={(e) => patchVariant(i, { description: e.target.value || undefined })}
+                            onChange={(e) =>
+                              patchVariant(i, { description: e.target.value || undefined })
+                            }
                             className={fieldClassName}
                           />
                         )}
@@ -127,7 +143,12 @@ export function ExperimentEditor({
             </ol>
           )}
           {variants.length < 6 && (
-            <Button type="button" variant="outline" onClick={addVariant} className="justify-self-start">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={addVariant}
+              className="justify-self-start"
+            >
               <Plus className="h-4 w-4" />
               {t.addVariant}
             </Button>

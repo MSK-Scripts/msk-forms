@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { FormField, FormSection, Notice } from "@/components/dashboard-kit";
-import { SettingsSaveBar, type SaveResult, type SettingsSaveCopy } from "@/components/settings/settings-save-bar";
+import {
+  SettingsSaveBar,
+  type SaveResult,
+  type SettingsSaveCopy,
+} from "@/components/settings/settings-save-bar";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import type { Dictionary } from "@/i18n";
@@ -66,11 +70,12 @@ export function BotConfigForm({
 
   const dirty = (Object.keys(values) as (keyof Values)[]).some((key) => values[key] !== saved[key]);
 
-  const set = (key: keyof Values) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const value = e.target.value;
-    setValues((v) => ({ ...v, [key]: value }));
-    setResult(null);
-  };
+  const set =
+    (key: keyof Values) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const value = e.target.value;
+      setValues((v) => ({ ...v, [key]: value }));
+      setResult(null);
+    };
 
   async function save() {
     setResult(null);
@@ -117,22 +122,49 @@ export function BotConfigForm({
       <div>
         <FormSection title={t.sectionPosting}>
           <FormField label={t.reviewChannel} hint={t.reviewChannelHint}>
-            {(field) => <Input {...field} {...ID_FIELD} inputMode="numeric" value={values.channel} onChange={set("channel")} />}
+            {(field) => (
+              <Input
+                {...field}
+                {...ID_FIELD}
+                inputMode="numeric"
+                value={values.channel}
+                onChange={set("channel")}
+              />
+            )}
           </FormField>
           <FormField label={t.logChannel} hint={t.logChannelHint}>
             {(field) => (
-              <Input {...field} {...ID_FIELD} inputMode="numeric" value={values.logChannel} onChange={set("logChannel")} />
+              <Input
+                {...field}
+                {...ID_FIELD}
+                inputMode="numeric"
+                value={values.logChannel}
+                onChange={set("logChannel")}
+              />
             )}
           </FormField>
           <FormField label={t.postName} hint={t.postNameHint}>
-            {(field) => <Input {...field} value={values.postName} placeholder="MSK Forms" onChange={set("postName")} className="max-w-md" />}
+            {(field) => (
+              <Input
+                {...field}
+                value={values.postName}
+                placeholder="MSK Forms"
+                onChange={set("postName")}
+                className="max-w-md"
+              />
+            )}
           </FormField>
         </FormSection>
 
         <FormSection title={t.sectionLanguage}>
           <FormField label={t.language} hint={t.languageHint}>
             {(field) => (
-              <Select {...field} value={values.locale} onChange={set("locale")} className="max-w-md">
+              <Select
+                {...field}
+                value={values.locale}
+                onChange={set("locale")}
+                className="max-w-md"
+              >
                 {LOCALE_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value} lang={o.value}>
                     {o.label}
@@ -145,7 +177,9 @@ export function BotConfigForm({
 
         <FormSection title={t.sectionRoles}>
           <FormField label={t.acceptedRole} hint={t.acceptedRoleHint}>
-            {(field) => <Input {...field} {...ID_FIELD} value={values.role} onChange={set("role")} />}
+            {(field) => (
+              <Input {...field} {...ID_FIELD} value={values.role} onChange={set("role")} />
+            )}
           </FormField>
         </FormSection>
 

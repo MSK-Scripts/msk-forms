@@ -11,7 +11,14 @@ export interface CheckboxGroupProps {
 }
 
 /** Multi-choice control (zero or more selected values). */
-export function CheckboxGroup({ name, options, value = [], onChange, disabled, invalid }: CheckboxGroupProps) {
+export function CheckboxGroup({
+  name,
+  options,
+  value = [],
+  onChange,
+  disabled,
+  invalid,
+}: CheckboxGroupProps) {
   function toggle(optValue: string, checked: boolean) {
     const next = checked ? [...value, optValue] : value.filter((v) => v !== optValue);
     onChange?.(next);

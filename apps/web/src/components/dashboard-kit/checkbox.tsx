@@ -40,7 +40,10 @@ export function Checkbox({
   const described = [hint ? hintId : null, describedBy].filter(Boolean).join(" ") || undefined;
   return (
     <div className={cn("grid gap-0.5", className)}>
-      <label htmlFor={id} className="flex min-h-11 w-fit max-w-full cursor-pointer items-start gap-3 py-2">
+      <label
+        htmlFor={id}
+        className="flex min-h-11 w-fit max-w-full cursor-pointer items-start gap-3 py-2"
+      >
         <input
           id={id}
           type="checkbox"

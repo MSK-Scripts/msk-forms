@@ -108,14 +108,18 @@ export function DataTable<Row>({
         className="relative max-h-[calc(100dvh-var(--app-topbar)-5px-var(--app-tabbar)-var(--app-gutter-y))] overflow-auto rounded-lg border border-border bg-card lg:max-h-[calc(100dvh-var(--app-topbar)-5px-var(--app-gutter-y))]"
       >
         <table className="w-full border-collapse text-small">
-          <caption id={captionId} className={cn("px-4 py-3 text-left font-semibold", captionHidden && "sr-only")}>
+          <caption
+            id={captionId}
+            className={cn("px-4 py-3 text-left font-semibold", captionHidden && "sr-only")}
+          >
             {caption}
           </caption>
           <thead className="sticky top-0 z-10 bg-muted">
             <tr>
               {columns.map((col) => {
                 const active = sort?.column === col.id ? sort.direction : null;
-                const SortIcon = active === "asc" ? CaretUp : active === "desc" ? CaretDown : CaretUpDown;
+                const SortIcon =
+                  active === "asc" ? CaretUp : active === "desc" ? CaretDown : CaretUpDown;
                 return (
                   <th
                     key={col.id}
@@ -133,7 +137,8 @@ export function DataTable<Row>({
                       "border-b border-border px-3 py-2 text-left align-middle font-semibold text-foreground",
                       col.numeric && "text-right",
                       col.nowrap && "whitespace-nowrap",
-                      col.sticky && "sticky end-0 bg-muted shadow-[inset_1px_0_0_hsl(var(--border))]",
+                      col.sticky &&
+                        "sticky end-0 bg-muted shadow-[inset_1px_0_0_hsl(var(--border))]",
                     )}
                   >
                     {col.sortValue ? (
@@ -165,7 +170,10 @@ export function DataTable<Row>({
               </tr>
             ) : (
               shown.map((row) => (
-                <tr key={rowKey(row)} className="border-b border-border last:border-b-0 hover:bg-muted/50">
+                <tr
+                  key={rowKey(row)}
+                  className="border-b border-border last:border-b-0 hover:bg-muted/50"
+                >
                   {columns.map((col) => (
                     <td
                       key={col.id}

@@ -15,15 +15,25 @@ function strings(value: unknown): string[] {
 }
 
 describe("kit copy", () => {
-  it.each(Object.entries(dictionaries))("%s fits the kit components and has no empty string", (_locale, dict) => {
-    // Assignments, so `tsc` fails when the dictionary and the components drift apart.
-    const shell: ShellCopy = dict.kit.shell;
-    const switcher: GuildSwitcherCopy = dict.kit.guildSwitcher;
-    const copyField: CopyFieldCopy = dict.kit.copyField;
-    const saveBar: SaveBarCopy = dict.kit.saveBar;
-    const all = strings([shell, switcher, copyField, saveBar, dict.kit.breadcrumb, dict.kit.dismiss]);
-    expect(all.filter((s) => s.trim() === "")).toEqual([]);
-  });
+  it.each(Object.entries(dictionaries))(
+    "%s fits the kit components and has no empty string",
+    (_locale, dict) => {
+      // Assignments, so `tsc` fails when the dictionary and the components drift apart.
+      const shell: ShellCopy = dict.kit.shell;
+      const switcher: GuildSwitcherCopy = dict.kit.guildSwitcher;
+      const copyField: CopyFieldCopy = dict.kit.copyField;
+      const saveBar: SaveBarCopy = dict.kit.saveBar;
+      const all = strings([
+        shell,
+        switcher,
+        copyField,
+        saveBar,
+        dict.kit.breadcrumb,
+        dict.kit.dismiss,
+      ]);
+      expect(all.filter((s) => s.trim() === "")).toEqual([]);
+    },
+  );
 
   it("no visible copy of any language contains an em dash", () => {
     // The exclusion list of DESIGN.md: no em dashes in visible copy.

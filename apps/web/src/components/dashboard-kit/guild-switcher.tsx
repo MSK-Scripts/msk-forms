@@ -97,7 +97,9 @@ export function GuildSwitcher({
 
   return (
     <div ref={rootRef} className="grid gap-1.5">
-      <h2 className="px-1 text-label font-semibold uppercase tracking-[0.08em] text-muted-foreground">{copy.label}</h2>
+      <h2 className="px-1 text-label font-semibold tracking-[0.08em] text-muted-foreground uppercase">
+        {copy.label}
+      </h2>
       <button
         ref={buttonRef}
         type="button"
@@ -115,12 +117,20 @@ export function GuildSwitcher({
           <span translate="no" className="truncate font-semibold">
             {currentName}
           </span>
-          {current?.detail && <span className="truncate text-small text-muted-foreground">{current.detail}</span>}
+          {current?.detail && (
+            <span className="truncate text-small text-muted-foreground">{current.detail}</span>
+          )}
         </span>
-        <CaretDown className={cn("h-4 w-4 shrink-0 transition-transform duration-150", open && "rotate-180")} />
+        <CaretDown
+          className={cn("h-4 w-4 shrink-0 transition-transform duration-150", open && "rotate-180")}
+        />
       </button>
 
-      <div id={listId} hidden={!open} className="grid gap-2 rounded-md border border-border bg-card p-1.5">
+      <div
+        id={listId}
+        hidden={!open}
+        className="grid gap-2 rounded-md border border-border bg-card p-1.5"
+      >
         <ul className="grid gap-0.5">
           {guilds.map((guild) => {
             const isCurrent = guild.id === currentId;
@@ -142,7 +152,11 @@ export function GuildSwitcher({
                     <span translate="no" className="truncate">
                       {name}
                     </span>
-                    {guild.detail && <span className="truncate text-small text-muted-foreground">{guild.detail}</span>}
+                    {guild.detail && (
+                      <span className="truncate text-small text-muted-foreground">
+                        {guild.detail}
+                      </span>
+                    )}
                   </span>
                   {isCurrent && <Check className="h-4 w-4 shrink-0 text-primary" />}
                 </Link>

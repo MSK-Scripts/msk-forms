@@ -20,7 +20,11 @@ const MARGIN = 0.1;
  */
 export function dotContrast(hex: string, theme: Theme): number {
   const { background, card, muted } = THEME_SURFACES[theme];
-  return Math.min(contrastRatio(hex, background), contrastRatio(hex, card), contrastRatio(hex, muted));
+  return Math.min(
+    contrastRatio(hex, background),
+    contrastRatio(hex, card),
+    contrastRatio(hex, muted),
+  );
 }
 
 /**
@@ -30,7 +34,13 @@ export function dotContrast(hex: string, theme: Theme): number {
  */
 export function readableDot(hex: string, theme: Theme): string {
   if (dotContrast(hex, theme) >= UI_CONTRAST) return hex.toLowerCase();
-  const hsl = shiftLightness(hex, (c) => dotContrast(c, theme), UI_CONTRAST, theme === "light" ? "darker" : "lighter", MARGIN);
+  const hsl = shiftLightness(
+    hex,
+    (c) => dotContrast(c, theme),
+    UI_CONTRAST,
+    theme === "light" ? "darker" : "lighter",
+    MARGIN,
+  );
   return rgbToHex(hslToRgb(hsl));
 }
 

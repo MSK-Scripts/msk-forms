@@ -30,7 +30,6 @@ import { FormStateBadge, type FormStatus } from "./form-state-badge";
 import { useReplaceFromJson } from "./form-io";
 import { ShareDialog, type ShareLabels } from "./share-button";
 
-
 export interface FormRow {
   id: string;
   title: string;
@@ -72,7 +71,13 @@ export interface FormsTableCopy {
   definition: string;
   abResults: string;
   archive: FormActionCopy;
-  replace: { replace: string; replaceTitle: string; replaceConfirm: string; cancel: string; importErr: string };
+  replace: {
+    replace: string;
+    replaceTitle: string;
+    replaceConfirm: string;
+    cancel: string;
+    importErr: string;
+  };
 }
 
 const fill = (template: string, values: Record<string, string>) =>
@@ -117,7 +122,12 @@ export function FormsTable({
       });
     }
     if (form.url) {
-      items.push({ id: "share", label: copy.share.share, icon: QrCode, onSelect: () => setSharing(form) });
+      items.push({
+        id: "share",
+        label: copy.share.share,
+        icon: QrCode,
+        onSelect: () => setSharing(form),
+      });
     }
     if (form.experiment) {
       items.push({
@@ -138,13 +148,28 @@ export function FormsTable({
       }
     }
     if (form.manages && isPro) {
-      items.push({ id: "definition", label: copy.definition, icon: DownloadSimple, download: `${base}/definition` });
+      items.push({
+        id: "definition",
+        label: copy.definition,
+        icon: DownloadSimple,
+        download: `${base}/definition`,
+      });
     }
     if (canManage && isPro) {
-      items.push({ id: "replace", label: copy.replace.replace, icon: UploadSimple, onSelect: () => replace.pick(form.id) });
+      items.push({
+        id: "replace",
+        label: copy.replace.replace,
+        icon: UploadSimple,
+        onSelect: () => replace.pick(form.id),
+      });
     }
     if (form.manages) {
-      items.push({ id: "archive", label: copy.archive.label, icon: Archive, onSelect: () => setArchiving(form) });
+      items.push({
+        id: "archive",
+        label: copy.archive.label,
+        icon: Archive,
+        onSelect: () => setArchiving(form),
+      });
     }
     return items;
   }
@@ -173,7 +198,7 @@ export function FormsTable({
               href={f.url}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex min-h-9 w-fit items-center break-all font-mono text-small text-primary hover:underline"
+              className="inline-flex min-h-9 w-fit items-center font-mono text-small break-all text-primary hover:underline"
             >
               /f/{f.slug}
             </a>
@@ -239,7 +264,9 @@ export function FormsTable({
                 </Link>
               </Button>
             )}
-            {items.length > 0 && <RowMenu label={fill(copy.moreFor, { name: f.title })} items={items} />}
+            {items.length > 0 && (
+              <RowMenu label={fill(copy.moreFor, { name: f.title })} items={items} />
+            )}
           </div>
         );
       },
@@ -248,7 +275,14 @@ export function FormsTable({
 
   return (
     <>
-      <DataTable caption={copy.caption} captionHidden columns={columns} rows={rows} rowKey={(f) => f.id} empty={empty} />
+      <DataTable
+        caption={copy.caption}
+        captionHidden
+        columns={columns}
+        rows={rows}
+        rowKey={(f) => f.id}
+        empty={empty}
+      />
       {sharing?.url && (
         <ShareDialog
           open
@@ -266,7 +300,11 @@ export function FormsTable({
         <FormActionDialog
           open
           onClose={() => setArchiving(null)}
-          request={{ url: `/api/guilds/${guildId}/forms/${archiving.id}/archive`, method: "POST", body: { archived: true } }}
+          request={{
+            url: `/api/guilds/${guildId}/forms/${archiving.id}/archive`,
+            method: "POST",
+            body: { archived: true },
+          }}
           t={copy.archive}
         />
       )}

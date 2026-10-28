@@ -82,8 +82,7 @@ export function FileField({
     return (
       <div className="flex min-h-11 items-center justify-between gap-3 rounded-md border-[1.5px] border-input bg-card py-1 ps-3 pe-1">
         <span className="min-w-0 truncate text-foreground">
-          {value.name}{" "}
-          <span className="text-muted-foreground">({formatSize(value.size)})</span>
+          {value.name} <span className="text-muted-foreground">({formatSize(value.size)})</span>
         </span>
         <button
           type="button"

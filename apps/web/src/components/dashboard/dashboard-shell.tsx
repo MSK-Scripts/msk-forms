@@ -128,13 +128,29 @@ export function DashboardShell({
   }
   const accountItems = [
     // `exact`: inside a guild every address lies below /dashboard.
-    { id: "servers", href: "/dashboard", label: copy.allServers, icon: SquaresFour, exact: true, mobile: true },
-    { id: "me", href: "/dashboard/me", label: copy.mySubmissions, icon: PaperPlaneTilt, mobile: true },
+    {
+      id: "servers",
+      href: "/dashboard",
+      label: copy.allServers,
+      icon: SquaresFour,
+      exact: true,
+      mobile: true,
+    },
+    {
+      id: "me",
+      href: "/dashboard/me",
+      label: copy.mySubmissions,
+      icon: PaperPlaneTilt,
+      mobile: true,
+    },
   ];
   if (!guildId) nav.push({ id: "account", label: copy.groups.account, items: accountItems });
 
   const current = currentNavId(nav, pathname);
-  const accountCurrent = currentNavId([{ id: "account", label: "", items: accountItems }], pathname);
+  const accountCurrent = currentNavId(
+    [{ id: "account", label: "", items: accountItems }],
+    pathname,
+  );
   const pageTitle = nav.flatMap((g) => g.items).find((item) => item.id === current)?.label;
 
   return (
@@ -144,10 +160,23 @@ export function DashboardShell({
       nav={nav}
       currentId={current}
       pageTitle={pageTitle}
-      switcher={<GuildSwitcher guilds={guilds} currentId={guildId} addHref={inviteHref} copy={copy.switcher} />}
+      switcher={
+        <GuildSwitcher
+          guilds={guilds}
+          currentId={guildId}
+          addHref={inviteHref}
+          copy={copy.switcher}
+        />
+      }
       account={{
         name: userName,
-        links: accountItems.map(({ id, href, label, icon }) => ({ id, href, label, icon, current: id === accountCurrent })),
+        links: accountItems.map(({ id, href, label, icon }) => ({
+          id,
+          href,
+          label,
+          icon,
+          current: id === accountCurrent,
+        })),
         signOut: logoutAction,
       }}
       locale={locale}

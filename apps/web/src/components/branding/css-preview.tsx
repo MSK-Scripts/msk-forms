@@ -14,7 +14,11 @@ const noSubscription = () => () => {};
 
 /** False on the server and during hydration, true afterwards. */
 function useHydrated(): boolean {
-  return useSyncExternalStore(noSubscription, () => true, () => false);
+  return useSyncExternalStore(
+    noSubscription,
+    () => true,
+    () => false,
+  );
 }
 
 export interface CssPreviewLabels {
@@ -67,7 +71,9 @@ export function CssPreview({
     // wrapper, so the preview shows the readable fallback accent per theme.
     const vars = HEX.test(trimmed) ? brandVariables(trimmed) : null;
     const accentStyle = vars
-      ? ` ${GUILD_ACCENT_ATTRIBUTE}="" style="${Object.entries(vars).map(([name, value]) => `${name}:${value}`).join(";")}"`
+      ? ` ${GUILD_ACCENT_ATTRIBUTE}="" style="${Object.entries(vars)
+          .map(([name, value]) => `${name}:${value}`)
+          .join(";")}"`
       : "";
     return `<!doctype html><html${dark ? ' class="dark"' : ""}><head><meta charset="utf-8"><meta name="color-scheme" content="light dark"><style>${PREVIEW_BASE_CSS}</style><style>${safe}</style></head><body><main class="msk-form"${accentStyle}><header><span class="brand">${esc(labels.guild)}</span><h1>${esc(labels.title)}</h1><p class="desc">${esc(labels.desc)}</p></header><div class="card"><div><label>${esc(labels.field)}</label><input placeholder="" /></div><div><label>${esc(labels.field2)}</label><textarea rows="3"></textarea></div><button class="btn" type="button">${esc(labels.submit)}</button></div></main></body></html>`;
   }, [css, accentColor, dark, labels]);

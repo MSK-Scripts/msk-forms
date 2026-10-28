@@ -185,9 +185,7 @@ export function ApiKeysManager({
 
       {/* Not a named region: the table below is one, by the same name. */}
       <section className="grid gap-4">
-        <h2 className="font-display text-h3 font-[650]">
-          {t.yourKeys}
-        </h2>
+        <h2 className="font-display text-h3 font-[650]">{t.yourKeys}</h2>
         <form onSubmit={create} className="flex flex-wrap items-end gap-3">
           <FormField label={t.keyName} className="max-w-md min-w-0 flex-1 basis-64">
             {(field) => (

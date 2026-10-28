@@ -114,9 +114,16 @@ export function FieldEditor({ field, fields, pages, onChange, onChangeType, t }:
   return (
     <div className="grid gap-x-10 gap-y-6 @4xl:grid-cols-2">
       <div className="grid content-start gap-5">
-        <KitField label={t.changeType} hint={fieldCarriesTypeData(field) ? t.changeTypeWarn : undefined}>
+        <KitField
+          label={t.changeType}
+          hint={fieldCarriesTypeData(field) ? t.changeTypeWarn : undefined}
+        >
           {(f) => (
-            <Select {...f} value={field.type} onChange={(e) => onChangeType(e.target.value as FieldType)}>
+            <Select
+              {...f}
+              value={field.type}
+              onChange={(e) => onChangeType(e.target.value as FieldType)}
+            >
               {BUILDER_FIELDS.map((b) => (
                 <option key={b.type} value={b.type}>
                   {ftLabels[b.type] ?? b.type}
@@ -145,7 +152,11 @@ export function FieldEditor({ field, fields, pages, onChange, onChangeType, t }:
           <>
             <KitField label={t.helpText} hint={t.helpHint}>
               {(f) => (
-                <Input {...f} value={field.description ?? ""} onChange={(e) => patch({ description: e.target.value })} />
+                <Input
+                  {...f}
+                  value={field.description ?? ""}
+                  onChange={(e) => patch({ description: e.target.value })}
+                />
               )}
             </KitField>
 
@@ -164,7 +175,9 @@ export function FieldEditor({ field, fields, pages, onChange, onChangeType, t }:
 
             {needsOptions(field.type) && (
               <fieldset className="grid gap-2">
-                <legend className="mb-1.5 font-semibold">{needsRows(field.type) ? t.columns : t.options}</legend>
+                <legend className="mb-1.5 font-semibold">
+                  {needsRows(field.type) ? t.columns : t.options}
+                </legend>
                 {(field.options ?? []).length > 0 && (
                   <ol className="grid gap-2">
                     {(field.options ?? []).map((opt, i) => {
@@ -204,7 +217,12 @@ export function FieldEditor({ field, fields, pages, onChange, onChangeType, t }:
                     })}
                   </ol>
                 )}
-                <Button type="button" variant="outline" onClick={addOption} className="justify-self-start">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addOption}
+                  className="justify-self-start"
+                >
                   <Plus className="h-4 w-4" />
                   {t.addOption}
                 </Button>
@@ -214,7 +232,10 @@ export function FieldEditor({ field, fields, pages, onChange, onChangeType, t }:
             {needsYesNoScore(field.type) && (
               <fieldset className="grid gap-2" aria-describedby={`${uid}-yesno-hint`}>
                 <legend className="font-semibold">{t.points}</legend>
-                <p id={`${uid}-yesno-hint`} className="max-w-[65ch] text-small text-muted-foreground">
+                <p
+                  id={`${uid}-yesno-hint`}
+                  className="max-w-[65ch] text-small text-muted-foreground"
+                >
                   {t.yesNoScoreHint}
                 </p>
                 <div className="flex flex-wrap gap-4">
@@ -265,7 +286,12 @@ export function FieldEditor({ field, fields, pages, onChange, onChangeType, t }:
                     })}
                   </ol>
                 )}
-                <Button type="button" variant="outline" onClick={addRow} className="justify-self-start">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addRow}
+                  className="justify-self-start"
+                >
                   <Plus className="h-4 w-4" />
                   {t.addRow}
                 </Button>

@@ -71,7 +71,10 @@ const MARGIN = 0.1;
  * (`--background`, `--card`, `--muted`, `--accent-soft-amount`). The branding
  * test reads globals.css and fails when these drift.
  */
-export const THEME_SURFACES: Record<Theme, { background: string; card: string; muted: string; softAmount: number }> = {
+export const THEME_SURFACES: Record<
+  Theme,
+  { background: string; card: string; muted: string; softAmount: number }
+> = {
   light: { background: "#f6f6f4", card: "#ffffff", muted: "#ededea", softAmount: 0.07 },
   dark: { background: "#18191b", card: "#212225", muted: "#111214", softAmount: 0.1 },
 };
@@ -88,7 +91,11 @@ export const MSK_GREEN = "#27762e";
 export function accentContrast(hex: string, theme: Theme): number {
   const { background, card, softAmount } = THEME_SURFACES[theme];
   const soft = mixOklab(hex, background, softAmount);
-  return Math.min(contrastRatio(hex, background), contrastRatio(hex, card), contrastRatio(hex, soft));
+  return Math.min(
+    contrastRatio(hex, background),
+    contrastRatio(hex, card),
+    contrastRatio(hex, soft),
+  );
 }
 
 /**
@@ -100,7 +107,13 @@ export function accentContrast(hex: string, theme: Theme): number {
 export function readableAccent(hex: string, theme: Theme, min: number = TEXT_CONTRAST): Hsl {
   // Darker on the light ground, lighter on the dark one: each step only adds
   // contrast there.
-  return shiftLightness(hex, (c) => accentContrast(c, theme), min, theme === "light" ? "darker" : "lighter", MARGIN);
+  return shiftLightness(
+    hex,
+    (c) => accentContrast(c, theme),
+    min,
+    theme === "light" ? "darker" : "lighter",
+    MARGIN,
+  );
 }
 
 /**
@@ -115,7 +128,9 @@ export const LABELS = [
 
 /** Whichever label reads better on `hex`; white on a tie. */
 export function labelFor(hex: string): (typeof LABELS)[number] {
-  return contrastRatio(LABELS[0].hex, hex) >= contrastRatio(LABELS[1].hex, hex) ? LABELS[0] : LABELS[1];
+  return contrastRatio(LABELS[0].hex, hex) >= contrastRatio(LABELS[1].hex, hex)
+    ? LABELS[0]
+    : LABELS[1];
 }
 
 export interface AccentSet {

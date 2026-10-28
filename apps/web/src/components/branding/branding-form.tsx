@@ -8,7 +8,11 @@ import { CssPreview } from "@/components/branding/css-preview";
 import { ColorField, FormField, FormSection, HEX_COLOR } from "@/components/dashboard-kit";
 import { ArrowCounterClockwise, Plus } from "@/components/icons";
 import { ProNotice } from "@/components/pro-notice";
-import { SettingsSaveBar, type SaveResult, type SettingsSaveCopy } from "@/components/settings/settings-save-bar";
+import {
+  SettingsSaveBar,
+  type SaveResult,
+  type SettingsSaveCopy,
+} from "@/components/settings/settings-save-bar";
 import { Button } from "@/components/ui/button";
 import { fieldClassName } from "@/components/ui/input";
 import type { Dictionary } from "@/i18n";
@@ -64,7 +68,10 @@ export function BrandingForm({
 }) {
   const router = useRouter();
   const snippetsId = useId();
-  const [values, setValues] = useState<Values>({ color: initial.accentColor ?? "", css: initial.customCss ?? "" });
+  const [values, setValues] = useState<Values>({
+    color: initial.accentColor ?? "",
+    css: initial.customCss ?? "",
+  });
   const [saved, setSaved] = useState<Values>(values);
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<SaveResult>(null);

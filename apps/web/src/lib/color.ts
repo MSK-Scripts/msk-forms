@@ -20,7 +20,16 @@ export function hexToRgb(hex: string): Rgb | null {
 
 /** Channels in 0..1 to `#rrggbb`, rounded to 8 bit as a screen shows them. */
 export function rgbToHex(rgb: Rgb): string {
-  return "#" + rgb.map((v) => Math.round(clamp01(v) * 255).toString(16).padStart(2, "0")).join("");
+  return (
+    "#" +
+    rgb
+      .map((v) =>
+        Math.round(clamp01(v) * 255)
+          .toString(16)
+          .padStart(2, "0"),
+      )
+      .join("")
+  );
 }
 
 /** Hue in degrees, saturation and lightness in percent. */

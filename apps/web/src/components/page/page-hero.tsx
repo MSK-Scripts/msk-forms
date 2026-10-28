@@ -64,7 +64,10 @@ export function PageHero({
                         {c.label}
                       </a>
                     ) : (
-                      <span aria-current="page" className="inline-flex min-h-11 items-center text-band-foreground">
+                      <span
+                        aria-current="page"
+                        className="inline-flex min-h-11 items-center text-band-foreground"
+                      >
                         {c.label}
                       </span>
                     )}
@@ -75,7 +78,10 @@ export function PageHero({
           )}
           <div className="grid gap-2.5">
             {kicker && <span className="kicker">{kicker}</span>}
-            <h1 id={id} className="max-w-[20ch] text-display font-[750] tracking-[-0.02em] text-balance">
+            <h1
+              id={id}
+              className="max-w-[20ch] text-display font-[750] tracking-[-0.02em] text-balance"
+            >
               {title}
             </h1>
           </div>
@@ -91,5 +97,5 @@ export function PageHero({
 
 /** A brand word in the heading, in the band green. */
 export function Accent({ children }: { children: ReactNode }) {
-  return <em className="not-italic text-band-accent">{children}</em>;
+  return <em className="text-band-accent not-italic">{children}</em>;
 }

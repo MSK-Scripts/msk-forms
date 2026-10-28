@@ -99,13 +99,22 @@ describe("customer branding contract", () => {
     expect(accentRules.length).toBeGreaterThan(0);
     for (const rule of accentRules) {
       let layered = false;
-      for (let p: postcss.Node | undefined = rule.parent as postcss.Node | undefined; p; p = p.parent as postcss.Node | undefined) {
+      for (
+        let p: postcss.Node | undefined = rule.parent as postcss.Node | undefined;
+        p;
+        p = p.parent as postcss.Node | undefined
+      ) {
         if (p.type === "atrule" && (p as postcss.AtRule).name === "layer") layered = true;
       }
       expect(layered, `${rule.selector} is not in a cascade layer`).toBe(true);
     }
-    const setsPrimary = accentRules.filter((rule) => rule.nodes.some((n) => n.type === "decl" && n.prop === "--primary"));
-    expect(setsPrimary.map((r) => r.selector).sort()).toEqual([`.dark [${GUILD_ACCENT_ATTRIBUTE}]`, `[${GUILD_ACCENT_ATTRIBUTE}]`]);
+    const setsPrimary = accentRules.filter((rule) =>
+      rule.nodes.some((n) => n.type === "decl" && n.prop === "--primary"),
+    );
+    expect(setsPrimary.map((r) => r.selector).sort()).toEqual([
+      `.dark [${GUILD_ACCENT_ATTRIBUTE}]`,
+      `[${GUILD_ACCENT_ATTRIBUTE}]`,
+    ]);
   });
 
   it("no source file reads a theme colour through var(--color-…)", () => {

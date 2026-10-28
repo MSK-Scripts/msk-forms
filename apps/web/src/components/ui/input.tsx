@@ -16,9 +16,8 @@ export const fieldClassName = cn(
   "disabled:cursor-not-allowed disabled:opacity-50",
 );
 
-export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input(
-  { className, type = "text", ...props },
-  ref,
-) {
-  return <input ref={ref} type={type} className={cn(fieldClassName, className)} {...props} />;
-});
+export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
+  function Input({ className, type = "text", ...props }, ref) {
+    return <input ref={ref} type={type} className={cn(fieldClassName, className)} {...props} />;
+  },
+);

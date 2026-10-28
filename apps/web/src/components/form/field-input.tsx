@@ -1,7 +1,15 @@
 "use client";
 
 import { EMOJI_SCALE, scaleBounds, type FileAnswer, type FormField } from "@msk-forms/shared";
-import { Checkbox, CheckboxGroup, Input, RadioGroup, Select, Textarea, fieldClass } from "@msk-forms/ui";
+import {
+  Checkbox,
+  CheckboxGroup,
+  Input,
+  RadioGroup,
+  Select,
+  Textarea,
+  fieldClass,
+} from "@msk-forms/ui";
 
 import { DateField, type DateFieldLabels } from "./date-field";
 import { FileField, type FileFieldLabels } from "./file-field";
@@ -10,7 +18,8 @@ import { PhoneField } from "./phone-field";
 import { ScaleButtons, SliderInput, StarRating } from "./rating-fields";
 import { SignatureField } from "./signature-field";
 
-export type FieldValue = string | number | boolean | string[] | FileAnswer | Record<string, string> | undefined;
+export type FieldValue =
+  string | number | boolean | string[] | FileAnswer | Record<string, string> | undefined;
 
 /** Copy the controls need beyond the field's own texts. */
 export interface FieldInputLabels {
@@ -62,7 +71,16 @@ interface FieldInputProps {
 }
 
 /** Renders the interactive control for a single (non-layout) form field. */
-export function FieldInput({ field, value, onChange, invalid, disabled, describedBy, slug, labels }: FieldInputProps) {
+export function FieldInput({
+  field,
+  value,
+  onChange,
+  invalid,
+  disabled,
+  describedBy,
+  slug,
+  labels,
+}: FieldInputProps) {
   const id = field.id;
   const options = (field.options ?? []).map((o) => ({ value: o.value, label: o.label }));
   const described = { "aria-describedby": describedBy };
@@ -129,13 +147,26 @@ export function FieldInput({ field, value, onChange, invalid, disabled, describe
 
     case "rating_stars": {
       const { max } = scaleBounds(field);
-      return <StarRating value={value as number | undefined} max={max} disabled={disabled} onChange={onChange} />;
+      return (
+        <StarRating
+          value={value as number | undefined}
+          max={max}
+          disabled={disabled}
+          onChange={onChange}
+        />
+      );
     }
 
     case "nps": {
       const { min, max } = scaleBounds(field);
       return (
-        <ScaleButtons value={value as number | undefined} min={min} max={max} disabled={disabled} onChange={onChange} />
+        <ScaleButtons
+          value={value as number | undefined}
+          min={min}
+          max={max}
+          disabled={disabled}
+          onChange={onChange}
+        />
       );
     }
 
@@ -293,7 +324,13 @@ export function FieldInput({ field, value, onChange, invalid, disabled, describe
     // short_text, email, url, password and any other single-line text.
     default: {
       const inputType =
-        field.type === "email" ? "email" : field.type === "url" ? "url" : field.type === "password" ? "password" : "text";
+        field.type === "email"
+          ? "email"
+          : field.type === "url"
+            ? "url"
+            : field.type === "password"
+              ? "password"
+              : "text";
       return (
         <Input
           id={id}

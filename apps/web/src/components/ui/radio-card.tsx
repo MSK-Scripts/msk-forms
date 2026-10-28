@@ -30,8 +30,8 @@ export function RadioCard({
         "relative grid min-h-11 cursor-pointer content-start gap-0.5 rounded-md border-[1.5px] border-input bg-card px-3.5 py-3 transition-colors duration-150",
         "hover:border-foreground",
         "has-[:checked]:border-primary has-[:checked]:bg-accent-soft has-[:checked]:shadow-[inset_0_0_0_1.5px_hsl(var(--primary))]",
-        "has-[:focus-visible]:outline-solid has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring",
-        "forced-colors:has-[:checked]:outline-solid forced-colors:has-[:checked]:outline-[3px] forced-colors:has-[:checked]:outline-[color:Highlight]",
+        "has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring has-[:focus-visible]:outline-solid",
+        "forced-colors:has-[:checked]:outline-[3px] forced-colors:has-[:checked]:outline-[color:Highlight] forced-colors:has-[:checked]:outline-solid",
         className,
       )}
     >

@@ -8,12 +8,16 @@ export function LayoutBlock({ field }: { field: FormField }) {
       return (
         <div className="grid gap-1 border-b border-border pb-2">
           <h2 className="font-display text-h3 font-[650] text-foreground">{field.label}</h2>
-          {field.description && <p className="max-w-[65ch] text-muted-foreground">{field.description}</p>}
+          {field.description && (
+            <p className="max-w-[65ch] text-muted-foreground">{field.description}</p>
+          )}
         </div>
       );
 
     case "paragraph":
-      return <p className="max-w-[65ch] text-muted-foreground">{field.description ?? field.label}</p>;
+      return (
+        <p className="max-w-[65ch] text-muted-foreground">{field.description ?? field.label}</p>
+      );
 
     case "divider":
       return <hr className="border-border" />;

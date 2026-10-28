@@ -19,7 +19,11 @@ export function PublicHead({
     <header className="grid gap-3">
       {kicker && <span className="kicker">{kicker}</span>}
       <h1 className="text-h2 font-bold tracking-[-0.015em] text-balance">{title}</h1>
-      {description && <p className="max-w-[60ch] text-lead whitespace-pre-line text-muted-foreground">{description}</p>}
+      {description && (
+        <p className="max-w-[60ch] text-lead whitespace-pre-line text-muted-foreground">
+          {description}
+        </p>
+      )}
       {children}
     </header>
   );
@@ -40,9 +44,20 @@ export function PublicCard({ children, className }: { children: ReactNode; class
 }
 
 /** A section of a public page, set apart by a hairline instead of a box. */
-export function PublicSection({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+export function PublicSection({
+  id,
+  title,
+  children,
+}: {
+  id: string;
+  title: string;
+  children: ReactNode;
+}) {
   return (
-    <section aria-labelledby={id} className="grid gap-3 border-t border-border pt-[var(--space-stack)]">
+    <section
+      aria-labelledby={id}
+      className="grid gap-3 border-t border-border pt-[var(--space-stack)]"
+    >
       <h2 id={id} className="font-display text-h3 font-[650]">
         {title}
       </h2>

@@ -37,7 +37,8 @@ export function FormField({
   const id = useId();
   const hintId = `${id}-hint`;
   const errorId = `${id}-error`;
-  const describedBy = [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(" ") || undefined;
+  const describedBy =
+    [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(" ") || undefined;
 
   return (
     <div className={cn("grid content-start gap-1.5", className)}>
@@ -55,7 +56,12 @@ export function FormField({
           {hint}
         </p>
       )}
-      {children({ id, "aria-describedby": describedBy, "aria-invalid": error ? true : undefined, required })}
+      {children({
+        id,
+        "aria-describedby": describedBy,
+        "aria-invalid": error ? true : undefined,
+        required,
+      })}
       {error && (
         <p id={errorId} className="flex items-start gap-1.5 text-small font-semibold text-danger">
           <WarningCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -86,14 +92,19 @@ export function FormSection({
   return (
     <section
       aria-labelledby={id}
-      className={cn("@container border-t border-border py-6 first:border-t-0 first:pt-0", className)}
+      className={cn(
+        "@container border-t border-border py-6 first:border-t-0 first:pt-0",
+        className,
+      )}
     >
       <div className="grid gap-x-10 gap-y-4 @3xl:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]">
         <div className="grid content-start gap-1">
           <h2 id={id} className="font-display text-h3 font-[650]">
             {title}
           </h2>
-          {description && <p className="max-w-[45ch] text-small text-muted-foreground">{description}</p>}
+          {description && (
+            <p className="max-w-[45ch] text-small text-muted-foreground">{description}</p>
+          )}
         </div>
         <div className="grid gap-5">{children}</div>
       </div>

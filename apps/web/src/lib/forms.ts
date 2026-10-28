@@ -372,11 +372,7 @@ export async function getSubmissionForStatus(id: string) {
  * the submission belongs to another guild). Includes the full event timeline
  * (internal + public) with actor info and all of the guild's status defs.
  */
-export async function getSubmissionForReview(
-  id: string,
-  guildId: string,
-  labels?: StatusLabelMap,
-) {
+export async function getSubmissionForReview(id: string, guildId: string, labels?: StatusLabelMap) {
   const submission = await prisma.submission.findUnique({
     where: { id },
     select: {

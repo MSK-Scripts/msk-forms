@@ -45,7 +45,14 @@ export function Notice({
 }) {
   const { bar, text, icon: Icon } = TONE[tone];
   return (
-    <div role={role} className={cn("flex items-start gap-3 rounded-md border-l-4 bg-muted px-4 py-3", bar, className)}>
+    <div
+      role={role}
+      className={cn(
+        "flex items-start gap-3 rounded-md border-l-4 bg-muted px-4 py-3",
+        bar,
+        className,
+      )}
+    >
       <Icon className={cn("mt-0.5 h-5 w-5 shrink-0", text)} weight="bold" />
       <div className="grid min-w-0 flex-1 gap-1">
         {title && <p className={cn("max-w-[65ch] font-semibold", text)}>{title}</p>}
@@ -53,7 +60,11 @@ export function Notice({
             notice may use the full width. */}
         {children != null && children !== false && (
           <div className="min-w-0 text-small text-foreground [&_p]:max-w-[65ch]">
-            {typeof children === "string" || typeof children === "number" ? <p>{children}</p> : children}
+            {typeof children === "string" || typeof children === "number" ? (
+              <p>{children}</p>
+            ) : (
+              children
+            )}
           </div>
         )}
         {action && <div className="mt-1.5 flex flex-wrap gap-3">{action}</div>}

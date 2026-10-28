@@ -68,7 +68,12 @@ export function ColorField({
   const invalid = trimmed ? !valid : !optional;
 
   return (
-    <FormField label={label} hint={hint} error={invalid && !editing ? invalidText : undefined} className={className}>
+    <FormField
+      label={label}
+      hint={hint}
+      error={invalid && !editing ? invalidText : undefined}
+      className={className}
+    >
       {(field) => (
         <div className="flex items-center gap-2">
           <input

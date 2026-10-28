@@ -28,7 +28,9 @@ import { CHANNELS, colorUtilities, over, resolveColor, sourceTokens } from "./to
 type Ref = string | { over: [color: Ref, surface: Ref, opacity: number] };
 type Pair = [label: string, fg: Ref, bg: Ref, need: number];
 
-const tint = (color: string, surface: string, opacity: number): Ref => ({ over: [color, surface, opacity] });
+const tint = (color: string, surface: string, opacity: number): Ref => ({
+  over: [color, surface, opacity],
+});
 
 const STATUS = ["success", "warning", "danger", "info"] as const;
 
@@ -151,7 +153,9 @@ describe("Coverage", () => {
   const covered = new Set(PAIRS.flatMap(([, fg, bg]) => [...names(fg), ...names(bg)]));
 
   it("every colour utility of globals.css is in at least one pair", () => {
-    const missing = Object.keys(utilities).filter((name) => !covered.has(name) && !LINES_ONLY.includes(name));
+    const missing = Object.keys(utilities).filter(
+      (name) => !covered.has(name) && !LINES_ONLY.includes(name),
+    );
     expect(missing).toEqual([]);
   });
 

@@ -14,14 +14,25 @@ import { cn } from "@/lib/utils";
  * choice writes it and refreshes the page. A native select, because seven
  * languages by their own names would crowd the sidebar as links.
  */
-export function LanguageSelect({ locale, label, className }: { locale: Locale; label: string; className?: string }) {
+export function LanguageSelect({
+  locale,
+  label,
+  className,
+}: {
+  locale: Locale;
+  label: string;
+  className?: string;
+}) {
   const router = useRouter();
   const id = useId();
   const [pending, startTransition] = useTransition();
 
   return (
     <div className={cn("grid gap-1", className)}>
-      <label htmlFor={id} className="px-3 text-label font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+      <label
+        htmlFor={id}
+        className="px-3 text-label font-semibold tracking-[0.08em] text-muted-foreground uppercase"
+      >
         {label}
       </label>
       <Select

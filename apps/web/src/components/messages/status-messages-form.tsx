@@ -4,7 +4,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { FormField, FormSection } from "@/components/dashboard-kit";
-import { SettingsSaveBar, type SaveResult, type SettingsSaveCopy } from "@/components/settings/settings-save-bar";
+import {
+  SettingsSaveBar,
+  type SaveResult,
+  type SettingsSaveCopy,
+} from "@/components/settings/settings-save-bar";
 import { fieldClassName } from "@/components/ui/input";
 
 interface StatusMessagesLabels {

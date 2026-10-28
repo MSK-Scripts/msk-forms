@@ -160,7 +160,10 @@ export function FieldOutline({
           const pageName = pageNames[pi] ?? `${t.page} ${pi + 1}`;
           const open = pickerFor === page.id;
           return (
-            <li key={page.id} className="grid gap-4 border-t border-border pt-5 first:border-t-0 first:pt-0">
+            <li
+              key={page.id}
+              className="grid gap-4 border-t border-border pt-5 first:border-t-0 first:pt-0"
+            >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="font-display text-h3 font-[650]">
                   {t.page} {pi + 1}
@@ -238,7 +241,10 @@ export function FieldOutline({
                       .filter(Boolean)
                       .join(" · ");
                     return (
-                      <li key={field.id} className="flex flex-wrap items-center gap-x-1 gap-y-1 py-1.5">
+                      <li
+                        key={field.id}
+                        className="flex flex-wrap items-center gap-x-1 gap-y-1 py-1.5"
+                      >
                         <button
                           type="button"
                           data-select={field.id}
@@ -250,14 +256,22 @@ export function FieldOutline({
                             selected ? "bg-accent-soft" : "hover:bg-muted",
                           )}
                         >
-                          <span className="min-w-5 shrink-0 text-right tabular-nums text-muted-foreground">
+                          <span className="min-w-5 shrink-0 text-right text-muted-foreground tabular-nums">
                             {fi + 1}
                           </span>
                           <Icon
-                            className={cn("mt-1 h-5 w-5 shrink-0", selected ? "text-primary" : "text-muted-foreground")}
+                            className={cn(
+                              "mt-1 h-5 w-5 shrink-0",
+                              selected ? "text-primary" : "text-muted-foreground",
+                            )}
                           />
                           <span className="grid min-w-0">
-                            <span className={cn("font-semibold break-words", selected && "text-primary")}>
+                            <span
+                              className={cn(
+                                "font-semibold break-words",
+                                selected && "text-primary",
+                              )}
+                            >
                               {name}
                             </span>
                             <span className="text-small text-muted-foreground">{meta}</span>
@@ -321,10 +335,15 @@ export function FieldOutline({
                   {PICKER.map(({ group, types }) => {
                     const groupId = `${uid}-${pi}-${group}`;
                     return (
-                      <div key={group} role="group" aria-labelledby={groupId} className="grid gap-2">
+                      <div
+                        key={group}
+                        role="group"
+                        aria-labelledby={groupId}
+                        className="grid gap-2"
+                      >
                         <p
                           id={groupId}
-                          className="text-label font-semibold uppercase tracking-[0.08em] text-muted-foreground"
+                          className="text-label font-semibold tracking-[0.08em] text-muted-foreground uppercase"
                         >
                           {t.pickerGroups[group]}
                         </p>
@@ -355,7 +374,12 @@ export function FieldOutline({
         })}
       </ol>
 
-      <Button type="button" variant="outline" onClick={handlers.onAddPage} className="justify-self-start">
+      <Button
+        type="button"
+        variant="outline"
+        onClick={handlers.onAddPage}
+        className="justify-self-start"
+      >
         <Plus className="h-4 w-4" />
         {t.addPage}
       </Button>

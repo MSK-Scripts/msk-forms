@@ -6,7 +6,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState, type MouseEvent, type ReactNode } from "react";
 
-import { ArrowLeft, CaretDown, List, Lock, SignOut, User, X, type IconComponent } from "@/components/icons";
+import {
+  ArrowLeft,
+  CaretDown,
+  List,
+  Lock,
+  SignOut,
+  User,
+  X,
+  type IconComponent,
+} from "@/components/icons";
 import type { Locale } from "@/i18n/dictionaries";
 import { cn } from "@/lib/utils";
 
@@ -90,7 +99,8 @@ const navItemClass = cn(
   "aria-[current=page]:shadow-[inset_3px_0_0_hsl(var(--primary))]",
 );
 
-const groupLabelClass = "px-3 text-label font-semibold uppercase tracking-[0.08em] text-muted-foreground";
+const groupLabelClass =
+  "px-3 text-label font-semibold uppercase tracking-[0.08em] text-muted-foreground";
 
 function NavList({
   nav,
@@ -151,7 +161,15 @@ function NavList({
  * A native popover opened through `popovertarget`, so it opens, and the
  * sign-out form inside it posts, before the page has hydrated.
  */
-function AccountMenu({ account, copy, locale }: { account: ShellAccount; copy: ShellCopy; locale: Locale }) {
+function AccountMenu({
+  account,
+  copy,
+  locale,
+}: {
+  account: ShellAccount;
+  copy: ShellCopy;
+  locale: Locale;
+}) {
   const id = useId();
   const { panelRef, triggerRef, hide } = useAnchoredPopover<HTMLButtonElement>();
   return (
@@ -160,7 +178,7 @@ function AccountMenu({ account, copy, locale }: { account: ShellAccount; copy: S
         ref={triggerRef}
         type="button"
         popoverTarget={id}
-        className="-mr-2 inline-flex min-h-11 min-w-11 max-w-[14rem] shrink-0 items-center justify-center gap-1.5 rounded-md px-2 font-medium text-foreground transition-colors duration-150 hover:bg-muted"
+        className="-mr-2 inline-flex min-h-11 max-w-[14rem] min-w-11 shrink-0 items-center justify-center gap-1.5 rounded-md px-2 font-medium text-foreground transition-colors duration-150 hover:bg-muted"
       >
         <User className="h-5 w-5 shrink-0" />
         <span className="sr-only">{copy.account}: </span>
@@ -181,7 +199,9 @@ function AccountMenu({ account, copy, locale }: { account: ShellAccount; copy: S
             <p translate="no" className="truncate font-semibold">
               {account.name}
             </p>
-            {account.detail && <div className="text-small text-muted-foreground">{account.detail}</div>}
+            {account.detail && (
+              <div className="text-small text-muted-foreground">{account.detail}</div>
+            )}
           </div>
           {account.links && account.links.length > 0 && (
             <ul className="grid">
@@ -203,7 +223,10 @@ function AccountMenu({ account, copy, locale }: { account: ShellAccount; copy: S
           )}
           <div className="grid gap-3 border-t border-border pt-3">
             {/* The three choices share the width of the panel. */}
-            <ThemeSwitch labels={copy.theme} className="w-full [&>button]:flex-1 [&>button]:px-1.5" />
+            <ThemeSwitch
+              labels={copy.theme}
+              className="w-full [&>button]:flex-1 [&>button]:px-1.5"
+            />
             <LanguageSelect locale={locale} label={copy.language} />
           </div>
           <div className="grid border-t border-border pt-2">
@@ -349,7 +372,13 @@ export function AppShell({
             prefetch={false}
             className="flex min-h-11 min-w-0 shrink-0 items-center gap-2.5 text-foreground"
           >
-            <Image src="/logo.png" alt="" width={32} height={32} className="h-8 w-8 rounded-md object-contain" />
+            <Image
+              src="/logo.png"
+              alt=""
+              width={32}
+              height={32}
+              className="h-8 w-8 rounded-md object-contain"
+            />
             <span className="font-display text-lead font-bold">{productName}</span>
           </Link>
           {pageTitle && (
@@ -369,8 +398,14 @@ export function AppShell({
 
       {signedIn && nav ? (
         <div className="flex flex-1">
-          <aside className="scroll-shadow-y sticky top-[calc(var(--app-topbar)+5px)] hidden h-[calc(100dvh-var(--app-topbar)-5px)] w-[var(--app-sidebar)] shrink-0 flex-col overflow-y-auto overscroll-contain border-r border-border lg:flex">
-            <SidebarBody nav={nav} current={current} switcher={switcher} onNavigate={onNavigate} label={copy.nav} />
+          <aside className="sticky top-[calc(var(--app-topbar)+5px)] hidden h-[calc(100dvh-var(--app-topbar)-5px)] w-[var(--app-sidebar)] shrink-0 flex-col overflow-y-auto overscroll-contain border-r border-border scroll-shadow-y lg:flex">
+            <SidebarBody
+              nav={nav}
+              current={current}
+              switcher={switcher}
+              onNavigate={onNavigate}
+              label={copy.nav}
+            />
           </aside>
 
           <NavDrawer
@@ -404,14 +439,21 @@ export function AppShell({
         </div>
       ) : (
         <>
-          <main id="main" tabIndex={-1} className="flex-1 px-[var(--app-gutter)] py-[var(--app-gutter-y)] focus:outline-none">
+          <main
+            id="main"
+            tabIndex={-1}
+            className="flex-1 px-[var(--app-gutter)] py-[var(--app-gutter-y)] focus:outline-none"
+          >
             <div className="@container mx-auto w-full max-w-[var(--app-content)]">{children}</div>
           </main>
           <footer className="border-t border-border bg-card">
             <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 px-[var(--app-gutter)] py-3">
               <ThemeSwitch labels={copy.theme} />
               <LanguageSelect locale={locale} label={copy.language} className="w-56" />
-              <a href="/" className="inline-flex min-h-11 items-center gap-2 text-primary hover:underline">
+              <a
+                href="/"
+                className="inline-flex min-h-11 items-center gap-2 text-primary hover:underline"
+              >
                 <ArrowLeft className="h-4 w-4" />
                 {copy.backToSite}
               </a>

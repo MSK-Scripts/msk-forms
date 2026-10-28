@@ -63,24 +63,16 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     ...DEFAULT_METADATA,
     title: guild.name,
-    ...(logo
-      ? { icons: { icon: [{ url: logo, type: "image/webp" }], apple: logo } }
-      : {}),
+    ...(logo ? { icons: { icon: [{ url: logo, type: "image/webp" }], apple: logo } } : {}),
   };
 }
 
-export default async function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const nonce = (await headers()).get("x-nonce") ?? undefined;
   const [locale, dict] = await Promise.all([getLocale(), getDict()]);
 
   return (
-    <html
-      lang={locale}
-      dir={getDirection(locale)}
-      suppressHydrationWarning
-    >
+    <html lang={locale} dir={getDirection(locale)} suppressHydrationWarning>
       <body className="font-sans antialiased">
         {/* Skip link (WCAG 2.4.1), the first element of every page and
             server-rendered, so it works without JavaScript. Every frame below

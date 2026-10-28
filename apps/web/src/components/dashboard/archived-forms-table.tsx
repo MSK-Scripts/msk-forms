@@ -99,7 +99,13 @@ export function ArchivedFormsTable({
           });
         }
         if (mayDelete) {
-          items.push({ id: "delete", label: copy.remove.label, icon: Trash, danger: true, onSelect: () => setRemoving(f) });
+          items.push({
+            id: "delete",
+            label: copy.remove.label,
+            icon: Trash,
+            danger: true,
+            onSelect: () => setRemoving(f),
+          });
         }
         return (
           <div className="flex items-center justify-end gap-2">
@@ -119,12 +125,23 @@ export function ArchivedFormsTable({
 
   return (
     <>
-      <DataTable caption={copy.caption} captionHidden columns={columns} rows={rows} rowKey={(f) => f.id} empty={empty} />
+      <DataTable
+        caption={copy.caption}
+        captionHidden
+        columns={columns}
+        rows={rows}
+        rowKey={(f) => f.id}
+        empty={empty}
+      />
       {restoring && (
         <FormActionDialog
           open
           onClose={() => setRestoring(null)}
-          request={{ url: `/api/guilds/${guildId}/forms/${restoring.id}/archive`, method: "POST", body: { archived: false } }}
+          request={{
+            url: `/api/guilds/${guildId}/forms/${restoring.id}/archive`,
+            method: "POST",
+            body: { archived: false },
+          }}
           t={copy.restore}
         />
       )}
@@ -141,4 +158,3 @@ export function ArchivedFormsTable({
     </>
   );
 }
-

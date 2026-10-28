@@ -47,7 +47,13 @@ export function FormDeletionSetting({
 
   return (
     <FormSection title={t.title} description={t.hint}>
-      <Checkbox id="admins-can-delete-forms" label={t.label} checked={allowed} disabled={busy} onChange={toggle} />
+      <Checkbox
+        id="admins-can-delete-forms"
+        label={t.label}
+        checked={allowed}
+        disabled={busy}
+        onChange={toggle}
+      />
       {message && (
         <Notice
           tone={message.ok ? "success" : "danger"}

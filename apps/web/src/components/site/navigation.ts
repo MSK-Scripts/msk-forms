@@ -46,7 +46,11 @@ export function productLines(t: Dictionary["site"], locale: string): ProductLine
       links: [
         { href: shopUrl(locale, "/fivem"), label: t.fivemPaid, description: t.fivemPaidDesc },
         { href: shopUrl(locale, "/fivem/free"), label: t.fivemFree, description: t.fivemFreeDesc },
-        { href: shopUrl(locale, "/fivem/all-access"), label: t.fivemAllAccess, description: t.fivemAllAccessDesc },
+        {
+          href: shopUrl(locale, "/fivem/all-access"),
+          label: t.fivemAllAccess,
+          description: t.fivemAllAccessDesc,
+        },
         { href: shopUrl(locale, "/stats"), label: t.fivemStats, description: t.fivemStatsDesc },
       ],
     },
@@ -57,8 +61,16 @@ export function productLines(t: Dictionary["site"], locale: string): ProductLine
       current: false,
       // Product names stay as they are in every language.
       links: [
-        { href: shopUrl(locale, "/discord/ticket-bot"), label: "Ticket Bot", description: t.ticketDesc },
-        { href: shopUrl(locale, "/discord/giveaway-bot"), label: "Giveaway Bot", description: t.giveawayDesc },
+        {
+          href: shopUrl(locale, "/discord/ticket-bot"),
+          label: "Ticket Bot",
+          description: t.ticketDesc,
+        },
+        {
+          href: shopUrl(locale, "/discord/giveaway-bot"),
+          label: "Giveaway Bot",
+          description: t.giveawayDesc,
+        },
       ],
     },
     {
@@ -70,7 +82,12 @@ export function productLines(t: Dictionary["site"], locale: string): ProductLine
         { href: shopUrl(locale, "/tools/images"), label: t.images, description: t.imagesDesc },
         { href: "/", label: "MSK Forms", description: t.formsDesc, current: true },
         { href: TOOL_URLS.paste, label: "MSK Paste", description: t.pasteDesc, external: true },
-        { href: TOOL_URLS.shortener, label: "MSK Shortener", description: t.shortenerDesc, external: true },
+        {
+          href: TOOL_URLS.shortener,
+          label: "MSK Shortener",
+          description: t.shortenerDesc,
+          external: true,
+        },
       ],
     },
   ];

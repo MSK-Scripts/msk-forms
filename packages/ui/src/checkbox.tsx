@@ -9,7 +9,12 @@ export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement
 export function Checkbox({ label, className = "", id, ...props }: CheckboxProps) {
   return (
     <label htmlFor={id} className="flex min-h-11 cursor-pointer items-center gap-3 text-foreground">
-      <input id={id} type="checkbox" className={`h-5 w-5 shrink-0 accent-primary ${className}`} {...props} />
+      <input
+        id={id}
+        type="checkbox"
+        className={`h-5 w-5 shrink-0 accent-primary ${className}`}
+        {...props}
+      />
       <span>{label}</span>
     </label>
   );

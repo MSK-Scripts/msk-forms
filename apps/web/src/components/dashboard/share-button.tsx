@@ -54,7 +54,13 @@ export function ShareDialog({
             <figure className="grid justify-items-start gap-1.5">
               <figcaption className="text-small font-semibold">{t.qrCode}</figcaption>
               {/* A white tile in both themes: phone cameras read dark modules on light ground. */}
-              <img src={qrDataUrl} alt={qrAlt} width={176} height={176} className="rounded-md bg-white p-1" />
+              <img
+                src={qrDataUrl}
+                alt={qrAlt}
+                width={176}
+                height={176}
+                className="rounded-md bg-white p-1"
+              />
             </figure>
           )}
         </div>

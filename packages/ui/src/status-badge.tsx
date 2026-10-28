@@ -18,7 +18,9 @@ export interface ColorDotProps {
  * is.
  */
 export function ColorDot({ color, darkColor, size = "sm" }: ColorDotProps) {
-  const style = color ? ({ "--dot": color, "--dot-dark": darkColor ?? color } as CSSProperties) : undefined;
+  const style = color
+    ? ({ "--dot": color, "--dot-dark": darkColor ?? color } as CSSProperties)
+    : undefined;
   return (
     <span
       aria-hidden="true"
@@ -45,7 +47,7 @@ export interface SubmissionStatusBadgeProps extends Omit<ColorDotProps, "size"> 
  */
 export function SubmissionStatusBadge({ label, color, darkColor }: SubmissionStatusBadgeProps) {
   return (
-    <span className="inline-flex w-fit items-center gap-2 rounded-sm border border-input px-2.5 py-1 text-small font-semibold leading-tight text-foreground">
+    <span className="inline-flex w-fit items-center gap-2 rounded-sm border border-input px-2.5 py-1 text-small leading-tight font-semibold text-foreground">
       <ColorDot color={color} darkColor={darkColor} />
       {label}
     </span>

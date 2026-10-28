@@ -69,7 +69,11 @@ export function ImportFormButton({
         aria-busy={busy || undefined}
         onClick={() => inputRef.current?.click()}
       >
-        {busy ? <CircleNotch className="h-4 w-4 animate-spin" /> : <UploadSimple className="h-4 w-4" />}
+        {busy ? (
+          <CircleNotch className="h-4 w-4 animate-spin" />
+        ) : (
+          <UploadSimple className="h-4 w-4" />
+        )}
         {busy ? t.importing : t.import}
       </Button>
       <p role="alert" className="text-small font-semibold text-danger empty:hidden">
@@ -86,7 +90,13 @@ export function ImportFormButton({
  */
 export function useReplaceFromJson(
   guildId: string,
-  t: { replace: string; replaceTitle: string; replaceConfirm: string; cancel: string; importErr: string },
+  t: {
+    replace: string;
+    replaceTitle: string;
+    replaceConfirm: string;
+    cancel: string;
+    importErr: string;
+  },
 ): { pick: (formId: string) => void; node: ReactNode } {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);

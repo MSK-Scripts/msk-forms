@@ -129,7 +129,8 @@ export function FormRenderer({
     const out: Record<string, string> = {};
     for (const field of fields) {
       // Layout has no value; calculated fields are derived, never entered.
-      if (isLayout(field) || isComputedField(field.type) || !isFieldVisible(field, answers)) continue;
+      if (isLayout(field) || isComputedField(field.type) || !isFieldVisible(field, answers))
+        continue;
       if (isFieldRequired(field, answers) && isAnswerMissing(field, answers[field.id])) {
         out[field.id] = labels.required;
       }
@@ -146,7 +147,9 @@ export function FormRenderer({
       const form = formRef.current;
       const el =
         form?.querySelector<HTMLElement>('[aria-invalid="true"]') ??
-        form?.querySelector<HTMLElement>('fieldset[aria-describedby$="-error"] input, fieldset[aria-describedby$="-error"] button');
+        form?.querySelector<HTMLElement>(
+          'fieldset[aria-describedby$="-error"] input, fieldset[aria-describedby$="-error"] button',
+        );
       el?.focus();
     });
   }
@@ -228,9 +231,10 @@ export function FormRenderer({
         body: JSON.stringify({ answers, captchaToken, experimentVariant }),
       });
       if (!res.ok) {
-        const data = (await res.json().catch(() => null)) as
-          | { error?: string; submissionId?: string }
-          | null;
+        const data = (await res.json().catch(() => null)) as {
+          error?: string;
+          submissionId?: string;
+        } | null;
         // Already has an active submission → send them to its status page
         // rather than showing an error.
         if (res.status === 409 && data?.submissionId) {
@@ -283,7 +287,11 @@ export function FormRenderer({
     <form ref={formRef} onSubmit={handleSubmit} className="grid gap-7" noValidate>
       {totalSteps > 1 && (
         <div className="grid gap-2">
-          <p ref={stepRef} tabIndex={-1} className="text-small font-semibold text-muted-foreground focus:outline-none">
+          <p
+            ref={stepRef}
+            tabIndex={-1}
+            className="text-small font-semibold text-muted-foreground focus:outline-none"
+          >
             {labels.step} {position + 1} / {totalSteps}
             {pages[activeIndex]?.title ? ` · ${pages[activeIndex]!.title}` : ""}
           </p>
@@ -306,7 +314,9 @@ export function FormRenderer({
             htmlFor={field.id}
             label={field.label}
             required={isFieldRequired(field, answers)}
-            hint={field.type === "consent" || field.type === "age_check" ? undefined : field.description}
+            hint={
+              field.type === "consent" || field.type === "age_check" ? undefined : field.description
+            }
             error={errors[field.id]}
             group={isGroupField(field.type)}
             errorIcon={<WarningCircle className="mt-0.5 h-4 w-4 shrink-0" weight="bold" />}
@@ -322,7 +332,10 @@ export function FormRenderer({
               invalid={Boolean(errors[field.id])}
               disabled={submitting}
               describedBy={fieldDescribedBy(field.id, {
-                hint: field.type === "consent" || field.type === "age_check" ? undefined : field.description,
+                hint:
+                  field.type === "consent" || field.type === "age_check"
+                    ? undefined
+                    : field.description,
                 error: errors[field.id],
               })}
               slug={slug}
@@ -337,14 +350,20 @@ export function FormRenderer({
       )}
 
       {submitError && (
-        <p role="alert" className="flex items-start gap-2 rounded-md border-l-4 border-danger bg-muted px-4 py-3 font-semibold text-danger">
+        <p
+          role="alert"
+          className="flex items-start gap-2 rounded-md border-l-4 border-danger bg-muted px-4 py-3 font-semibold text-danger"
+        >
           <WarningCircle className="mt-0.5 h-5 w-5 shrink-0" weight="bold" />
           {submitError}
         </p>
       )}
 
       {previewDone && (
-        <p role="status" className="flex items-start gap-2 rounded-md border-l-4 border-primary bg-accent-soft px-4 py-3 font-semibold text-primary">
+        <p
+          role="status"
+          className="flex items-start gap-2 rounded-md border-l-4 border-primary bg-accent-soft px-4 py-3 font-semibold text-primary"
+        >
           <Info className="mt-0.5 h-5 w-5 shrink-0" weight="bold" />
           {labels.previewNote}
         </p>

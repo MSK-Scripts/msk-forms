@@ -112,7 +112,9 @@ export type IconComponent = Icon;
 function decorative(Base: Icon): Icon {
   const Decorative = forwardRef<SVGSVGElement, IconProps>(function Decorative(props, ref) {
     const labelled = props["aria-label"] != null || props["aria-labelledby"] != null;
-    return <Base ref={ref} aria-hidden={labelled ? undefined : true} focusable="false" {...props} />;
+    return (
+      <Base ref={ref} aria-hidden={labelled ? undefined : true} focusable="false" {...props} />
+    );
   });
   Decorative.displayName = Base.displayName;
   return Decorative;

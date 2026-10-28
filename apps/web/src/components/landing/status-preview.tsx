@@ -11,7 +11,9 @@ export async function StatusPreview() {
   const [dict, locale] = await Promise.all([getDict(), getLocale()]);
   const t = dict.preview;
   const day = (d: number) =>
-    new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(new Date(2026, 5, d));
+    new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(
+      new Date(2026, 5, d),
+    );
 
   return (
     <figure className="grid gap-3">
@@ -29,7 +31,12 @@ export async function StatusPreview() {
           </span>
         </div>
         <ol className="grid gap-3.5">
-          <Row icon={<PaperPlaneTilt className="h-4 w-4" />} label={t.submitted} time={day(18)} done />
+          <Row
+            icon={<PaperPlaneTilt className="h-4 w-4" />}
+            label={t.submitted}
+            time={day(18)}
+            done
+          />
           <Row icon={<Clock className="h-4 w-4" />} label={t.pickedUp} time={day(19)} done />
           <Row icon={<Check className="h-4 w-4" />} label={t.decision} time={t.pending} />
         </ol>
@@ -47,19 +54,31 @@ export async function StatusPreview() {
   );
 }
 
-function Row({ icon, label, time, done }: { icon: React.ReactNode; label: string; time: string; done?: boolean }) {
+function Row({
+  icon,
+  label,
+  time,
+  done,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  time: string;
+  done?: boolean;
+}) {
   return (
     <li className="flex items-center gap-3">
       <span
         className={cn(
           "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border",
-          done ? "border-primary bg-accent-soft text-primary" : "border-input text-muted-foreground",
+          done
+            ? "border-primary bg-accent-soft text-primary"
+            : "border-input text-muted-foreground",
         )}
       >
         {icon}
       </span>
       <span className="flex-1 text-small text-foreground">{label}</span>
-      <span className="text-small tabular-nums text-muted-foreground">{time}</span>
+      <span className="text-small text-muted-foreground tabular-nums">{time}</span>
     </li>
   );
 }

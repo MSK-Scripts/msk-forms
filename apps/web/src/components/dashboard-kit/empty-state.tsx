@@ -1,6 +1,12 @@
 import type { ReactNode } from "react";
 
-import { Lock, MagnifyingGlass, Sparkle, WarningCircle, type IconComponent } from "@/components/icons";
+import {
+  Lock,
+  MagnifyingGlass,
+  Sparkle,
+  WarningCircle,
+  type IconComponent,
+} from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 /**

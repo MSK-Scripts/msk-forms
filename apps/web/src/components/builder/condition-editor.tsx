@@ -113,7 +113,8 @@ export function ConditionEditor({
                           value={rule.action}
                           onChange={(e) => {
                             const action = e.target.value as ConditionRule["action"];
-                            const target = action === "skip_to" ? (rule.target ?? pages[0]?.id) : undefined;
+                            const target =
+                              action === "skip_to" ? (rule.target ?? pages[0]?.id) : undefined;
                             replace(i, { ...rule, action, target });
                           }}
                         >
@@ -130,7 +131,9 @@ export function ConditionEditor({
                         <Select
                           {...f}
                           value={rule.when.field}
-                          onChange={(e) => replace(i, { ...rule, when: { ...rule.when, field: e.target.value } })}
+                          onChange={(e) =>
+                            replace(i, { ...rule, when: { ...rule.when, field: e.target.value } })
+                          }
                         >
                           {others.map((o) => (
                             <option key={o.id} value={o.id}>
@@ -148,7 +151,10 @@ export function ConditionEditor({
                           onChange={(e) =>
                             replace(i, {
                               ...rule,
-                              when: { ...rule.when, op: e.target.value as ConditionRule["when"]["op"] },
+                              when: {
+                                ...rule.when,
+                                op: e.target.value as ConditionRule["when"]["op"],
+                              },
                             })
                           }
                         >
@@ -167,7 +173,10 @@ export function ConditionEditor({
                             {...f}
                             value={valueText(rule)}
                             onChange={(e) =>
-                              replace(i, { ...rule, when: { ...rule.when, value: setValue(rule, e.target.value) } })
+                              replace(i, {
+                                ...rule,
+                                when: { ...rule.when, value: setValue(rule, e.target.value) },
+                              })
                             }
                           />
                         )}

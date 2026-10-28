@@ -25,7 +25,9 @@ export interface DateFieldLabels {
 const pad = (n: number) => String(n).padStart(2, "0");
 const toISO = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const sameDay = (a: Date, b: Date) =>
-  a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  a.getFullYear() === b.getFullYear() &&
+  a.getMonth() === b.getMonth() &&
+  a.getDate() === b.getDate();
 
 interface Parsed {
   date: Date | null;
@@ -163,9 +165,11 @@ export function DateField({
     const timeStr = hasTime ? `${pad(parsed.h!)}:${pad(parsed.m!)}` : "";
     if (mode === "time") return timeStr;
     if (!parsed.date) return "";
-    const dateStr = new Intl.DateTimeFormat(locale, { day: "2-digit", month: "long", year: "numeric" }).format(
-      parsed.date,
-    );
+    const dateStr = new Intl.DateTimeFormat(locale, {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    }).format(parsed.date);
     return mode === "datetime" && timeStr ? `${dateStr} · ${timeStr}` : dateStr;
   }, [parsed.date, parsed.h, parsed.m, mode, locale]);
 
@@ -211,7 +215,7 @@ export function DateField({
               >
                 <CaretLeft className="h-5 w-5" />
               </button>
-              <span aria-live="polite" className="font-semibold capitalize text-foreground">
+              <span aria-live="polite" className="font-semibold text-foreground capitalize">
                 {monthLabel}
               </span>
               <button
@@ -226,7 +230,11 @@ export function DateField({
 
             <div className="grid grid-cols-7 gap-0.5">
               {weekdays.map((w) => (
-                <div key={w} aria-hidden className="py-1 text-center text-small font-semibold text-muted-foreground">
+                <div
+                  key={w}
+                  aria-hidden
+                  className="py-1 text-center text-small font-semibold text-muted-foreground"
+                >
                   {w}
                 </div>
               ))}

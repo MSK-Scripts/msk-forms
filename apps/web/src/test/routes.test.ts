@@ -31,7 +31,19 @@ describe("top-level routes", () => {
   const segments = topLevelSegments(APP_DIR);
 
   it("finds the pages inside route groups", () => {
-    expect(segments).toEqual(expect.arrayContaining(["pricing", "stats", "terms", "dashboard", "f", "s", "g", "offline", "api"]));
+    expect(segments).toEqual(
+      expect.arrayContaining([
+        "pricing",
+        "stats",
+        "terms",
+        "dashboard",
+        "f",
+        "s",
+        "g",
+        "offline",
+        "api",
+      ]),
+    );
   });
 
   it.each(segments)("/%s is a reserved handle", (segment) => {

@@ -57,8 +57,11 @@ export async function Hero({ loggedIn, botInvite }: { loggedIn: boolean; botInvi
     >
       {servers > 0 && (
         <p className="text-small text-band-muted">
-          <a href="/stats" className="inline-flex min-h-11 items-center gap-1.5 underline-offset-4 hover:text-band-foreground hover:underline">
-            <span className="font-semibold tabular-nums text-band-foreground">
+          <a
+            href="/stats"
+            className="inline-flex min-h-11 items-center gap-1.5 underline-offset-4 hover:text-band-foreground hover:underline"
+          >
+            <span className="font-semibold text-band-foreground tabular-nums">
               {new Intl.NumberFormat(locale).format(servers)}
             </span>
             {servers === 1 ? t.hero.serverOne : t.hero.serverMany}

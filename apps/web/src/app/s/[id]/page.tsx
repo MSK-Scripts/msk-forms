@@ -25,7 +25,11 @@ export const dynamic = "force-dynamic";
  * (status changes and the guild's messages), the answers, and the
  * applicant's own data. It refreshes itself when a reviewer acts.
  */
-export default async function SubmissionStatusPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function SubmissionStatusPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const submission = await getSubmissionForStatus(id);
   if (!submission) notFound();
@@ -45,8 +49,8 @@ export default async function SubmissionStatusPage({ params }: { params: Promise
   // event, no DM), and it must not surface here. Fall back to the stored status
   // for legacy submissions with no public status_change event.
   const lastVisibleStatus =
-    [...submission.events].reverse().find((e) => e.type === "status_change" && e.toStatus)?.toStatus ??
-    submission.status;
+    [...submission.events].reverse().find((e) => e.type === "status_change" && e.toStatus)
+      ?.toStatus ?? submission.status;
   const status = resolveStatus(lastVisibleStatus, submission.statusDefs, dict.statusLabels);
   const answers = (submission.answers ?? {}) as Record<string, unknown>;
   const branding = parseBranding(submission.form.guild.branding);

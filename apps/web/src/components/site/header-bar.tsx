@@ -52,7 +52,15 @@ const topLinkClass =
   "hover:text-primary aria-[current]:font-semibold aria-[current]:shadow-[inset_0_-3px_0_hsl(var(--primary))]";
 
 /** One entry of a product line's panel: name, one line of description. */
-function PanelLink({ link, newTab, onNavigate }: { link: NavLink; newTab: string; onNavigate?: () => void }) {
+function PanelLink({
+  link,
+  newTab,
+  onNavigate,
+}: {
+  link: NavLink;
+  newTab: string;
+  onNavigate?: () => void;
+}) {
   return (
     <a
       href={link.href}
@@ -73,7 +81,9 @@ function PanelLink({ link, newTab, onNavigate }: { link: NavLink; newTab: string
         {link.label}
         {link.external && <ArrowSquareOut className="h-3.5 w-3.5 text-muted-foreground" />}
       </span>
-      {link.description && <span className="text-small text-muted-foreground">{link.description}</span>}
+      {link.description && (
+        <span className="text-small text-muted-foreground">{link.description}</span>
+      )}
       {link.external && <span className="sr-only"> {newTab}</span>}
     </a>
   );
@@ -136,7 +146,11 @@ function MainNav({
                 }
               }}
             >
-              <a href={line.href} aria-current={line.current ? "true" : undefined} className={topLinkClass}>
+              <a
+                href={line.href}
+                aria-current={line.current ? "true" : undefined}
+                className={topLinkClass}
+              >
                 {line.label}
               </a>
               <button
@@ -148,7 +162,12 @@ function MainNav({
                 onClick={() => setOpen(isOpen ? null : line.id)}
                 className="-ml-1 inline-flex min-h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors duration-150 hover:text-primary"
               >
-                <CaretDown className={cn("h-4 w-4 transition-transform duration-150", isOpen && "rotate-180")} />
+                <CaretDown
+                  className={cn(
+                    "h-4 w-4 transition-transform duration-150",
+                    isOpen && "rotate-180",
+                  )}
+                />
               </button>
 
               {/* `pt-2` bridges the gap to the panel inside the entry, so the
@@ -157,7 +176,11 @@ function MainNav({
                 <ul className="grid w-[24rem] gap-0.5 rounded-lg border border-border bg-card p-2 shadow-[var(--shadow-card-hover)]">
                   {line.links.map((link) => (
                     <li key={link.href}>
-                      <PanelLink link={link} newTab={copy.newTab} onNavigate={() => setOpen(null)} />
+                      <PanelLink
+                        link={link}
+                        newTab={copy.newTab}
+                        onNavigate={() => setOpen(null)}
+                      />
                     </li>
                   ))}
                 </ul>
@@ -247,7 +270,15 @@ function AccountSections({
 }
 
 /** The account entry in the header bar: "Log in" or the Discord name, with the panel below. */
-function AccountMenu({ account, copy, className }: { account: HeaderAccount; copy: HeaderCopy; className?: string }) {
+function AccountMenu({
+  account,
+  copy,
+  className,
+}: {
+  account: HeaderAccount;
+  copy: HeaderCopy;
+  className?: string;
+}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -269,7 +300,13 @@ function AccountMenu({ account, copy, className }: { account: HeaderAccount; cop
         className="inline-flex min-h-11 max-w-[14rem] items-center gap-1.5 rounded-md px-2 font-medium text-foreground transition-colors duration-150 hover:text-primary"
       >
         {user?.avatar ? (
-          <img src={user.avatar} alt="" width={24} height={24} className="h-6 w-6 shrink-0 rounded-full" />
+          <img
+            src={user.avatar}
+            alt=""
+            width={24}
+            height={24}
+            className="h-6 w-6 shrink-0 rounded-full"
+          />
         ) : (
           <User className="h-5 w-5 shrink-0" />
         )}
@@ -283,7 +320,12 @@ function AccountMenu({ account, copy, className }: { account: HeaderAccount; cop
         ) : (
           <span>{copy.login}</span>
         )}
-        <CaretDown className={cn("h-3.5 w-3.5 shrink-0 transition-transform duration-150", open && "rotate-180")} />
+        <CaretDown
+          className={cn(
+            "h-3.5 w-3.5 shrink-0 transition-transform duration-150",
+            open && "rotate-180",
+          )}
+        />
       </button>
 
       <div
@@ -332,11 +374,17 @@ export function HeaderBar({
   return (
     <header
       ref={headerRef}
-      className="pwa-safe-top sticky top-0 z-50 border-t-4 border-b border-t-brand border-b-border bg-card"
+      className="sticky top-0 z-50 border-t-4 border-b border-t-brand border-b-border bg-card pwa-safe-top"
     >
       <div className="container-page flex min-h-[var(--header-height)] items-center gap-[clamp(1rem,2vw,2.5rem)]">
         <a href="/" className="flex min-h-11 shrink-0 items-center gap-2.5 text-foreground">
-          <img src="/logo.png" alt="" width={36} height={36} className="h-9 w-9 rounded-lg object-contain" />
+          <img
+            src="/logo.png"
+            alt=""
+            width={36}
+            height={36}
+            className="h-9 w-9 rounded-lg object-contain"
+          />
           {/* Below 360 px the name gives way to the buttons; it stays the
               link's name for a screen reader. */}
           <span className="sr-only font-display text-lead font-bold tracking-[-0.01em] [font-stretch:108%] min-[360px]:not-sr-only">
@@ -350,14 +398,25 @@ export function HeaderBar({
           <ul className="flex items-center gap-[clamp(0.75rem,1.4vw,2.25rem)]">
             {section.map((link) => (
               <li key={link.href}>
-                <a href={link.href} aria-current={currentFor(path, link.href)} className={topLinkClass}>
+                <a
+                  href={link.href}
+                  aria-current={currentFor(path, link.href)}
+                  className={topLinkClass}
+                >
                   {link.label}
                 </a>
               </li>
             ))}
           </ul>
         </nav>
-        <MainNav path={path} section={section} lines={lines} about={about} copy={copy} className="hidden xl:block" />
+        <MainNav
+          path={path}
+          section={section}
+          lines={lines}
+          about={about}
+          copy={copy}
+          className="hidden xl:block"
+        />
 
         <div className="ml-auto flex items-center gap-[clamp(0.25rem,0.9vw,1.25rem)]">
           <LanguagePicker locale={locale} label={copy.language} className="hidden sm:inline-flex" />
@@ -416,7 +475,11 @@ export function HeaderBar({
                   <ul className="grid gap-0.5">
                     {line.links.map((link) => (
                       <li key={link.href}>
-                        <PanelLink link={link} newTab={copy.newTab} onNavigate={() => setMenuOpen(false)} />
+                        <PanelLink
+                          link={link}
+                          newTab={copy.newTab}
+                          onNavigate={() => setMenuOpen(false)}
+                        />
                       </li>
                     ))}
                   </ul>

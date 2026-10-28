@@ -87,7 +87,11 @@ function isoToLocalInput(iso: string): string {
 }
 
 const slugify = (s: string) =>
-  s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
 function newField(type: FieldType): FormField {
   return {
@@ -183,7 +187,10 @@ export function FormBuilder({
   // Conditions can reference any field on any page, so offer the full list.
   const allFields = pages.flatMap((p) => p.fields);
   // Page targets for `skip_to` conditions (fall back to "Page N" when untitled).
-  const pageOptions = pages.map((p, i) => ({ id: p.id, title: p.title?.trim() || `${t.page} ${i + 1}` }));
+  const pageOptions = pages.map((p, i) => ({
+    id: p.id,
+    title: p.title?.trim() || `${t.page} ${i + 1}`,
+  }));
   const ftLabel = (type: FieldType) => (t.ft as Record<string, string>)[type] ?? type;
   const fieldName = (field: FormField, index: number) =>
     field.label?.trim() || t.fieldN.replace("{n}", String(index + 1));
@@ -213,8 +220,12 @@ export function FormBuilder({
     const root = rootRef.current;
     if (!root) return;
     const k = CSS.escape(key);
-    const same = root.querySelector<HTMLButtonElement>(`[data-move="${k}:${dir < 0 ? "up" : "down"}"]`);
-    const other = root.querySelector<HTMLButtonElement>(`[data-move="${k}:${dir < 0 ? "down" : "up"}"]`);
+    const same = root.querySelector<HTMLButtonElement>(
+      `[data-move="${k}:${dir < 0 ? "up" : "down"}"]`,
+    );
+    const other = root.querySelector<HTMLButtonElement>(
+      `[data-move="${k}:${dir < 0 ? "down" : "up"}"]`,
+    );
     (same && !same.disabled ? same : other)?.focus();
   }
 
@@ -247,7 +258,9 @@ export function FormBuilder({
     if (pages.length <= 1) return;
     const name = pageOptions[pi]!.title;
     const neighbour = pages[pi + 1] ?? pages[pi - 1]!;
-    flushSync(() => setPages((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== pi))));
+    flushSync(() =>
+      setPages((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== pi))),
+    );
     focusIn(`[data-page-title="${CSS.escape(neighbour.id)}"]`);
     announce(t.removedItem.replace("{name}", name));
   }
@@ -263,7 +276,9 @@ export function FormBuilder({
       }),
     );
     focusMoveButton(`page:${page.id}`, dir);
-    announce(t.movedTo.replace("{pos}", String(target + 1)).replace("{total}", String(pages.length)));
+    announce(
+      t.movedTo.replace("{pos}", String(target + 1)).replace("{total}", String(pages.length)),
+    );
   }
   function updateField(pi: number, fi: number, next: FormField) {
     mutatePage(pi, (p) => ({ ...p, fields: p.fields.map((f, i) => (i === fi ? next : f)) }));
@@ -295,7 +310,9 @@ export function FormBuilder({
       }),
     );
     focusMoveButton(`field:${field.id}`, dir);
-    announce(t.movedTo.replace("{pos}", String(target + 1)).replace("{total}", String(page.fields.length)));
+    announce(
+      t.movedTo.replace("{pos}", String(target + 1)).replace("{total}", String(page.fields.length)),
+    );
   }
   function addField(pi: number, type: FieldType) {
     const page = pages[pi];
@@ -304,7 +321,11 @@ export function FormBuilder({
     mutatePage(pi, (p) => ({ ...p, fields: [...p.fields, field] }));
     setSelectedId(field.id);
     setErrors((e) => ({ ...e, fields: undefined }));
-    announce(t.addedField.replace("{type}", ftLabel(type)).replace("{pos}", String(page.fields.length + 1)));
+    announce(
+      t.addedField
+        .replace("{type}", ftLabel(type))
+        .replace("{pos}", String(page.fields.length + 1)),
+    );
   }
   /** Choose a field and take the focus to its settings (below the list on a phone). */
   function selectField(id: string) {
@@ -403,7 +424,11 @@ export function FormBuilder({
   };
   const saveButton = (
     <Button type="button" onClick={save} disabled={saving} aria-busy={saving || undefined}>
-      {saving ? <CircleNotch className="h-4 w-4 animate-spin" /> : <FloppyDisk className="h-4 w-4" />}
+      {saving ? (
+        <CircleNotch className="h-4 w-4 animate-spin" />
+      ) : (
+        <FloppyDisk className="h-4 w-4" />
+      )}
       {saving ? t.saving : formId ? t.saveChanges : t.createForm}
     </Button>
   );
@@ -559,7 +584,10 @@ export function FormBuilder({
                     {fieldName(selected, selPos.fi)}
                   </span>
                 }
-                description={[pages.length > 1 ? pageOptions[selPos.pi]!.title : null, ftLabel(selected.type)]
+                description={[
+                  pages.length > 1 ? pageOptions[selPos.pi]!.title : null,
+                  ftLabel(selected.type),
+                ]
                   .filter(Boolean)
                   .join(" · ")}
               >
@@ -579,7 +607,9 @@ export function FormBuilder({
                     fields={allFields}
                     pages={pageOptions}
                     onChange={(next) => updateField(selPos.pi, selPos.fi, next)}
-                    onChangeType={(nt) => updateField(selPos.pi, selPos.fi, migrateFieldType(selected, nt))}
+                    onChangeType={(nt) =>
+                      updateField(selPos.pi, selPos.fi, migrateFieldType(selected, nt))
+                    }
                     t={t}
                   />
                 </div>
@@ -617,7 +647,11 @@ export function FormBuilder({
               {categories.length > 0 && (
                 <KitField label={t.category}>
                   {(f) => (
-                    <Select {...f} value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+                    <Select
+                      {...f}
+                      value={categoryId}
+                      onChange={(e) => setCategoryId(e.target.value)}
+                    >
                       <option value="">{t.noCategory}</option>
                       {categories.map((c) => (
                         <option key={c.id} value={c.id}>
@@ -714,7 +748,9 @@ export function FormBuilder({
                         maxLength={2000}
                         value={statusMessages[s.value] ?? ""}
                         placeholder={t.statusMessagesPlaceholder}
-                        onChange={(e) => setStatusMessages((m) => ({ ...m, [s.value]: e.target.value }))}
+                        onChange={(e) =>
+                          setStatusMessages((m) => ({ ...m, [s.value]: e.target.value }))
+                        }
                         className={fieldClassName}
                       />
                     )}

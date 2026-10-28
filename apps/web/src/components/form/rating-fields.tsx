@@ -109,7 +109,10 @@ export function SliderInput({
         onChange={(e) => onChange(Number(e.target.value))}
         className="h-11 w-full cursor-pointer accent-primary disabled:cursor-not-allowed disabled:opacity-50"
       />
-      <output htmlFor={id} className="w-12 shrink-0 text-end font-semibold tabular-nums text-foreground">
+      <output
+        htmlFor={id}
+        className="w-12 shrink-0 text-end font-semibold text-foreground tabular-nums"
+      >
         {current}
       </output>
     </div>

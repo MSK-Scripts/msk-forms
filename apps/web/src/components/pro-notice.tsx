@@ -8,7 +8,15 @@ import { Badge } from "@/components/ui/badge";
  * gates: the plan as a tag, a title, one sentence and the upgrade as the one
  * next step. A surface of its own, because the upgrade is a task of its own.
  */
-export function ProNotice({ title, body, action }: { title: string; body: string; action?: ReactNode }) {
+export function ProNotice({
+  title,
+  body,
+  action,
+}: {
+  title: string;
+  body: string;
+  action?: ReactNode;
+}) {
   return (
     <div className="grid justify-items-start gap-2 rounded-lg border border-border bg-card p-[clamp(1rem,0.8rem+0.6vw,1.5rem)]">
       <Badge>

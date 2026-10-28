@@ -26,7 +26,11 @@ export async function DashboardFrame({
   areas: readonly GuildArea[];
   children: ReactNode;
 }) {
-  const [dict, locale, memberships] = await Promise.all([getDict(), getLocale(), getUserGuilds(user.id)]);
+  const [dict, locale, memberships] = await Promise.all([
+    getDict(),
+    getLocale(),
+    getUserGuilds(user.id),
+  ]);
   const t = dict.dashboard;
   const roleLabel: Record<Member["role"], string> = {
     owner: dict.members.roleOwner,

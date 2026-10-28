@@ -61,7 +61,10 @@ describe("theme surfaces", () => {
       expect(THEME_SURFACES[theme].background).toBe(channelsToHex(tokens[theme].background!));
       expect(THEME_SURFACES[theme].card).toBe(channelsToHex(tokens[theme].card!));
       expect(THEME_SURFACES[theme].muted).toBe(channelsToHex(tokens[theme].muted!));
-      expect(THEME_SURFACES[theme].softAmount).toBeCloseTo(Number.parseFloat(tokens[theme]["accent-soft-amount"]!) / 100, 10);
+      expect(THEME_SURFACES[theme].softAmount).toBeCloseTo(
+        Number.parseFloat(tokens[theme]["accent-soft-amount"]!) / 100,
+        10,
+      );
     }
     expect(MSK_GREEN).toBe(channelsToHex(tokens.light.primary!));
   });
@@ -72,9 +75,13 @@ describe("readable fallback accent", () => {
     const sets = accentSets(hex)!;
     for (const theme of THEMES) {
       const shown = channelsToHex(sets[theme].accent)!;
-      expect(accentContrast(shown, theme), `${hex} in ${theme}`).toBeGreaterThanOrEqual(TEXT_CONTRAST);
+      expect(accentContrast(shown, theme), `${hex} in ${theme}`).toBeGreaterThanOrEqual(
+        TEXT_CONTRAST,
+      );
       // Fills and focus rings need 3:1 against the ground; text implies it.
-      expect(contrastRatio(shown, THEME_SURFACES[theme].background)).toBeGreaterThanOrEqual(UI_CONTRAST);
+      expect(contrastRatio(shown, THEME_SURFACES[theme].background)).toBeGreaterThanOrEqual(
+        UI_CONTRAST,
+      );
     }
   });
 
@@ -114,8 +121,13 @@ describe("readable fallback accent", () => {
         const shown = readableAccent(hex, theme);
         const own = readableAccent(hex, theme, 0);
         if (shown.l === own.l) continue;
-        const back = { ...shown, l: Math.round((shown.l + (theme === "light" ? 0.1 : -0.1)) * 10) / 10 };
-        expect(accentContrast(channelsToHex(hslChannels(back))!, theme)).toBeLessThan(TEXT_CONTRAST + 0.1);
+        const back = {
+          ...shown,
+          l: Math.round((shown.l + (theme === "light" ? 0.1 : -0.1)) * 10) / 10,
+        };
+        expect(accentContrast(channelsToHex(hslChannels(back))!, theme)).toBeLessThan(
+          TEXT_CONTRAST + 0.1,
+        );
       }
     }
   });
@@ -144,7 +156,9 @@ describe("label", () => {
     for (const theme of THEMES) {
       const accent = channelsToHex(sets[theme].accent)!;
       const label = channelsToHex(sets[theme].label)!;
-      expect(contrastRatio(label, accent), `${hex} in ${theme}`).toBeGreaterThanOrEqual(TEXT_CONTRAST);
+      expect(contrastRatio(label, accent), `${hex} in ${theme}`).toBeGreaterThanOrEqual(
+        TEXT_CONTRAST,
+      );
     }
   });
 
@@ -162,7 +176,11 @@ describe("label", () => {
     // constants must make the choice labelFor makes.
     const [white, dark] = LABELS.map((l) => toXyzD65(l.hex));
     const threshold = Math.sqrt(1.05 * (dark![1] + 0.05)) - 0.05;
-    const calcs = [...GUILD_ACCENT_CSS.matchAll(/calc\(([\d.]+) \+ ([\d.]+) \* clamp\(0, \(([\d.]+) - y\) \* 1000000, 1\)\)/g)];
+    const calcs = [
+      ...GUILD_ACCENT_CSS.matchAll(
+        /calc\(([\d.]+) \+ ([\d.]+) \* clamp\(0, \(([\d.]+) - y\) \* 1000000, 1\)\)/g,
+      ),
+    ];
     expect(calcs).toHaveLength(3);
     calcs.forEach(([, base, span, t], i) => {
       expect(Number(base)).toBeCloseTo(dark![i]!, 4);
@@ -192,7 +210,9 @@ describe("brandProps", () => {
   it("never sets --primary inline, where it would beat the customer's custom CSS", () => {
     for (const accentColor of ACCENTS) {
       const names = Object.keys(brandProps({ accentColor }).style ?? {});
-      expect(names.filter((n) => ["--primary", "--primary-foreground", "--ring"].includes(n))).toEqual([]);
+      expect(
+        names.filter((n) => ["--primary", "--primary-foreground", "--ring"].includes(n)),
+      ).toEqual([]);
     }
   });
 });
@@ -200,7 +220,10 @@ describe("brandProps", () => {
 describe("contrastRatio", () => {
   it("knows the extremes and is symmetric", () => {
     expect(contrastRatio("#000000", "#ffffff")).toBeCloseTo(21, 5);
-    expect(contrastRatio("#27762e", "#ffffff")).toBeCloseTo(contrastRatio("#ffffff", "#27762e"), 10);
+    expect(contrastRatio("#27762e", "#ffffff")).toBeCloseTo(
+      contrastRatio("#ffffff", "#27762e"),
+      10,
+    );
   });
 });
 

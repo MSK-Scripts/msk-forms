@@ -358,9 +358,7 @@ export function MembersManager({
       {/* Not a named region: the table below is one, by the same name. */}
       <section className="grid gap-4 border-t border-border py-6">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-          <h2 className="font-display text-h3 font-[650]">
-            {t.team}
-          </h2>
+          <h2 className="font-display text-h3 font-[650]">{t.team}</h2>
           <p className="text-muted-foreground tabular-nums">
             <span className="font-semibold text-foreground">{teamCount}</span> {t.of}{" "}
             {memberLimit === null ? t.unlimited : memberLimit}

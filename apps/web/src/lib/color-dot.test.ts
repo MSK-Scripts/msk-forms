@@ -7,12 +7,26 @@ import { dotColors, dotContrast, readableDot } from "./color-dot";
 const THEMES: Theme[] = ["light", "dark"];
 
 /** Colours guilds pick for statuses and categories, from the brief's cases to the extremes. */
-const COLOURS = ["#1e3a8a", "#000080", "#facc15", "#fef9c3", "#6b6b72", "#4ea426", "#27762e", "#ef4444", "#000000", "#ffffff"];
+const COLOURS = [
+  "#1e3a8a",
+  "#000080",
+  "#facc15",
+  "#fef9c3",
+  "#6b6b72",
+  "#4ea426",
+  "#27762e",
+  "#ef4444",
+  "#000000",
+  "#ffffff",
+];
 
 describe("readable colour dots", () => {
   it.each(COLOURS)("%s reaches 3:1 on every surface of both themes", (hex) => {
     for (const theme of THEMES) {
-      expect(dotContrast(readableDot(hex, theme), theme), `${hex} in ${theme}`).toBeGreaterThanOrEqual(UI_CONTRAST);
+      expect(
+        dotContrast(readableDot(hex, theme), theme),
+        `${hex} in ${theme}`,
+      ).toBeGreaterThanOrEqual(UI_CONTRAST);
     }
   });
 

@@ -19,11 +19,7 @@ import { upgradeCopy } from "@/lib/upgrade-copy";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export default async function NewFormPage({
-  params,
-}: {
-  params: Promise<{ guildId: string }>;
-}) {
+export default async function NewFormPage({ params }: { params: Promise<{ guildId: string }> }) {
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/forms/new`);
   const t = await getDict();
@@ -61,13 +57,20 @@ export default async function NewFormPage({
     return (
       <>
         {header}
-        <DpaGate guildId={guildId} t={t.legal} href={shopLegalUrl(await getLocale(), "/legal/dpa")} />
+        <DpaGate
+          guildId={guildId}
+          t={t.legal}
+          href={shopLegalUrl(await getLocale(), "/legal/dpa")}
+        />
       </>
     );
   }
 
   const pro = await isGuildPro(guildId);
-  if (!pro && (await prisma.form.count({ where: { guildId, archivedAt: null } })) >= FREE_FORM_LIMIT) {
+  if (
+    !pro &&
+    (await prisma.form.count({ where: { guildId, archivedAt: null } })) >= FREE_FORM_LIMIT
+  ) {
     return (
       <>
         {header}
