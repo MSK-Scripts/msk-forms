@@ -53,7 +53,7 @@ export default async function FormPreviewPage({
   const logo = logoUrl(guildId, branding);
 
   return (
-    <main className="msk-form mx-auto flex max-w-2xl flex-col gap-6" {...brand}>
+    <div className="msk-form mx-auto flex max-w-2xl flex-col gap-6" {...brand}>
       <CustomCss css={branding.customCss} />
 
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2">
@@ -109,6 +109,6 @@ export default async function FormPreviewPage({
           }}
         />
       </div>
-    </main>
+    </div>
   );
 }

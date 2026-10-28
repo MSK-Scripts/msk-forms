@@ -2,13 +2,11 @@ import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
+import { ErrorCopyProvider } from "@/components/site/error-copy";
 import { ThemeProvider } from "@/components/theme-provider";
-import { getCurrentUser } from "@/lib/auth";
 import { logoUrl, parseBranding } from "@/lib/branding";
 import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
-import { getDirection, getLocale } from "@/i18n";
+import { getDict, getDirection, getLocale } from "@/i18n";
 // Fonts come from the @fontsource-variable packages and are served by this
 // app, like in msk-shop: nothing is fetched from Google, neither at build time
 // nor in the browser, and the CSP needs nothing beyond `font-src 'self'`.
@@ -75,8 +73,7 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const nonce = (await headers()).get("x-nonce") ?? undefined;
-  const user = await getCurrentUser();
-  const locale = await getLocale();
+  const [locale, dict] = await Promise.all([getLocale(), getDict()]);
 
   return (
     <html
@@ -85,12 +82,25 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="font-sans antialiased">
+        {/* Skip link (WCAG 2.4.1), the first element of every page and
+            server-rendered, so it works without JavaScript. Every frame below
+            renders exactly one <main id="main">: the site pages through
+            SiteChrome, the public pages of a guild through PublicFrame. */}
+        <a href="#main" className="skip-link">
+          {dict.site.skipToContent}
+        </a>
         <ThemeProvider nonce={nonce}>
-          <div className="flex min-h-screen flex-col">
-            <SiteHeader user={user} />
-            <div className="flex-1">{children}</div>
-            <SiteFooter />
-          </div>
+          <ErrorCopyProvider
+            copy={{
+              kicker: dict.site.errorKicker,
+              title: dict.site.errorTitle,
+              text: dict.site.errorText,
+              retry: dict.site.errorRetry,
+              home: dict.site.notFoundHome,
+            }}
+          >
+            {children}
+          </ErrorCopyProvider>
         </ThemeProvider>
         <ServiceWorkerRegister />
       </body>

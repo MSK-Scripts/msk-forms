@@ -30,6 +30,6 @@ export async function upgradeCopy(): Promise<UpgradeCopy> {
     legal: t.legal,
     prices: { pro: t.pricing.tiers.pro.price, enterprise: t.pricing.tiers.enterprise.price },
     termsHref: "/terms",
-    withdrawalHref: shopLegalUrl(locale, "/terms/widerruf"),
+    withdrawalHref: shopLegalUrl(locale, "/legal/withdrawal"),
   };
 }

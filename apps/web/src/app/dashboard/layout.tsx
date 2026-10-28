@@ -1,4 +1,5 @@
 import { NavTabs } from "@/components/dashboard/nav-tabs";
+import { SiteChrome } from "@/components/site/site-chrome";
 import { requireUser } from "@/lib/auth";
 import { getDict } from "@/i18n";
 
@@ -13,7 +14,10 @@ export default async function DashboardLayout({
   await requireUser("/dashboard");
   const t = (await getDict()).dashboard;
 
+  // Until the dashboard moves onto the AppShell (phase 3 of the redesign) it
+  // keeps the site header and footer it had from the root layout before.
   return (
+    <SiteChrome>
     <div className="container py-8">
       <NavTabs
         tabs={[
@@ -23,5 +27,6 @@ export default async function DashboardLayout({
       />
       <div className="mt-8">{children}</div>
     </div>
+    </SiteChrome>
   );
 }

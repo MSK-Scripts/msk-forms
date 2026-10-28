@@ -16,16 +16,25 @@
  */
 import type { Icon, IconProps } from "@phosphor-icons/react";
 import {
+  ArrowClockwise as ArrowClockwiseBase,
   ArrowLeft as ArrowLeftBase,
+  ArrowRight as ArrowRightBase,
+  ArrowSquareOut as ArrowSquareOutBase,
+  CalendarBlank as CalendarBlankBase,
   CaretDown as CaretDownBase,
+  CaretLeft as CaretLeftBase,
+  CaretRight as CaretRightBase,
   CaretUp as CaretUpBase,
   CaretUpDown as CaretUpDownBase,
   Check as CheckBase,
   CheckCircle as CheckCircleBase,
   CircleNotch as CircleNotchBase,
+  Clock as ClockBase,
   Copy as CopyBase,
   DotsThree as DotsThreeBase,
   FloppyDisk as FloppyDiskBase,
+  Globe as GlobeBase,
+  HourglassMedium as HourglassMediumBase,
   Info as InfoBase,
   List as ListBase,
   Lock as LockBase,
@@ -34,11 +43,16 @@ import {
   Monitor as MonitorBase,
   Moon as MoonBase,
   Plus as PlusBase,
+  SignIn as SignInBase,
   SignOut as SignOutBase,
   Sparkle as SparkleBase,
+  Star as StarBase,
   Sun as SunBase,
   TrendDown as TrendDownBase,
   TrendUp as TrendUpBase,
+  UploadSimple as UploadSimpleBase,
+  User as UserBase,
+  UsersThree as UsersThreeBase,
   Warning as WarningBase,
   WarningCircle as WarningCircleBase,
   X as XBase,
@@ -57,16 +71,25 @@ function decorative(Base: Icon): Icon {
   return Decorative;
 }
 
+export const ArrowClockwise = decorative(ArrowClockwiseBase);
 export const ArrowLeft = decorative(ArrowLeftBase);
+export const ArrowRight = decorative(ArrowRightBase);
+export const ArrowSquareOut = decorative(ArrowSquareOutBase);
+export const CalendarBlank = decorative(CalendarBlankBase);
 export const CaretDown = decorative(CaretDownBase);
+export const CaretLeft = decorative(CaretLeftBase);
+export const CaretRight = decorative(CaretRightBase);
 export const CaretUp = decorative(CaretUpBase);
 export const CaretUpDown = decorative(CaretUpDownBase);
 export const Check = decorative(CheckBase);
 export const CheckCircle = decorative(CheckCircleBase);
 export const CircleNotch = decorative(CircleNotchBase);
+export const Clock = decorative(ClockBase);
 export const Copy = decorative(CopyBase);
 export const DotsThree = decorative(DotsThreeBase);
 export const FloppyDisk = decorative(FloppyDiskBase);
+export const Globe = decorative(GlobeBase);
+export const HourglassMedium = decorative(HourglassMediumBase);
 export const Info = decorative(InfoBase);
 export const List = decorative(ListBase);
 export const Lock = decorative(LockBase);
@@ -75,11 +98,16 @@ export const Minus = decorative(MinusBase);
 export const Monitor = decorative(MonitorBase);
 export const Moon = decorative(MoonBase);
 export const Plus = decorative(PlusBase);
+export const SignIn = decorative(SignInBase);
 export const SignOut = decorative(SignOutBase);
 export const Sparkle = decorative(SparkleBase);
+export const Star = decorative(StarBase);
 export const Sun = decorative(SunBase);
 export const TrendDown = decorative(TrendDownBase);
 export const TrendUp = decorative(TrendUpBase);
+export const UploadSimple = decorative(UploadSimpleBase);
+export const User = decorative(UserBase);
+export const UsersThree = decorative(UsersThreeBase);
 export const Warning = decorative(WarningBase);
 export const WarningCircle = decorative(WarningCircleBase);
 export const X = decorative(XBase);

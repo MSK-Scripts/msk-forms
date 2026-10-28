@@ -51,7 +51,7 @@ export default async function NewFormPage({
         <DpaGate
           guildId={guildId}
           t={t.legal}
-          href={shopLegalUrl(await getLocale(), "/terms/avv")}
+          href={shopLegalUrl(await getLocale(), "/legal/dpa")}
         />
       </div>
     );

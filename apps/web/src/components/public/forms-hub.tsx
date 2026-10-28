@@ -81,7 +81,7 @@ export function GuildFormsHub({
   }
 
   return (
-    <main className="msk-form mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12" {...brand}>
+    <main id="main" className="msk-form mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12" {...brand}>
       <CustomCss css={branding.customCss} />
       <header className="flex flex-col gap-2">
         {logo && <img src={logo} alt="" className="mb-2 h-12 w-auto self-start" />}

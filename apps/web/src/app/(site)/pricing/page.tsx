@@ -2,7 +2,6 @@ import { IconBrandDiscord, IconCheck, IconMinus, IconUsersGroup } from "@tabler/
 import type { Metadata } from "next";
 import { Fragment } from "react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { botInviteUrl } from "@/lib/url";
@@ -111,11 +110,6 @@ export default async function PricingPage() {
                 : "relative transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-card-hover"
             }
           >
-            {highlight && (
-              <Badge className="absolute -top-3 inset-s-6 border-transparent bg-primary text-primary-foreground shadow-xs">
-                {t.badgePopular}
-              </Badge>
-            )}
             <CardContent className="flex h-full flex-col gap-6 p-7">
               <div>
                 <h2 className="font-heading text-xl font-bold">{data.name}</h2>

@@ -6,6 +6,7 @@ import { Features } from "@/components/landing/features";
 import { Hero } from "@/components/landing/hero";
 import { Steps } from "@/components/landing/steps";
 import { GuildHub } from "@/components/public/guild-hub";
+import { SiteChrome } from "@/components/site/site-chrome";
 import { getCurrentUser } from "@/lib/auth";
 import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 import { botInviteUrl } from "@/lib/url";
@@ -33,7 +34,7 @@ export default async function HomePage({
   const botInvite = botInviteUrl();
 
   return (
-    <>
+    <SiteChrome>
       {auth === "error" && (
         <div className="container pt-4">
           <p className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-2 text-sm text-destructive">
@@ -47,6 +48,6 @@ export default async function HomePage({
       <FeatureGrid />
       <Steps />
       <CtaBand loggedIn={Boolean(user)} botInvite={botInvite} />
-    </>
+    </SiteChrome>
   );
 }

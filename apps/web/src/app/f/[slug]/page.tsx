@@ -220,7 +220,7 @@ function Shell({
   poweredBy?: React.ReactNode;
 }) {
   return (
-    <main className="msk-form pwa-safe-x pwa-safe-b mx-auto flex max-w-2xl flex-col gap-6 pt-12" {...brand}>
+    <main id="main" className="msk-form pwa-safe-x pwa-safe-b mx-auto flex max-w-2xl flex-col gap-6 pt-12" {...brand}>
       <CustomCss css={customCss} />
       <header className="flex flex-col gap-1">
         {logoSrc && <img src={logoSrc} alt="" className="mb-2 h-12 w-auto self-start" />}
