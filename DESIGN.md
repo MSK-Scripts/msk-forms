@@ -205,21 +205,34 @@ These must keep working, whatever the redesign does:
   `--primary-foreground`, `--secondary`, `--muted`, `--muted-foreground`, `--accent`,
   `--destructive`, `--border`, `--input`, `--ring`, `--chart-1` to `--chart-5`, `--radius`)
   and hold bare HSL channels, so custom CSS can write `hsl(var(--primary) / 0.05)`.
-- **The wrapper.** `brandStyle` in [`apps/web/src/lib/branding.ts`](apps/web/src/lib/branding.ts)
-  sets `--primary`, `--primary-foreground` and `--ring` as channels on the page's wrapper.
-  Pro customers write custom CSS against the `.msk-form` wrapper class and these variables
-  (the Quick Styles in `components/branding/branding-form.tsx`).
+- **The wrapper.** `brandProps` in [`apps/web/src/lib/branding.ts`](apps/web/src/lib/branding.ts)
+  puts the accent on the page's wrapper: two sets of HSL channels, one per theme
+  (`--guild-accent-light`, `--guild-accent-light-label`, `--guild-accent-dark`,
+  `--guild-accent-dark-label`), and the attribute `data-guild-accent`. A rule in
+  `globals.css` maps the current theme's set onto `--primary`, `--primary-foreground` and
+  `--ring`. Pro customers write custom CSS against the `.msk-form` class (the content column
+  of every public page) and these variables (the Quick Styles in
+  `components/branding/branding-form.tsx`).
+- **Custom CSS wins.** The rule that maps the accent sits in `@layer base`; a customer's
+  custom CSS is unlayered, so `.msk-form { --primary: … }` beats the accent and its fallback.
+  Nothing sets `--primary` inline, where it would beat the custom CSS instead.
+  `branding-contract.test.ts` and `branding.test.ts` hold both.
 - **Everything accent-coloured follows.** Because the utilities are `@theme inline` and the
   hover fill and soft surface are mixed from `--primary`, a wrapper that sets `--primary`
   recolours fills, text, borders, rings, hover states and soft surfaces inside it. Setting
   `--radius` scales every radius. `branding-contract.test.ts` compiles `globals.css` with
   Tailwind and checks the emitted rules.
-- **The label.** The accent is the same in both themes, so its label cannot be the theme's
-  (white in light, near black in dark). `brandVariables` picks white or `#0e150e`, whichever
-  has the higher contrast with the customer's colour.
+- **The label.** The label follows whichever accent is in effect, not the theme: white or
+  `#0e150e`, whichever has the higher contrast. `labelFor` picks it for each theme's set;
+  where the browser knows relative colours, `globals.css` derives `--primary-foreground`
+  from the `--primary` in effect (white below a luminance of 0.1938, the point where both
+  labels read equally well), so a custom `--primary` gets a readable label too. The test
+  checks that the constants in the CSS make the same choice as the code.
 - **The preview.** The custom CSS preview renders in a sandboxed iframe with its own copy of
-  the base tokens (`components/branding/css-preview-base.ts`) and the same variables as
-  `brandStyle`. `css-preview-sync.test.ts` fails when the copy drifts from `globals.css`.
+  the base tokens (`components/branding/css-preview-base.ts`), the accent rules from
+  `lib/guild-accent-css.ts` in the same layer, and the same variables and attribute as
+  `brandProps`, so it shows the fallback as the live page does. `css-preview-sync.test.ts`
+  fails when the copy drifts from `globals.css`.
 
 What does **not** follow the customer: status colours, the bands, the brand stripe and the
 dashboard itself, which is always MSK.
@@ -229,8 +242,21 @@ dashboard itself, which is always MSK.
 The public pages take the shop's type, spacing, controls and focus style, and the customer's
 colour; MSK green is only the default for a guild without one. A customer colour that fails
 its contrast pairs in a theme (yellow as link text on white, navy on the dark ground) gets a
-readable fallback accent for that theme instead of an unreadable page. The fallback is
-planned for phase 2 of the redesign; today `brandStyle` only chooses the label.
+readable fallback accent for that theme instead of an unreadable page.
+
+- **Which colour.** `readableAccent` keeps the customer's hue and saturation and moves the
+  lightness, darker in light and lighter in dark, in steps of 0.1 % until the accent reaches
+  4.6:1 (4.5:1 plus a margin) against the ground, a card and its own soft surface. On the
+  public pages `--primary` is link text and kicker as well as the button fill, so the text
+  threshold decides; 3:1 for fills and the focus ring is met on the way. A colour that
+  already passes in a theme stays as it is there.
+- **The frame.** `components/public/public-frame.tsx` gives every public page the guild's
+  logo and name, the language select and the Discord sign-in in a slim bar, the theme switch
+  and (Free plan) the "Powered by" line in the footer, and no msk-scripts.de navigation.
+  The accent sits on the outer wrapper, `<main id="main">` inside it, `.msk-form` on the
+  content column (`public-column`).
+- **Form controls** are the shop's (see Public form controls). A guild's own status colours
+  show as a dot beside the word, so a light colour never becomes unreadable text.
 
 ## Typography
 
@@ -275,6 +301,7 @@ in stat tiles `clamp(1.5rem, 1.25rem + 0.7vw, 2.25rem)`.
 | `--app-content` | `130rem` | Content cap of the dashboard, so a table row stays readable on UWQHD |
 | `--app-tabbar` | `3.75rem` | Bottom tab bar on a phone |
 | `--page-column`, `--page-gutter` | `clamp(72rem, 84vw, 180rem)`, `clamp(1rem, 4vw, 7.5rem)` | Column and gutter of the public and marketing pages (`container-page`) |
+| `--public-column` | `clamp(36rem, 28rem + 14vw, 56rem)` | Content width of a guild's public pages (`public-column`) |
 | `--header-height` | `clamp(3.75rem, 3rem + 1vw, 5rem)` | Header bar of the public site |
 | `--space-section`, `--space-stack` | fluid | Rhythm between and inside sections |
 | `--grid-card`, `--grid-card-wide` | `clamp(18rem, …, 30rem)`, `clamp(20.5rem, …, 32.5rem)` | Card minimum of card grids |
@@ -353,11 +380,28 @@ guilds instead of servers, copy from the `kit` section of the dictionary.
 `components/dashboard` holds MSK Forms features (submissions table, live updates, form
 import), not building blocks.
 
+### Site pages (`apps/web/src/components/site`, `components/page`)
+
+The marketing pages present MSK Forms as a section of msk-scripts.de.
+
+| Component | Use it for |
+|---|---|
+| `SiteChrome` | Header, the one `<main id="main">`, footer. The `(site)` route group renders it; the landing page and the 404 page render it themselves, because `/` is a guild's hub on a custom domain. |
+| `SiteHeader` | The shop's header: green stripe, our pages (pricing, statistics), the shop's product lines with their panels and its about page (absolute addresses through `lib/shop-url.ts`: German pages for `de`, English for the other languages), Web tools as the current area with MSK Forms in it, the language select and the Discord account. Below 1280 px a menu under the bar. |
+| `SiteFooter` | The shop's footer on the anthracite band: brand and theme switch, product, ecosystem, legal (our own and the shop's), contracts and reports. |
+| `PageHero` | The head of a marketing page on the band: breadcrumb, kicker, heading, lead, actions, an aside from 1280 px. |
+| `Section`, `TextLink` | A section with kicker, heading and intro beside its content from 1600 px; the green text link as the third level of actions. |
+| `FactList` | Title and a sentence per item, grouped by hairlines; numbered for steps. Instead of rows of icon cards. |
+
 ### Public form controls (`packages/ui`)
 
 `@msk-forms/ui` renders the fields of a public form (`Field`, `Input`, `Textarea`, `Select`,
 `Checkbox`, `RadioGroup`, `CheckboxGroup`) and the coloured submission status. It uses the
-same utilities, so it follows the tokens and the customer's colour.
+same utilities, so it follows the tokens and the customer's colour, and the shop's field
+look: 44 px and up, a 1.5 px `border-input`, 16 px text, the global focus outline. `Field`
+puts the label above the control and ties hint and error to it (`fieldDescribedBy`); groups
+of radios, checkboxes and scales are a fieldset whose legend is the question. The renderer
+moves the focus to the first field with an error after a failed check.
 
 **Charts** are hand-written SVG: a chart library would inject styles at runtime. One scale
 per chart; the SVG is `aria-hidden`, a sentence says what it shows and a table behind a
@@ -389,8 +433,9 @@ native `<details>` holds every value.
 
 ## Accessibility
 
-- **Skip link** as the first element, to the one `<main id="main">` (`.skip-link`, rendered
-  once the pages sit in the `AppShell`).
+- **Skip link** as the first element of the body, rendered by the root layout, to the one
+  `<main id="main">` every frame renders (`SiteChrome`, `PublicFrame`, the dashboard until
+  phase 3 through `SiteChrome`, the error and offline pages themselves).
 - **Focus** is a 3 px outline in `ring` with 2 px offset on `:focus-visible`, adjusted on
   both bands; on a public page it takes the customer's `--ring`. `scroll-padding-top` keeps a
   focused element clear of a sticky header (WCAG 2.4.11).
@@ -435,16 +480,16 @@ The move to this system runs in four phases.
 | Phase | Scope | State |
 |---|---|---|
 | 1 | Foundation: tokens, fonts, Phosphor barrel, base components, dashboard kit, contrast and branding tests, this file | Done |
-| 2 | Marketing pages (landing, pricing, stats, legal) as part of msk-scripts.de; public form pages with the shop's craft and the customer's colour, including the fallback accent | Planned |
+| 2 | Marketing pages (landing, pricing, stats, legal) as part of msk-scripts.de; public form pages with the shop's craft and the customer's colour, including the fallback accent | Done |
 | 3 | The dashboard pages on the `AppShell` and the kit | Planned |
 | 4 | Clean-up: Tabler out, legacy utilities and old components out | Planned |
 
-Still in place until their pages are restyled: the `container` utility (1180 px column),
-`.eyebrow` (on the exclusion list), `.hero-decor-gradient`, the `font-heading` name,
+Still in place until their pages are restyled: the `font-heading` name,
 `components/confirm-dialog.tsx`, per-component focus rings (`focus-visible:ring-2`) instead
 of the global outline, the Tabler icons, hard-coded old greens (`#4ea426`,
 `#5eb131`) as defaults in the branding form, the category form and the forms list, and an em dash
-(U+2014) as the placeholder for an empty value in a few tables and fields.
+(U+2014) as the placeholder for an empty value in the submissions table and the A/B results.
+Until phase 3 the dashboard sits in `SiteChrome` with its old 1180 px column as an inner cap.
 
 ## Adding a colour
 
