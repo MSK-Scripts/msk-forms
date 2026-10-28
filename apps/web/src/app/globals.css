@@ -105,13 +105,14 @@
 }
 
 @theme {
-  /* Type, self-hosted through next/font in app/layout.tsx. Archivo for
-     headings and names (with its width axis), Source Sans 3 for everything
-     else, and no web font for code: the system monospace is enough there. */
-  --font-sans: var(--font-source-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-display: var(--font-archivo), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* Type, loaded locally through @fontsource-variable in app/layout.tsx.
+     Archivo for headings and names (with its width axis), Source Sans 3 for
+     everything else, and no web font for code: the system monospace is
+     enough there. */
+  --font-sans: "Source Sans 3 Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Archivo Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   /* Legacy name of the display face, still used by existing pages. */
-  --font-heading: var(--font-archivo), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "Archivo Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, "Cascadia Mono", "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
 
   /* Fluid type scale. The minimum is the phone size, the size grows with the

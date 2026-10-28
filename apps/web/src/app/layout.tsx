@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, Source_Sans_3 } from "next/font/google";
 import { headers } from "next/headers";
 
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
@@ -10,23 +9,14 @@ import { getCurrentUser } from "@/lib/auth";
 import { logoUrl, parseBranding } from "@/lib/branding";
 import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 import { getDirection, getLocale } from "@/i18n";
+// Fonts come from the @fontsource-variable packages and are served by this
+// app, like in msk-shop: nothing is fetched from Google, neither at build time
+// nor in the browser, and the CSP needs nothing beyond `font-src 'self'`.
+// Archivo with its weight and width axes (headings, names), Source Sans 3 for
+// everything else; unicode-range loads only the subsets a page uses.
+import "@fontsource-variable/archivo/standard.css";
+import "@fontsource-variable/source-sans-3";
 import "./globals.css";
-
-// Self-hosted at build time by next/font, so the CSP needs nothing beyond
-// `font-src 'self'`. Archivo (headings, names; with its width axis) and
-// Source Sans 3 (everything else), both variable; latin-ext carries the
-// Hungarian and Polish letters. Code uses the system monospace, no web font.
-const archivo = Archivo({
-  subsets: ["latin", "latin-ext"],
-  axes: ["wdth"],
-  variable: "--font-archivo",
-  display: "swap",
-});
-const sourceSans = Source_Sans_3({
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-source-sans",
-  display: "swap",
-});
 
 const DEFAULT_METADATA: Metadata = {
   title: "MSK Forms: application forms with a status loop",
@@ -93,7 +83,6 @@ export default async function RootLayout({
       lang={locale}
       dir={getDirection(locale)}
       suppressHydrationWarning
-      className={`${archivo.variable} ${sourceSans.variable}`}
     >
       <body className="font-sans antialiased">
         <ThemeProvider nonce={nonce}>
