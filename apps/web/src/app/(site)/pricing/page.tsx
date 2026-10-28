@@ -153,8 +153,10 @@ export default async function PricingPage() {
       </section>
 
       <Section id="compare-title" title={c.title}>
+        {/* A named group, not a second landmark: the section around it is
+            already the region "compare-title" names. */}
         <div
-          role="region"
+          role="group"
           aria-labelledby="compare-title"
           tabIndex={0}
           // `relative`: the sr-only words in the cells are positioned, and

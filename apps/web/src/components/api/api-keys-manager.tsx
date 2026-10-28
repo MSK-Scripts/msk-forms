@@ -183,8 +183,9 @@ export function ApiKeysManager({
         </Notice>
       )}
 
-      <section aria-labelledby={`${ids}-keys`} className="grid gap-4">
-        <h2 id={`${ids}-keys`} className="font-display text-h3 font-[650]">
+      {/* Not a named region: the table below is one, by the same name. */}
+      <section className="grid gap-4">
+        <h2 className="font-display text-h3 font-[650]">
           {t.yourKeys}
         </h2>
         <form onSubmit={create} className="flex flex-wrap items-end gap-3">
@@ -229,7 +230,7 @@ export function ApiKeysManager({
         <pre
           tabIndex={0}
           role="region"
-          aria-label={t.docsTitle}
+          aria-label={t.docsExample}
           className="overflow-x-auto rounded-md border border-border bg-muted p-3 font-mono text-small"
         >
           {`curl -H "Authorization: Bearer YOUR_KEY" \\

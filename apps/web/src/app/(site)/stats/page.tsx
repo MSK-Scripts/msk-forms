@@ -41,7 +41,8 @@ export default async function StatsPage() {
     <>
       <PageHero id="stats-title" kicker={t.eyebrow} title={t.title} lead={t.sub} />
 
-      <section aria-labelledby="stats-figures" className="py-[var(--space-section)]">
+      {/* No landmark name of its own: it would repeat the page head's. */}
+      <section className="py-[var(--space-section)]">
         <div className="container-page grid gap-[var(--space-stack)]">
           {/* Visible it would repeat the page title; it gives the list its
               place below the h1. */}

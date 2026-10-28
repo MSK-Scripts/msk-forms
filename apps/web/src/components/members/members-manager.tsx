@@ -75,7 +75,6 @@ export function MembersManager({
   kit: { close: string; dismiss: string };
 }) {
   const router = useRouter();
-  const teamHeadingId = useId();
   const nameIdPrefix = useId();
   // Where an error belongs: "add" (the add form) or a member's user id.
   const [error, setError] = useState<{ key: string; text: string } | null>(null);
@@ -356,9 +355,10 @@ export function MembersManager({
         </form>
       </FormSection>
 
-      <section aria-labelledby={teamHeadingId} className="grid gap-4 border-t border-border py-6">
+      {/* Not a named region: the table below is one, by the same name. */}
+      <section className="grid gap-4 border-t border-border py-6">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-          <h2 id={teamHeadingId} className="font-display text-h3 font-[650]">
+          <h2 className="font-display text-h3 font-[650]">
             {t.team}
           </h2>
           <p className="text-muted-foreground tabular-nums">
