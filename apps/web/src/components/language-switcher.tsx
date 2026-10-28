@@ -4,15 +4,9 @@ import { IconCheck, IconChevronDown, IconWorld } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-const LOCALES = [
-  { value: "en", short: "EN", label: "English" },
-  { value: "de", short: "DE", label: "Deutsch" },
-  { value: "hu", short: "HU", label: "Magyar" },
-  { value: "fr", short: "FR", label: "Français" },
-  { value: "es", short: "ES", label: "Español" },
-  { value: "pt", short: "PT", label: "Português" },
-  { value: "pl", short: "PL", label: "Polski" },
-] as const;
+import { LOCALE_OPTIONS, writeLocaleCookie } from "@/i18n/locale-options";
+
+const LOCALES = LOCALE_OPTIONS;
 
 export function LanguageSwitcher({ locale }: { locale: string }) {
   const router = useRouter();
@@ -39,7 +33,7 @@ export function LanguageSwitcher({ locale }: { locale: string }) {
   function select(value: string) {
     setOpen(false);
     if (value === locale) return;
-    document.cookie = `NEXT_LOCALE=${value}; path=/; max-age=31536000; samesite=lax`;
+    writeLocaleCookie(value);
     router.refresh();
   }
 

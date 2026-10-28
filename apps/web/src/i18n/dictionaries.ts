@@ -725,6 +725,24 @@ const en = {
     dpaNoPerm: "Only someone who can manage forms can accept this agreement.",
   },
   authError: "Login failed. Please try again.",
+  // The dashboard kit (components/dashboard-kit): app shell, server switcher
+  // and the shared controls. Pages pass these to the client components.
+  kit: {
+    shell: {
+      nav: "Dashboard", mobileNav: "Shortcuts", menuOpen: "Open menu", menuClose: "Close menu",
+      backToSite: "Back to the website", signOut: "Log out", language: "Language",
+      theme: { group: "Appearance", system: "System", light: "Light", dark: "Dark" },
+    },
+    guildSwitcher: {
+      label: "Server", switchLabel: "Switch server", none: "No server chosen", add: "Add a server",
+      missing: "Missing a server? It shows up here once the MSK Forms bot has joined it and you are on its team.",
+    },
+    breadcrumb: "Breadcrumb",
+    dismiss: "Dismiss",
+    copyField: { copy: "Copy", copied: "Copied", failed: "Your browser blocked copying. Select the text and copy it by hand." },
+    saveBar: { message: "You have unsaved changes.", save: "Save", discard: "Discard" },
+    cancel: "Cancel",
+  },
 };
 
 export type Dictionary = typeof en;
@@ -1449,6 +1467,22 @@ const de: Dictionary = {
     dpaNoPerm: "Nur wer Formulare verwalten darf, kann diese Vereinbarung annehmen.",
   },
   authError: "Anmeldung fehlgeschlagen. Bitte versuche es erneut.",
+  kit: {
+    shell: {
+      nav: "Dashboard", mobileNav: "Schnellzugriff", menuOpen: "Menü öffnen", menuClose: "Menü schließen",
+      backToSite: "Zurück zur Website", signOut: "Abmelden", language: "Sprache",
+      theme: { group: "Darstellung", system: "System", light: "Hell", dark: "Dunkel" },
+    },
+    guildSwitcher: {
+      label: "Server", switchLabel: "Server wechseln", none: "Kein Server gewählt", add: "Server hinzufügen",
+      missing: "Ein Server fehlt? Er erscheint hier, sobald der MSK-Forms-Bot ihm beigetreten ist und du zu seinem Team gehörst.",
+    },
+    breadcrumb: "Seitenpfad",
+    dismiss: "Schließen",
+    copyField: { copy: "Kopieren", copied: "Kopiert", failed: "Dein Browser hat das Kopieren blockiert. Markiere den Text und kopiere ihn von Hand." },
+    saveBar: { message: "Du hast ungespeicherte Änderungen.", save: "Speichern", discard: "Verwerfen" },
+    cancel: "Abbrechen",
+  },
 };
 
 const hu: Dictionary = {
@@ -2168,6 +2202,22 @@ const hu: Dictionary = {
     dpaNoPerm: "Csak az fogadhatja el ezt a szerződést, aki űrlapokat kezelhet.",
   },
   authError: "A bejelentkezés sikertelen. Kérjük, próbáld újra.",
+  kit: {
+    shell: {
+      nav: "Vezérlőpult", mobileNav: "Gyorselérés", menuOpen: "Menü megnyitása", menuClose: "Menü bezárása",
+      backToSite: "Vissza a weboldalra", signOut: "Kijelentkezés", language: "Nyelv",
+      theme: { group: "Megjelenés", system: "Rendszer", light: "Világos", dark: "Sötét" },
+    },
+    guildSwitcher: {
+      label: "Szerver", switchLabel: "Szerver váltása", none: "Nincs kiválasztott szerver", add: "Szerver hozzáadása",
+      missing: "Hiányzik egy szerver? Akkor jelenik meg itt, ha az MSK Forms bot csatlakozott hozzá, és te a csapatához tartozol.",
+    },
+    breadcrumb: "Navigációs útvonal",
+    dismiss: "Bezárás",
+    copyField: { copy: "Másolás", copied: "Másolva", failed: "A böngésződ letiltotta a másolást. Jelöld ki a szöveget, és másold ki kézzel." },
+    saveBar: { message: "Nem mentett módosításaid vannak.", save: "Mentés", discard: "Elvetés" },
+    cancel: "Mégse",
+  },
 };
 
 const fr: Dictionary = {
@@ -2887,6 +2937,22 @@ const fr: Dictionary = {
     dpaNoPerm: "Seule une personne pouvant gérer les formulaires peut accepter cet accord.",
   },
   authError: "Connexion échouée. Veuillez réessayer.",
+  kit: {
+    shell: {
+      nav: "Tableau de bord", mobileNav: "Accès rapide", menuOpen: "Ouvrir le menu", menuClose: "Fermer le menu",
+      backToSite: "Retour au site", signOut: "Déconnexion", language: "Langue",
+      theme: { group: "Apparence", system: "Système", light: "Clair", dark: "Sombre" },
+    },
+    guildSwitcher: {
+      label: "Serveur", switchLabel: "Changer de serveur", none: "Aucun serveur choisi", add: "Ajouter un serveur",
+      missing: "Un serveur manque ? Il apparaît ici dès que le bot MSK Forms l’a rejoint et que vous faites partie de son équipe.",
+    },
+    breadcrumb: "Fil d’Ariane",
+    dismiss: "Fermer",
+    copyField: { copy: "Copier", copied: "Copié", failed: "Votre navigateur a bloqué la copie. Sélectionnez le texte et copiez-le à la main." },
+    saveBar: { message: "Vous avez des modifications non enregistrées.", save: "Enregistrer", discard: "Ignorer" },
+    cancel: "Annuler",
+  },
 };
 
 
@@ -3607,6 +3673,22 @@ const es: Dictionary = {
     dpaNoPerm: "Solo quien puede gestionar formularios puede aceptar este contrato.",
   },
   authError: "Error al iniciar sesión. Por favor, inténtalo de nuevo.",
+  kit: {
+    shell: {
+      nav: "Panel", mobileNav: "Accesos rápidos", menuOpen: "Abrir menú", menuClose: "Cerrar menú",
+      backToSite: "Volver al sitio web", signOut: "Cerrar sesión", language: "Idioma",
+      theme: { group: "Apariencia", system: "Sistema", light: "Claro", dark: "Oscuro" },
+    },
+    guildSwitcher: {
+      label: "Servidor", switchLabel: "Cambiar de servidor", none: "Ningún servidor elegido", add: "Añadir un servidor",
+      missing: "¿Falta un servidor? Aparece aquí en cuanto el bot de MSK Forms se haya unido a él y formes parte de su equipo.",
+    },
+    breadcrumb: "Ruta de navegación",
+    dismiss: "Cerrar",
+    copyField: { copy: "Copiar", copied: "Copiado", failed: "Tu navegador bloqueó la copia. Selecciona el texto y cópialo a mano." },
+    saveBar: { message: "Tienes cambios sin guardar.", save: "Guardar", discard: "Descartar" },
+    cancel: "Cancelar",
+  },
 };
 
 
@@ -4327,6 +4409,22 @@ const pt: Dictionary = {
     dpaNoPerm: "Apenas quem pode gerenciar formulários pode aceitar este contrato.",
   },
   authError: "Falha no login. Por favor, tente novamente.",
+  kit: {
+    shell: {
+      nav: "Painel", mobileNav: "Acesso rápido", menuOpen: "Abrir menu", menuClose: "Fechar menu",
+      backToSite: "Voltar ao site", signOut: "Sair", language: "Idioma",
+      theme: { group: "Aparência", system: "Sistema", light: "Claro", dark: "Escuro" },
+    },
+    guildSwitcher: {
+      label: "Servidor", switchLabel: "Trocar de servidor", none: "Nenhum servidor escolhido", add: "Adicionar um servidor",
+      missing: "Falta um servidor? Ele aparece aqui assim que o bot do MSK Forms entrar nele e você fizer parte da equipe.",
+    },
+    breadcrumb: "Trilha de navegação",
+    dismiss: "Fechar",
+    copyField: { copy: "Copiar", copied: "Copiado", failed: "Seu navegador bloqueou a cópia. Selecione o texto e copie manualmente." },
+    saveBar: { message: "Você tem alterações não salvas.", save: "Salvar", discard: "Descartar" },
+    cancel: "Cancelar",
+  },
 };
 
 
@@ -5047,6 +5145,22 @@ const pl: Dictionary = {
     dpaNoPerm: "Tylko osoba zarządzająca formularzami może zaakceptować tę umowę.",
   },
   authError: "Logowanie nie powiodło się. Spróbuj ponownie.",
+  kit: {
+    shell: {
+      nav: "Panel", mobileNav: "Szybki dostęp", menuOpen: "Otwórz menu", menuClose: "Zamknij menu",
+      backToSite: "Powrót do strony", signOut: "Wyloguj się", language: "Język",
+      theme: { group: "Wygląd", system: "Systemowy", light: "Jasny", dark: "Ciemny" },
+    },
+    guildSwitcher: {
+      label: "Serwer", switchLabel: "Zmień serwer", none: "Nie wybrano serwera", add: "Dodaj serwer",
+      missing: "Brakuje serwera? Pojawi się tutaj, gdy bot MSK Forms do niego dołączy, a Ty będziesz w jego zespole.",
+    },
+    breadcrumb: "Ścieżka nawigacji",
+    dismiss: "Zamknij",
+    copyField: { copy: "Kopiuj", copied: "Skopiowano", failed: "Przeglądarka zablokowała kopiowanie. Zaznacz tekst i skopiuj go ręcznie." },
+    saveBar: { message: "Masz niezapisane zmiany.", save: "Zapisz", discard: "Odrzuć" },
+    cancel: "Anuluj",
+  },
 };
 
 
