@@ -26,28 +26,38 @@ import {
   CaretRight as CaretRightBase,
   CaretUp as CaretUpBase,
   CaretUpDown as CaretUpDownBase,
+  ChatText as ChatTextBase,
   Check as CheckBase,
   CheckCircle as CheckCircleBase,
   CircleNotch as CircleNotchBase,
+  ClipboardText as ClipboardTextBase,
   Clock as ClockBase,
+  ClockCounterClockwise as ClockCounterClockwiseBase,
   Copy as CopyBase,
   DotsThree as DotsThreeBase,
   DownloadSimple as DownloadSimpleBase,
+  Flag as FlagBase,
   FloppyDisk as FloppyDiskBase,
+  FolderSimple as FolderSimpleBase,
   Globe as GlobeBase,
   HourglassMedium as HourglassMediumBase,
   Info as InfoBase,
+  Kanban as KanbanBase,
+  Key as KeyBase,
   List as ListBase,
   Lock as LockBase,
   MagnifyingGlass as MagnifyingGlassBase,
   Minus as MinusBase,
   Monitor as MonitorBase,
   Moon as MoonBase,
+  PaintBrush as PaintBrushBase,
   PaperPlaneTilt as PaperPlaneTiltBase,
   Plus as PlusBase,
+  Robot as RobotBase,
   SignIn as SignInBase,
   SignOut as SignOutBase,
   Sparkle as SparkleBase,
+  SquaresFour as SquaresFourBase,
   Star as StarBase,
   Sun as SunBase,
   Trash as TrashBase,
@@ -59,6 +69,7 @@ import {
   UsersThree as UsersThreeBase,
   Warning as WarningBase,
   WarningCircle as WarningCircleBase,
+  WebhooksLogo as WebhooksLogoBase,
   X as XBase,
   XCircle as XCircleBase,
 } from "@phosphor-icons/react/ssr";
@@ -85,28 +96,38 @@ export const CaretLeft = decorative(CaretLeftBase);
 export const CaretRight = decorative(CaretRightBase);
 export const CaretUp = decorative(CaretUpBase);
 export const CaretUpDown = decorative(CaretUpDownBase);
+export const ChatText = decorative(ChatTextBase);
 export const Check = decorative(CheckBase);
 export const CheckCircle = decorative(CheckCircleBase);
 export const CircleNotch = decorative(CircleNotchBase);
+export const ClipboardText = decorative(ClipboardTextBase);
 export const Clock = decorative(ClockBase);
+export const ClockCounterClockwise = decorative(ClockCounterClockwiseBase);
 export const Copy = decorative(CopyBase);
 export const DotsThree = decorative(DotsThreeBase);
 export const DownloadSimple = decorative(DownloadSimpleBase);
+export const Flag = decorative(FlagBase);
 export const FloppyDisk = decorative(FloppyDiskBase);
+export const FolderSimple = decorative(FolderSimpleBase);
 export const Globe = decorative(GlobeBase);
 export const HourglassMedium = decorative(HourglassMediumBase);
 export const Info = decorative(InfoBase);
+export const Kanban = decorative(KanbanBase);
+export const Key = decorative(KeyBase);
 export const List = decorative(ListBase);
 export const Lock = decorative(LockBase);
 export const MagnifyingGlass = decorative(MagnifyingGlassBase);
 export const Minus = decorative(MinusBase);
 export const Monitor = decorative(MonitorBase);
 export const Moon = decorative(MoonBase);
+export const PaintBrush = decorative(PaintBrushBase);
 export const PaperPlaneTilt = decorative(PaperPlaneTiltBase);
 export const Plus = decorative(PlusBase);
+export const Robot = decorative(RobotBase);
 export const SignIn = decorative(SignInBase);
 export const SignOut = decorative(SignOutBase);
 export const Sparkle = decorative(SparkleBase);
+export const SquaresFour = decorative(SquaresFourBase);
 export const Star = decorative(StarBase);
 export const Sun = decorative(SunBase);
 export const Trash = decorative(TrashBase);
@@ -118,5 +139,6 @@ export const User = decorative(UserBase);
 export const UsersThree = decorative(UsersThreeBase);
 export const Warning = decorative(WarningBase);
 export const WarningCircle = decorative(WarningCircleBase);
+export const WebhooksLogo = decorative(WebhooksLogoBase);
 export const X = decorative(XBase);
 export const XCircle = decorative(XCircleBase);

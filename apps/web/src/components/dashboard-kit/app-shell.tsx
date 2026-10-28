@@ -354,7 +354,8 @@ export function AppShell({
             id="main"
             tabIndex={-1}
             className={cn(
-              "min-w-0 flex-1 px-[var(--app-gutter)] py-[var(--app-gutter-y)]",
+              // The skip link focuses <main>; the outline would frame the whole page.
+              "min-w-0 flex-1 px-[var(--app-gutter)] py-[var(--app-gutter-y)] focus:outline-none",
               mobileItems.length > 0 &&
                 "pb-[calc(var(--app-tabbar)+var(--app-gutter-y))] lg:pb-[var(--app-gutter-y)]",
             )}
@@ -364,7 +365,7 @@ export function AppShell({
         </div>
       ) : (
         <>
-          <main id="main" tabIndex={-1} className="flex-1 px-[var(--app-gutter)] py-[var(--app-gutter-y)]">
+          <main id="main" tabIndex={-1} className="flex-1 px-[var(--app-gutter)] py-[var(--app-gutter-y)] focus:outline-none">
             <div className="@container mx-auto w-full max-w-[var(--app-content)]">{children}</div>
           </main>
           <footer className="border-t border-border bg-card">

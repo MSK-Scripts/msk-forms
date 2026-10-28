@@ -297,6 +297,9 @@ const en = {
     note: "Looks solid. Confirming your in-game name, then you’re in.",
   },
   dashboard: {
+    picker: { colServer: "Server", colRole: "Your role", submitted: "Submitted" },
+    nav: { work: "Work", workflow: "Workflow", setup: "Setup", team: "Team and integrations", account: "Account", allServers: "All servers" },
+    pendingTitle: "Access pending",
     formArchive: {
       link: "Archive",
       archive: "Archive",
@@ -323,7 +326,7 @@ const en = {
       backToArchive: "Back to the archive",
       submissionsIntro: "Submissions of this archived form. They stay hidden from the submission list and the board until the form is restored.",
     },
-    guilds: "Guilds", mySubmissions: "My Submissions", formsTab: "Forms", submissionsTab: "Submissions", boardTab: "Board", brandingTab: "Branding", botTab: "Bot", logsTab: "Audit log", statusesTab: "Statuses", webhooksTab: "Webhooks", domainTab: "Domain", apiTab: "API", membersTab: "Members", categoriesTab: "Categories", messagesTab: "Messages", msgTitle: "Status messages", msgIntro: "Set an automatic message sent to the applicant when a submission enters each status. Leave blank for no message. A form can override these in its builder.", msgNoPerm: "You don’t have permission to edit status messages.", msgPlaceholder: "Message sent when a submission enters this status…", msgHint: "The applicant sees this on their status page and receives it as a DM (when signed in with Discord). A reviewer can still edit or skip it per change.", msgSave: "Save", msgSaving: "Saving…", msgSaved: "Saved.", msgErr: "Could not save.",
+    guilds: "Guilds", mySubmissions: "My submissions", formsTab: "Forms", submissionsTab: "Submissions", boardTab: "Board", brandingTab: "Branding", botTab: "Bot", logsTab: "Audit log", statusesTab: "Statuses", webhooksTab: "Webhooks", domainTab: "Domain", apiTab: "API", membersTab: "Members", categoriesTab: "Categories", messagesTab: "Messages", msgTitle: "Status messages", msgIntro: "Set an automatic message sent to the applicant when a submission enters each status. Leave blank for no message. A form can override these in its builder.", msgNoPerm: "You don’t have permission to edit status messages.", msgPlaceholder: "Message sent when a submission enters this status…", msgHint: "The applicant sees this on their status page and receives it as a DM (when signed in with Discord). A reviewer can still edit or skip it per change.", msgSave: "Save", msgSaving: "Saving…", msgSaved: "Saved.", msgErr: "Could not save.",
     board: {
       title: "Board",
       moveTo: "Move to",
@@ -1102,6 +1105,9 @@ const de: Dictionary = {
     note: "Sieht gut aus. Wir bestätigen deinen In-Game-Namen, dann bist du dabei.",
   },
   dashboard: {
+    picker: { colServer: "Server", colRole: "Deine Rolle", submitted: "Eingereicht" },
+    nav: { work: "Arbeit", workflow: "Ablauf", setup: "Einrichtung", team: "Team und Anbindungen", account: "Konto", allServers: "Alle Server" },
+    pendingTitle: "Zugang ausstehend",
     formArchive: {
       link: "Archiv",
       archive: "Archivieren",
@@ -1900,6 +1906,9 @@ const hu: Dictionary = {
     note: "Jól néz ki. Megerősítjük a játékbeli neved, és bent vagy.",
   },
   dashboard: {
+    picker: { colServer: "Szerver", colRole: "Szereped", submitted: "Beküldve" },
+    nav: { work: "Munka", workflow: "Munkafolyamat", setup: "Beállítás", team: "Csapat és integrációk", account: "Fiók", allServers: "Összes szerver" },
+    pendingTitle: "Hozzáférés függőben",
     formArchive: {
       link: "Archívum",
       archive: "Archiválás",
@@ -2695,6 +2704,9 @@ const fr: Dictionary = {
     note: "Ça a l'air bien. On confirme votre nom en jeu, puis vous êtes admis.",
   },
   dashboard: {
+    picker: { colServer: "Serveur", colRole: "Votre rôle", submitted: "Envoyé" },
+    nav: { work: "Travail", workflow: "Processus", setup: "Configuration", team: "Équipe et intégrations", account: "Compte", allServers: "Tous les serveurs" },
+    pendingTitle: "Accès en attente",
     formArchive: {
       link: "Archives",
       archive: "Archiver",
@@ -3491,6 +3503,9 @@ const es: Dictionary = {
     note: "Se ve bien. Confirmamos tu nombre en el juego y ya estás dentro.",
   },
   dashboard: {
+    picker: { colServer: "Servidor", colRole: "Tu rol", submitted: "Enviado" },
+    nav: { work: "Trabajo", workflow: "Flujo de trabajo", setup: "Configuración", team: "Equipo e integraciones", account: "Cuenta", allServers: "Todos los servidores" },
+    pendingTitle: "Acceso pendiente",
     formArchive: {
       link: "Archivo",
       archive: "Archivar",
@@ -4287,6 +4302,9 @@ const pt: Dictionary = {
     note: "Parece sólido. Confirmando seu nome no jogo, e você está dentro.",
   },
   dashboard: {
+    picker: { colServer: "Servidor", colRole: "Seu papel", submitted: "Enviado" },
+    nav: { work: "Trabalho", workflow: "Fluxo de trabalho", setup: "Configuração", team: "Equipe e integrações", account: "Conta", allServers: "Todos os servidores" },
+    pendingTitle: "Acesso pendente",
     formArchive: {
       link: "Arquivo",
       archive: "Arquivar",
@@ -4313,7 +4331,7 @@ const pt: Dictionary = {
       backToArchive: "Voltar ao arquivo",
       submissionsIntro: "Candidaturas deste formulário arquivado. Elas ficam ocultas na lista de candidaturas e no quadro até o formulário ser restaurado.",
     },
-    guilds: "Servidores", mySubmissions: "Minhas Candidaturas", formsTab: "Formulários", submissionsTab: "Candidaturas", boardTab: "Quadro", brandingTab: "Branding", botTab: "Bot", logsTab: "Log", statusesTab: "Status", webhooksTab: "Webhooks", domainTab: "Domínio", apiTab: "API", membersTab: "Membros", categoriesTab: "Categorias", messagesTab: "Mensagens", msgTitle: "Mensagens de status", msgIntro: "Defina uma mensagem automática enviada ao candidato quando uma candidatura entra em cada status. Deixe em branco para nenhuma mensagem. Um formulário pode substituí-las no editor.", msgNoPerm: "Você não tem permissão para editar as mensagens de status.", msgPlaceholder: "Mensagem enviada quando uma candidatura entra neste status…", msgHint: "O candidato vê na página de status e recebe por DM (se entrou com o Discord). Um revisor pode editá-la ou ignorá-la a cada alteração.", msgSave: "Salvar", msgSaving: "Salvando…", msgSaved: "Salvo.", msgErr: "Não foi possível salvar.",
+    guilds: "Servidores", mySubmissions: "Minhas candidaturas", formsTab: "Formulários", submissionsTab: "Candidaturas", boardTab: "Quadro", brandingTab: "Branding", botTab: "Bot", logsTab: "Log", statusesTab: "Status", webhooksTab: "Webhooks", domainTab: "Domínio", apiTab: "API", membersTab: "Membros", categoriesTab: "Categorias", messagesTab: "Mensagens", msgTitle: "Mensagens de status", msgIntro: "Defina uma mensagem automática enviada ao candidato quando uma candidatura entra em cada status. Deixe em branco para nenhuma mensagem. Um formulário pode substituí-las no editor.", msgNoPerm: "Você não tem permissão para editar as mensagens de status.", msgPlaceholder: "Mensagem enviada quando uma candidatura entra neste status…", msgHint: "O candidato vê na página de status e recebe por DM (se entrou com o Discord). Um revisor pode editá-la ou ignorá-la a cada alteração.", msgSave: "Salvar", msgSaving: "Salvando…", msgSaved: "Salvo.", msgErr: "Não foi possível salvar.",
     board: {
       title: "Quadro",
       moveTo: "Mover para",
@@ -5083,6 +5101,9 @@ const pl: Dictionary = {
     note: "Wygląda solidnie. Potwierdzamy Twój nick w grze, a potem jesteś w środku.",
   },
   dashboard: {
+    picker: { colServer: "Serwer", colRole: "Twoja rola", submitted: "Wysłano" },
+    nav: { work: "Praca", workflow: "Przebieg pracy", setup: "Konfiguracja", team: "Zespół i integracje", account: "Konto", allServers: "Wszystkie serwery" },
+    pendingTitle: "Dostęp oczekuje",
     formArchive: {
       link: "Archiwum",
       archive: "Archiwizuj",

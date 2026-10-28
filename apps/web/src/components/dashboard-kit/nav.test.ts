@@ -34,6 +34,15 @@ describe("currentNavId", () => {
     expect(currentNavId(nav, "/dashboard/12")).toBeUndefined();
   });
 
+  it("marks an exact item on its own address only", () => {
+    const withHome: ShellNavGroup[] = [
+      ...nav,
+      { id: "account", items: [{ id: "all", href: "/dashboard", label: "All", icon: Lock, exact: true }] },
+    ];
+    expect(currentNavId(withHome, "/dashboard")).toBe("all");
+    expect(currentNavId(withHome, "/dashboard/2/forms")).toBeUndefined();
+  });
+
   it("never marks a locked item", () => {
     expect(currentNavId(nav, "/dashboard/1/members")).toBe("overview");
   });
