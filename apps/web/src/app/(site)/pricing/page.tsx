@@ -157,7 +157,9 @@ export default async function PricingPage() {
           role="region"
           aria-labelledby="compare-title"
           tabIndex={0}
-          className="overflow-x-auto rounded-lg border border-border bg-card"
+          // `relative`: the sr-only words in the cells are positioned, and
+          // without a positioned ancestor they would widen the page itself.
+          className="relative overflow-x-auto rounded-lg border border-border bg-card"
         >
           <table className="w-full min-w-[36rem] border-collapse text-start">
             <caption className="sr-only">{c.title}</caption>
