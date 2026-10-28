@@ -48,7 +48,11 @@ export function PageHeader({
                   {last || !crumb.href ? (
                     <span aria-current={last ? "page" : undefined}>{crumb.label}</span>
                   ) : (
-                    <Link href={crumb.href as Route} prefetch={false} className="text-primary hover:underline">
+                    <Link
+                      href={crumb.href as Route}
+                      prefetch={false}
+                      className="tap-target text-primary hover:underline"
+                    >
                       {crumb.label}
                     </Link>
                   )}

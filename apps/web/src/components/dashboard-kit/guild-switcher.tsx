@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useId, useRef, useState } from "react";
 
 import { GuildIcon } from "@/components/dashboard/guild-icon";
-import { CaretDown, Check, Plus } from "@/components/icons";
+import { CaretDown, Check, Plus, SquaresFour } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 import { useDismiss } from "./use-dismiss";
@@ -37,6 +37,15 @@ export interface GuildSwitcherCopy {
 }
 
 function GuildMark({ guild, name }: { guild: SwitcherGuild | null; name: string }) {
+  // No guild chosen: a neutral sign, not the initial of "No server chosen",
+  // which would read like a guild of that letter.
+  if (!guild) {
+    return (
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground">
+        <SquaresFour className="h-5 w-5" />
+      </span>
+    );
+  }
   return (
     <GuildIcon
       icon={guild?.iconUrl ?? null}
