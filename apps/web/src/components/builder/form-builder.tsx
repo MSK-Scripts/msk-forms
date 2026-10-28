@@ -26,11 +26,10 @@ import {
   Notice,
   PageHeader,
   SectionCard,
-  StatusBadge,
-  type StatusTone,
 } from "@/components/dashboard-kit";
+import { FormStateBadge, formStatus } from "@/components/dashboard/form-state-badge";
 import { DateField, type DateFieldLabels } from "@/components/form/date-field";
-import { CircleNotch, FloppyDisk, ListBullets, Lock } from "@/components/icons";
+import { CircleNotch, FloppyDisk, ListBullets } from "@/components/icons";
 import { ProNotice } from "@/components/pro-notice";
 import { Button } from "@/components/ui/button";
 import { fieldClassName, Input } from "@/components/ui/input";
@@ -77,10 +76,6 @@ export interface FormBuilderInitial {
   /** Per-form status message overrides, keyed by status key. */
   statusMessages: Record<string, string>;
 }
-
-/** The saved state of a form as a system state: draft quiet, live good, closed attention. */
-// As in the forms list: closed is neutral like a draft, with a lock as its sign.
-const STATUS_TONE: Record<string, StatusTone> = { draft: "neutral", live: "success", closed: "neutral" };
 
 /** ISO → `datetime-local` input value (YYYY-MM-DDTHH:MM) in the viewer's tz. */
 function isoToLocalInput(iso: string): string {
@@ -427,12 +422,10 @@ export function FormBuilder({
         }
         badge={
           formId ? (
-            <StatusBadge
-              tone={STATUS_TONE[initial.status] ?? "neutral"}
-              icon={initial.status === "closed" ? Lock : undefined}
-            >
-              {statusLabel[initial.status] ?? initial.status}
-            </StatusBadge>
+            <FormStateBadge
+              status={formStatus(initial.status)}
+              label={statusLabel[initial.status] ?? initial.status}
+            />
           ) : undefined
         }
         breadcrumbs={[

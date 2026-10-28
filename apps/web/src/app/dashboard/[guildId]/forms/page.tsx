@@ -8,7 +8,8 @@ import { ManageBillingButton } from "@/components/billing/manage-billing-button"
 import { UpgradeActions } from "@/components/billing/upgrade-button";
 import { EmptyState, Notice, PageHeader } from "@/components/dashboard-kit";
 import { ImportFormButton } from "@/components/dashboard/form-io";
-import { FormsTable, type FormStatus } from "@/components/dashboard/forms-table";
+import { formStatus } from "@/components/dashboard/form-state-badge";
+import { FormsTable } from "@/components/dashboard/forms-table";
 import { Archive, Plus } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { getDict } from "@/i18n";
@@ -154,7 +155,7 @@ export default async function GuildFormsPage({
           isPro={plan.isPro}
           canManage={canManage}
           rows={forms.map((form) => {
-            const status = (["draft", "live", "closed"].includes(form.status) ? form.status : "draft") as FormStatus;
+            const status = formStatus(form.status);
             const live = form.status === "live";
             return {
               id: form.id,
