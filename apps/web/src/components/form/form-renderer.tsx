@@ -30,6 +30,8 @@ function isLayout(field: FormField): boolean {
 }
 
 export interface FormLabels {
+  /** The app's language, for dates. */
+  locale: string;
   submit: string;
   submitting: string;
   required: string;
@@ -265,6 +267,7 @@ export function FormRenderer({
       uploaded: labels.uploaded,
     },
     date: {
+      locale: labels.locale,
       today: labels.dateToday,
       clear: labels.dateClear,
       now: labels.dateNow,

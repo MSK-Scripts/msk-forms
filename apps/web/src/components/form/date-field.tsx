@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 export type DateFieldMode = "date" | "time" | "datetime";
 
 export interface DateFieldLabels {
+  /** The app's language (`NEXT_LOCALE`), for month and day names; not the browser's. */
+  locale: string;
   today: string;
   clear: string;
   now: string;
@@ -102,7 +104,7 @@ export function DateField({
   const ref = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelId = `${id ?? "date"}-picker`;
-  const locale = typeof navigator !== "undefined" ? navigator.language : "en";
+  const locale = labels.locale;
 
   useDismiss(open, ref, (reason) => {
     setOpen(false);

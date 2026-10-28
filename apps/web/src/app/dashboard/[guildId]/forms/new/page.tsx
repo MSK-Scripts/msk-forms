@@ -110,7 +110,7 @@ export default async function NewFormPage({
       isPro={pro}
       automationsProBody={t.pro.automationsBody}
       experimentProBody={t.pro.experimentBody}
-      dateLabels={dateLabels(t)}
+      dateLabels={dateLabels(t, await getLocale())}
       initial={{
         title: "",
         description: "",

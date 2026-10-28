@@ -1,4 +1,4 @@
-import type { Dictionary } from "@/i18n";
+import type { Dictionary, Locale } from "@/i18n";
 
 import type { DateFieldLabels } from "./date-field";
 import type { FormLabels } from "./form-renderer";
@@ -9,10 +9,11 @@ import type { FormLabels } from "./form-renderer";
  * public form page, the manager's preview and the builder's date pickers use
  * the same set, so a new string cannot be forgotten in one of them.
  */
-export function formLabels(dict: Dictionary): FormLabels {
+export function formLabels(dict: Dictionary, locale: Locale): FormLabels {
   const t = dict.form;
   const p = dict.publicForm;
   return {
+    locale,
     submit: t.submit,
     submitting: t.submitting,
     required: t.required,
@@ -47,9 +48,10 @@ export function formLabels(dict: Dictionary): FormLabels {
 }
 
 /** The date picker's copy alone, for the builder's schedule fields. */
-export function dateLabels(dict: Dictionary): DateFieldLabels {
-  const l = formLabels(dict);
+export function dateLabels(dict: Dictionary, locale: Locale): DateFieldLabels {
+  const l = formLabels(dict, locale);
   return {
+    locale,
     today: l.dateToday,
     clear: l.dateClear,
     now: l.dateNow,

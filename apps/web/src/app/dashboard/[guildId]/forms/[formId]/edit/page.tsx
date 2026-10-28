@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { FormBuilder } from "@/components/builder/form-builder";
 import { EmptyState, PageHeader } from "@/components/dashboard-kit";
 import { dateLabels } from "@/components/form/form-labels";
-import { getDict } from "@/i18n";
+import { getDict, getLocale } from "@/i18n";
 import { requireUser } from "@/lib/auth";
 import {
   getFormForEdit,
@@ -70,7 +70,7 @@ export default async function EditFormPage({
       isPro={pro}
       automationsProBody={t.pro.automationsBody}
       experimentProBody={t.pro.experimentBody}
-      dateLabels={dateLabels(t)}
+      dateLabels={dateLabels(t, await getLocale())}
       initial={{
         title: form.title,
         description: form.description ?? "",

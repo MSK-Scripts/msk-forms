@@ -10,7 +10,7 @@ import { FormRenderer } from "@/components/form/form-renderer";
 import { ArrowLeft } from "@/components/icons";
 import { PublicCard, PublicHead } from "@/components/public/public-content";
 import { Button } from "@/components/ui/button";
-import { getDict } from "@/i18n";
+import { getDict, getLocale } from "@/i18n";
 import { requireUser } from "@/lib/auth";
 import { brandProps, logoUrl, parseBranding } from "@/lib/branding";
 import { getFormForEdit, parseFormSpec } from "@/lib/forms";
@@ -106,7 +106,7 @@ export default async function FormPreviewPage({
           <div className="msk-form mx-auto grid w-full max-w-[var(--public-column)] gap-[var(--space-stack)]">
             <PublicHead title={form.title} description={form.description} />
             <PublicCard>
-              <FormRenderer slug={form.slug} spec={spec} preview labels={formLabels(dict)} />
+              <FormRenderer slug={form.slug} spec={spec} preview labels={formLabels(dict, await getLocale())} />
             </PublicCard>
           </div>
         </div>

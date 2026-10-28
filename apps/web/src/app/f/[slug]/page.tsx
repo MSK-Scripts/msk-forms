@@ -28,7 +28,7 @@ import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/cust
 import { isGuildPro } from "@/lib/plan";
 import { captchaSiteKey } from "@/lib/captcha";
 import { findActiveSubmissionId, getLiveFormBySlug } from "@/lib/forms";
-import { getDict } from "@/i18n";
+import { getDict, getLocale } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -188,7 +188,7 @@ export default async function PublicFormPage({ params }: { params: Promise<{ slu
         spec={form.spec}
         captchaSiteKey={siteKey}
         experimentVariant={variantId ?? undefined}
-        labels={formLabels(dict)}
+        labels={formLabels(dict, await getLocale())}
       />
     </>,
     closes,
