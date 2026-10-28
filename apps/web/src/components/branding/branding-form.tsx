@@ -132,26 +132,27 @@ export function BrandingForm({
   return (
     <>
       <FormSection title={t.accentColor} description={t.accentHint}>
-        <div className="flex flex-wrap items-end gap-3">
-          <ColorField
-            label={t.hexLabel}
-            pickerLabel={t.colorPicker}
-            hint={!color.trim() ? t.accentDefault : adjusted ? t.accentAdjusted : undefined}
-            invalidText={t.hexError}
-            value={color}
-            onChange={(next) => update({ color: next })}
-            fallback={MSK_GREEN}
-            optional
-            placeholder={MSK_GREEN}
-            className="max-w-[45ch]"
-          />
-          {color.trim() && (
-            <Button variant="ghost" onClick={() => update({ color: "" })}>
-              <ArrowCounterClockwise className="h-4 w-4" />
-              {t.reset}
-            </Button>
-          )}
-        </div>
+        {/* Reset sits beside the hex field, not at the far end of the hint's line. */}
+        <ColorField
+          label={t.hexLabel}
+          pickerLabel={t.colorPicker}
+          hint={!color.trim() ? t.accentDefault : adjusted ? t.accentAdjusted : undefined}
+          invalidText={t.hexError}
+          value={color}
+          onChange={(next) => update({ color: next })}
+          fallback={MSK_GREEN}
+          optional
+          placeholder={MSK_GREEN}
+          className="max-w-[45ch]"
+          action={
+            color.trim() ? (
+              <Button variant="ghost" onClick={() => update({ color: "" })}>
+                <ArrowCounterClockwise className="h-4 w-4" />
+                {t.reset}
+              </Button>
+            ) : undefined
+          }
+        />
       </FormSection>
 
       <FormSection title={t.customCss}>

@@ -15,6 +15,7 @@ import {
   type DataColumn,
 } from "@/components/dashboard-kit";
 import { CircleNotch, Key, Trash } from "@/components/icons";
+import { LocalDateTime } from "@/components/public/local-datetime";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Dictionary } from "@/i18n";
@@ -28,7 +29,7 @@ export interface ApiKeyRow {
 
 type ApiDict = Dictionary["api"];
 
-const day = (d: Date | string) => new Date(d).toISOString().slice(0, 10);
+const iso = (d: Date | string) => new Date(d).toISOString();
 
 const fill = (template: string, values: Record<string, string>) =>
   template.replace(/\{(\w+)\}/g, (_, key: string) => values[key] ?? "");
@@ -120,20 +121,20 @@ export function ApiKeysManager({
     {
       id: "created",
       header: t.colCreated,
-      sortValue: (k) => day(k.createdAt),
+      sortValue: (k) => iso(k.createdAt),
       nowrap: true,
       className: "tabular-nums",
-      cell: (k) => day(k.createdAt),
+      cell: (k) => <LocalDateTime iso={iso(k.createdAt)} />,
     },
     {
       id: "lastUsed",
       header: t.colLastUsed,
-      sortValue: (k) => (k.lastUsedAt ? new Date(k.lastUsedAt).toISOString() : null),
+      sortValue: (k) => (k.lastUsedAt ? iso(k.lastUsedAt) : null),
       nowrap: true,
       className: "tabular-nums",
       cell: (k) =>
         k.lastUsedAt ? (
-          day(k.lastUsedAt)
+          <LocalDateTime iso={iso(k.lastUsedAt)} />
         ) : (
           <span className="text-muted-foreground">{t.neverUsed}</span>
         ),

@@ -1,8 +1,11 @@
 import { prisma } from "@msk-forms/db";
+import type { Route } from "next";
+import Link from "next/link";
 
 import { KanbanBoard, type BoardColumn } from "@/components/board/kanban-board";
 import { EmptyState, PageHeader } from "@/components/dashboard-kit";
 import { DashboardLive } from "@/components/dashboard/dashboard-live";
+import { Button } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth";
 import { resolveStatus, statusOptions } from "@/lib/forms";
 import { getGuildSubmissions, getReviewScope } from "@/lib/guild";
@@ -64,7 +67,19 @@ export default async function BoardPage({ params }: { params: Promise<{ guildId:
         description={cards.length > 0 ? t.board.intro : undefined}
       />
       {cards.length === 0 ? (
-        <EmptyState kind="first-use" title={t.noSubmissions} />
+        <EmptyState
+          kind="first-use"
+          title={t.noSubmissions}
+          action={
+            <Button asChild variant="outline">
+              <Link href={`/dashboard/${guildId}/forms` as Route} prefetch={false}>
+                {t.goToForms}
+              </Link>
+            </Button>
+          }
+        >
+          {t.noSubmissionsHint}
+        </EmptyState>
       ) : (
         <KanbanBoard
           guildId={guildId}

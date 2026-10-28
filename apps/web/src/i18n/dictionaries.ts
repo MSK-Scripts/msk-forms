@@ -297,6 +297,8 @@ const en = {
     note: "Looks solid. Confirming your in-game name, then you’re in.",
   },
   dashboard: {
+    noSubmissionsHint: "Submissions show up here once someone fills in one of your forms. Share a form's link to get the first ones.",
+    goToForms: "Go to forms",
     msgSection: "Messages per status",
     submissionsList: { notScored: "Not scored", selectAll: "Select all shown submissions", selectOne: "Select {name}", bulkLabel: "Change the status of selected submissions", clearSelection: "Clear selection", bulkDone: "Status changed to {status}.", archivedOne: "Submission from {name} archived.", restoredOne: "Submission from {name} restored.", archivedIntro: "Archived submissions are kept but stay off the submission list and the board. Restore one to bring it back." },
     formsList: { actions: "Actions", moreFor: "More actions for {name}", submissionsAs: "Submissions as {format}", definition: "Form as JSON", abResults: "A/B test results", endingSoon: "Ends soon", shareTitle: "Share {name}", qrAlt: "QR code for {url}", tools: "Form tools", noLink: "Not public" },
@@ -369,7 +371,7 @@ const en = {
       "Connecting a guild happens through the Discord bot invite. That flow lands in a later slice. For now, an admin can add you to a guild.",
     countForm: "form", countForms: "forms", countSubmission: "submission", countSubmissions: "submissions",
     newForm: "New form", noForms: "No forms yet. Create your first one.", edit: "Edit",
-    preview: "Preview", previewNotice: "Private preview of an unpublished form. Only guild managers can see this.", previewExit: "Back to forms", experimentLink: "A/B", exportCsv: "Export CSV", exportLabel: "Export",
+    preview: "Preview", previewNotice: "Private preview of this form. Only guild managers can see it, and nothing you send here is saved as a submission.", previewExit: "Back to forms", experimentLink: "A/B", exportCsv: "Export CSV", exportLabel: "Export",
     cancel: "Cancel",
     formIo: {
       export: "Export JSON", import: "Import JSON", importing: "Importing…",
@@ -1219,6 +1221,8 @@ const de: Dictionary = {
     note: "Sieht gut aus. Wir bestätigen deinen In-Game-Namen, dann bist du dabei.",
   },
   dashboard: {
+    noSubmissionsHint: "Einreichungen erscheinen hier, sobald jemand eines deiner Formulare ausfüllt. Teile den Link eines Formulars, um die ersten zu bekommen.",
+    goToForms: "Zu den Formularen",
     msgSection: "Nachrichten je Status",
     submissionsList: { notScored: "Nicht bewertet", selectAll: "Alle angezeigten Einreichungen auswählen", selectOne: "{name} auswählen", bulkLabel: "Status der ausgewählten Einreichungen ändern", clearSelection: "Auswahl aufheben", bulkDone: "Status auf {status} geändert.", archivedOne: "Einreichung von {name} archiviert.", restoredOne: "Einreichung von {name} wiederhergestellt.", archivedIntro: "Archivierte Einreichungen bleiben erhalten, erscheinen aber nicht in der Liste und auf dem Board. Stelle eine wieder her, um sie zurückzuholen." },
     formsList: { actions: "Aktionen", moreFor: "Weitere Aktionen für {name}", submissionsAs: "Einreichungen als {format}", definition: "Formular als JSON", abResults: "Ergebnisse des A/B-Tests", endingSoon: "Endet bald", shareTitle: "{name} teilen", qrAlt: "QR-Code für {url}", tools: "Formularwerkzeuge", noLink: "Nicht öffentlich" },
@@ -1291,7 +1295,7 @@ const de: Dictionary = {
       "Eine Guild wird über die Discord-Bot-Einladung verbunden. Dieser Ablauf kommt in einem späteren Slice. Bis dahin kann dich ein Admin zu einer Guild hinzufügen.",
     countForm: "Formular", countForms: "Formulare", countSubmission: "Einreichung", countSubmissions: "Einreichungen",
     newForm: "Neues Formular", noForms: "Noch keine Formulare. Erstelle dein erstes.", edit: "Bearbeiten",
-    preview: "Vorschau", previewNotice: "Private Vorschau eines unveröffentlichten Formulars. Nur Guild-Manager sehen das.", previewExit: "Zurück zu den Formularen", experimentLink: "A/B", exportCsv: "CSV-Export", exportLabel: "Export",
+    preview: "Vorschau", previewNotice: "Private Vorschau dieses Formulars. Nur Guild-Manager sehen sie, und was du hier abschickst, wird nicht als Einreichung gespeichert.", previewExit: "Zurück zu den Formularen", experimentLink: "A/B", exportCsv: "CSV-Export", exportLabel: "Export",
     cancel: "Abbrechen",
     formIo: {
       export: "JSON exportieren", import: "JSON importieren", importing: "Importiere…",
@@ -2134,6 +2138,8 @@ const hu: Dictionary = {
     note: "Jól néz ki. Megerősítjük a játékbeli neved, és bent vagy.",
   },
   dashboard: {
+    noSubmissionsHint: "A beküldések itt jelennek meg, amint valaki kitölti valamelyik űrlapodat. Oszd meg egy űrlap linkjét, hogy megérkezzenek az elsők.",
+    goToForms: "Ugrás az űrlapokhoz",
     msgSection: "Üzenetek állapotonként",
     submissionsList: { notScored: "Nincs pontozva", selectAll: "Az összes megjelenített beküldés kijelölése", selectOne: "{name} kijelölése", bulkLabel: "A kijelölt beküldések állapotának módosítása", clearSelection: "Kijelölés törlése", bulkDone: "Az állapot módosítva: {status}.", archivedOne: "{name} beküldése archiválva.", restoredOne: "{name} beküldése visszaállítva.", archivedIntro: "Az archivált beküldések megmaradnak, de nem jelennek meg a listában és a táblán. Állíts vissza egyet, hogy visszakerüljön." },
     formsList: { actions: "Műveletek", moreFor: "További műveletek: {name}", submissionsAs: "Beküldések {format} formátumban", definition: "Űrlap JSON-ként", abResults: "A/B teszt eredményei", endingSoon: "Hamarosan zár", shareTitle: "{name} megosztása", qrAlt: "QR-kód ehhez: {url}", tools: "Űrlapeszközök", noLink: "Nem nyilvános" },
@@ -2206,7 +2212,7 @@ const hu: Dictionary = {
       "Egy szerver összekapcsolása a Discord bot meghívásán keresztül történik. Ez a folyamat egy későbbi szakaszban érkezik. Egyelőre egy adminisztrátor hozzáadhat egy szerverhez.",
     countForm: "űrlap", countForms: "űrlap", countSubmission: "beküldés", countSubmissions: "beküldés",
     newForm: "Új űrlap", noForms: "Még nincsenek űrlapok. Hozd létre az elsőt.", edit: "Szerkesztés",
-    preview: "Előnézet", previewNotice: "Egy nem közzétett űrlap privát előnézete. Csak a szerver kezelői látják.", previewExit: "Vissza az űrlapokhoz", experimentLink: "A/B", exportCsv: "CSV exportálás", exportLabel: "Export",
+    preview: "Előnézet", previewNotice: "Az űrlap privát előnézete. Csak a szerver kezelői látják, és amit itt elküldesz, nem kerül mentésre beküldésként.", previewExit: "Vissza az űrlapokhoz", experimentLink: "A/B", exportCsv: "CSV exportálás", exportLabel: "Export",
     cancel: "Mégse",
     formIo: {
       export: "JSON exportálása", import: "JSON importálása", importing: "Importálás…",
@@ -3046,6 +3052,8 @@ const fr: Dictionary = {
     note: "Ça a l'air bien. On confirme votre nom en jeu, puis vous êtes admis.",
   },
   dashboard: {
+    noSubmissionsHint: "Les soumissions apparaissent ici dès que quelqu'un remplit l'un de vos formulaires. Partagez le lien d'un formulaire pour recevoir les premières.",
+    goToForms: "Voir les formulaires",
     msgSection: "Messages par statut",
     submissionsList: { notScored: "Non noté", selectAll: "Sélectionner toutes les soumissions affichées", selectOne: "Sélectionner {name}", bulkLabel: "Changer le statut des soumissions sélectionnées", clearSelection: "Effacer la sélection", bulkDone: "Statut changé en {status}.", archivedOne: "Soumission de {name} archivée.", restoredOne: "Soumission de {name} restaurée.", archivedIntro: "Les soumissions archivées sont conservées, mais n’apparaissent ni dans la liste ni sur le tableau. Restaurez-en une pour la faire revenir." },
     formsList: { actions: "Actions", moreFor: "Autres actions pour {name}", submissionsAs: "Soumissions en {format}", definition: "Formulaire en JSON", abResults: "Résultats du test A/B", endingSoon: "Ferme bientôt", shareTitle: "Partager {name}", qrAlt: "Code QR pour {url}", tools: "Outils de formulaire", noLink: "Non public" },
@@ -3118,7 +3126,7 @@ const fr: Dictionary = {
       "La connexion d'un serveur passe par l'invitation du bot Discord. Ce processus arrivera dans un prochain module. Pour l'instant, un administrateur peut vous ajouter à un serveur.",
     countForm: "formulaire", countForms: "formulaires", countSubmission: "soumission", countSubmissions: "soumissions",
     newForm: "Nouveau formulaire", noForms: "Aucun formulaire. Créez le premier.", edit: "Modifier",
-    preview: "Aperçu", previewNotice: "Aperçu privé d'un formulaire non publié. Seuls les gestionnaires du serveur peuvent le voir.", previewExit: "Retour aux formulaires", experimentLink: "A/B", exportCsv: "Exporter CSV", exportLabel: "Exporter",
+    preview: "Aperçu", previewNotice: "Aperçu privé de ce formulaire. Seuls les gestionnaires du serveur peuvent le voir, et ce que vous envoyez ici n'est pas enregistré comme soumission.", previewExit: "Retour aux formulaires", experimentLink: "A/B", exportCsv: "Exporter CSV", exportLabel: "Exporter",
     cancel: "Annuler",
     formIo: {
       export: "Exporter en JSON", import: "Importer un JSON", importing: "Importation…",
@@ -3959,6 +3967,8 @@ const es: Dictionary = {
     note: "Se ve bien. Confirmamos tu nombre en el juego y ya estás dentro.",
   },
   dashboard: {
+    noSubmissionsHint: "Los envíos aparecen aquí en cuanto alguien rellena uno de tus formularios. Comparte el enlace de un formulario para recibir los primeros.",
+    goToForms: "Ir a los formularios",
     msgSection: "Mensajes por estado",
     submissionsList: { notScored: "Sin puntuar", selectAll: "Seleccionar todos los envíos mostrados", selectOne: "Seleccionar {name}", bulkLabel: "Cambiar el estado de los envíos seleccionados", clearSelection: "Borrar selección", bulkDone: "Estado cambiado a {status}.", archivedOne: "Envío de {name} archivado.", restoredOne: "Envío de {name} restaurado.", archivedIntro: "Los envíos archivados se conservan, pero no aparecen en la lista ni en el tablero. Restaura uno para recuperarlo." },
     formsList: { actions: "Acciones", moreFor: "Más acciones para {name}", submissionsAs: "Envíos en {format}", definition: "Formulario como JSON", abResults: "Resultados de la prueba A/B", endingSoon: "Cierra pronto", shareTitle: "Compartir {name}", qrAlt: "Código QR de {url}", tools: "Herramientas de formularios", noLink: "No público" },
@@ -4031,7 +4041,7 @@ const es: Dictionary = {
       "La conexión de una guild ocurre mediante la invitación del bot de Discord. Ese flujo llega en una fase posterior. Por ahora, un administrador puede añadirte a una guild.",
     countForm: "formulario", countForms: "formularios", countSubmission: "envío", countSubmissions: "envíos",
     newForm: "Nuevo formulario", noForms: "Aún no hay formularios. Crea el primero.", edit: "Editar",
-    preview: "Vista previa", previewNotice: "Vista previa privada de un formulario no publicado. Solo los gestores del servidor pueden verla.", previewExit: "Volver a los formularios", experimentLink: "A/B", exportCsv: "Exportar CSV", exportLabel: "Exportar",
+    preview: "Vista previa", previewNotice: "Vista previa privada de este formulario. Solo los gestores del servidor pueden verla, y lo que envíes aquí no se guarda como envío.", previewExit: "Volver a los formularios", experimentLink: "A/B", exportCsv: "Exportar CSV", exportLabel: "Exportar",
     cancel: "Cancelar",
     formIo: {
       export: "Exportar JSON", import: "Importar JSON", importing: "Importando…",
@@ -4872,6 +4882,8 @@ const pt: Dictionary = {
     note: "Parece sólido. Confirmando seu nome no jogo, e você está dentro.",
   },
   dashboard: {
+    noSubmissionsHint: "As candidaturas aparecem aqui assim que alguém preencher um dos seus formulários. Compartilhe o link de um formulário para receber as primeiras.",
+    goToForms: "Ir para os formulários",
     msgSection: "Mensagens por status",
     submissionsList: { notScored: "Sem pontuação", selectAll: "Selecionar todas as candidaturas exibidas", selectOne: "Selecionar {name}", bulkLabel: "Alterar o status das candidaturas selecionadas", clearSelection: "Limpar seleção", bulkDone: "Status alterado para {status}.", archivedOne: "Candidatura de {name} arquivada.", restoredOne: "Candidatura de {name} restaurada.", archivedIntro: "As candidaturas arquivadas são mantidas, mas não aparecem na lista nem no quadro. Restaure uma para trazê-la de volta." },
     formsList: { actions: "Ações", moreFor: "Mais ações para {name}", submissionsAs: "Candidaturas em {format}", definition: "Formulário como JSON", abResults: "Resultados do teste A/B", endingSoon: "Fecha em breve", shareTitle: "Compartilhar {name}", qrAlt: "Código QR de {url}", tools: "Ferramentas de formulário", noLink: "Não público" },
@@ -4944,7 +4956,7 @@ const pt: Dictionary = {
       "Conectar um servidor acontece através do convite do bot do Discord. Esse fluxo chega em uma fatia posterior. Por enquanto, um admin pode adicioná-lo a um servidor.",
     countForm: "formulário", countForms: "formulários", countSubmission: "candidatura", countSubmissions: "candidaturas",
     newForm: "Novo formulário", noForms: "Nenhum formulário ainda. Crie o seu primeiro.", edit: "Editar",
-    preview: "Prévia", previewNotice: "Prévia privada de um formulário não publicado. Apenas os gestores do servidor podem ver.", previewExit: "Voltar aos formulários", experimentLink: "A/B", exportCsv: "Exportar CSV", exportLabel: "Exportar",
+    preview: "Prévia", previewNotice: "Prévia privada deste formulário. Apenas os gestores do servidor podem ver, e o que você enviar aqui não é salvo como candidatura.", previewExit: "Voltar aos formulários", experimentLink: "A/B", exportCsv: "Exportar CSV", exportLabel: "Exportar",
     cancel: "Cancelar",
     formIo: {
       export: "Exportar JSON", import: "Importar JSON", importing: "Importando…",
@@ -5785,6 +5797,8 @@ const pl: Dictionary = {
     note: "Wygląda solidnie. Potwierdzamy Twój nick w grze, a potem jesteś w środku.",
   },
   dashboard: {
+    noSubmissionsHint: "Zgłoszenia pojawią się tutaj, gdy ktoś wypełni jeden z twoich formularzy. Udostępnij link do formularza, aby otrzymać pierwsze.",
+    goToForms: "Przejdź do formularzy",
     msgSection: "Wiadomości dla statusów",
     submissionsList: { notScored: "Bez oceny", selectAll: "Zaznacz wszystkie widoczne zgłoszenia", selectOne: "Zaznacz {name}", bulkLabel: "Zmień status zaznaczonych zgłoszeń", clearSelection: "Wyczyść zaznaczenie", bulkDone: "Zmieniono status na {status}.", archivedOne: "Zarchiwizowano zgłoszenie od {name}.", restoredOne: "Przywrócono zgłoszenie od {name}.", archivedIntro: "Zarchiwizowane zgłoszenia są zachowywane, ale nie pojawiają się na liście ani na tablicy. Przywróć zgłoszenie, aby je odzyskać." },
     formsList: { actions: "Akcje", moreFor: "Więcej akcji dla {name}", submissionsAs: "Zgłoszenia jako {format}", definition: "Formularz jako JSON", abResults: "Wyniki testu A/B", endingSoon: "Wkrótce zamknięcie", shareTitle: "Udostępnij {name}", qrAlt: "Kod QR dla {url}", tools: "Narzędzia formularzy", noLink: "Niepubliczny" },
@@ -5857,7 +5871,7 @@ const pl: Dictionary = {
       "Połączenie serwera odbywa się przez zaproszenie bota Discord. Tymczasem administrator może Cię dodać do serwera.",
     countForm: "formularz", countForms: "formularzy", countSubmission: "zgłoszenie", countSubmissions: "zgłoszeń",
     newForm: "Nowy formularz", noForms: "Brak formularzy. Utwórz pierwszy.", edit: "Edytuj",
-    preview: "Podgląd", previewNotice: "Prywatny podgląd nieopublikowanego formularza. Widzą go tylko menedżerowie serwera.", previewExit: "Powrót do formularzy", experimentLink: "A/B", exportCsv: "Eksport CSV", exportLabel: "Eksportuj",
+    preview: "Podgląd", previewNotice: "Prywatny podgląd tego formularza. Widzą go tylko menedżerowie serwera, a to, co tu wyślesz, nie zostanie zapisane jako zgłoszenie.", previewExit: "Powrót do formularzy", experimentLink: "A/B", exportCsv: "Eksport CSV", exportLabel: "Eksportuj",
     cancel: "Anuluj",
     formIo: {
       export: "Eksportuj JSON", import: "Importuj JSON", importing: "Importowanie…",

@@ -42,6 +42,7 @@ export function ColorField({
   optional = false,
   placeholder,
   className,
+  action,
 }: {
   /** Visible label of the hex field. */
   label: ReactNode;
@@ -57,6 +58,8 @@ export function ColorField({
   optional?: boolean;
   placeholder?: string;
   className?: string;
+  /** A control beside the hex field, e.g. a reset button. */
+  action?: ReactNode;
 }) {
   const [editing, setEditing] = useState(false);
   const trimmed = value.trim();
@@ -87,6 +90,7 @@ export function ColorField({
             autoCapitalize="off"
             className="w-[8.5rem] font-mono"
           />
+          {action}
         </div>
       )}
     </FormField>

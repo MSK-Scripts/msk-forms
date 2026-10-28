@@ -19,6 +19,7 @@ import {
   DownloadSimple,
   Eye,
   HourglassMedium,
+  Lock,
   PencilSimple,
   QrCode,
   UploadSimple,
@@ -76,7 +77,9 @@ export interface FormsTableCopy {
   replace: { replace: string; replaceTitle: string; replaceConfirm: string; cancel: string; importErr: string };
 }
 
-const TONE: Record<FormStatus, StatusTone> = { draft: "neutral", live: "success", closed: "warning" };
+// Closed is a state, not a problem: neutral like a draft, told apart by its
+// word and its sign (a lock instead of the dash).
+const TONE: Record<FormStatus, StatusTone> = { draft: "neutral", live: "success", closed: "neutral" };
 
 const fill = (template: string, values: Record<string, string>) =>
   template.replace(/\{(\w+)\}/g, (_, key: string) => values[key] ?? "");
@@ -207,7 +210,9 @@ export function FormsTable({
       sortValue: (f) => copy.statusLabel[f.status],
       cell: (f) => (
         <div className="flex flex-wrap gap-1.5">
-          <StatusBadge tone={TONE[f.status]}>{copy.statusLabel[f.status]}</StatusBadge>
+          <StatusBadge tone={TONE[f.status]} icon={f.status === "closed" ? Lock : undefined}>
+            {copy.statusLabel[f.status]}
+          </StatusBadge>
           {f.endingSoon && (
             <StatusBadge tone="warning" icon={HourglassMedium}>
               {copy.endingSoon}

@@ -108,10 +108,10 @@ function ActionPicker({
     <fieldset className="grid gap-4">
       <legend className="mb-1 font-semibold">{t.whatToLog}</legend>
       <div className="flex flex-wrap items-center gap-2">
-        <Button type="button" variant="ghost" size="sm" onClick={() => setMany(LOG_ACTIONS, true)}>
+        <Button type="button" variant="ghost" onClick={() => setMany(LOG_ACTIONS, true)}>
           {t.selectAll}
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => setMany(LOG_ACTIONS, false)}>
+        <Button type="button" variant="ghost" onClick={() => setMany(LOG_ACTIONS, false)}>
           {t.selectNone}
         </Button>
         <span className="text-small text-muted-foreground tabular-nums">
@@ -126,12 +126,7 @@ function ActionPicker({
               <fieldset className="grid content-start gap-0.5">
                 <legend className="font-semibold">{t.groups[group]}</legend>
                 <div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setMany(actions, !all)}
-                  >
+                  <Button type="button" variant="ghost" onClick={() => setMany(actions, !all)}>
                     {all ? t.selectNone : t.selectAll}
                   </Button>
                 </div>

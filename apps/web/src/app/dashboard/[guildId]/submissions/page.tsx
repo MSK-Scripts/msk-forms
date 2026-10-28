@@ -95,7 +95,21 @@ export default async function GuildSubmissionsPage({
           rows={rows}
           options={[...options, ...extra]}
           canReview={canReview}
-          empty={<EmptyState kind="first-use" title={t.noSubmissions} />}
+          empty={
+            <EmptyState
+              kind="first-use"
+              title={t.noSubmissions}
+              action={
+                <Button asChild variant="outline">
+                  <Link href={`/dashboard/${guildId}/forms` as Route} prefetch={false}>
+                    {t.goToForms}
+                  </Link>
+                </Button>
+              }
+            >
+              {t.noSubmissionsHint}
+            </EmptyState>
+          }
           labels={submissionsTableLabels(dict, t.submissionsTab)}
         />
       </div>

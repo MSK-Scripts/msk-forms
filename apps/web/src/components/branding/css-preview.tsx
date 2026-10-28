@@ -2,13 +2,20 @@
 
 import { sanitizeCustomCss } from "@msk-forms/shared";
 import { useTheme } from "next-themes";
-import { useMemo } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 
 import { brandVariables, GUILD_ACCENT_ATTRIBUTE } from "@/lib/branding";
 
 import { PREVIEW_BASE_CSS } from "./css-preview-base";
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
+
+const noSubscription = () => () => {};
+
+/** False on the server and during hydration, true afterwards. */
+function useHydrated(): boolean {
+  return useSyncExternalStore(noSubscription, () => true, () => false);
+}
 
 export interface CssPreviewLabels {
   guild: string;
@@ -47,7 +54,11 @@ export function CssPreview({
   labels: CssPreviewLabels;
 }) {
   const { resolvedTheme } = useTheme();
-  const dark = resolvedTheme === "dark";
+  // The theme is only known in the browser. Reading it during hydration would
+  // render a different srcDoc than the server did, and React does not patch a
+  // mismatched attribute: the frame would stay light on a dark dashboard.
+  const hydrated = useHydrated();
+  const dark = hydrated && resolvedTheme === "dark";
 
   const srcDoc = useMemo(() => {
     const safe = sanitizeCustomCss(css);
@@ -66,7 +77,7 @@ export function CssPreview({
       title={title}
       sandbox=""
       srcDoc={srcDoc}
-      className="h-[440px] w-full rounded-md border border-border bg-background"
+      className="h-[34rem] w-full rounded-md border border-border bg-background"
     />
   );
 }
