@@ -143,8 +143,8 @@ importers:
         specifier: ^0.4.4
         version: 0.4.6(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       nodemailer:
-        specifier: ^10.0.13
-        version: 10.0.15
+        specifier: ^10.1.4
+        version: 10.1.4
       pdf-lib:
         specifier: ^1.17.1
         version: 1.17.1
@@ -2359,8 +2359,8 @@ packages:
       sass:
         optional: true
 
-  nodemailer@10.0.15:
-    resolution: {integrity: sha512-EUqp5PhtcsYXs9Fq/lS7s/8zlTrnBqmzZWzFFROrNikMiz+om/YRKMwqN907t+0A1KKyT8jd39CBUbFZmaZmcA==}
+  nodemailer@10.1.4:
+    resolution: {integrity: sha512-EsMnOR2oRv4LGnWvHgcVYkkQ4O2j8KO4WTw6l+PHR4sOXo8SAgIraxtEnGDmotjbhv0hDsu3IuDIFZm8iXwO4A==}
     engines: {node: '>=20.0.0'}
 
   normalize-path@3.0.0:
@@ -5113,7 +5113,7 @@ snapshots:
       - '@types/node'
       - babel-plugin-macros
 
-  nodemailer@10.0.15: {}
+  nodemailer@10.1.4: {}
 
   normalize-path@3.0.0: {}
 
