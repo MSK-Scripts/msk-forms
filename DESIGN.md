@@ -278,8 +278,8 @@ in stat tiles `clamp(1.5rem, 1.25rem + 0.7vw, 2.25rem)`.
   everything else, both variable and loaded locally through `@fontsource-variable` in
   `apps/web/src/app/layout.tsx`, like the shop. Nothing is fetched from Google, neither at
   build time nor in the browser; `next/font/google` is not used. Code, keys, ids and the
-  custom CSS editor use the system monospace (`font-mono`), no web font. `font-heading` is
-  the old name of the display face and goes when its last use goes.
+  custom CSS editor use the system monospace (`font-mono`), no web font. There is no
+  `font-heading`; the old alias left with the dashboard's restyle.
 - **Zoom:** every maximum is at most 2.5 times its minimum, so browser zoom reaches 200 %
   (WCAG 1.4.4).
 - **Measure:** running text stays under 65 characters per line, also on UWQHD
@@ -367,18 +367,20 @@ guilds instead of servers, copy from the `kit` section of the dictionary.
 | `SectionCard` | A labelled section of a page with its own actions. |
 | `StatTile`, `StatGrid` | One figure per tile, a trend only with arrow, colour and words. |
 | `DataTable` | Tables: caption, sortable headers with `aria-sort`, own scroll container, empty row. |
-| `RowMenu` | The overflow actions of a table row, on the native popover. |
-| `StatusBadge` | The state of a system object (live, draft, pending), always word plus sign. A guild's own submission statuses with their custom colours keep `StatusBadge` from `@msk-forms/ui`. |
+| `RowMenu` | The overflow actions of a table row, on the native popover. An entry runs an action, follows a path, opens an external address in a new tab, or downloads a file (`download`, for export routes). |
+| `StatusBadge` | The state of a system object (live, draft, pending), always word plus sign. A guild's own submission statuses with their custom colours are `SubmissionStatusBadge` from `@msk-forms/ui` (see The dashboard). |
 | `Notice` | A message inside a page: tone bar, sign and title in the tone colour, body in text colour. |
 | `EmptyState` | Never a blank list: first use, no results, error or unavailable, each with one next step. |
 | `FormField`, `FormSection` | Label, hint, field and error wired together; groups with the explanation beside the fields where there is room. |
-| `SaveBar` | Save and Discard while a settings page holds changes. |
-| `ConfirmDialog` | Asking before serious consequences only; buttons name the consequence, irreversible ones ask to type the name. Replaces `components/confirm-dialog.tsx`. |
+| `SaveBar` | Save and Discard while a settings page holds changes. When the focus was on its buttons as it goes, the focus stays at its place. |
+| `ConfirmDialog` | Asking before serious consequences only; buttons name the consequence, irreversible ones ask to type the name. The only confirmation dialog of the app; the field starts empty each time it opens. |
 | `CopyField` | A value to copy (form link, webhook secret, DNS record) that stays selectable text. |
 | `ThemeSwitch`, `LanguageSelect` | System, light or dark as three toggle buttons; the language as a native select that writes the `NEXT_LOCALE` cookie. |
 
-`components/dashboard` holds MSK Forms features (submissions table, live updates, form
-import), not building blocks.
+`components/dashboard` holds MSK Forms features, not building blocks: the shell around the
+kit (`DashboardShell`, `DashboardFrame`), the tables of forms, archived forms, guilds and
+submissions, live updates, form import and the share dialog. `components/settings` holds
+the two helpers of the settings pages (`ColorField`, `SettingsSaveBar`).
 
 ### Site pages (`apps/web/src/components/site`, `components/page`)
 
@@ -396,7 +398,9 @@ The marketing pages present MSK Forms as a section of msk-scripts.de.
 ### Public form controls (`packages/ui`)
 
 `@msk-forms/ui` renders the fields of a public form (`Field`, `Input`, `Textarea`, `Select`,
-`Checkbox`, `RadioGroup`, `CheckboxGroup`) and the coloured submission status. It uses the
+`Checkbox`, `RadioGroup`, `CheckboxGroup`) and the coloured submission status
+(`SubmissionStatusBadge`). The dashboard uses the base components of `components/ui` for its
+own controls and takes only `SubmissionStatusBadge` from this package. It uses the
 same utilities, so it follows the tokens and the customer's colour, and the shop's field
 look: 44 px and up, a 1.5 px `border-input`, 16 px text, the global focus outline. `Field`
 puts the label above the control and ties hint and error to it (`fieldDescribedBy`); groups
@@ -406,6 +410,99 @@ moves the focus to the first field with an error after a failed check.
 **Charts** are hand-written SVG: a chart library would inject styles at runtime. One scale
 per chart; the SVG is `aria-hidden`, a sentence says what it shows and a table behind a
 native `<details>` holds every value.
+
+## The dashboard
+
+Every page under `/dashboard` runs in the kit's `AppShell`, built by `DashboardShell`
+(`components/dashboard/dashboard-shell.tsx`) from plain data that `DashboardFrame` loads on
+the server. `/dashboard` (the server list) and `/dashboard/me` sit in the `(account)` route
+group, which renders the shell without a guild; `/dashboard/[guildId]/…` renders it with the
+guild's areas. The shell renders the one `<main id="main">`; pages return a `PageHeader` and
+their content and set no width of their own, the content follows `--app-content`.
+
+### Sidebar
+
+- **Top:** the `GuildSwitcher` with every guild the person is a member of (Discord icon,
+  else the guild's logo, else its initial; the person's role as the second line) and the bot
+  invite as "Add a server".
+- **Groups,** in this order, each only when it has an entry: Work (forms, submissions,
+  board), Workflow (statuses, messages, categories), Setup (branding, domain, bot), Team and
+  integrations (members, webhooks, API, audit log), Account (all servers, my submissions).
+  "All servers" is current on `/dashboard` only (`exact`), not inside every guild.
+- **Foot:** theme, language, the account with sign-out, the way back to the website.
+- **Phones:** below 1024 px the sidebar is a drawer on the native `<dialog>`. Forms,
+  submissions and the board also sit in the bottom tab bar: reviewing happens on the go, and
+  for a reviewer these three are all there is; the setup areas are used at a desk and stay in
+  the drawer. Outside a guild the bar holds all servers and my submissions.
+- **Sign-out** is a plain form posting the existing logout Server Action
+  (`lib/auth-actions.ts`), as the site header and the public frame do since June 2026, so it
+  works before hydration. `/api/auth/logout` answers with JSON and would leave the person on
+  a bare page; it stays for scripts.
+
+### Who sees which area (a rule)
+
+`lib/dashboard-nav.ts` decides which areas the sidebar lists, from the member's role and
+review scope, exactly as the old tab row did:
+
+| Area | Shown to |
+|---|---|
+| Forms | Managers (owner, admin) and everyone who reviews at least one form |
+| Submissions, Board | Everyone who reviews at least one form: owner, admin, reviewer, or a viewer with a per-form grant |
+| Statuses, Messages, Categories, Branding, Domain, Bot, Members, Webhooks, API, Audit log | Managers only |
+| None | A viewer without grants sees an empty state saying the access is pending |
+
+`lib/dashboard-nav.test.ts` pins it per role. The sidebar is a courtesy, not the gate: every
+page and API route checks again on the server (`requireGuildMembership`, `canManageForms`,
+`canReviewSubmissions`, `isGuildPro` and friends), and a page reached without the right shows
+`EmptyState kind="unavailable"`. Pro gating is not part of the sidebar; a gated page shows a
+`ProNotice` with the upgrade.
+
+### Pages
+
+- **Head:** `PageHeader` with the area's name, its intro, at most one primary action and a
+  state badge where the page has one; breadcrumbs only below sidebar level (Forms › Archived
+  forms › name, Submissions › applicant).
+- **Lists** are `DataTable`s fed plain rows by the server page: one or two actions in the
+  row, the rest in its `RowMenu`, an `EmptyState` with one next step when there is nothing.
+- **Settings** pages (statuses, messages, categories, branding, bot) save through the
+  `SaveBar`: it appears while the values differ from the last saved ones, Save sends the
+  same request as before, Discard restores. The result is a `Notice` in the bar's place.
+  The domain page keeps a Save per section, because its four sections save to four routes.
+- **Values to copy** (form links, DNS records, a new API key, webhook secrets) are
+  `CopyField`s. Sharing a form shows the link and a QR code rendered on the server; there is
+  no iframe snippet, because the CSP forbids framing (`frame-ancestors 'none'`).
+- **Confirmation** only before serious consequences: archiving a form, replacing it from
+  JSON, removing a member, deleting a webhook. What cannot be undone asks for the name:
+  deleting an archived form for good, revoking an API key, removing the custom domain.
+- **States and badges:** two components with two names, on purpose. `StatusBadge` (kit) is
+  the state of a system object in a fixed tone with a sign: a form live (success), draft
+  (neutral, dash) or closed (neutral, lock), a delivery delivered, failed or pending, a domain
+  verified or pending. `SubmissionStatusBadge` (`@msk-forms/ui`) is a guild's own submission
+  status in the guild's colour: the colour as a dot with a thin edge in the text colour, the
+  word in the text colour, so any colour stays readable in both themes. A guild's colour is
+  never our text colour and never the only signal.
+- **Empty values** are words ("Not scored", "No views yet"), never a dash.
+
+### Moving without dragging (WCAG 2.5.7)
+
+Nothing in the dashboard needs a drag:
+
+- **Board:** each card has a Move button listing the other statuses in a popover. The card
+  moves when a status is chosen, a polite live region says where it went, and the focus
+  stays on the card's Move button in its new column.
+- **Builder:** fields and pages move with Move up and Move down buttons named after the item
+  ("Move Discord name up"), disabled at the ends; the focus stays on the button (or the other
+  one at an end) and a live region announces the new position. Adding and removing are
+  announced too.
+- **Categories:** the same pattern, with "Staff is now at position 2 of 4."
+
+### Colours a guild picks
+
+Status, category and accent colours are a native colour input drawn as a swatch plus the hex
+field (`ColorField`). The branding form's picker used to show `#5eb131` when no accent was
+set; that value was never saved (an empty accent is stored as none) and the picker now shows
+the current MSK green. A new category is stored with `#4ea426` (the payload sends the colour
+the picker shows, and the route writes it); that stored value is unchanged.
 
 ## Icons
 
@@ -418,8 +515,8 @@ native `<details>` holds every value.
   its name on the button.
 - **Sizes:** `h-4 w-4` beside small text, `h-5 w-5` beside body text and in notices.
 - **Brand marks** (Discord, GitHub) are local SVG in their original shape.
-- The module lists only icons something imports. Tabler (`@tabler/icons-react`) is still in
-  the existing pages and leaves with the last of them; new code never imports it.
+- The module lists only icons something imports. Phosphor is the only icon package; Tabler
+  left with the dashboard's restyle and is no longer a dependency.
 
 ## Motion
 
@@ -434,8 +531,8 @@ native `<details>` holds every value.
 ## Accessibility
 
 - **Skip link** as the first element of the body, rendered by the root layout, to the one
-  `<main id="main">` every frame renders (`SiteChrome`, `PublicFrame`, the dashboard until
-  phase 3 through `SiteChrome`, the error and offline pages themselves).
+  `<main id="main">` every frame renders (`SiteChrome`, `PublicFrame`, the dashboard's
+  `AppShell`, the error and offline pages themselves).
 - **Focus** is a 3 px outline in `ring` with 2 px offset on `:focus-visible`, adjusted on
   both bands; on a public page it takes the customer's `--ring`. `scroll-padding-top` keeps a
   focused element clear of a sticky header (WCAG 2.4.11).
@@ -481,15 +578,13 @@ The move to this system runs in four phases.
 |---|---|---|
 | 1 | Foundation: tokens, fonts, Phosphor barrel, base components, dashboard kit, contrast and branding tests, this file | Done |
 | 2 | Marketing pages (landing, pricing, stats, legal) as part of msk-scripts.de; public form pages with the shop's craft and the customer's colour, including the fallback accent | Done |
-| 3 | The dashboard pages on the `AppShell` and the kit | Planned |
-| 4 | Clean-up: Tabler out, legacy utilities and old components out | Planned |
+| 3 | The dashboard pages on the `AppShell` and the kit, the navigation rule, drag alternatives, Tabler and the old dialog out | Done |
+| 4 | Clean-up: unused strings and legacy utilities out, checks across the whole app | Planned |
 
-Still in place until their pages are restyled: the `font-heading` name,
-`components/confirm-dialog.tsx`, per-component focus rings (`focus-visible:ring-2`) instead
-of the global outline, the Tabler icons, hard-coded old greens (`#4ea426`,
-`#5eb131`) as defaults in the branding form, the category form and the forms list, and an em dash
-(U+2014) as the placeholder for an empty value in the submissions table and the A/B results.
-Until phase 3 the dashboard sits in `SiteChrome` with its old 1180 px column as an inner cap.
+Left for phase 4: strings that no longer have a user (the old save, move and remove labels
+of the restyled forms, `share.copy`, `api.created` and the like), the new category colour
+`#4ea426`, which is stored with every new category and so stays until a data decision (see
+The dashboard), and checks across the whole app.
 
 ## Adding a colour
 
