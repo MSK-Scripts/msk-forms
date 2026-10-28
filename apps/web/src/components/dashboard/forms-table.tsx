@@ -156,12 +156,12 @@ export function FormsTable({
       sortValue: (f) => f.title.toLowerCase(),
       className: "min-w-[14rem]",
       cell: (f) => (
-        <div className="grid gap-0.5">
+        <div className="grid">
           {f.manages ? (
             <Link
               href={`/dashboard/${guildId}/forms/${f.id}/edit` as Route}
               prefetch={false}
-              className="w-fit font-semibold text-foreground hover:text-primary hover:underline"
+              className="inline-flex min-h-9 w-fit items-center font-semibold text-foreground hover:text-primary hover:underline"
             >
               {f.title}
             </Link>
@@ -173,7 +173,7 @@ export function FormsTable({
               href={f.url}
               target="_blank"
               rel="noreferrer"
-              className="w-fit break-all font-mono text-small text-primary hover:underline"
+              className="inline-flex min-h-9 w-fit items-center break-all font-mono text-small text-primary hover:underline"
             >
               /f/{f.slug}
             </a>
