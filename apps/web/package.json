@@ -39,13 +39,13 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
-    "@types/nodemailer": "^8.0.1",
+    "@types/nodemailer": "^8.0.2",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "postcss": "^8.5.28",
+    "postcss": "^8.5.31",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.7.2",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.5"
   }
 }
