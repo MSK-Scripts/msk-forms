@@ -5,7 +5,7 @@ import { useEffect } from "react";
 
 /**
  * Subscribes to the realtime service for this submission and refreshes the
- * (server-rendered) status page when it changes — no polling, no manual reload.
+ * (server-rendered) status page when it changes, no polling, no manual reload.
  * Fully best-effort: if the WebSocket can't connect (e.g. local dev without the
  * Apache /realtime proxy) it silently retries and the page still works.
  */

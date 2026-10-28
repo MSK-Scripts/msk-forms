@@ -1,7 +1,7 @@
 import { prisma } from "@msk-forms/db";
-import { Card } from "@msk-forms/ui";
 
 import { KanbanBoard, type BoardColumn } from "@/components/board/kanban-board";
+import { EmptyState, PageHeader } from "@/components/dashboard-kit";
 import { DashboardLive } from "@/components/dashboard/dashboard-live";
 import { requireUser } from "@/lib/auth";
 import { resolveStatus, statusOptions } from "@/lib/forms";
@@ -12,11 +12,7 @@ import { getDict } from "@/i18n";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export default async function BoardPage({
-  params,
-}: {
-  params: Promise<{ guildId: string }>;
-}) {
+export default async function BoardPage({ params }: { params: Promise<{ guildId: string }> }) {
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/board`);
   const dict = await getDict();
@@ -25,9 +21,10 @@ export default async function BoardPage({
   const scope = await getReviewScope(guildId, user.id);
   if (!scope.all && scope.formIds.length === 0) {
     return (
-      <Card className="p-8">
-        <p className="text-muted-foreground">{t.board.noPerm}</p>
-      </Card>
+      <>
+        <PageHeader title={t.board.title} />
+        <EmptyState kind="unavailable" title={t.board.noPerm} />
+      </>
     );
   }
 
@@ -53,33 +50,41 @@ export default async function BoardPage({
     id: s.id,
     status: s.status,
     formTitle: s.form.title,
-    applicant: s.user?.username ?? t.anonymous,
-    date: s.submittedAt.toISOString().slice(0, 10),
+    applicant: s.user?.username ?? null,
+    submittedAt: s.submittedAt.toISOString(),
   }));
 
   const liveToken = signGuildRealtimeToken(guildId);
 
   return (
-    <div className="flex flex-col gap-4">
+    <>
       {liveToken && <DashboardLive guildId={guildId} token={liveToken} />}
-      <h2 className="font-heading text-xl font-semibold text-foreground">{t.board.title}</h2>
+      <PageHeader
+        title={t.board.title}
+        description={cards.length > 0 ? t.board.intro : undefined}
+      />
       {cards.length === 0 ? (
-        <Card className="p-8">
-          <p className="text-muted-foreground">{t.noSubmissions}</p>
-        </Card>
+        <EmptyState kind="first-use" title={t.noSubmissions} />
       ) : (
         <KanbanBoard
           guildId={guildId}
           columns={columns}
           initial={cards}
           labels={{
+            region: t.board.region,
+            move: t.board.move,
+            moveCard: t.board.moveCard,
             moveTo: t.board.moveTo,
+            moved: t.board.moved,
             empty: t.board.columnEmpty,
-            open: t.open,
+            anonymous: t.anonymous,
+            countOne: t.countSubmission,
+            countMany: t.countSubmissions,
             saveFailed: t.board.saveFailed,
+            dismiss: dict.kit.dismiss,
           }}
         />
       )}
-    </div>
+    </>
   );
 }

@@ -1,10 +1,13 @@
 import { prisma } from "@msk-forms/db";
-import { Card } from "@msk-forms/ui";
 import type { Route } from "next";
 import Link from "next/link";
 
+import { EmptyState, PageHeader } from "@/components/dashboard-kit";
 import { DashboardLive } from "@/components/dashboard/dashboard-live";
 import { SubmissionsTable } from "@/components/dashboard/submissions-table";
+import { submissionsTableLabels } from "@/components/dashboard/submissions-table-labels";
+import { Archive } from "@/components/icons";
+import { Button } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth";
 import { resolveStatus, statusOptions } from "@/lib/forms";
 import { countArchivedSubmissions, getGuildSubmissions, getReviewScope } from "@/lib/guild";
@@ -29,14 +32,14 @@ export default async function GuildSubmissionsPage({
   const canReview = scope.all || scope.formIds.length > 0;
   if (!canReview) {
     return (
-      <Card className="p-8">
-        <p className="text-muted-foreground">{t.board.noPerm}</p>
-      </Card>
+      <>
+        <PageHeader title={t.submissionsTab} />
+        <EmptyState kind="unavailable" title={t.board.noPerm} />
+      </>
     );
   }
 
   const liveToken = signGuildRealtimeToken(guildId);
-  const live = liveToken ? <DashboardLive guildId={guildId} token={liveToken} /> : null;
 
   const [submissions, defs, archivedCount] = await Promise.all([
     getGuildSubmissions(guildId, scope),
@@ -48,31 +51,7 @@ export default async function GuildSubmissionsPage({
     countArchivedSubmissions(guildId, scope),
   ]);
 
-  const archivedLink =
-    archivedCount > 0 ? (
-      <div className="flex justify-end">
-        <Link
-          href={`/dashboard/${guildId}/submissions/archived` as Route}
-          className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-        >
-          {t.viewArchived} ({archivedCount})
-        </Link>
-      </div>
-    ) : null;
-
-  if (submissions.length === 0) {
-    return (
-      <>
-        {live}
-        {archivedLink}
-        <Card className="p-8">
-          <p className="text-muted-foreground">{t.noSubmissions}</p>
-        </Card>
-      </>
-    );
-  }
-
-  // Columns include any status present on a submission but not in the defs.
+  // Options include any status present on a submission but not in the defs.
   const options = statusOptions(defs, dict.statusLabels);
   const present = new Set(submissions.map((s) => s.status));
   const extra = [...present]
@@ -81,41 +60,45 @@ export default async function GuildSubmissionsPage({
 
   const rows = submissions.map((s) => ({
     id: s.id,
-    applicant: s.user?.username ?? t.anonymous,
+    applicant: s.user?.username ?? null,
     avatar: s.user?.avatar ?? null,
     formId: s.formId,
     formTitle: s.form.title,
-    date: s.submittedAt.toISOString().slice(0, 10),
+    submittedAt: s.submittedAt.toISOString(),
     status: s.status,
     score: s.score,
   }));
 
   return (
     <>
-      {live}
-      {archivedLink}
-      <SubmissionsTable
-        guildId={guildId}
-        rows={rows}
-        options={[...options, ...extra]}
-        canReview={canReview}
-        labels={{
-          colApplicant: t.colApplicant,
-          colForm: t.colForm,
-          colDate: t.colDate,
-          colStatus: t.colStatus,
-          colScore: t.colScore,
-          open: t.open,
-          archive: t.archive,
-          restore: t.restore,
-          selected: t.bulk.selected,
-          apply: t.bulk.apply,
-          applying: t.bulk.applying,
-          moveTo: t.board.moveTo,
-          bulkFailed: t.bulk.failed,
-          allForms: t.allForms,
-        }}
+      {liveToken && <DashboardLive guildId={guildId} token={liveToken} />}
+      <PageHeader
+        title={t.submissionsTab}
+        description={`${rows.length} ${rows.length === 1 ? t.countSubmission : t.countSubmissions}`}
       />
+
+      <div className="grid gap-5">
+        {archivedCount > 0 && (
+          <div className="flex flex-wrap items-start gap-3">
+            <Button asChild variant="outline">
+              <Link href={`/dashboard/${guildId}/submissions/archived` as Route} prefetch={false}>
+                <Archive className="h-4 w-4" />
+                {t.viewArchived}
+                <span className="text-muted-foreground tabular-nums">{archivedCount}</span>
+              </Link>
+            </Button>
+          </div>
+        )}
+
+        <SubmissionsTable
+          guildId={guildId}
+          rows={rows}
+          options={[...options, ...extra]}
+          canReview={canReview}
+          empty={<EmptyState kind="first-use" title={t.noSubmissions} />}
+          labels={submissionsTableLabels(dict, t.submissionsTab)}
+        />
+      </div>
     </>
   );
 }
