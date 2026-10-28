@@ -46,13 +46,54 @@ export function hexToHslChannels(hex: string): string | null {
 }
 
 /**
- * Inline style that overrides the primary/ring tokens with the guild's accent
- * color. Because CSS custom properties cascade, every `bg-primary`/`text-primary`
- * element inside the styled wrapper adopts the brand color — no component edits.
+ * Labels a customer accent can carry: white, or the near-black label of the
+ * dark theme (#0e150e). The accent is the same in both themes, so its label
+ * is chosen from the colour itself, not from the theme: the theme's own
+ * `--primary-foreground` is white in light and dark in dark.
+ */
+const LABELS = [
+  { hex: "#ffffff", channels: "0 0% 100%" },
+  { hex: "#0e150e", channels: "120 20% 6.9%" },
+] as const;
+
+function luminance(hex: string): number {
+  const int = parseInt(hex.slice(1), 16);
+  const [r, g, b] = [(int >> 16) & 255, (int >> 8) & 255, int & 255].map((v) => {
+    const c = v / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!;
+}
+
+/** WCAG 2.2 contrast ratio of two `#rrggbb` colours. */
+export function contrastRatio(a: string, b: string): number {
+  const [x, y] = [luminance(a), luminance(b)];
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+}
+
+/**
+ * The CSS variables a customer accent sets on a branded wrapper, as HSL
+ * channels: the accent itself as `--primary` and `--ring`, and as
+ * `--primary-foreground` whichever label reads better on it. Hover fill and
+ * soft surface derive from `--primary` in globals.css. Null for malformed
+ * input.
+ */
+export function brandVariables(hex: string): Record<string, string> | null {
+  const channels = hexToHslChannels(hex);
+  if (!channels) return null;
+  const [white, dark] = LABELS.map((label) => contrastRatio(label.hex, hex));
+  const label = white! >= dark! ? LABELS[0] : LABELS[1];
+  return { "--primary": channels, "--primary-foreground": label.channels, "--ring": channels };
+}
+
+/**
+ * Inline style that sets the guild's accent on a wrapper. Because CSS custom
+ * properties cascade and every colour utility resolves them on the element
+ * (`@theme inline` in globals.css), everything accent-coloured inside the
+ * wrapper adopts the brand colour, no component edits.
  */
 export function brandStyle(branding: Branding): CSSProperties | undefined {
   if (!branding.accentColor) return undefined;
-  const channels = hexToHslChannels(branding.accentColor);
-  if (!channels) return undefined;
-  return { "--primary": channels, "--ring": channels } as Record<string, string> as CSSProperties;
+  const vars = brandVariables(branding.accentColor);
+  return vars ? (vars as CSSProperties) : undefined;
 }

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Archivo, Source_Sans_3 } from "next/font/google";
 import { headers } from "next/headers";
 
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
@@ -12,16 +12,19 @@ import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/cust
 import { getDirection, getLocale } from "@/i18n";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-inter",
+// Self-hosted at build time by next/font, so the CSP needs nothing beyond
+// `font-src 'self'`. Archivo (headings, names; with its width axis) and
+// Source Sans 3 (everything else), both variable; latin-ext carries the
+// Hungarian and Polish letters. Code uses the system monospace, no web font.
+const archivo = Archivo({
+  subsets: ["latin", "latin-ext"],
+  axes: ["wdth"],
+  variable: "--font-archivo",
   display: "swap",
 });
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  variable: "--font-jetbrains-mono",
+const sourceSans = Source_Sans_3({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-source-sans",
   display: "swap",
 });
 
@@ -51,8 +54,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f6f6f6" },
-    { media: "(prefers-color-scheme: dark)", color: "#171717" },
+    { media: "(prefers-color-scheme: light)", color: "#f6f6f4" },
+    { media: "(prefers-color-scheme: dark)", color: "#18191b" },
   ],
 };
 
@@ -90,7 +93,7 @@ export default async function RootLayout({
       lang={locale}
       dir={getDirection(locale)}
       suppressHydrationWarning
-      className={`${inter.variable} ${jetbrainsMono.variable}`}
+      className={`${archivo.variable} ${sourceSans.variable}`}
     >
       <body className="font-sans antialiased">
         <ThemeProvider nonce={nonce}>
