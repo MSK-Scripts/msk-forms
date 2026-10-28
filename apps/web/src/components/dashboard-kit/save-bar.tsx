@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
 import { CircleNotch, FloppyDisk } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
@@ -29,8 +31,31 @@ export function SaveBar({
   onDiscard: () => void;
   busy?: boolean;
 }) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const hadFocus = useRef(false);
+
+  // Save and Discard leave with the bar. When the focus was on one of them
+  // and nothing else took it, it stays at the bar's place instead of falling
+  // back to the start of the document.
+  useEffect(() => {
+    if (show) return;
+    const root = rootRef.current;
+    if (hadFocus.current && root && (document.activeElement === document.body || document.activeElement === null)) {
+      root.focus();
+    }
+    hadFocus.current = false;
+  }, [show]);
+
   return (
-    <div aria-live="polite" className="sticky bottom-[var(--app-tabbar)] z-20 lg:bottom-0">
+    <div
+      ref={rootRef}
+      tabIndex={-1}
+      aria-live="polite"
+      onFocus={() => {
+        hadFocus.current = true;
+      }}
+      className="sticky bottom-[var(--app-tabbar)] z-20 focus:outline-none lg:bottom-0"
+    >
       {show && (
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3 shadow-[var(--shadow-card-hover)]">
           <p className="font-semibold">{copy.message}</p>

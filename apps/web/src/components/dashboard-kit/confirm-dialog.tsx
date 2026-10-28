@@ -15,8 +15,8 @@ import { Input } from "@/components/ui/input";
  * (`typeToConfirm`); the field starts empty, never with the value as a
  * placeholder that looks filled in.
  *
- * Built on the native <dialog> (components/ui/dialog). It replaces the older
- * components/confirm-dialog.tsx as pages move to the kit.
+ * Built on the native <dialog> (components/ui/dialog). The one confirmation
+ * dialog of the app.
  */
 export function ConfirmDialog({
   open,
@@ -54,6 +54,13 @@ export function ConfirmDialog({
 }) {
   const fieldId = useId();
   const [typed, setTyped] = useState("");
+  // The field starts empty each time the dialog opens, also after a confirm
+  // that closed it from outside (the dialog stays mounted for the next row).
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (!open) setTyped("");
+  }
   const matches = !typeToConfirm || typed.trim() === typeToConfirm.expected;
 
   function close() {
