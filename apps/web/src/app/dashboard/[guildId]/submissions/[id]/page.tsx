@@ -94,7 +94,7 @@ export default async function SubmissionDetailPage({
         badge={<SubmissionStatusBadge label={status.label} {...dotColors(status.color)} />}
         breadcrumbs={[
           { label: dict.dashboard.submissionsTab, href: `/dashboard/${guildId}/submissions` },
-          { label: applicant },
+          { label: <span translate={username ? "no" : undefined}>{applicant}</span> },
         ]}
         breadcrumbLabel={dict.kit.breadcrumb}
         description={

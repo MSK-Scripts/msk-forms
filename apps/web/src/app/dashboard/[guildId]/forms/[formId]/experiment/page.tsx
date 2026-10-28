@@ -75,7 +75,7 @@ export default async function ExperimentResultsPage({
         description={t.hint}
         breadcrumbs={[
           { label: dict.dashboard.formsTab, href: formsHref },
-          { label: form.title, href: editHref },
+          { label: <span translate="no">{form.title}</span>, href: editHref },
           { label: dict.dashboard.experimentLink },
         ]}
         breadcrumbLabel={dict.kit.breadcrumb}

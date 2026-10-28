@@ -36,13 +36,14 @@ export default async function ArchivedFormSubmissionsPage({
   const crumbs = [
     { label: t.formsTab, href: `/dashboard/${guildId}/forms` },
     { label: a.title, href: `/dashboard/${guildId}/forms/archived` },
-    { label: form.title },
+    { label: <span translate="no">{form.title}</span> },
   ];
+  const title = <span translate="no">{form.title}</span>;
 
   if (!(await canReviewForm(guildId, user.id, formId))) {
     return (
       <>
-        <PageHeader title={form.title} breadcrumbs={crumbs} breadcrumbLabel={dict.kit.breadcrumb} />
+        <PageHeader title={title} breadcrumbs={crumbs} breadcrumbLabel={dict.kit.breadcrumb} />
         <EmptyState kind="unavailable" title={t.board.noPerm} />
       </>
     );
@@ -68,7 +69,7 @@ export default async function ArchivedFormSubmissionsPage({
   return (
     <>
       <PageHeader
-        title={form.title}
+        title={title}
         description={a.submissionsIntro}
         breadcrumbs={crumbs}
         breadcrumbLabel={dict.kit.breadcrumb}

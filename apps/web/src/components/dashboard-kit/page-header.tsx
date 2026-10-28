@@ -5,7 +5,8 @@ import type { ReactNode } from "react";
 import { ArrowLeft } from "@/components/icons";
 
 export interface Breadcrumb {
-  label: string;
+  /** A word of the app, or a name of the guild's in `<span translate="no">`. */
+  label: ReactNode;
   /** Path in the app. The last crumb is the current page and gets none. */
   href?: string;
 }
@@ -44,7 +45,7 @@ export function PageHeader({
             {breadcrumbs.map((crumb, i) => {
               const last = i === breadcrumbs.length - 1;
               return (
-                <li key={`${crumb.label}-${i}`} className="flex items-center gap-2">
+                <li key={i} className="flex items-center gap-2">
                   {last || !crumb.href ? (
                     <span aria-current={last ? "page" : undefined}>{crumb.label}</span>
                   ) : (

@@ -435,7 +435,10 @@ export function FormBuilder({
             </StatusBadge>
           ) : undefined
         }
-        breadcrumbs={[{ label: copy.formsTab, href: formsHref }, { label: formId ? initial.title : copy.newFormTitle }]}
+        breadcrumbs={[
+          { label: copy.formsTab, href: formsHref },
+          { label: formId ? <span translate="no">{initial.title}</span> : copy.newFormTitle },
+        ]}
         breadcrumbLabel={copy.breadcrumb}
         action={saveButton}
       />
