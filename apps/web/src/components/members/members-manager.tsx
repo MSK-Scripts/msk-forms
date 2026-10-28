@@ -277,6 +277,7 @@ export function MembersManager({
     },
     {
       id: "actions",
+      sticky: true,
       header: t.actions,
       nowrap: true,
       cell: (m) =>

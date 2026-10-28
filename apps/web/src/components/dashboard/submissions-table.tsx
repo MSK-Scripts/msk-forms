@@ -299,6 +299,7 @@ export function SubmissionsTable({
     },
     {
       id: "actions",
+      sticky: true,
       header: <span className="sr-only">{labels.actions}</span>,
       nowrap: true,
       className: "align-middle text-right",

@@ -141,6 +141,7 @@ export function ApiKeysManager({
     },
     {
       id: "actions",
+      sticky: true,
       header: t.colActions,
       nowrap: true,
       cell: (k) => (

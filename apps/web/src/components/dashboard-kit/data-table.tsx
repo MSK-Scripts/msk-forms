@@ -17,8 +17,20 @@ export interface DataColumn<Row> {
   numeric?: boolean;
   /** Column for the row's actions or status: never wraps. */
   nowrap?: boolean;
+  /**
+   * Keeps the column at the inline end while the rest of a wide table
+   * scrolls sideways beneath it: the row's actions, so they stay in reach on
+   * a phone without scrolling the row first.
+   */
+  sticky?: boolean;
   className?: string;
 }
+
+// The sticky column needs a solid ground: the card, and on a hovered row the
+// same tint the other cells show (muted at 50 % over the card, mixed in
+// sRGB as the browser blends it). A hairline marks where the rows pass under.
+const STICKY_CELL =
+  "sticky end-0 bg-card shadow-[inset_1px_0_0_hsl(var(--border))] [tr:hover>&]:bg-[color-mix(in_srgb,hsl(var(--muted))_50%,hsl(var(--card)))]";
 
 /**
  * The data table of the dashboard.
@@ -29,7 +41,12 @@ export interface DataColumn<Row> {
  *   screen reader the order. The sign shows it to everyone else.
  * - The table scrolls in its own container, never the page (WCAG 1.4.10);
  *   the container is focusable so a keyboard can scroll it, and the header
- *   row stays in view while the rows scroll.
+ *   row stays in view while the rows scroll. The container is at most as
+ *   tall as the window below the top bar (and above the tab bar of a
+ *   phone), so it only scrolls in itself when the table is taller than the
+ *   window, never leaving empty space below it on a tall screen.
+ * - A `sticky` column (the row's actions) stays at the inline end while a
+ *   wide table scrolls sideways.
  * - No rows: one row with the empty state across all columns, so the headers
  *   still say what would be there.
  *
@@ -88,7 +105,7 @@ export function DataTable<Row>({
         role="region"
         aria-labelledby={captionId}
         tabIndex={0}
-        className="relative max-h-[min(75dvh,56rem)] overflow-auto rounded-lg border border-border bg-card"
+        className="relative max-h-[calc(100dvh-var(--app-topbar)-5px-var(--app-tabbar)-var(--app-gutter-y))] overflow-auto rounded-lg border border-border bg-card lg:max-h-[calc(100dvh-var(--app-topbar)-5px-var(--app-gutter-y))]"
       >
         <table className="w-full border-collapse text-small">
           <caption id={captionId} className={cn("px-4 py-3 text-left font-semibold", captionHidden && "sr-only")}>
@@ -116,6 +133,7 @@ export function DataTable<Row>({
                       "border-b border-border px-3 py-2 text-left align-middle font-semibold text-foreground",
                       col.numeric && "text-right",
                       col.nowrap && "whitespace-nowrap",
+                      col.sticky && "sticky end-0 bg-muted shadow-[inset_1px_0_0_hsl(var(--border))]",
                     )}
                   >
                     {col.sortValue ? (
@@ -155,6 +173,7 @@ export function DataTable<Row>({
                         "px-3 py-2.5 align-top",
                         col.numeric && "text-right tabular-nums",
                         col.nowrap && "whitespace-nowrap",
+                        col.sticky && STICKY_CELL,
                         col.className,
                       )}
                     >

@@ -85,6 +85,7 @@ export function ArchivedFormsTable({
     },
     {
       id: "actions",
+      sticky: true,
       header: <span className="sr-only">{copy.actions}</span>,
       nowrap: true,
       cell: (f) => {

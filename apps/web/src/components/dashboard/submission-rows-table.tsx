@@ -29,14 +29,11 @@ export function SubmissionRowsTable({
   rows,
   empty,
   copy,
-  extraColumn,
 }: {
   guildId: string;
   rows: SubmissionRow[];
   empty: ReactNode;
   copy: { caption: string; applicant: string; anonymous: string; form?: string; date: string; status: string };
-  /** One more column at the end, the row's actions say. */
-  extraColumn?: DataColumn<SubmissionRow>;
 }) {
   const columns: DataColumn<SubmissionRow>[] = [
     {
@@ -81,7 +78,6 @@ export function SubmissionRowsTable({
       className: "align-middle",
       cell: (r) => <SubmissionStatusBadge label={r.status.label} {...dotColors(r.status.color)} />,
     },
-    ...(extraColumn ? [extraColumn] : []),
   ];
 
   return (

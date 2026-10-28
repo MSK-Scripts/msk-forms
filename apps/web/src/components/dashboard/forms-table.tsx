@@ -222,6 +222,7 @@ export function FormsTable({
     },
     {
       id: "actions",
+      sticky: true,
       header: <span className="sr-only">{copy.actions}</span>,
       nowrap: true,
       className: "text-right",

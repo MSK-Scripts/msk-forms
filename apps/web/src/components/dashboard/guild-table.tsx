@@ -73,6 +73,7 @@ export function GuildTable({
     },
     {
       id: "open",
+      sticky: true,
       header: <span className="sr-only">{copy.open}</span>,
       nowrap: true,
       className: "align-middle text-right",
