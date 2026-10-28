@@ -16,7 +16,9 @@
  */
 import type { Icon, IconProps } from "@phosphor-icons/react";
 import {
+  Archive as ArchiveBase,
   ArrowClockwise as ArrowClockwiseBase,
+  ArrowCounterClockwise as ArrowCounterClockwiseBase,
   ArrowLeft as ArrowLeftBase,
   ArrowRight as ArrowRightBase,
   ArrowSquareOut as ArrowSquareOutBase,
@@ -26,6 +28,7 @@ import {
   CaretRight as CaretRightBase,
   CaretUp as CaretUpBase,
   CaretUpDown as CaretUpDownBase,
+  ChartBar as ChartBarBase,
   ChatText as ChatTextBase,
   Check as CheckBase,
   CheckCircle as CheckCircleBase,
@@ -36,6 +39,7 @@ import {
   Copy as CopyBase,
   DotsThree as DotsThreeBase,
   DownloadSimple as DownloadSimpleBase,
+  Eye as EyeBase,
   Flag as FlagBase,
   FloppyDisk as FloppyDiskBase,
   FolderSimple as FolderSimpleBase,
@@ -52,7 +56,9 @@ import {
   Moon as MoonBase,
   PaintBrush as PaintBrushBase,
   PaperPlaneTilt as PaperPlaneTiltBase,
+  PencilSimple as PencilSimpleBase,
   Plus as PlusBase,
+  QrCode as QrCodeBase,
   Robot as RobotBase,
   SignIn as SignInBase,
   SignOut as SignOutBase,
@@ -86,7 +92,9 @@ function decorative(Base: Icon): Icon {
   return Decorative;
 }
 
+export const Archive = decorative(ArchiveBase);
 export const ArrowClockwise = decorative(ArrowClockwiseBase);
+export const ArrowCounterClockwise = decorative(ArrowCounterClockwiseBase);
 export const ArrowLeft = decorative(ArrowLeftBase);
 export const ArrowRight = decorative(ArrowRightBase);
 export const ArrowSquareOut = decorative(ArrowSquareOutBase);
@@ -96,6 +104,7 @@ export const CaretLeft = decorative(CaretLeftBase);
 export const CaretRight = decorative(CaretRightBase);
 export const CaretUp = decorative(CaretUpBase);
 export const CaretUpDown = decorative(CaretUpDownBase);
+export const ChartBar = decorative(ChartBarBase);
 export const ChatText = decorative(ChatTextBase);
 export const Check = decorative(CheckBase);
 export const CheckCircle = decorative(CheckCircleBase);
@@ -106,6 +115,7 @@ export const ClockCounterClockwise = decorative(ClockCounterClockwiseBase);
 export const Copy = decorative(CopyBase);
 export const DotsThree = decorative(DotsThreeBase);
 export const DownloadSimple = decorative(DownloadSimpleBase);
+export const Eye = decorative(EyeBase);
 export const Flag = decorative(FlagBase);
 export const FloppyDisk = decorative(FloppyDiskBase);
 export const FolderSimple = decorative(FolderSimpleBase);
@@ -122,7 +132,9 @@ export const Monitor = decorative(MonitorBase);
 export const Moon = decorative(MoonBase);
 export const PaintBrush = decorative(PaintBrushBase);
 export const PaperPlaneTilt = decorative(PaperPlaneTiltBase);
+export const PencilSimple = decorative(PencilSimpleBase);
 export const Plus = decorative(PlusBase);
+export const QrCode = decorative(QrCodeBase);
 export const Robot = decorative(RobotBase);
 export const SignIn = decorative(SignInBase);
 export const SignOut = decorative(SignOutBase);

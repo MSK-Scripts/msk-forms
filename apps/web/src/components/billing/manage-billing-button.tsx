@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 
+import { CircleNotch } from "@/components/icons";
+import { Button } from "@/components/ui/button";
+
 /** Opens the Stripe billing portal for the guild's subscription. */
 export function ManageBillingButton({ guildId, label }: { guildId: string; label: string }) {
   const [busy, setBusy] = useState(false);
@@ -19,13 +22,9 @@ export function ManageBillingButton({ guildId, label }: { guildId: string; label
   }
 
   return (
-    <button
-      type="button"
-      onClick={go}
-      disabled={busy}
-      className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:opacity-50"
-    >
+    <Button variant="outline" onClick={go} disabled={busy} aria-busy={busy || undefined}>
+      {busy && <CircleNotch className="h-4 w-4 animate-spin" />}
       {label}
-    </button>
+    </Button>
   );
 }

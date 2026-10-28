@@ -1,19 +1,18 @@
 import { prisma } from "@msk-forms/db";
 import { experimentActive, FREE_FORM_LIMIT, formScheduleStatus, parseFormSettings } from "@msk-forms/shared";
-import { Card, SubmissionStatusBadge } from "@msk-forms/ui";
 import type { Route } from "next";
 import Link from "next/link";
 import QRCode from "qrcode";
 
 import { ManageBillingButton } from "@/components/billing/manage-billing-button";
 import { UpgradeActions } from "@/components/billing/upgrade-button";
-import { upgradeCopy } from "@/lib/upgrade-copy";
-import { FormActionButton } from "@/components/dashboard/form-action-button";
-import { ImportFormButton, ReplaceFormButton } from "@/components/dashboard/form-io";
-import { ShareButton } from "@/components/dashboard/share-button";
-import { LocalDateTime } from "@/components/public/local-datetime";
+import { EmptyState, Notice, PageHeader } from "@/components/dashboard-kit";
+import { ImportFormButton } from "@/components/dashboard/form-io";
+import { FormsTable, type FormStatus } from "@/components/dashboard/forms-table";
+import { Archive, Plus } from "@/components/icons";
+import { Button } from "@/components/ui/button";
+import { getDict } from "@/i18n";
 import { requireUser } from "@/lib/auth";
-import { appBaseUrl } from "@/lib/url";
 import {
   canManageForms,
   countArchivedForms,
@@ -23,16 +22,11 @@ import {
 } from "@/lib/guild";
 import { getGuildPlan } from "@/lib/plan";
 import { enterpriseEnabled, stripeEnabled } from "@/lib/stripe";
-import { getDict } from "@/i18n";
+import { upgradeCopy } from "@/lib/upgrade-copy";
+import { appBaseUrl } from "@/lib/url";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-const FORM_STATUS_COLORS: Record<string, string> = {
-  draft: "#6b6b72",
-  live: "#5eb131",
-  closed: "#f5a623",
-};
 
 export default async function GuildFormsPage({
   params,
@@ -50,7 +44,7 @@ export default async function GuildFormsPage({
   ]);
   const archivedCount = await countArchivedForms(guildId, manageScope);
   // Whether the viewer may fully manage a given form (guild manager or a per-form
-  // manage grant). Drives the per-form edit/preview/delete/export-definition buttons.
+  // manage grant). Drives the per-form edit/preview/archive/export-definition actions.
   const manages = (formId: string) => manageScope.all || manageScope.formIds.includes(formId);
   // Public form links (share link, QR, embed) point at the guild's verified
   // custom domain when it has one, falling back to the primary domain otherwise.
@@ -76,11 +70,6 @@ export default async function GuildFormsPage({
           select: { stripeSubscriptionId: true },
         })
       : null;
-  const statusLabel: Record<string, string> = {
-    draft: dict.builder.statusDraft,
-    live: dict.builder.statusLive,
-    closed: dict.builder.statusClosed,
-  };
 
   // Pre-render a QR code (server-side, no client dependency) for each live form.
   const qrByForm: Record<string, string> = {};
@@ -92,223 +81,155 @@ export default async function GuildFormsPage({
       }),
   );
 
+  const now = new Date();
+  const newForm =
+    canManage &&
+    (atFormLimit ? (
+      // A button, not a link: there is nowhere to go until the plan allows it.
+      <Button disabled aria-describedby="form-limit">
+        <Plus className="h-4 w-4" />
+        {t.newForm}
+      </Button>
+    ) : (
+      <Button asChild>
+        <Link href={`/dashboard/${guildId}/forms/new` as Route} prefetch={false}>
+          <Plus className="h-4 w-4" />
+          {t.newForm}
+        </Link>
+      </Button>
+    ));
+  const tools = [
+    archivedCount > 0 && (
+      <Button key="archive" asChild variant="outline">
+        <Link href={`/dashboard/${guildId}/forms/archived` as Route} prefetch={false}>
+          <Archive className="h-4 w-4" />
+          {t.formArchive.link}
+          <span className="tabular-nums text-muted-foreground">{archivedCount}</span>
+        </Link>
+      </Button>
+    ),
+    canManage && plan.isPro && (
+      <ImportFormButton
+        key="import"
+        guildId={guildId}
+        t={{ import: t.formIo.import, importing: t.formIo.importing, importErr: t.formIo.importErr }}
+      />
+    ),
+    guildBilling?.stripeSubscriptionId && (
+      <ManageBillingButton key="billing" guildId={guildId} label={dict.pro.manage} />
+    ),
+    canUpgradeToEnterprise && (
+      <UpgradeActions
+        key="upgrade"
+        guildId={guildId}
+        copy={await upgradeCopy()}
+        enterpriseLabel={dict.pro.upgradeEnterprise}
+      />
+    ),
+  ].filter(Boolean);
+
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {forms.length} {forms.length === 1 ? t.countForm : t.countForms}
-        </h2>
-        <div className="flex flex-wrap items-center gap-2">
-        {archivedCount > 0 && (
-          <Link
-            href={`/dashboard/${guildId}/forms/archived` as Route}
-            className="rounded-md border border-border px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-          >
-            {t.formArchive.link} ({archivedCount})
-          </Link>
-        )}
-        {canUpgradeToEnterprise && (
-          <UpgradeActions
-            guildId={guildId}
-            copy={await upgradeCopy()}
-            enterpriseLabel={dict.pro.upgradeEnterprise}
-          />
-        )}
-        {guildBilling?.stripeSubscriptionId && (
-          <ManageBillingButton guildId={guildId} label={dict.pro.manage} />
-        )}
-        {canManage && plan.isPro && (
-          <ImportFormButton
-            guildId={guildId}
-            t={{ import: t.formIo.import, importing: t.formIo.importing, importErr: t.formIo.importErr }}
-          />
-        )}
-        {canManage &&
-          (atFormLimit ? (
-            <span className="cursor-not-allowed rounded-md bg-muted px-4 py-2 text-sm font-medium text-muted-foreground">
-              + {t.newForm}
-            </span>
-          ) : (
-            <Link
-              href={`/dashboard/${guildId}/forms/new` as Route}
-              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              + {t.newForm}
-            </Link>
-          ))}
-        </div>
-      </div>
+    <>
+      <PageHeader
+        title={t.formsTab}
+        description={`${forms.length} ${forms.length === 1 ? t.countForm : t.countForms}`}
+        action={newForm || undefined}
+      />
 
-      {atFormLimit && (
-        <p className="rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
-          ★ {dict.pro.formLimit}
-        </p>
-      )}
+      <div className="grid gap-5">
+        {tools.length > 0 && (
+          <div role="group" aria-label={t.formsList.tools} className="flex flex-wrap items-start gap-3">
+            {tools}
+          </div>
+        )}
 
-      {forms.length === 0 ? (
-        <Card className="p-8">
-          <p className="text-muted-foreground">{t.noForms}</p>
-        </Card>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {forms.map((form) => {
-            const qr = qrByForm[form.id];
-            const sched = formScheduleStatus(form.openAt, form.closeAt, new Date());
-            return (
-              <Card key={form.id} className="flex flex-col gap-3 p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                  <div className="flex min-w-0 flex-col gap-1">
-                    <div className="flex items-center gap-3">
-                      <span className="truncate font-medium text-foreground">{form.title}</span>
-                      <SubmissionStatusBadge
-                        label={statusLabel[form.status] ?? form.status}
-                        color={FORM_STATUS_COLORS[form.status] ?? "#6b6b72"}
-                      />
-                      {form.status === "live" && sched.endingSoon && (
-                        <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-600 dark:text-amber-400">
-                          ⏳ {dict.form.endingSoon}
-                        </span>
-                      )}
-                    </div>
-                    {(form.openAt || form.closeAt) && (
-                      <span className="text-xs text-muted-foreground">
-                        {form.openAt && (
-                          <>
-                            {dict.form.opensAt} <LocalDateTime iso={form.openAt.toISOString()} />
-                          </>
-                        )}
-                        {form.openAt && form.closeAt && " · "}
-                        {form.closeAt && (
-                          <>
-                            {dict.form.closesAt} <LocalDateTime iso={form.closeAt.toISOString()} />
-                          </>
-                        )}
-                      </span>
-                    )}
-                    <span className="text-xs text-muted-foreground">
-                      {form._count.submissions}{" "}
-                      {form._count.submissions === 1 ? t.countSubmission : t.countSubmissions}
-                      {form.status === "live" && (
-                        <>
-                          {" · "}
-                          <a
-                            href={`${base}/f/${form.slug}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-primary hover:underline"
-                          >
-                            /f/{form.slug}
-                          </a>
-                        </>
-                      )}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2 sm:shrink-0 sm:justify-end">
-                    {form._count.submissions > 0 && (
-                      <div className="flex items-center gap-2.5 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground">
-                        <span className="text-xs uppercase tracking-wide">{t.exportLabel}</span>
-                        <a
-                          href={`/api/guilds/${guildId}/forms/${form.id}/export?format=csv`}
-                          className="transition-colors hover:text-foreground"
-                        >
-                          CSV
-                        </a>
-                        {plan.isPro && (
-                          <>
-                            <a
-                              href={`/api/guilds/${guildId}/forms/${form.id}/export?format=xlsx`}
-                              className="transition-colors hover:text-foreground"
-                            >
-                              XLSX
-                            </a>
-                            <a
-                              href={`/api/guilds/${guildId}/forms/${form.id}/export?format=json`}
-                              className="transition-colors hover:text-foreground"
-                            >
-                              JSON
-                            </a>
-                            <a
-                              href={`/api/guilds/${guildId}/forms/${form.id}/export?format=pdf`}
-                              className="transition-colors hover:text-foreground"
-                            >
-                              PDF
-                            </a>
-                          </>
-                        )}
-                      </div>
-                    )}
-                    {manages(form.id) && plan.isPro && (
-                      <a
-                        href={`/api/guilds/${guildId}/forms/${form.id}/definition`}
-                        className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-                      >
-                        {t.formIo.export}
-                      </a>
-                    )}
-                    {manages(form.id) && (
-                      <Link
-                        href={`/dashboard/${guildId}/forms/${form.id}/preview` as Route}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-                      >
-                        {t.preview}
-                      </Link>
-                    )}
-                    {manages(form.id) && (
-                      <Link
-                        href={`/dashboard/${guildId}/forms/${form.id}/edit` as Route}
-                        className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-                      >
-                        {t.edit}
-                      </Link>
-                    )}
-                    {canManage && plan.isPro && (
-                      <ReplaceFormButton
-                        guildId={guildId}
-                        formId={form.id}
-                        t={{
-                          replace: t.formIo.replace,
-                          replaceTitle: t.formIo.replaceTitle,
-                          replaceConfirm: t.formIo.replaceConfirm,
-                          cancel: t.cancel,
-                          importErr: t.formIo.importErr,
-                        }}
-                      />
-                    )}
-                    {canManage && experimentActive(parseFormSettings(form.settings).experiment) && (
-                      <Link
-                        href={`/dashboard/${guildId}/forms/${form.id}/experiment` as Route}
-                        className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-                      >
-                        {t.experimentLink}
-                      </Link>
-                    )}
-                    {manages(form.id) && (
-                      <FormActionButton
-                        url={`/api/guilds/${guildId}/forms/${form.id}/archive`}
-                        method="POST"
-                        body={{ archived: true }}
-                        variant="danger"
-                        t={{
-                          label: t.formArchive.archive,
-                          title: t.formArchive.archiveTitle,
-                          confirm: t.formArchive.archiveConfirm,
-                          cancel: t.cancel,
-                          failed: t.formArchive.archiveFailed,
-                        }}
-                      />
-                    )}
-                  </div>
-                </div>
-                {form.status === "live" && qr && (
-                  <ShareButton url={`${base}/f/${form.slug}`} qrDataUrl={qr} t={dict.share} />
-                )}
-              </Card>
-            );
+        {atFormLimit && (
+          <div id="form-limit">
+            <Notice tone="info" title={dict.pro.formLimit} />
+          </div>
+        )}
+
+        <FormsTable
+          guildId={guildId}
+          isPro={plan.isPro}
+          canManage={canManage}
+          rows={forms.map((form) => {
+            const status = (["draft", "live", "closed"].includes(form.status) ? form.status : "draft") as FormStatus;
+            const live = form.status === "live";
+            return {
+              id: form.id,
+              title: form.title,
+              slug: form.slug,
+              status,
+              endingSoon: live && formScheduleStatus(form.openAt, form.closeAt, now).endingSoon,
+              openAt: form.openAt?.toISOString() ?? null,
+              closeAt: form.closeAt?.toISOString() ?? null,
+              submissions: form._count.submissions,
+              url: live ? `${base}/f/${form.slug}` : null,
+              qr: qrByForm[form.id] ?? null,
+              manages: manages(form.id),
+              experiment: canManage && experimentActive(parseFormSettings(form.settings).experiment),
+            };
           })}
-        </div>
-      )}
-    </div>
+          empty={
+            <EmptyState
+              kind="first-use"
+              title={t.noForms}
+              action={
+                canManage && !atFormLimit ? (
+                  <Button asChild>
+                    <Link href={`/dashboard/${guildId}/forms/new` as Route} prefetch={false}>
+                      <Plus className="h-4 w-4" />
+                      {t.newForm}
+                    </Link>
+                  </Button>
+                ) : undefined
+              }
+            />
+          }
+          copy={{
+            caption: t.formsTab,
+            form: t.colForm,
+            status: t.colStatus,
+            submissions: t.submissionsTab,
+            actions: t.formsList.actions,
+            moreFor: t.formsList.moreFor,
+            statusLabel: {
+              draft: dict.builder.statusDraft,
+              live: dict.builder.statusLive,
+              closed: dict.builder.statusClosed,
+            },
+            endingSoon: t.formsList.endingSoon,
+            opensAt: dict.form.opensAt,
+            closesAt: dict.form.closesAt,
+            noLink: t.formsList.noLink,
+            edit: t.edit,
+            preview: t.preview,
+            share: dict.share,
+            shareTitle: t.formsList.shareTitle,
+            qrAlt: t.formsList.qrAlt,
+            close: dict.kit.close,
+            copyField: dict.kit.copyField,
+            submissionsAs: t.formsList.submissionsAs,
+            definition: t.formsList.definition,
+            abResults: t.formsList.abResults,
+            archive: {
+              label: t.formArchive.archive,
+              title: t.formArchive.archiveTitle,
+              confirm: t.formArchive.archiveConfirm,
+              cancel: t.cancel,
+              failed: t.formArchive.archiveFailed,
+            },
+            replace: {
+              replace: t.formIo.replace,
+              replaceTitle: t.formIo.replaceTitle,
+              replaceConfirm: t.formIo.replaceConfirm,
+              cancel: t.cancel,
+              importErr: t.formIo.importErr,
+            },
+          }}
+        />
+      </div>
+    </>
   );
 }

@@ -2,9 +2,11 @@
 
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useRef, useState, type ChangeEvent, type ReactNode } from "react";
 
-import { ConfirmDialog } from "@/components/confirm-dialog";
+import { ConfirmDialog } from "@/components/dashboard-kit";
+import { CircleNotch, UploadSimple } from "@/components/icons";
+import { Button } from "@/components/ui/button";
 
 /** Read a JSON file and POST it to the import endpoint. */
 async function importDefinition(
@@ -22,7 +24,7 @@ async function importDefinition(
   return (await res.json()) as { id: string; slug?: string };
 }
 
-/** Header action: import a JSON file as a brand new form, then open its editor. */
+/** Toolbar action: import a JSON file as a brand new form, then open its editor. */
 export function ImportFormButton({
   guildId,
   t,
@@ -35,7 +37,7 @@ export function ImportFormButton({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+  async function onFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = ""; // allow re-selecting the same file
     if (!file) return;
@@ -51,44 +53,49 @@ export function ImportFormButton({
   }
 
   return (
-    <>
+    <div className="grid gap-1.5">
+      {/* The file picker is opened by the button; the input itself stays out of the tab order. */}
       <input
         ref={inputRef}
         type="file"
         accept="application/json,.json"
-        className="hidden"
+        hidden
+        tabIndex={-1}
         onChange={onFile}
       />
-      <button
-        type="button"
+      <Button
+        variant="outline"
         disabled={busy}
+        aria-busy={busy || undefined}
         onClick={() => inputRef.current?.click()}
-        className="rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:opacity-50"
       >
+        {busy ? <CircleNotch className="h-4 w-4 animate-spin" /> : <UploadSimple className="h-4 w-4" />}
         {busy ? t.importing : t.import}
-      </button>
-      {error && <span className="text-sm text-destructive">{error}</span>}
-    </>
+      </Button>
+      <p role="alert" className="text-small font-semibold text-danger empty:hidden">
+        {error ?? ""}
+      </p>
+    </div>
   );
 }
 
-/** Per-form action: overwrite a form's content from a JSON file (slug kept). */
-export function ReplaceFormButton({
-  guildId,
-  formId,
-  t,
-}: {
-  guildId: string;
-  formId: string;
-  t: { replace: string; replaceTitle: string; replaceConfirm: string; cancel: string; importErr: string };
-}) {
+/**
+ * Overwriting a form's content from a JSON file (the slug stays): `pick`
+ * opens the file picker for one form, then a dialog asks before the content
+ * is replaced. Render `node` once, next to the list that calls `pick`.
+ */
+export function useReplaceFromJson(
+  guildId: string,
+  t: { replace: string; replaceTitle: string; replaceConfirm: string; cancel: string; importErr: string },
+): { pick: (formId: string) => void; node: ReactNode } {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [formId, setFormId] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+  function onFile(e: ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     e.target.value = "";
     if (f) {
@@ -98,7 +105,7 @@ export function ReplaceFormButton({
   }
 
   async function onConfirm() {
-    if (!file) return;
+    if (!file || !formId) return;
     setBusy(true);
     setError(null);
     try {
@@ -112,35 +119,36 @@ export function ReplaceFormButton({
     }
   }
 
-  return (
-    <>
-      <input
-        ref={inputRef}
-        type="file"
-        accept="application/json,.json"
-        className="hidden"
-        onChange={onFile}
-      />
-      <button
-        type="button"
-        onClick={() => inputRef.current?.click()}
-        className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-      >
-        {t.replace}
-      </button>
-      <ConfirmDialog
-        open={!!file}
-        title={t.replaceTitle}
-        message={t.replaceConfirm}
-        confirmLabel={t.replace}
-        cancelLabel={t.cancel}
-        busy={busy}
-        error={error}
-        onConfirm={onConfirm}
-        onCancel={() => {
-          if (!busy) setFile(null);
-        }}
-      />
-    </>
-  );
+  return {
+    pick(id: string) {
+      setFormId(id);
+      inputRef.current?.click();
+    },
+    node: (
+      <>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="application/json,.json"
+          hidden
+          tabIndex={-1}
+          onChange={onFile}
+        />
+        <ConfirmDialog
+          open={!!file}
+          onClose={() => {
+            if (!busy) setFile(null);
+          }}
+          onConfirm={onConfirm}
+          title={t.replaceTitle}
+          description={t.replaceConfirm}
+          confirmLabel={t.replace}
+          cancelLabel={t.cancel}
+          tone="danger"
+          busy={busy}
+          error={error}
+        />
+      </>
+    ),
+  };
 }

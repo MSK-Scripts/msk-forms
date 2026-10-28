@@ -297,10 +297,12 @@ const en = {
     note: "Looks solid. Confirming your in-game name, then you’re in.",
   },
   dashboard: {
+    formsList: { actions: "Actions", moreFor: "More actions for {name}", submissionsAs: "Submissions as {format}", definition: "Form as JSON", abResults: "A/B test results", endingSoon: "Ends soon", shareTitle: "Share {name}", qrAlt: "QR code for {url}", tools: "Form tools", noLink: "Not public" },
     picker: { colServer: "Server", colRole: "Your role", submitted: "Submitted" },
     nav: { work: "Work", workflow: "Workflow", setup: "Setup", team: "Team and integrations", account: "Account", allServers: "All servers" },
     pendingTitle: "Access pending",
     formArchive: {
+      typeName: "Type the form's name to confirm",
       link: "Archive",
       archive: "Archive",
       archiveTitle: "Archive form?",
@@ -791,6 +793,7 @@ const en = {
   // The dashboard kit (components/dashboard-kit): app shell, server switcher
   // and the shared controls. Pages pass these to the client components.
   kit: {
+    close: "Close",
     shell: {
       nav: "Dashboard", mobileNav: "Shortcuts", menuOpen: "Open menu", menuClose: "Close menu",
       backToSite: "Back to the website", signOut: "Log out", language: "Language",
@@ -1105,10 +1108,12 @@ const de: Dictionary = {
     note: "Sieht gut aus. Wir bestätigen deinen In-Game-Namen, dann bist du dabei.",
   },
   dashboard: {
+    formsList: { actions: "Aktionen", moreFor: "Weitere Aktionen für {name}", submissionsAs: "Einreichungen als {format}", definition: "Formular als JSON", abResults: "Ergebnisse des A/B-Tests", endingSoon: "Endet bald", shareTitle: "{name} teilen", qrAlt: "QR-Code für {url}", tools: "Formularwerkzeuge", noLink: "Nicht öffentlich" },
     picker: { colServer: "Server", colRole: "Deine Rolle", submitted: "Eingereicht" },
     nav: { work: "Arbeit", workflow: "Ablauf", setup: "Einrichtung", team: "Team und Anbindungen", account: "Konto", allServers: "Alle Server" },
     pendingTitle: "Zugang ausstehend",
     formArchive: {
+      typeName: "Gib zur Bestätigung den Namen des Formulars ein",
       link: "Archiv",
       archive: "Archivieren",
       archiveTitle: "Formular archivieren?",
@@ -1594,6 +1599,7 @@ const de: Dictionary = {
   },
   authError: "Anmeldung fehlgeschlagen. Bitte versuche es erneut.",
   kit: {
+    close: "Schließen",
     shell: {
       nav: "Dashboard", mobileNav: "Schnellzugriff", menuOpen: "Menü öffnen", menuClose: "Menü schließen",
       backToSite: "Zurück zur Website", signOut: "Abmelden", language: "Sprache",
@@ -1906,10 +1912,12 @@ const hu: Dictionary = {
     note: "Jól néz ki. Megerősítjük a játékbeli neved, és bent vagy.",
   },
   dashboard: {
+    formsList: { actions: "Műveletek", moreFor: "További műveletek: {name}", submissionsAs: "Beküldések {format} formátumban", definition: "Űrlap JSON-ként", abResults: "A/B teszt eredményei", endingSoon: "Hamarosan zár", shareTitle: "{name} megosztása", qrAlt: "QR-kód ehhez: {url}", tools: "Űrlapeszközök", noLink: "Nem nyilvános" },
     picker: { colServer: "Szerver", colRole: "Szereped", submitted: "Beküldve" },
     nav: { work: "Munka", workflow: "Munkafolyamat", setup: "Beállítás", team: "Csapat és integrációk", account: "Fiók", allServers: "Összes szerver" },
     pendingTitle: "Hozzáférés függőben",
     formArchive: {
+      typeName: "A megerősítéshez írd be az űrlap nevét",
       link: "Archívum",
       archive: "Archiválás",
       archiveTitle: "Archiválod az űrlapot?",
@@ -2392,6 +2400,7 @@ const hu: Dictionary = {
   },
   authError: "A bejelentkezés sikertelen. Kérjük, próbáld újra.",
   kit: {
+    close: "Bezárás",
     shell: {
       nav: "Vezérlőpult", mobileNav: "Gyorselérés", menuOpen: "Menü megnyitása", menuClose: "Menü bezárása",
       backToSite: "Vissza a weboldalra", signOut: "Kijelentkezés", language: "Nyelv",
@@ -2704,10 +2713,12 @@ const fr: Dictionary = {
     note: "Ça a l'air bien. On confirme votre nom en jeu, puis vous êtes admis.",
   },
   dashboard: {
+    formsList: { actions: "Actions", moreFor: "Autres actions pour {name}", submissionsAs: "Soumissions en {format}", definition: "Formulaire en JSON", abResults: "Résultats du test A/B", endingSoon: "Ferme bientôt", shareTitle: "Partager {name}", qrAlt: "Code QR pour {url}", tools: "Outils de formulaire", noLink: "Non public" },
     picker: { colServer: "Serveur", colRole: "Votre rôle", submitted: "Envoyé" },
     nav: { work: "Travail", workflow: "Processus", setup: "Configuration", team: "Équipe et intégrations", account: "Compte", allServers: "Tous les serveurs" },
     pendingTitle: "Accès en attente",
     formArchive: {
+      typeName: "Saisissez le nom du formulaire pour confirmer",
       link: "Archives",
       archive: "Archiver",
       archiveTitle: "Archiver le formulaire ?",
@@ -3190,6 +3201,7 @@ const fr: Dictionary = {
   },
   authError: "Connexion échouée. Veuillez réessayer.",
   kit: {
+    close: "Fermer",
     shell: {
       nav: "Tableau de bord", mobileNav: "Accès rapide", menuOpen: "Ouvrir le menu", menuClose: "Fermer le menu",
       backToSite: "Retour au site", signOut: "Déconnexion", language: "Langue",
@@ -3503,10 +3515,12 @@ const es: Dictionary = {
     note: "Se ve bien. Confirmamos tu nombre en el juego y ya estás dentro.",
   },
   dashboard: {
+    formsList: { actions: "Acciones", moreFor: "Más acciones para {name}", submissionsAs: "Envíos en {format}", definition: "Formulario como JSON", abResults: "Resultados de la prueba A/B", endingSoon: "Cierra pronto", shareTitle: "Compartir {name}", qrAlt: "Código QR de {url}", tools: "Herramientas de formularios", noLink: "No público" },
     picker: { colServer: "Servidor", colRole: "Tu rol", submitted: "Enviado" },
     nav: { work: "Trabajo", workflow: "Flujo de trabajo", setup: "Configuración", team: "Equipo e integraciones", account: "Cuenta", allServers: "Todos los servidores" },
     pendingTitle: "Acceso pendiente",
     formArchive: {
+      typeName: "Escribe el nombre del formulario para confirmar",
       link: "Archivo",
       archive: "Archivar",
       archiveTitle: "¿Archivar el formulario?",
@@ -3989,6 +4003,7 @@ const es: Dictionary = {
   },
   authError: "Error al iniciar sesión. Por favor, inténtalo de nuevo.",
   kit: {
+    close: "Cerrar",
     shell: {
       nav: "Panel", mobileNav: "Accesos rápidos", menuOpen: "Abrir menú", menuClose: "Cerrar menú",
       backToSite: "Volver al sitio web", signOut: "Cerrar sesión", language: "Idioma",
@@ -4302,10 +4317,12 @@ const pt: Dictionary = {
     note: "Parece sólido. Confirmando seu nome no jogo, e você está dentro.",
   },
   dashboard: {
+    formsList: { actions: "Ações", moreFor: "Mais ações para {name}", submissionsAs: "Candidaturas em {format}", definition: "Formulário como JSON", abResults: "Resultados do teste A/B", endingSoon: "Fecha em breve", shareTitle: "Compartilhar {name}", qrAlt: "Código QR de {url}", tools: "Ferramentas de formulário", noLink: "Não público" },
     picker: { colServer: "Servidor", colRole: "Seu papel", submitted: "Enviado" },
     nav: { work: "Trabalho", workflow: "Fluxo de trabalho", setup: "Configuração", team: "Equipe e integrações", account: "Conta", allServers: "Todos os servidores" },
     pendingTitle: "Acesso pendente",
     formArchive: {
+      typeName: "Digite o nome do formulário para confirmar",
       link: "Arquivo",
       archive: "Arquivar",
       archiveTitle: "Arquivar formulário?",
@@ -4788,6 +4805,7 @@ const pt: Dictionary = {
   },
   authError: "Falha no login. Por favor, tente novamente.",
   kit: {
+    close: "Fechar",
     shell: {
       nav: "Painel", mobileNav: "Acesso rápido", menuOpen: "Abrir menu", menuClose: "Fechar menu",
       backToSite: "Voltar ao site", signOut: "Sair", language: "Idioma",
@@ -5101,10 +5119,12 @@ const pl: Dictionary = {
     note: "Wygląda solidnie. Potwierdzamy Twój nick w grze, a potem jesteś w środku.",
   },
   dashboard: {
+    formsList: { actions: "Akcje", moreFor: "Więcej akcji dla {name}", submissionsAs: "Zgłoszenia jako {format}", definition: "Formularz jako JSON", abResults: "Wyniki testu A/B", endingSoon: "Wkrótce zamknięcie", shareTitle: "Udostępnij {name}", qrAlt: "Kod QR dla {url}", tools: "Narzędzia formularzy", noLink: "Niepubliczny" },
     picker: { colServer: "Serwer", colRole: "Twoja rola", submitted: "Wysłano" },
     nav: { work: "Praca", workflow: "Przebieg pracy", setup: "Konfiguracja", team: "Zespół i integracje", account: "Konto", allServers: "Wszystkie serwery" },
     pendingTitle: "Dostęp oczekuje",
     formArchive: {
+      typeName: "Wpisz nazwę formularza, aby potwierdzić",
       link: "Archiwum",
       archive: "Archiwizuj",
       archiveTitle: "Zarchiwizować formularz?",
@@ -5587,6 +5607,7 @@ const pl: Dictionary = {
   },
   authError: "Logowanie nie powiodło się. Spróbuj ponownie.",
   kit: {
+    close: "Zamknij",
     shell: {
       nav: "Panel", mobileNav: "Szybki dostęp", menuOpen: "Otwórz menu", menuClose: "Zamknij menu",
       backToSite: "Powrót do strony", signOut: "Wyloguj się", language: "Język",

@@ -18,6 +18,8 @@ export interface RowMenuItem {
   href?: string;
   /** External address, opened in a new tab. */
   external?: string;
+  /** A file to download (an export route), fetched as a plain document request in the same tab. */
+  download?: string;
   /** Shown in red: only for actions that ask before they destroy something. */
   danger?: boolean;
   disabled?: boolean;
@@ -138,6 +140,12 @@ export function RowMenu({
                     <Link href={item.href as Route} prefetch={false} onClick={hide}>
                       {content}
                     </Link>
+                  </Button>
+                ) : item.download ? (
+                  <Button asChild variant="ghost" className={itemClass(item.danger)}>
+                    <a href={item.download} download onClick={hide}>
+                      {content}
+                    </a>
                   </Button>
                 ) : item.external ? (
                   <Button asChild variant="ghost" className={itemClass(item.danger)}>

@@ -1,14 +1,12 @@
 import { prisma } from "@msk-forms/db";
-import { Card, SubmissionStatusBadge } from "@msk-forms/ui";
-import { IconArrowLeft } from "@tabler/icons-react";
-import type { Route } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { EmptyState, PageHeader } from "@/components/dashboard-kit";
+import { SubmissionRowsTable } from "@/components/dashboard/submission-rows-table";
+import { getDict } from "@/i18n";
 import { requireUser } from "@/lib/auth";
 import { resolveStatus } from "@/lib/forms";
 import { canReviewForm } from "@/lib/guild";
-import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -34,11 +32,19 @@ export default async function ArchivedFormSubmissionsPage({
     select: { guildId: true, title: true, archivedAt: true },
   });
   if (!form || form.guildId !== guildId || !form.archivedAt) notFound();
+
+  const crumbs = [
+    { label: t.formsTab, href: `/dashboard/${guildId}/forms` },
+    { label: a.title, href: `/dashboard/${guildId}/forms/archived` },
+    { label: form.title },
+  ];
+
   if (!(await canReviewForm(guildId, user.id, formId))) {
     return (
-      <Card className="p-8">
-        <p className="text-muted-foreground">{t.board.noPerm}</p>
-      </Card>
+      <>
+        <PageHeader title={form.title} breadcrumbs={crumbs} breadcrumbLabel={dict.kit.breadcrumb} />
+        <EmptyState kind="unavailable" title={t.board.noPerm} />
+      </>
     );
   }
 
@@ -60,63 +66,33 @@ export default async function ArchivedFormSubmissionsPage({
   ]);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <Link
-          href={`/dashboard/${guildId}/forms/archived` as Route}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <IconArrowLeft size={16} stroke={1.75} />
-          {a.backToArchive}
-        </Link>
-        <h2 className="font-heading text-xl font-semibold text-foreground">{form.title}</h2>
-        <p className="text-sm text-muted-foreground">{a.submissionsIntro}</p>
-      </div>
-
-      {submissions.length === 0 ? (
-        <Card className="p-8">
-          <p className="text-muted-foreground">{t.noSubmissions}</p>
-        </Card>
-      ) : (
-        <Card className="overflow-x-auto p-0">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/40 text-left">
-              <tr className="font-mono text-xs uppercase tracking-wide text-muted-foreground">
-                <th className="px-4 py-3 font-medium">{t.colApplicant}</th>
-                <th className="px-4 py-3 font-medium">{t.colDate}</th>
-                <th className="px-4 py-3 font-medium">{t.colStatus}</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {submissions.map((s) => {
-                const status = resolveStatus(s.status, defs, dict.statusLabels);
-                return (
-                  <tr key={s.id}>
-                    <td className="px-4 py-3 text-foreground" translate="no">
-                      {s.user?.username ?? t.anonymous}
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {s.submittedAt.toISOString().slice(0, 10)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <SubmissionStatusBadge label={status.label} color={status.color} />
-                    </td>
-                    <td className="px-4 py-3 text-end">
-                      <Link
-                        href={`/dashboard/${guildId}/submissions/${s.id}` as Route}
-                        className="font-medium text-primary hover:underline"
-                      >
-                        {t.open}
-                      </Link>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </Card>
-      )}
-    </div>
+    <>
+      <PageHeader
+        title={form.title}
+        description={a.submissionsIntro}
+        breadcrumbs={crumbs}
+        breadcrumbLabel={dict.kit.breadcrumb}
+      />
+      <SubmissionRowsTable
+        guildId={guildId}
+        rows={submissions.map((s) => {
+          const status = resolveStatus(s.status, defs, dict.statusLabels);
+          return {
+            id: s.id,
+            applicant: s.user?.username ?? null,
+            submittedAt: s.submittedAt.toISOString(),
+            status: { label: status.label, color: status.color },
+          };
+        })}
+        empty={<EmptyState kind="first-use" title={t.noSubmissions} />}
+        copy={{
+          caption: form.title,
+          applicant: t.colApplicant,
+          anonymous: t.anonymous,
+          date: t.colDate,
+          status: t.colStatus,
+        }}
+      />
+    </>
   );
 }
