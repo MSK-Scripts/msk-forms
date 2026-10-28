@@ -7,11 +7,10 @@
  * DESIGN.md says which one is for what.
  *
  * Kept apart from components/dashboard, which holds the MSK Forms features
- * (submissions table, live updates, form import). Two names exist twice on
- * purpose until the pages move over: `StatusBadge` (here for system states,
- * in @msk-forms/ui for a guild's coloured submission statuses) and
- * `ConfirmDialog` (here on the native <dialog>, the older one in
- * components/confirm-dialog.tsx).
+ * (submissions table, live updates, form import). `StatusBadge` here shows
+ * the state of a system object in a fixed tone with a sign; a guild's own
+ * submission statuses in the guild's colour are `SubmissionStatusBadge` from
+ * @msk-forms/ui. `ConfirmDialog` here is the only confirmation dialog.
  */
 export { AppShell, type ShellAccount, type ShellCopy } from "./app-shell";
 export { ConfirmDialog } from "./confirm-dialog";

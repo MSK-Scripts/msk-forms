@@ -53,7 +53,7 @@ export function GuildIcon({
     <div
       style={{ width: size, height: size }}
       className={cn(
-        "flex shrink-0 items-center justify-center bg-muted font-heading text-muted-foreground",
+        "flex shrink-0 items-center justify-center bg-muted font-display text-muted-foreground",
         className,
         fallbackTextClassName,
       )}

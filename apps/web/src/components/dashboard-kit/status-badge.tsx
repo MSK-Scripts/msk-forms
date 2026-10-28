@@ -23,7 +23,7 @@ const TONE: Record<StatusTone, { className: string; icon: IconComponent }> = {
  * second feature, the border the third. Same state, same tone across the
  * dashboard. Only for system states, not for categories or tags; those are
  * `Badge` from components/ui. A guild's own submission statuses with their
- * custom colours keep `StatusBadge` from @msk-forms/ui.
+ * custom colours are `SubmissionStatusBadge` from @msk-forms/ui.
  */
 export function StatusBadge({
   tone,
