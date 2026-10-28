@@ -6,11 +6,11 @@ import {
   parseBotConfig,
   type LogAction,
 } from "@msk-forms/shared";
-import { Card } from "@msk-forms/ui";
-import Link from "next/link";
 import type { Route } from "next";
+import Link from "next/link";
 
 import { AuditLogManager, type AuditHookRow } from "@/components/audit-log/audit-log-manager";
+import { EmptyState, Notice, PageHeader } from "@/components/dashboard-kit";
 import { requireUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
 import { getDict } from "@/i18n";
@@ -18,11 +18,7 @@ import { getDict } from "@/i18n";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export default async function AuditLogPage({
-  params,
-}: {
-  params: Promise<{ guildId: string }>;
-}) {
+export default async function AuditLogPage({ params }: { params: Promise<{ guildId: string }> }) {
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/audit-log`);
   const dict = await getDict();
@@ -30,9 +26,10 @@ export default async function AuditLogPage({
 
   if (!(await canManageForms(guildId, user.id))) {
     return (
-      <Card className="p-8">
-        <p className="text-muted-foreground">{t.noPerm}</p>
-      </Card>
+      <>
+        <PageHeader title={t.title} />
+        <EmptyState kind="unavailable" title={t.noPerm} />
+      </>
     );
   }
 
@@ -55,7 +52,13 @@ export default async function AuditLogPage({
         where: { webhookId: { in: rawHooks.map((h) => h.id) } },
         orderBy: { createdAt: "desc" },
         distinct: ["webhookId"],
-        select: { webhookId: true, status: true, lastError: true, createdAt: true, deliveredAt: true },
+        select: {
+          webhookId: true,
+          status: true,
+          lastError: true,
+          createdAt: true,
+          deliveredAt: true,
+        },
       })
     : [];
   const lastByHook = new Map(latest.map((d) => [d.webhookId, d]));
@@ -79,20 +82,33 @@ export default async function AuditLogPage({
   const hasLogChannel = Boolean(parseBotConfig(guild?.botConfig).logChannelId);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <h2 className="font-heading text-xl font-semibold text-foreground">{t.title}</h2>
-        <p className="text-sm text-muted-foreground">{t.intro}</p>
+    <>
+      <PageHeader title={t.title} description={t.intro} />
+      <div className="grid gap-[var(--app-gutter-y)]">
         {hasLogChannel && (
-          <p className="text-xs text-muted-foreground">
-            {t.channelNote}{" "}
-            <Link href={`/dashboard/${guildId}/bot` as Route} className="text-primary hover:underline">
-              {dict.dashboard.botTab}
-            </Link>
-          </p>
+          <Notice
+            tone="info"
+            action={
+              <Link
+                href={`/dashboard/${guildId}/bot` as Route}
+                prefetch={false}
+                className="inline-flex min-h-11 items-center font-semibold text-primary underline-offset-4 hover:underline"
+              >
+                {dict.dashboard.botTab}
+              </Link>
+            }
+          >
+            {t.channelNote}
+          </Notice>
         )}
+        <AuditLogManager
+          guildId={guildId}
+          initial={hooks}
+          forms={forms}
+          t={t}
+          kit={{ dismiss: dict.kit.dismiss }}
+        />
       </div>
-      <AuditLogManager guildId={guildId} initial={hooks} forms={forms} t={t} />
-    </div>
+    </>
   );
 }

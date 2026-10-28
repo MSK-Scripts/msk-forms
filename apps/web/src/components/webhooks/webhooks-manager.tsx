@@ -1,10 +1,25 @@
 "use client";
 
 import { WEBHOOK_EVENTS, type WebhookEvent, type WebhookFormat } from "@msk-forms/shared";
-import { Button, Card, Checkbox, Field, Input, Select } from "@msk-forms/ui";
-import { useState } from "react";
+import { useId, useState, type FormEvent } from "react";
 
-import { ConfirmDialog } from "@/components/confirm-dialog";
+import {
+  ConfirmDialog,
+  CopyField,
+  EmptyState,
+  FormField,
+  Notice,
+  SectionCard,
+  StatusBadge,
+  type CopyFieldCopy,
+  type StatusTone,
+} from "@/components/dashboard-kit";
+import { CircleNotch, Eye, EyeSlash, Pause, Play, Plus, Trash } from "@/components/icons";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { RadioCard } from "@/components/ui/radio-card";
+import { Select } from "@/components/ui/select";
 import type { Dictionary } from "@/i18n";
 
 export interface WebhookRow {
@@ -39,17 +54,37 @@ function eventLabel(event: string, t: WebhooksDict): string {
   return event;
 }
 
+/** The last delivery as a system state: word plus sign. */
+function deliveryState(
+  delivery: WebhookRow["lastDelivery"],
+  t: WebhooksDict,
+): { tone: StatusTone; label: string } {
+  if (!delivery) return { tone: "neutral", label: t.deliveryNone };
+  if (delivery.status === "success") return { tone: "success", label: t.deliverySuccess };
+  if (delivery.status === "failed") return { tone: "danger", label: t.deliveryFailed };
+  return { tone: "warning", label: t.deliveryPending };
+}
+
+/**
+ * The outgoing webhooks of a guild: the form to add an endpoint and the list
+ * of endpoints with their last delivery, the signing secret behind Show and
+ * Hide, pausing and deleting. Hooks created by an integration (Zapier, Make)
+ * carry a tag and say where they are managed.
+ */
 export function WebhooksManager({
   guildId,
   initial,
   forms,
   t,
+  kit,
 }: {
   guildId: string;
   initial: WebhookRow[];
   forms: { id: string; title: string }[];
   t: WebhooksDict;
+  kit: { copyField: CopyFieldCopy; dismiss: string };
 }) {
+  const ids = useId();
   const [webhooks, setWebhooks] = useState<WebhookRow[]>(initial);
   const [url, setUrl] = useState("");
   const [format, setFormat] = useState<WebhookFormat>("json");
@@ -58,11 +93,14 @@ export function WebhooksManager({
   const [events, setEvents] = useState<Set<WebhookEvent>>(new Set(WEBHOOK_EVENTS));
   const formTitle = (id: string | null) => forms.find((f) => f.id === id)?.title ?? id;
   const [adding, setAdding] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [addError, setAddError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [revealed, setRevealed] = useState<Set<string>>(new Set());
-  const [copied, setCopied] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [removing, setRemoving] = useState(false);
+  const [removeError, setRemoveError] = useState<string | null>(null);
+  const confirmHook = webhooks.find((w) => w.id === confirmId) ?? null;
+  const urlId = (hook: WebhookRow) => `${ids}-url-${hook.id}`;
 
   function toggleEvent(event: WebhookEvent) {
     setEvents((prev) => {
@@ -73,8 +111,10 @@ export function WebhooksManager({
     });
   }
 
-  async function add() {
-    setError(null);
+  async function add(e: FormEvent) {
+    e.preventDefault();
+    if (adding || !url.trim() || events.size === 0) return;
+    setAddError(null);
     setAdding(true);
     try {
       const res = await fetch(`/api/guilds/${guildId}/webhooks`, {
@@ -87,9 +127,10 @@ export function WebhooksManager({
           formId: formId || null,
         }),
       });
-      const data = (await res.json().catch(() => null)) as
-        | { webhook?: WebhookRow; error?: string }
-        | null;
+      const data = (await res.json().catch(() => null)) as {
+        webhook?: WebhookRow;
+        error?: string;
+      } | null;
       if (!res.ok || !data?.webhook) throw new Error(data?.error ?? t.errAdd);
       // Hooks added here are always manually managed and have no deliveries yet.
       setWebhooks((prev) => [...prev, { ...data.webhook!, source: "manual", lastDelivery: null }]);
@@ -98,14 +139,14 @@ export function WebhooksManager({
       setFormId("");
       setEvents(new Set(WEBHOOK_EVENTS));
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.errAdd);
+      setAddError(err instanceof Error ? err.message : t.errAdd);
     } finally {
       setAdding(false);
     }
   }
 
   async function toggleActive(hook: WebhookRow) {
-    setError(null);
+    setActionError(null);
     const next = !hook.active;
     setWebhooks((prev) => prev.map((w) => (w.id === hook.id ? { ...w, active: next } : w)));
     const res = await fetch(`/api/guilds/${guildId}/webhooks/${hook.id}`, {
@@ -115,13 +156,16 @@ export function WebhooksManager({
     });
     if (!res.ok) {
       // Revert on failure.
-      setWebhooks((prev) => prev.map((w) => (w.id === hook.id ? { ...w, active: hook.active } : w)));
-      setError(t.errAction);
+      setWebhooks((prev) =>
+        prev.map((w) => (w.id === hook.id ? { ...w, active: hook.active } : w)),
+      );
+      setActionError(t.errAction);
     }
   }
 
   async function remove() {
     if (!confirmId) return;
+    setRemoveError(null);
     setRemoving(true);
     try {
       const res = await fetch(`/api/guilds/${guildId}/webhooks/${confirmId}`, { method: "DELETE" });
@@ -129,208 +173,274 @@ export function WebhooksManager({
       setWebhooks((prev) => prev.filter((w) => w.id !== confirmId));
       setConfirmId(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.errAction);
+      setRemoveError(err instanceof Error ? err.message : t.errAction);
     } finally {
       setRemoving(false);
     }
   }
 
-  async function copySecret(hook: WebhookRow) {
-    try {
-      await navigator.clipboard.writeText(hook.secret);
-      setCopied(hook.id);
-      setTimeout(() => setCopied((c) => (c === hook.id ? null : c)), 1500);
-    } catch {
-      /* clipboard unavailable — ignore */
-    }
+  function toggleReveal(hook: WebhookRow) {
+    setRevealed((prev) => {
+      const next = new Set(prev);
+      if (next.has(hook.id)) next.delete(hook.id);
+      else next.add(hook.id);
+      return next;
+    });
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <Card className="flex flex-col gap-4 p-5">
-        <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {t.addTitle}
-        </h3>
-        <Field label={t.format}>
-          <Select
-            value={format}
-            onChange={(e) => setFormat(e.target.value as WebhookFormat)}
-            options={[
-              { value: "json", label: t.formatJson },
-              { value: "discord", label: t.formatDiscord },
-            ]}
-          />
-        </Field>
-        <Field label={t.url} hint={format === "discord" ? t.discordHint : undefined}>
-          <Input
-            value={url}
-            placeholder={format === "discord" ? t.discordUrlPlaceholder : t.urlPlaceholder}
-            onChange={(e) => setUrl(e.target.value)}
-          />
-        </Field>
-        <Field label={t.events}>
-          <div className="flex flex-col gap-2">
-            {WEBHOOK_EVENTS.map((event) => (
-              <Checkbox
-                key={event}
-                id={`event-${event}`}
-                label={eventLabel(event, t)}
-                checked={events.has(event)}
-                onChange={() => toggleEvent(event)}
-              />
-            ))}
-          </div>
-        </Field>
-        {forms.length > 0 && (
-          <Field label={t.formScope} hint={t.formScopeHint}>
-            <Select
-              value={formId}
-              onChange={(e) => setFormId(e.target.value)}
-              options={[
-                { value: "", label: t.scopeAll },
-                ...forms.map((f) => ({ value: f.id, label: f.title })),
-              ]}
-            />
-          </Field>
-        )}
-        <div>
-          <Button type="button" onClick={add} disabled={adding || !url.trim() || events.size === 0}>
-            {adding ? t.adding : t.add}
-          </Button>
-        </div>
-        {error && <p className="text-sm text-destructive">{error}</p>}
-      </Card>
+    <div className="grid gap-[var(--app-gutter-y)]">
+      <SectionCard title={t.addTitle}>
+        <form onSubmit={add} className="grid gap-6">
+          <fieldset className="grid gap-2">
+            <legend className="mb-1.5 font-semibold">{t.format}</legend>
+            <div className="grid gap-3 @md:grid-cols-2">
+              <RadioCard
+                name={`${ids}-format`}
+                value="json"
+                checked={format === "json"}
+                onChange={() => setFormat("json")}
+              >
+                {t.formatJson}
+              </RadioCard>
+              <RadioCard
+                name={`${ids}-format`}
+                value="discord"
+                checked={format === "discord"}
+                onChange={() => setFormat("discord")}
+              >
+                {t.formatDiscord}
+              </RadioCard>
+            </div>
+          </fieldset>
 
-      <Card className="flex flex-col gap-3 p-5">
-        <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {t.yourWebhooks}
-        </h3>
-        {webhooks.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t.empty}</p>
-        ) : (
-          <ul className="flex flex-col divide-y divide-border">
-            {webhooks.map((hook) => (
-              <li key={hook.id} className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="break-all font-mono text-sm text-foreground">{hook.url}</span>
-                  <div className="flex shrink-0 items-center gap-1.5">
-                    {hook.format === "discord" && (
-                      <span className="rounded bg-[#5865F2]/15 px-2 py-0.5 text-xs font-medium text-[#5865F2]">
-                        {t.formatDiscord}
-                      </span>
-                    )}
-                    {hook.source !== "manual" && (
-                      <span
-                        className="rounded bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground"
-                        title={t.managedHint}
-                      >
-                        {sourceLabel(hook.source, t)}
-                      </span>
-                    )}
-                    <span
-                      className={`rounded px-2 py-0.5 text-xs font-medium ${
-                        hook.active
-                          ? "bg-primary/10 text-primary"
-                          : "bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      {hook.active ? t.active : t.inactive}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {hook.events.map((event) => (
-                    <span
-                      key={event}
-                      className="rounded bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground"
-                    >
-                      {eventLabel(event, t)}
-                    </span>
-                  ))}
-                  <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                    {hook.formId ? formTitle(hook.formId) : t.scopeAll}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  <span className="font-medium">{t.lastDelivery}:</span>{" "}
-                  {hook.lastDelivery ? (
-                    <span
-                      className={
-                        hook.lastDelivery.status === "success"
-                          ? "text-primary"
-                          : hook.lastDelivery.status === "failed"
-                            ? "text-destructive"
-                            : "text-muted-foreground"
-                      }
-                    >
-                      {hook.lastDelivery.status === "success"
-                        ? t.deliverySuccess
-                        : hook.lastDelivery.status === "failed"
-                          ? t.deliveryFailed
-                          : t.deliveryPending}
-                      {hook.lastDelivery.error ? ` (${hook.lastDelivery.error})` : ""}
-                    </span>
-                  ) : (
-                    t.deliveryNone
-                  )}
-                </p>
-                {/* The signing secret only applies to generic JSON hooks; a
-                    Discord webhook does not verify a signature. */}
-                {hook.format !== "discord" && (
-                  <>
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                      <span className="font-medium">{t.secret}:</span>
-                      <code className="break-all font-mono">
-                        {revealed.has(hook.id) ? hook.secret : "•".repeat(24)}
-                      </code>
-                      <button
-                        type="button"
-                        className="text-primary hover:underline"
-                        onClick={() =>
-                          setRevealed((prev) => {
-                            const next = new Set(prev);
-                            if (next.has(hook.id)) next.delete(hook.id);
-                            else next.add(hook.id);
-                            return next;
-                          })
-                        }
-                      >
-                        {revealed.has(hook.id) ? t.hide : t.show}
-                      </button>
-                      <button
-                        type="button"
-                        className="text-primary hover:underline"
-                        onClick={() => copySecret(hook)}
-                      >
-                        {copied === hook.id ? t.copied : t.copy}
-                      </button>
-                    </div>
-                    <p className="text-xs text-muted-foreground">{t.secretHint}</p>
-                  </>
-                )}
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" onClick={() => toggleActive(hook)}>
-                    {hook.active ? t.disable : t.enable}
-                  </Button>
-                  <Button variant="ghost" onClick={() => setConfirmId(hook.id)}>
-                    {t.remove}
-                  </Button>
-                </div>
-              </li>
+          <FormField label={t.url} hint={format === "discord" ? t.discordHint : undefined}>
+            {(field) => (
+              <Input
+                {...field}
+                value={url}
+                inputMode="url"
+                autoComplete="off"
+                spellCheck={false}
+                placeholder={format === "discord" ? t.discordUrlPlaceholder : t.urlPlaceholder}
+                onChange={(e) => setUrl(e.target.value)}
+                className="font-mono"
+              />
+            )}
+          </FormField>
+
+          <fieldset className="grid gap-1">
+            <legend className="mb-1 font-semibold">{t.events}</legend>
+            {WEBHOOK_EVENTS.map((event) => (
+              <label key={event} className="flex min-h-11 w-fit cursor-pointer items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={events.has(event)}
+                  onChange={() => toggleEvent(event)}
+                  className="h-5 w-5 shrink-0 accent-primary"
+                />
+                <span>{eventLabel(event, t)}</span>
+              </label>
             ))}
+          </fieldset>
+
+          {forms.length > 0 && (
+            <FormField label={t.formScope} hint={t.formScopeHint}>
+              {(field) => (
+                <Select
+                  {...field}
+                  value={formId}
+                  onChange={(e) => setFormId(e.target.value)}
+                  className="max-w-md"
+                >
+                  <option value="">{t.scopeAll}</option>
+                  {forms.map((f) => (
+                    <option key={f.id} value={f.id}>
+                      {f.title}
+                    </option>
+                  ))}
+                </Select>
+              )}
+            </FormField>
+          )}
+
+          <div>
+            <Button
+              type="submit"
+              disabled={adding || !url.trim() || events.size === 0}
+              aria-busy={adding || undefined}
+            >
+              {adding ? (
+                <CircleNotch className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
+              {adding ? t.adding : t.add}
+            </Button>
+          </div>
+          {addError && (
+            <Notice
+              tone="danger"
+              role="alert"
+              onDismiss={() => setAddError(null)}
+              dismissLabel={kit.dismiss}
+            >
+              {addError}
+            </Notice>
+          )}
+        </form>
+      </SectionCard>
+
+      <SectionCard title={t.yourWebhooks} bodyClassName="py-1">
+        {actionError && (
+          <Notice
+            tone="danger"
+            role="alert"
+            onDismiss={() => setActionError(null)}
+            dismissLabel={kit.dismiss}
+            className="my-4"
+          >
+            {actionError}
+          </Notice>
+        )}
+        {webhooks.length === 0 ? (
+          <EmptyState kind="first-use" title={t.empty} />
+        ) : (
+          <ul className="divide-y divide-border">
+            {webhooks.map((hook) => {
+              const delivery = deliveryState(hook.lastDelivery, t);
+              const secretLabelId = `${ids}-secret-${hook.id}`;
+              const shown = revealed.has(hook.id);
+              return (
+                <li key={hook.id} className="grid gap-4 py-5">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="grid min-w-0 gap-2">
+                      <p id={urlId(hook)} className="font-mono text-small font-semibold break-all">
+                        {hook.url}
+                      </p>
+                      {hook.source !== "manual" && (
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <Badge>{sourceLabel(hook.source, t)}</Badge>
+                          <span className="text-small text-muted-foreground">{t.managedHint}</span>
+                        </div>
+                      )}
+                    </div>
+                    <StatusBadge tone={hook.active ? "success" : "neutral"}>
+                      {hook.active ? t.active : t.inactive}
+                    </StatusBadge>
+                  </div>
+
+                  <dl className="grid gap-x-6 gap-y-3 text-small @lg:grid-cols-2 @5xl:grid-cols-4">
+                    <div className="grid content-start gap-1">
+                      <dt className="text-muted-foreground">{t.events}</dt>
+                      <dd>{hook.events.map((event) => eventLabel(event, t)).join(", ")}</dd>
+                    </div>
+                    <div className="grid content-start gap-1">
+                      <dt className="text-muted-foreground">{t.format}</dt>
+                      <dd>{hook.format === "discord" ? t.formatDiscord : t.formatJson}</dd>
+                    </div>
+                    <div className="grid content-start gap-1">
+                      <dt className="text-muted-foreground">{t.formScope}</dt>
+                      <dd className="break-words">
+                        {hook.formId ? (
+                          <span translate="no">{formTitle(hook.formId)}</span>
+                        ) : (
+                          t.scopeAll
+                        )}
+                      </dd>
+                    </div>
+                    <div className="grid content-start gap-1">
+                      <dt className="text-muted-foreground">{t.lastDelivery}</dt>
+                      <dd className="grid gap-1">
+                        <StatusBadge tone={delivery.tone}>{delivery.label}</StatusBadge>
+                        {hook.lastDelivery?.error && (
+                          <span className="break-words text-muted-foreground">
+                            {hook.lastDelivery.error}
+                          </span>
+                        )}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  {/* The signing secret only applies to generic JSON hooks; a
+                      Discord webhook does not verify a signature. */}
+                  {hook.format !== "discord" && (
+                    <div className="grid gap-1.5">
+                      <span id={secretLabelId} className="text-small font-semibold">
+                        {t.secret}
+                      </span>
+                      <div className="flex min-w-0 flex-wrap items-start gap-2">
+                        {shown ? (
+                          <CopyField
+                            value={hook.secret}
+                            copy={kit.copyField}
+                            className="min-w-0 flex-1 basis-72"
+                          />
+                        ) : (
+                          <code
+                            aria-hidden
+                            className="flex min-h-11 min-w-0 flex-1 basis-72 items-center overflow-hidden rounded-md border border-border bg-muted px-3 py-2 font-mono text-small text-muted-foreground"
+                          >
+                            {"•".repeat(24)}
+                          </code>
+                        )}
+                        <Button
+                          variant="outline"
+                          aria-describedby={secretLabelId}
+                          onClick={() => toggleReveal(hook)}
+                        >
+                          {shown ? <EyeSlash className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          {shown ? t.hide : t.show}
+                        </Button>
+                      </div>
+                      <p className="text-small text-muted-foreground">{t.secretHint}</p>
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap gap-3">
+                    <Button
+                      variant="outline"
+                      aria-describedby={urlId(hook)}
+                      onClick={() => toggleActive(hook)}
+                    >
+                      {hook.active ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                      {hook.active ? t.disable : t.enable}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="text-danger"
+                      aria-describedby={urlId(hook)}
+                      onClick={() => {
+                        setRemoveError(null);
+                        setConfirmId(hook.id);
+                      }}
+                    >
+                      <Trash className="h-4 w-4" />
+                      {t.remove}
+                    </Button>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
-      </Card>
+      </SectionCard>
 
       <ConfirmDialog
-        open={confirmId !== null}
-        title={t.remove}
-        message={t.removeConfirm}
-        confirmLabel={t.remove}
+        open={confirmHook !== null}
+        onClose={() => {
+          if (removing) return;
+          setRemoveError(null);
+          setConfirmId(null);
+        }}
+        onConfirm={remove}
+        title={t.removeAction}
+        description={t.removeConfirm}
+        notice={confirmHook && <p className="font-mono text-small break-all">{confirmHook.url}</p>}
+        confirmLabel={t.removeAction}
         cancelLabel={t.cancel}
         busy={removing}
-        onConfirm={remove}
-        onCancel={() => setConfirmId(null)}
+        error={removeError}
       />
     </div>
   );

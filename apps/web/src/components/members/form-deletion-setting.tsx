@@ -1,7 +1,8 @@
 "use client";
 
-import { Card, Checkbox } from "@msk-forms/ui";
 import { useState } from "react";
+
+import { FormSection, Notice } from "@/components/dashboard-kit";
 
 /**
  * Owner-only switch: may admins permanently delete archived forms? Saves on
@@ -11,10 +12,13 @@ export function FormDeletionSetting({
   guildId,
   initial,
   t,
+  dismissLabel,
 }: {
   guildId: string;
   initial: boolean;
   t: { title: string; label: string; hint: string; saved: string; failed: string };
+  /** `kit.dismiss` of the dictionary. */
+  dismissLabel: string;
 }) {
   const [allowed, setAllowed] = useState(initial);
   const [busy, setBusy] = useState(false);
@@ -42,23 +46,27 @@ export function FormDeletionSetting({
   }
 
   return (
-    <Card className="flex flex-col gap-2 p-5">
-      <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-        {t.title}
-      </h3>
-      <Checkbox
-        id="admins-can-delete-forms"
-        label={t.label}
-        checked={allowed}
-        disabled={busy}
-        onChange={toggle}
-      />
-      <p className="text-xs text-muted-foreground">{t.hint}</p>
+    <FormSection title={t.title} description={t.hint}>
+      <label className="flex min-h-11 w-fit cursor-pointer items-center gap-3">
+        <input
+          id="admins-can-delete-forms"
+          type="checkbox"
+          checked={allowed}
+          disabled={busy}
+          onChange={toggle}
+          className="h-5 w-5 shrink-0 accent-primary"
+        />
+        <span>{t.label}</span>
+      </label>
       {message && (
-        <p className={`text-xs ${message.ok ? "text-primary" : "text-destructive"}`}>
-          {message.text}
-        </p>
+        <Notice
+          tone={message.ok ? "success" : "danger"}
+          role={message.ok ? "status" : "alert"}
+          title={message.text}
+          onDismiss={() => setMessage(null)}
+          dismissLabel={dismissLabel}
+        />
       )}
-    </Card>
+    </FormSection>
   );
 }
