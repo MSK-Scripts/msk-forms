@@ -17,6 +17,7 @@
     "@msk-forms/db": "workspace:*",
     "@msk-forms/shared": "workspace:*",
     "@msk-forms/ui": "workspace:*",
+    "@phosphor-icons/react": "^2.1.10",
     "@radix-ui/react-slot": "^1.5.0",
     "@tabler/icons-react": "^3.48.0",
     "class-variance-authority": "^0.7.1",
