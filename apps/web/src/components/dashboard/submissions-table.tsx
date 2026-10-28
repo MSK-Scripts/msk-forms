@@ -1,7 +1,7 @@
 "use client";
 
 import type { Route } from "next";
-import { Button, StatusBadge } from "@msk-forms/ui";
+import { Button, SubmissionStatusBadge } from "@msk-forms/ui";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -243,7 +243,7 @@ export function SubmissionsTable({
                     </td>
                   )}
                   <td className="px-4 py-3">
-                    <StatusBadge label={status.label} color={status.color} />
+                    <SubmissionStatusBadge label={status.label} color={status.color} />
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-4">

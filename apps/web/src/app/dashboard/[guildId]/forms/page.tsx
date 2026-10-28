@@ -1,6 +1,6 @@
 import { prisma } from "@msk-forms/db";
 import { experimentActive, FREE_FORM_LIMIT, formScheduleStatus, parseFormSettings } from "@msk-forms/shared";
-import { Card, StatusBadge } from "@msk-forms/ui";
+import { Card, SubmissionStatusBadge } from "@msk-forms/ui";
 import type { Route } from "next";
 import Link from "next/link";
 import QRCode from "qrcode";
@@ -160,7 +160,7 @@ export default async function GuildFormsPage({
                   <div className="flex min-w-0 flex-col gap-1">
                     <div className="flex items-center gap-3">
                       <span className="truncate font-medium text-foreground">{form.title}</span>
-                      <StatusBadge
+                      <SubmissionStatusBadge
                         label={statusLabel[form.status] ?? form.status}
                         color={FORM_STATUS_COLORS[form.status] ?? "#6b6b72"}
                       />

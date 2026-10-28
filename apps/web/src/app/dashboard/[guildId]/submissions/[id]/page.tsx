@@ -1,7 +1,7 @@
 import { prisma } from "@msk-forms/db";
 import { parseStatusMessages, resolveStatusMessage } from "@msk-forms/shared";
 import type { Route } from "next";
-import { StatusBadge } from "@msk-forms/ui";
+import { SubmissionStatusBadge } from "@msk-forms/ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -68,7 +68,7 @@ export default async function SubmissionDetailPage({
           <h1 className="font-heading text-2xl font-bold text-foreground">
             {submission.form.title}
           </h1>
-          <StatusBadge label={status.label} color={status.color} />
+          <SubmissionStatusBadge label={status.label} color={status.color} />
           {submission.score != null && (
             <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
               {dict.dashboard.colScore}: {submission.score}

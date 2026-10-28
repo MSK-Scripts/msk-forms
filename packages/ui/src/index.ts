@@ -1,7 +1,7 @@
 // Extensionless exports: resolves under both tsc (bundler) and Turbopack when
 // the web app transpiles this package. Adding a `.js` suffix breaks Turbopack.
 export { Button, type ButtonProps } from "./button";
-export { StatusBadge, type StatusBadgeProps } from "./status-badge";
+export { SubmissionStatusBadge, type SubmissionStatusBadgeProps } from "./status-badge";
 export { Card, type CardProps } from "./card";
 export { Field, fieldDescribedBy, fieldErrorId, fieldHintId, type FieldProps } from "./field";
 export { fieldClass, Input, type InputProps } from "./input";

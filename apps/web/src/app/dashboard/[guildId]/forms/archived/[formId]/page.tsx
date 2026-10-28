@@ -1,5 +1,5 @@
 import { prisma } from "@msk-forms/db";
-import { Card, StatusBadge } from "@msk-forms/ui";
+import { Card, SubmissionStatusBadge } from "@msk-forms/ui";
 import { IconArrowLeft } from "@tabler/icons-react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -100,7 +100,7 @@ export default async function ArchivedFormSubmissionsPage({
                       {s.submittedAt.toISOString().slice(0, 10)}
                     </td>
                     <td className="px-4 py-3">
-                      <StatusBadge label={status.label} color={status.color} />
+                      <SubmissionStatusBadge label={status.label} color={status.color} />
                     </td>
                     <td className="px-4 py-3 text-end">
                       <Link

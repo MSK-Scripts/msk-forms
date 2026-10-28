@@ -1,6 +1,6 @@
 import { prisma } from "@msk-forms/db";
 import { DEFAULT_STATUSES, type StatusDefInput } from "@msk-forms/shared";
-import { Card, StatusBadge } from "@msk-forms/ui";
+import { Card, SubmissionStatusBadge } from "@msk-forms/ui";
 
 import { StatusDefsForm } from "@/components/statuses/status-defs-form";
 import { requireUser } from "@/lib/auth";
@@ -47,7 +47,7 @@ export default async function StatusesPage({
         </h3>
         <div className="flex flex-wrap gap-2">
           {DEFAULT_STATUSES.map((s) => (
-            <StatusBadge key={s.key} label={dict.statusLabels[s.key] ?? s.label} color={s.color} />
+            <SubmissionStatusBadge key={s.key} label={dict.statusLabels[s.key] ?? s.label} color={s.color} />
           ))}
         </div>
       </Card>

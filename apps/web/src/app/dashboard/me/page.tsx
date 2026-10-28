@@ -1,4 +1,4 @@
-import { Card, StatusBadge } from "@msk-forms/ui";
+import { Card, SubmissionStatusBadge } from "@msk-forms/ui";
 import type { Route } from "next";
 import Link from "next/link";
 
@@ -37,7 +37,7 @@ export default async function MySubmissionsPage() {
                       <span translate="no">{s.guild.name}</span> · {s.submittedAt.toISOString().slice(0, 10)}
                     </span>
                   </div>
-                  <StatusBadge label={status.label} color={status.color} />
+                  <SubmissionStatusBadge label={status.label} color={status.color} />
                 </Card>
               </Link>
             );

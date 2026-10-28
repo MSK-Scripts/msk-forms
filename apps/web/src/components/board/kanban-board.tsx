@@ -1,7 +1,7 @@
 "use client";
 
 import type { Route } from "next";
-import { StatusBadge } from "@msk-forms/ui";
+import { SubmissionStatusBadge } from "@msk-forms/ui";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -71,7 +71,7 @@ export function KanbanBoard({
           return (
             <div key={col.key} className="flex w-72 shrink-0 flex-col gap-2 rounded-xl bg-muted/30 p-2">
               <div className="flex items-center justify-between px-1 pt-1">
-                <StatusBadge label={col.label} color={col.color} />
+                <SubmissionStatusBadge label={col.label} color={col.color} />
                 <span className="rounded-full bg-background px-2 py-0.5 font-mono text-[11px] font-medium tabular-nums text-muted-foreground">
                   {cards.length}
                 </span>

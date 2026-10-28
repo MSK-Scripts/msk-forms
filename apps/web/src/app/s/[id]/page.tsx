@@ -1,5 +1,5 @@
 import { DEFAULT_STATUSES } from "@msk-forms/shared";
-import { StatusBadge } from "@msk-forms/ui";
+import { SubmissionStatusBadge } from "@msk-forms/ui";
 import { notFound } from "next/navigation";
 
 import { LocalDateTime } from "@/components/public/local-datetime";
@@ -63,7 +63,7 @@ export default async function SubmissionStatusPage({ params }: { params: Promise
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           {/* Announced when the page refreshes itself after a reviewer acts. */}
           <div role="status" aria-live="polite">
-            <StatusBadge label={status.label} color={status.color} />
+            <SubmissionStatusBadge label={status.label} color={status.color} />
           </div>
           <span className="text-small text-muted-foreground">
             {t.submitted} <LocalDateTime iso={submission.submittedAt.toISOString()} />
