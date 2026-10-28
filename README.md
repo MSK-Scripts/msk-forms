@@ -13,90 +13,51 @@
 
 > ⚠️ **Proprietary & confidential.** This repository is owned by MSK Scripts (Moritz Kohm). See [LICENSE](./LICENSE).
 
----
-
 ## What is MSK Forms?
 
-Google/Microsoft Forms, rethought — a modern UI, more features and a real
-**feedback loop**: applicants see the status of their submission (accepted /
-rejected / in review) on the very page where they filled out the form.
-Communities simply invite the **Discord bot** to their server.
+Google and Microsoft Forms, rethought: a modern interface, more features and a real
+**feedback loop**. Applicants see the status of their submission (accepted, rejected,
+in review) on the very page where they filled out the form. Communities invite the
+**Discord bot** to their server and review submissions right there.
 
-The whole experience — dashboard, builder, public forms and bot DMs — is
-available in **7 languages** (EN / DE / HU / FR / ES / PT / PL).
+MSK Forms runs at [forms.msk-scripts.de](https://forms.msk-scripts.de). Dashboard,
+builder, public forms and bot DMs are available in 7 languages.
 
-> The full concept document is maintained internally.
+## Getting started
 
-## Features
+**Use it:** sign in at [forms.msk-scripts.de/dashboard](https://forms.msk-scripts.de/dashboard)
+with Discord, then **[➕ invite the bot to your server](https://discord.com/oauth2/authorize?client_id=1517520313200676994&scope=bot%20applications.commands&permissions=19456)**.
+What the bot can do and which permissions it asks for: [docs/features.md](docs/features.md#discord-bot).
 
-- **Powerful builder** — 20+ field types, multi-step pages, conditional logic, quiz scoring, calculated fields, and per-form scheduling with an optional public countdown.
-- **Real feedback loop** — every submission gets a live status page; applicants follow along without an account and can withdraw, export, or delete their data (GDPR). One active submission per person by default.
-- **Discord-native review** — new submissions post to a review channel with Accept / Reject buttons, status DMs, automatic role grants, and a full activity log, all in your server's language.
-- **Make it yours** — accent color, logo, custom CSS with a live preview, form categories, a public form hub, and custom domains with automatic TLS.
-- **Team & workflow** — roles with per-form reviewer access, a Kanban board, bulk actions, custom statuses, automations, A/B tests, and CSV / XLSX / JSON / PDF exports.
-- **Integrations** — outgoing webhooks, Zapier / Make, and a REST API.
-- **Everywhere** — 7 languages, light / dark themes, and an installable PWA.
-
-Full documentation: **[docu.msk-scripts.de/ecosystem/msk-forms](https://docu.msk-scripts.de/ecosystem/msk-forms/)**.
-
-## Invite the Discord bot
-
-Add the MSK Forms bot to your server to list and post forms (`/forms`) and
-receive status updates as DMs:
-
-**[➕ Invite MSK Forms to your server](https://discord.com/oauth2/authorize?client_id=1517520313200676994&scope=bot%20applications.commands&permissions=19456)**
-
-The requested permissions (`19456`) cover View Channels, Send Messages and
-Embed Links — the minimum needed to post forms into a channel.
-
-## Tech stack
-
-| Area | Technology |
-|---|---|
-| Frontend/SSR | Next.js 16 (App Router), TypeScript |
-| Styling | Tailwind CSS 4 |
-| Database | PostgreSQL + Prisma |
-| Cache | Redis |
-| Bot | Node.js + discord.js v14 |
-| Storage | S3-compatible (MinIO) |
-| i18n | 7 languages (EN/DE/HU/FR/ES/PT/PL) |
-| Monorepo | pnpm Workspaces + Turborepo |
-| Hosting | Debian + Apache2 + PM2 |
-
-## Project structure
-
-```
-msk-forms/
-├── apps/
-│   ├── web/         Next.js (dashboard, builder, public forms, status)
-│   ├── bot/         discord.js bot (multi-tenant)
-│   └── realtime/    WebSocket service (Postgres LISTEN/NOTIFY fan-out)
-├── packages/
-│   ├── db/          Prisma schema & client
-│   ├── shared/      Types, zod schemas, form spec
-│   ├── ui/          MSK design system
-│   └── i18n/        Translations
-└── .github/         CI, deploy, Dependabot, CodeQL
-```
-
-## Local development
+**Run it locally:** you need Node.js 24 or newer, pnpm 11 (`corepack enable`) and Docker.
 
 ```bash
 pnpm install
 cp .env.example .env        # fill in values
 docker compose up -d        # Postgres, Redis, MinIO
 pnpm prisma migrate dev
-pnpm dev
+pnpm dev                    # web on http://localhost:3000, plus bot and realtime
 ```
 
-## Branches & CI/CD
+## Documentation
 
-- `main` → production (auto-deploy via SSH → PM2); direct pushes are blocked.
-- Feature branches → PR against `main` → squash-merge once CI is green.
+| What | Where |
+|---|---|
+| User guide | [docu.msk-scripts.de/ecosystem/msk-forms](https://docu.msk-scripts.de/ecosystem/msk-forms/) |
+| Features, languages and the Discord bot | [docs/features.md](docs/features.md) |
+| Tech stack, project structure, local development, CI/CD | [docs/development.md](docs/development.md) |
+| Custom domains on the server | [infra/custom-domains/README.md](infra/custom-domains/README.md) |
+| Setup, branches, commits and pull requests | [CONTRIBUTING.md](CONTRIBUTING.md) |
 
-Every PR runs **CI** (lint, typecheck, build, test, Prisma validate) and
-**CodeQL**. Merging to `main` deploys automatically to `forms.msk-scripts.de`.
+## Help and contributing
 
----
+- **Questions and support:** the [MSK Scripts Discord](https://discord.gg/5hHSBRHvJE).
+- **Bugs and ideas:** [GitHub issues](https://github.com/MSK-Scripts/msk-forms/issues).
+- **Security vulnerabilities:** never in a public issue, please follow [SECURITY.md](SECURITY.md).
+- **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
 
-© 2026 Moritz Kohm — MSK Scripts. All rights reserved.
+## License
+
+Proprietary, see [LICENSE](./LICENSE).
+
+© 2026 Moritz Kohm, MSK Scripts. All rights reserved.
