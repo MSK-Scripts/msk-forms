@@ -81,6 +81,7 @@ export function FormRenderer({
 }) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
+  const stepRef = useRef<HTMLParagraphElement>(null);
   const [answers, setAnswers] = useState<Answers>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [step, setStep] = useState(0);
@@ -148,6 +149,18 @@ export function FormRenderer({
     });
   }
 
+  /**
+   * A new step replaces the button that was pressed, so the focus would fall
+   * back to the top of the document. It goes to the step line instead, which
+   * names the step, and the page scrolls there.
+   */
+  function focusStep() {
+    requestAnimationFrame(() => {
+      stepRef.current?.focus();
+      stepRef.current?.scrollIntoView({ block: "nearest" });
+    });
+  }
+
   function goNext() {
     const pageErrors = collectErrors(activeFields);
     if (Object.keys(pageErrors).length > 0) {
@@ -156,12 +169,18 @@ export function FormRenderer({
       return;
     }
     const nextIndex = shownPageIndices[position + 1];
-    if (nextIndex !== undefined) setStep(nextIndex);
+    if (nextIndex !== undefined) {
+      setStep(nextIndex);
+      focusStep();
+    }
   }
 
   function goBack() {
     const prevIndex = shownPageIndices[position - 1];
-    if (prevIndex !== undefined) setStep(prevIndex);
+    if (prevIndex !== undefined) {
+      setStep(prevIndex);
+      focusStep();
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -261,7 +280,7 @@ export function FormRenderer({
     <form ref={formRef} onSubmit={handleSubmit} className="grid gap-7" noValidate>
       {totalSteps > 1 && (
         <div className="grid gap-2">
-          <p aria-live="polite" className="text-small font-semibold text-muted-foreground">
+          <p ref={stepRef} tabIndex={-1} className="text-small font-semibold text-muted-foreground focus:outline-none">
             {labels.step} {position + 1} / {totalSteps}
             {pages[activeIndex]?.title ? ` · ${pages[activeIndex]!.title}` : ""}
           </p>

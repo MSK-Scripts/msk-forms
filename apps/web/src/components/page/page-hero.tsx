@@ -44,7 +44,7 @@ export function PageHero({
     <section aria-labelledby={id} className="surface-band">
       <div
         className={cn(
-          "container-page grid gap-[var(--space-stack)] py-[clamp(2.5rem,1.5rem+4vw,9rem)]",
+          "container-page grid grid-cols-[minmax(0,1fr)] gap-[var(--space-stack)] py-[clamp(2.5rem,1.5rem+4vw,9rem)]",
           aside &&
             "min-[1280px]:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] min-[1280px]:items-center min-[1280px]:gap-x-[clamp(3rem,5vw,10rem)]",
         )}

@@ -111,7 +111,7 @@ export default async function PricingPage() {
             {tiers.map(({ key, data }) => (
               <li
                 key={key}
-                className="grid content-start gap-6 rounded-lg border border-border bg-card p-[clamp(1.5rem,1rem+1vw,2.5rem)] text-card-foreground shadow-[var(--shadow-card)]"
+                className="grid grid-rows-[auto_1fr_auto] gap-6 rounded-lg border border-border bg-card p-[clamp(1.5rem,1rem+1vw,2.5rem)] text-card-foreground shadow-[var(--shadow-card)]"
               >
                 <div className="grid gap-2">
                   <h2 className="font-display text-h3 font-[650]">{data.name}</h2>
@@ -121,7 +121,7 @@ export default async function PricingPage() {
                     <span className="text-small text-muted-foreground">{t.perMonth}</span>
                   </p>
                 </div>
-                <ul className="grid gap-2.5">
+                <ul className="grid content-start gap-2.5">
                   {data.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2.5">
                       <Check className="mt-[0.3em] h-4 w-4 shrink-0 text-primary" weight="bold" />

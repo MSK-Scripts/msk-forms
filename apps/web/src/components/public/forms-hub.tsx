@@ -117,7 +117,7 @@ export function GuildFormsHub({
                   >
                     <span className="font-display text-h3 font-[650] text-balance">{form.title}</span>
                     {schedule.endingSoon && (
-                      <span className="inline-flex items-center gap-1.5 self-start rounded-sm bg-accent-soft px-2.5 py-1 text-small font-semibold text-primary">
+                      <span className="inline-flex items-center gap-1.5 justify-self-start rounded-sm bg-accent-soft px-2.5 py-1 text-small font-semibold text-primary">
                         <HourglassMedium className="h-4 w-4" weight="bold" />
                         {labels.endingSoon}
                       </span>

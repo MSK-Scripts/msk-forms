@@ -48,7 +48,8 @@ export default async function StatsPage() {
           <h2 id="stats-figures" className="sr-only">
             {t.title}
           </h2>
-          <dl className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,var(--grid-card)),1fr))] gap-x-[clamp(2rem,3vw,4rem)]">
+          {/* Four figures: one row on a desktop, two by two on a tablet. */}
+          <dl className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-x-[clamp(2rem,3vw,4rem)]">
             {figures.map((f) => (
               <div key={f.label} className="grid content-start gap-1 border-t border-border py-5">
                 <dt className="font-semibold">{f.label}</dt>

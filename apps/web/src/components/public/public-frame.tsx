@@ -79,7 +79,9 @@ export async function PublicFrame({
             </span>
           </a>
           <div className="ms-auto flex shrink-0 items-center gap-1">
-            <LanguagePicker locale={locale} label={dict.header.language} />
+            {/* On a phone the guild's name needs the room; the language
+                moves to the footer there. */}
+            <LanguagePicker locale={locale} label={dict.header.language} className="hidden sm:inline-flex" />
             {user ? (
               <form action={logoutAction} className="flex items-center gap-2">
                 {user.avatar && (
@@ -123,7 +125,10 @@ export async function PublicFrame({
 
       <footer className="border-t border-border pb-[env(safe-area-inset-bottom)]">
         <div className="public-column flex flex-wrap items-center justify-between gap-x-6 gap-y-3 py-5">
-          <ThemeSwitch labels={dict.kit.shell.theme} />
+          <div className="flex flex-wrap items-center gap-3">
+            <ThemeSwitch labels={dict.kit.shell.theme} />
+            <LanguagePicker locale={locale} label={dict.header.language} className="sm:hidden" />
+          </div>
           {poweredBy && <PoweredBy label={dict.form.poweredBy} />}
         </div>
       </footer>

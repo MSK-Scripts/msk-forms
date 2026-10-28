@@ -485,6 +485,9 @@
   position: fixed;
   left: 1rem;
   top: 1rem;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   padding: 0.5rem 1rem;
   border-radius: calc(var(--radius) - 6px);
   background: hsl(var(--card));
