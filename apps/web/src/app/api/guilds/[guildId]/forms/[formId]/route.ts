@@ -8,6 +8,7 @@ import { resolveGuildCategoryId } from "@/lib/forms";
 import { canDeleteForms, canManageForm } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
 import { deleteObject } from "@/lib/s3";
+import { validationMessage } from "@/lib/validation-error";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -36,7 +37,7 @@ export async function PATCH(
   const parsed = formInputSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid form." },
+      { error: (await validationMessage(parsed.error)) ?? "Invalid form." },
       { status: 422 },
     );
   }
@@ -105,7 +106,12 @@ export async function DELETE(
 
   const existing = await prisma.form.findUnique({
     where: { id: formId },
-    select: { guildId: true, title: true, archivedAt: true, _count: { select: { submissions: true } } },
+    select: {
+      guildId: true,
+      title: true,
+      archivedAt: true,
+      _count: { select: { submissions: true } },
+    },
   });
   if (!existing || existing.guildId !== guildId) {
     return NextResponse.json({ error: "Form not found." }, { status: 404 });

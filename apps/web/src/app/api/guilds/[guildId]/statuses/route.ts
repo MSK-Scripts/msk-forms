@@ -5,6 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
+import { validationMessage } from "@/lib/validation-error";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -47,7 +48,7 @@ export async function PUT(
   const parsed = statusDefsSchema.safeParse(body?.statuses);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid statuses." },
+      { error: (await validationMessage(parsed.error)) ?? "Invalid statuses." },
       { status: 422 },
     );
   }
@@ -70,7 +71,9 @@ export async function PUT(
   await logGuildActivitySafe(guildId, {
     action: "statuses_updated",
     ...actor(user),
-    detail: parsed.data.length ? parsed.data.map((d) => d.label).join(", ") : "Custom statuses removed",
+    detail: parsed.data.length
+      ? parsed.data.map((d) => d.label).join(", ")
+      : "Custom statuses removed",
   });
   return NextResponse.json({ ok: true });
 }

@@ -8,6 +8,7 @@ import { formInputSchema } from "@/lib/form-input";
 import { resolveGuildCategoryId } from "@/lib/forms";
 import { canManageForms } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
+import { validationMessage } from "@/lib/validation-error";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -28,7 +29,7 @@ export async function POST(
   const parsed = formInputSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid form." },
+      { error: (await validationMessage(parsed.error)) ?? "Invalid form." },
       { status: 422 },
     );
   }

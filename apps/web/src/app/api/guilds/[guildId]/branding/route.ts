@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { parseBranding } from "@/lib/branding";
 import { canManageForms } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
+import { validationMessage } from "@/lib/validation-error";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,7 +28,7 @@ export async function PATCH(
   const parsed = brandingColorSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid branding." },
+      { error: (await validationMessage(parsed.error)) ?? "Invalid branding." },
       { status: 422 },
     );
   }

@@ -2,7 +2,7 @@ import { prisma } from "@msk-forms/db";
 import type { Route } from "next";
 import Link from "next/link";
 
-import { EmptyState, PageHeader } from "@/components/dashboard-kit";
+import { EmptyState, Notice, PageHeader } from "@/components/dashboard-kit";
 import { DashboardLive } from "@/components/dashboard/dashboard-live";
 import { SubmissionsTable } from "@/components/dashboard/submissions-table";
 import { submissionsTableLabels } from "@/components/dashboard/submissions-table-labels";
@@ -42,7 +42,7 @@ export default async function GuildSubmissionsPage({
 
   const liveToken = signGuildRealtimeToken(guildId);
 
-  const [submissions, defs, archivedCount] = await Promise.all([
+  const [{ rows: submissions, total }, defs, archivedCount] = await Promise.all([
     getGuildSubmissions(guildId, scope),
     prisma.formStatusDef.findMany({
       where: { guildId },
@@ -70,12 +70,16 @@ export default async function GuildSubmissionsPage({
     score: s.score,
   }));
 
+  const truncated = t.submissionsList.listTruncated
+    .replace("{limit}", String(submissions.length))
+    .replace("{total}", String(total));
+
   return (
     <>
       {liveToken && <DashboardLive guildId={guildId} token={liveToken} />}
       <PageHeader
         title={t.submissionsTab}
-        description={`${rows.length} ${countForm(rows.length, await getLocale(), {
+        description={`${total} ${countForm(total, await getLocale(), {
           one: t.countSubmission,
           few: t.countSubmissionsFew,
           other: t.countSubmissions,
@@ -93,6 +97,12 @@ export default async function GuildSubmissionsPage({
               </Link>
             </Button>
           </div>
+        )}
+
+        {total > submissions.length && (
+          <Notice tone="info" title={truncated}>
+            {t.submissionsList.listTruncatedHint}
+          </Notice>
         )}
 
         <SubmissionsTable

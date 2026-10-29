@@ -5,6 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
+import { validationMessage } from "@/lib/validation-error";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -51,7 +52,7 @@ export async function PUT(
   const parsed = categoriesSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid categories." },
+      { error: (await validationMessage(parsed.error)) ?? "Invalid categories." },
       { status: 422 },
     );
   }
@@ -85,7 +86,9 @@ export async function PUT(
   await logGuildActivitySafe(guildId, {
     action: "categories_updated",
     ...actor(user),
-    detail: parsed.data.length ? parsed.data.map((c) => c.name).join(", ") : "All categories removed",
+    detail: parsed.data.length
+      ? parsed.data.map((c) => c.name).join(", ")
+      : "All categories removed",
   });
 
   // Return the saved set so the client can pick up new ids (avoids re-creating
