@@ -181,17 +181,19 @@ export function FormsTable({
       sortValue: (f) => f.title.toLowerCase(),
       className: "min-w-[14rem]",
       cell: (f) => (
-        <div className="grid">
+        // A long title wraps instead of widening the column; on a phone it
+        // would otherwise run under the sticky action column, cut off.
+        <div className="grid max-w-[14rem] sm:max-w-[24rem]">
           {f.manages ? (
             <Link
               href={`/dashboard/${guildId}/forms/${f.id}/edit` as Route}
               prefetch={false}
-              className="inline-flex min-h-9 w-fit items-center font-semibold text-foreground hover:text-primary hover:underline"
+              className="inline-flex min-h-9 w-fit max-w-full items-center font-semibold [overflow-wrap:anywhere] text-foreground hover:text-primary hover:underline"
             >
               {f.title}
             </Link>
           ) : (
-            <span className="font-semibold">{f.title}</span>
+            <span className="font-semibold [overflow-wrap:anywhere]">{f.title}</span>
           )}
           {f.url ? (
             <a
