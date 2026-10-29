@@ -37,8 +37,8 @@ describe("getGuildSubmissions", () => {
     expect(result.total).toBe(SUBMISSION_LIST_LIMIT + 234);
     expect(result.rows).toHaveLength(SUBMISSION_LIST_LIMIT);
     // The count uses the same filter as the list, scope included.
-    expect(count).toHaveBeenCalledWith({ where: findMany.mock.calls[0][0].where });
-    expect(count.mock.calls[0][0].where.formId).toEqual({ in: ["f1"] });
+    expect(count).toHaveBeenCalledWith({ where: findMany.mock.calls[0]?.[0].where });
+    expect(count.mock.calls[0]?.[0].where.formId).toEqual({ in: ["f1"] });
   });
 
   it("returns nothing for a reviewer without grants, without touching the database", async () => {
