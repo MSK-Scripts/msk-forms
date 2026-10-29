@@ -1,4 +1,5 @@
 import { logGuildActivitySafe, prisma } from "@msk-forms/db";
+import { isUuid } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { clientIp, rateLimit } from "@/lib/rate-limit";
@@ -17,6 +18,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+  if (!isUuid(id)) return NextResponse.json({ error: "Not found." }, { status: 404 });
   const rl = await rateLimit(`delete:${clientIp(request.headers)}`, 10, 60);
   if (!rl.allowed) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });

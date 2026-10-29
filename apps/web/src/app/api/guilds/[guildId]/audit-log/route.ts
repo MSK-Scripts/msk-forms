@@ -14,6 +14,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { checkDiscordWebhook } from "@/lib/discord-webhook";
 import { canManageForms } from "@/lib/guild";
 import { rateLimit } from "@/lib/rate-limit";
+import { validationMessage } from "@/lib/validation-error";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -46,7 +47,7 @@ export async function POST(
   const parsed = auditWebhookInputSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid webhook.", code: "invalid" },
+      { error: (await validationMessage(parsed.error)) ?? "Invalid webhook.", code: "invalid" },
       { status: 422 },
     );
   }

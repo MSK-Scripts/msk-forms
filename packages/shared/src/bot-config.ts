@@ -1,11 +1,12 @@
 import { z } from "zod";
+import { VALIDATION_MESSAGES } from "./validation-messages";
 
 /**
  * Per-guild bot configuration stored in `Guild.botConfig` (JSON). Drives the
  * Discord review workflow: where new submissions are announced and which role
  * is granted on acceptance.
  */
-const snowflake = z.string().regex(/^\d{17,20}$/, "Enter a valid Discord ID.");
+const snowflake = z.string().regex(/^\d{17,20}$/, VALIDATION_MESSAGES.discordId);
 
 /** App locales the bot can speak per guild (command replies, embeds, logs). */
 export const BOT_LOCALES = ["en", "de", "hu", "fr", "es", "pt", "pl"] as const;

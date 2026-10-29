@@ -129,7 +129,7 @@ export function FormsTable({
         onSelect: () => setSharing(form),
       });
     }
-    if (form.experiment) {
+    if (form.manages && form.experiment) {
       items.push({
         id: "ab",
         label: copy.abResults,

@@ -51,6 +51,12 @@ pnpm prisma migrate dev
 pnpm dev                    # web on http://localhost:3000, plus bot and realtime
 ```
 
+`docker compose up -d` also creates the `msk-forms` bucket in MinIO, so uploads
+work locally with the S3 values from `.env.example`. Postgres runs the same major
+version as production (18). Coming from an older checkout with Postgres 16, the
+compose file starts on a new, empty volume: run `pnpm prisma migrate dev` once
+(and `pnpm db:seed` for sample data).
+
 ## Branches and CI/CD
 
 - `main` → production (auto-deploy via SSH → PM2); direct pushes are blocked.

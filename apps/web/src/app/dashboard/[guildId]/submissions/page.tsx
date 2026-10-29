@@ -2,7 +2,7 @@ import { prisma } from "@msk-forms/db";
 import type { Route } from "next";
 import Link from "next/link";
 
-import { EmptyState, PageHeader } from "@/components/dashboard-kit";
+import { EmptyState, Notice, PageHeader } from "@/components/dashboard-kit";
 import { DashboardLive } from "@/components/dashboard/dashboard-live";
 import { SubmissionsTable } from "@/components/dashboard/submissions-table";
 import { submissionsTableLabels } from "@/components/dashboard/submissions-table-labels";
@@ -11,8 +11,9 @@ import { Button } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth";
 import { resolveStatus, statusOptions } from "@/lib/forms";
 import { countArchivedSubmissions, getGuildSubmissions, getReviewScope } from "@/lib/guild";
+import { countForm } from "@/lib/plural";
 import { signGuildRealtimeToken } from "@/lib/realtime-token";
-import { getDict } from "@/i18n";
+import { getDict, getLocale } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -41,7 +42,7 @@ export default async function GuildSubmissionsPage({
 
   const liveToken = signGuildRealtimeToken(guildId);
 
-  const [submissions, defs, archivedCount] = await Promise.all([
+  const [{ rows: submissions, total }, defs, archivedCount] = await Promise.all([
     getGuildSubmissions(guildId, scope),
     prisma.formStatusDef.findMany({
       where: { guildId },
@@ -69,12 +70,20 @@ export default async function GuildSubmissionsPage({
     score: s.score,
   }));
 
+  const truncated = t.submissionsList.listTruncated
+    .replace("{limit}", String(submissions.length))
+    .replace("{total}", String(total));
+
   return (
     <>
       {liveToken && <DashboardLive guildId={guildId} token={liveToken} />}
       <PageHeader
         title={t.submissionsTab}
-        description={`${rows.length} ${rows.length === 1 ? t.countSubmission : t.countSubmissions}`}
+        description={`${total} ${countForm(total, await getLocale(), {
+          one: t.countSubmission,
+          few: t.countSubmissionsFew,
+          other: t.countSubmissions,
+        })}`}
       />
 
       <div className="grid gap-5">
@@ -88,6 +97,12 @@ export default async function GuildSubmissionsPage({
               </Link>
             </Button>
           </div>
+        )}
+
+        {total > submissions.length && (
+          <Notice tone="info" title={truncated}>
+            {t.submissionsList.listTruncatedHint}
+          </Notice>
         )}
 
         <SubmissionsTable

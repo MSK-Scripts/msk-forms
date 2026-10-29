@@ -1,4 +1,5 @@
 import { prisma } from "@msk-forms/db";
+import { isUuid } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { clientIp, rateLimit } from "@/lib/rate-limit";
@@ -15,6 +16,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+  if (!isUuid(id)) return NextResponse.json({ error: "Not found." }, { status: 404 });
   // Throttle for parity with withdraw/delete (the UUID is the only credential).
   const rl = await rateLimit(`export:${clientIp(request.headers)}`, 10, 60);
   if (!rl.allowed) {

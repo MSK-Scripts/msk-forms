@@ -5,6 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
+import { validationMessage } from "@/lib/validation-error";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -31,7 +32,11 @@ export async function PATCH(
   // Empty/null clears the handle.
   if (raw == null || (typeof raw === "string" && raw.trim() === "")) {
     await prisma.guild.update({ where: { id: guildId }, data: { handle: null } });
-    await logGuildActivitySafe(guildId, { action: "handle_updated", ...actor(user), detail: "Removed" });
+    await logGuildActivitySafe(guildId, {
+      action: "handle_updated",
+      ...actor(user),
+      detail: "Removed",
+    });
     return NextResponse.json({ handle: null });
   }
   if (typeof raw !== "string") {
@@ -41,7 +46,7 @@ export async function PATCH(
   const parsed = handleSchema.safeParse(normalizeHandle(raw));
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid handle." },
+      { error: (await validationMessage(parsed.error)) ?? "Invalid handle." },
       { status: 422 },
     );
   }

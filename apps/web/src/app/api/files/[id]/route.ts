@@ -1,4 +1,5 @@
 import { prisma } from "@msk-forms/db";
+import { isUuid } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getObject } from "@/lib/s3";
@@ -16,6 +17,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+  if (!isUuid(id)) return NextResponse.json({ error: "File not found." }, { status: 404 });
 
   const file = await prisma.fileUpload.findUnique({
     where: { id },

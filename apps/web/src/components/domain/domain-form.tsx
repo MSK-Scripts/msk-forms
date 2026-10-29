@@ -45,6 +45,7 @@ export function DomainForm({
   const [error, setError] = useState<string | null>(null);
   const [verifyMsg, setVerifyMsg] = useState<string | null>(null);
   const [confirmRemove, setConfirmRemove] = useState(false);
+  const [removeError, setRemoveError] = useState<string | null>(null);
 
   const records =
     initial.domain && initial.token
@@ -93,12 +94,20 @@ export function DomainForm({
   }
 
   async function remove() {
+    setRemoveError(null);
     setBusy("remove");
     try {
-      await fetch(`/api/guilds/${guildId}/domain`, { method: "DELETE" });
+      const res = await fetch(`/api/guilds/${guildId}/domain`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(data?.error ?? t.errRemove);
+      }
       setDomain("");
       setConfirmRemove(false);
       router.refresh();
+    } catch (err) {
+      // The dialog stays open with the reason, so the domain is not shown as gone.
+      setRemoveError(err instanceof Error ? err.message : t.errRemove);
     } finally {
       setBusy(null);
     }
@@ -197,7 +206,10 @@ export function DomainForm({
       <ConfirmDialog
         open={confirmRemove}
         onClose={() => {
-          if (busy !== "remove") setConfirmRemove(false);
+          if (busy !== "remove") {
+            setConfirmRemove(false);
+            setRemoveError(null);
+          }
         }}
         onConfirm={remove}
         title={t.remove}
@@ -206,6 +218,7 @@ export function DomainForm({
         cancelLabel={t.cancel}
         tone="danger"
         busy={busy === "remove"}
+        error={removeError}
         typeToConfirm={{
           expected: initial.domain,
           label: t.typeDomain.replace("{domain}", initial.domain),
