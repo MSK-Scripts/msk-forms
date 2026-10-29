@@ -8,6 +8,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { Notice, RowMenu } from "@/components/dashboard-kit";
 import { LocalDateTime } from "@/components/public/local-datetime";
 import { dotColors } from "@/lib/color-dot";
+import { countForm, type CountForms } from "@/lib/plural";
 
 export interface BoardColumn {
   key: string;
@@ -33,8 +34,9 @@ export interface BoardLabels {
   moved: string;
   empty: string;
   anonymous: string;
-  countOne: string;
-  countMany: string;
+  /** The noun after a column's card count, in the forms the locale needs. */
+  count: CountForms;
+  locale: string;
   saveFailed: string;
   dismiss: string;
 }
@@ -150,7 +152,7 @@ export function KanbanBoard({
                     {cards.length}
                     <span className="sr-only">
                       {" "}
-                      {cards.length === 1 ? labels.countOne : labels.countMany}
+                      {countForm(cards.length, labels.locale, labels.count)}
                     </span>
                   </span>
                 </h2>

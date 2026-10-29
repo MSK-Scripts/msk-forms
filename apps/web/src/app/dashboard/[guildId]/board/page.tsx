@@ -10,7 +10,7 @@ import { requireUser } from "@/lib/auth";
 import { resolveStatus, statusOptions } from "@/lib/forms";
 import { getGuildSubmissions, getReviewScope } from "@/lib/guild";
 import { signGuildRealtimeToken } from "@/lib/realtime-token";
-import { getDict } from "@/i18n";
+import { getDict, getLocale } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -101,8 +101,12 @@ export default async function BoardPage({ params }: { params: Promise<{ guildId:
             moved: t.board.moved,
             empty: t.board.columnEmpty,
             anonymous: t.anonymous,
-            countOne: t.countSubmission,
-            countMany: t.countSubmissions,
+            count: {
+              one: t.countSubmission,
+              few: t.countSubmissionsFew,
+              other: t.countSubmissions,
+            },
+            locale: await getLocale(),
             saveFailed: t.board.saveFailed,
             dismiss: dict.kit.dismiss,
           }}

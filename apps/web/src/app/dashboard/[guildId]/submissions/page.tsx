@@ -11,8 +11,9 @@ import { Button } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth";
 import { resolveStatus, statusOptions } from "@/lib/forms";
 import { countArchivedSubmissions, getGuildSubmissions, getReviewScope } from "@/lib/guild";
+import { countForm } from "@/lib/plural";
 import { signGuildRealtimeToken } from "@/lib/realtime-token";
-import { getDict } from "@/i18n";
+import { getDict, getLocale } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -78,7 +79,11 @@ export default async function GuildSubmissionsPage({
       {liveToken && <DashboardLive guildId={guildId} token={liveToken} />}
       <PageHeader
         title={t.submissionsTab}
-        description={`${total} ${total === 1 ? t.countSubmission : t.countSubmissions}`}
+        description={`${total} ${countForm(total, await getLocale(), {
+          one: t.countSubmission,
+          few: t.countSubmissionsFew,
+          other: t.countSubmissions,
+        })}`}
       />
 
       <div className="grid gap-5">
