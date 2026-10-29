@@ -6,7 +6,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, type ReactNode } from "react";
 
-import { DataTable, FormField, Notice, type DataColumn } from "@/components/dashboard-kit";
+import {
+  ConfirmDialog,
+  DataTable,
+  FormField,
+  Notice,
+  type DataColumn,
+} from "@/components/dashboard-kit";
 import { Archive, ArrowCounterClockwise } from "@/components/icons";
 import { LocalDateTime } from "@/components/public/local-datetime";
 import { Button } from "@/components/ui/button";
@@ -57,6 +63,10 @@ export interface SubmissionsTableLabels {
   moveTo: string;
   bulkDone: string;
   bulkFailed: string;
+  bulkConfirmTitle: string;
+  bulkConfirmBody: string;
+  bulkConfirmAction: string;
+  cancel: string;
   allForms: string;
   dismiss: string;
 }
@@ -97,6 +107,8 @@ export function SubmissionsTable({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkStatus, setBulkStatus] = useState(options[0]?.key ?? "");
   const [applying, setApplying] = useState(false);
+  // Every applicant in the selection gets a DM, so the change is confirmed first.
+  const [confirmBulk, setConfirmBulk] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const [formFilter, setFormFilter] = useState("all");
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -188,6 +200,7 @@ export function SubmissionsTable({
       report({ tone: "danger", text: err instanceof Error ? err.message : labels.bulkFailed });
     } finally {
       setApplying(false);
+      setConfirmBulk(false);
     }
   }
 
@@ -383,7 +396,7 @@ export function SubmissionsTable({
                 )}
               </FormField>
               <Button
-                onClick={apply}
+                onClick={() => setConfirmBulk(true)}
                 disabled={applying || selected.size === 0}
                 aria-busy={applying || undefined}
               >
@@ -419,6 +432,20 @@ export function SubmissionsTable({
         rowKey={(r) => r.id}
         empty={empty}
         initialSort={{ column: "date", direction: "desc" }}
+      />
+
+      <ConfirmDialog
+        open={confirmBulk}
+        onClose={() => {
+          if (!applying) setConfirmBulk(false);
+        }}
+        onConfirm={apply}
+        title={fill(labels.bulkConfirmTitle, { status: resolve(bulkStatus).label })}
+        description={fill(labels.bulkConfirmBody, { count: String(selected.size) })}
+        confirmLabel={labels.bulkConfirmAction}
+        cancelLabel={labels.cancel}
+        tone="primary"
+        busy={applying}
       />
     </div>
   );
