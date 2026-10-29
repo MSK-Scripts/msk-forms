@@ -6,6 +6,7 @@ import {
   formSpecSchema,
   isLayoutField,
 } from "./form-spec";
+import { VALIDATION_MESSAGES } from "./validation-messages";
 
 /**
  * Outgoing webhook events a guild can subscribe to (concept §20). Keep these
@@ -38,8 +39,8 @@ export const DISCORD_WEBHOOK_URL_RE =
 /** A guild's webhook registration as submitted from the dashboard. */
 export const webhookInputSchema = z
   .object({
-    url: z.string().url("Enter a valid URL.").max(2000),
-    events: z.array(webhookEventSchema).min(1, "Select at least one event."),
+    url: z.string().url(VALIDATION_MESSAGES.url).max(2000),
+    events: z.array(webhookEventSchema).min(1, VALIDATION_MESSAGES.oneEvent),
     active: z.boolean().default(true),
     format: webhookFormatSchema.default("json"),
     /** Optional form to scope the webhook to; omit/null = every form. */
@@ -51,7 +52,7 @@ export const webhookInputSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["url"],
-        message: "Enter a valid Discord channel webhook URL.",
+        message: VALIDATION_MESSAGES.discordWebhookUrl,
       });
     }
     // Common mistake: pasting a Discord webhook URL but leaving the generic JSON
@@ -60,7 +61,7 @@ export const webhookInputSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["url"],
-        message: "This looks like a Discord webhook URL. Choose the Discord format.",
+        message: VALIDATION_MESSAGES.discordUrlInGeneric,
       });
     }
   });
@@ -90,7 +91,7 @@ const webhookSourceSchema = z.enum(WEBHOOK_SOURCES);
  * and an optional provider tag so the dashboard can show who manages the hook.
  */
 export const webhookSubscribeSchema = z.object({
-  targetUrl: z.string().url("Enter a valid URL.").max(2000),
+  targetUrl: z.string().url(VALIDATION_MESSAGES.url).max(2000),
   event: z.enum(WEBHOOK_EVENTS),
   source: webhookSourceSchema.default("integration"),
 });

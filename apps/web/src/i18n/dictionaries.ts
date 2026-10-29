@@ -1274,6 +1274,23 @@ const en = {
   authError: "Login failed. Please try again.",
   // The dashboard kit (components/dashboard-kit): app shell, server switcher
   // and the shared controls. Pages pass these to the client components.
+  // Request validation messages of the dashboard API (keys of VALIDATION_MESSAGES).
+  validation: {
+    discordId: "Enter a valid Discord ID.",
+    discordWebhookUrl: "Enter a valid Discord channel webhook URL.",
+    discordUrlInGeneric: "This looks like a Discord webhook URL. Choose the Discord format.",
+    url: "Enter a valid URL.",
+    domain: "Enter a valid domain like apply.example.com.",
+    slug: "Use lowercase letters, numbers and hyphens only.",
+    handle: "Use lowercase letters, numbers and hyphens (no leading or trailing hyphen).",
+    handleReserved: "That handle is reserved.",
+    statusKey: "Use 1–32 lowercase letters, digits or underscores.",
+    duplicateKey: "Each key can only be used once.",
+    hexColor: "Use a hex color like #00E676.",
+    oneEvent: "Select at least one event.",
+    oneLogEvent: "Select at least one thing to log.",
+    invalidValue: "This value isn’t valid.",
+  },
   kit: {
     close: "Close",
     shell: {
@@ -2598,6 +2615,23 @@ const de: Dictionary = {
     dpaNoPerm: "Nur wer Formulare verwalten darf, kann diese Vereinbarung annehmen.",
   },
   authError: "Anmeldung fehlgeschlagen. Bitte versuche es erneut.",
+  validation: {
+    discordId: "Gib eine gültige Discord-ID ein.",
+    discordWebhookUrl: "Gib eine gültige Webhook-URL eines Discord-Kanals ein.",
+    discordUrlInGeneric: "Das sieht nach einer Discord-Webhook-URL aus. Wähle das Discord-Format.",
+    url: "Gib eine gültige URL ein.",
+    domain: "Gib eine gültige Domain ein, zum Beispiel apply.example.com.",
+    slug: "Nur Kleinbuchstaben, Ziffern und Bindestriche verwenden.",
+    handle:
+      "Nur Kleinbuchstaben, Ziffern und Bindestriche verwenden, ohne Bindestrich am Anfang oder Ende.",
+    handleReserved: "Dieser Handle ist reserviert.",
+    statusKey: "1 bis 32 Kleinbuchstaben, Ziffern oder Unterstriche verwenden.",
+    duplicateKey: "Jeder Schlüssel darf nur einmal vorkommen.",
+    hexColor: "Gib die Farbe als Hex-Code an, zum Beispiel #00E676.",
+    oneEvent: "Wähle mindestens ein Ereignis aus.",
+    oneLogEvent: "Wähle mindestens eine Sache aus, die protokolliert werden soll.",
+    invalidValue: "Dieser Wert ist ungültig.",
+  },
   kit: {
     close: "Schließen",
     shell: {
@@ -3911,6 +3945,22 @@ const hu: Dictionary = {
     dpaNoPerm: "Csak az fogadhatja el ezt a szerződést, aki űrlapokat kezelhet.",
   },
   authError: "A bejelentkezés sikertelen. Kérjük, próbáld újra.",
+  validation: {
+    discordId: "Adj meg egy érvényes Discord-azonosítót.",
+    discordWebhookUrl: "Adj meg egy érvényes Discord-csatorna webhook URL-t.",
+    discordUrlInGeneric: "Ez Discord webhook URL-nek tűnik. Válaszd a Discord formátumot.",
+    url: "Adj meg egy érvényes URL-t.",
+    domain: "Adj meg egy érvényes domaint, például apply.example.com.",
+    slug: "Csak kisbetűket, számokat és kötőjelet használj.",
+    handle: "Csak kisbetűket, számokat és kötőjelet használj, az elején és a végén kötőjel nélkül.",
+    handleReserved: "Ez a handle foglalt.",
+    statusKey: "1–32 kisbetűt, számjegyet vagy aláhúzásjelet használj.",
+    duplicateKey: "Minden kulcs csak egyszer szerepelhet.",
+    hexColor: "Hexa színkódot adj meg, például #00E676.",
+    oneEvent: "Válassz legalább egy eseményt.",
+    oneLogEvent: "Válassz legalább egy dolgot, amit naplózni kell.",
+    invalidValue: "Ez az érték érvénytelen.",
+  },
   kit: {
     close: "Bezárás",
     shell: {
@@ -5229,6 +5279,24 @@ const fr: Dictionary = {
     dpaNoPerm: "Seule une personne pouvant gérer les formulaires peut accepter cet accord.",
   },
   authError: "Connexion échouée. Veuillez réessayer.",
+  validation: {
+    discordId: "Saisissez un identifiant Discord valide.",
+    discordWebhookUrl: "Saisissez une URL de webhook de salon Discord valide.",
+    discordUrlInGeneric:
+      "Cela ressemble à une URL de webhook Discord. Choisissez le format Discord.",
+    url: "Saisissez une URL valide.",
+    domain: "Saisissez un domaine valide, par exemple apply.example.com.",
+    slug: "Utilisez uniquement des minuscules, des chiffres et des tirets.",
+    handle:
+      "Utilisez uniquement des minuscules, des chiffres et des tirets, sans tiret au début ni à la fin.",
+    handleReserved: "Cet identifiant est réservé.",
+    statusKey: "Utilisez de 1 à 32 minuscules, chiffres ou tirets bas.",
+    duplicateKey: "Chaque clé ne peut être utilisée qu’une seule fois.",
+    hexColor: "Saisissez la couleur en code hexadécimal, par exemple #00E676.",
+    oneEvent: "Sélectionnez au moins un événement.",
+    oneLogEvent: "Sélectionnez au moins un élément à journaliser.",
+    invalidValue: "Cette valeur n’est pas valide.",
+  },
   kit: {
     close: "Fermer",
     shell: {
@@ -6541,6 +6609,22 @@ const es: Dictionary = {
     dpaNoPerm: "Solo quien puede gestionar formularios puede aceptar este contrato.",
   },
   authError: "Error al iniciar sesión. Por favor, inténtalo de nuevo.",
+  validation: {
+    discordId: "Introduce un ID de Discord válido.",
+    discordWebhookUrl: "Introduce una URL de webhook de canal de Discord válida.",
+    discordUrlInGeneric: "Parece una URL de webhook de Discord. Elige el formato de Discord.",
+    url: "Introduce una URL válida.",
+    domain: "Introduce un dominio válido, por ejemplo apply.example.com.",
+    slug: "Usa solo minúsculas, números y guiones.",
+    handle: "Usa solo minúsculas, números y guiones, sin guion al principio ni al final.",
+    handleReserved: "Ese identificador está reservado.",
+    statusKey: "Usa de 1 a 32 minúsculas, dígitos o guiones bajos.",
+    duplicateKey: "Cada clave solo puede usarse una vez.",
+    hexColor: "Usa un color hexadecimal, por ejemplo #00E676.",
+    oneEvent: "Selecciona al menos un evento.",
+    oneLogEvent: "Selecciona al menos una cosa para registrar.",
+    invalidValue: "Este valor no es válido.",
+  },
   kit: {
     close: "Cerrar",
     shell: {
@@ -7852,6 +7936,22 @@ const pt: Dictionary = {
     dpaNoPerm: "Apenas quem pode gerenciar formulários pode aceitar este contrato.",
   },
   authError: "Falha no login. Por favor, tente novamente.",
+  validation: {
+    discordId: "Informe um ID do Discord válido.",
+    discordWebhookUrl: "Informe uma URL de webhook de canal do Discord válida.",
+    discordUrlInGeneric: "Parece uma URL de webhook do Discord. Escolha o formato Discord.",
+    url: "Informe uma URL válida.",
+    domain: "Informe um domínio válido, por exemplo apply.example.com.",
+    slug: "Use apenas letras minúsculas, números e hífens.",
+    handle: "Use apenas letras minúsculas, números e hífens, sem hífen no início ou no fim.",
+    handleReserved: "Esse identificador está reservado.",
+    statusKey: "Use de 1 a 32 letras minúsculas, dígitos ou sublinhados.",
+    duplicateKey: "Cada chave só pode ser usada uma vez.",
+    hexColor: "Use uma cor hexadecimal, por exemplo #00E676.",
+    oneEvent: "Selecione pelo menos um evento.",
+    oneLogEvent: "Selecione pelo menos um item para registrar.",
+    invalidValue: "Este valor não é válido.",
+  },
   kit: {
     close: "Fechar",
     shell: {
@@ -9156,6 +9256,22 @@ const pl: Dictionary = {
     dpaNoPerm: "Tylko osoba zarządzająca formularzami może zaakceptować tę umowę.",
   },
   authError: "Logowanie nie powiodło się. Spróbuj ponownie.",
+  validation: {
+    discordId: "Podaj prawidłowy identyfikator Discord.",
+    discordWebhookUrl: "Podaj prawidłowy adres URL webhooka kanału Discord.",
+    discordUrlInGeneric: "To wygląda na adres URL webhooka Discord. Wybierz format Discord.",
+    url: "Podaj prawidłowy adres URL.",
+    domain: "Podaj prawidłową domenę, na przykład apply.example.com.",
+    slug: "Używaj tylko małych liter, cyfr i myślników.",
+    handle: "Używaj tylko małych liter, cyfr i myślników, bez myślnika na początku i na końcu.",
+    handleReserved: "Ta nazwa jest zarezerwowana.",
+    statusKey: "Użyj od 1 do 32 małych liter, cyfr lub podkreśleń.",
+    duplicateKey: "Każdy klucz może wystąpić tylko raz.",
+    hexColor: "Podaj kolor w zapisie szesnastkowym, na przykład #00E676.",
+    oneEvent: "Wybierz co najmniej jedno zdarzenie.",
+    oneLogEvent: "Wybierz co najmniej jedną rzecz do rejestrowania.",
+    invalidValue: "Ta wartość jest nieprawidłowa.",
+  },
   kit: {
     close: "Zamknij",
     shell: {

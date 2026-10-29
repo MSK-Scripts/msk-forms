@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { formSettingsSchema } from "./form-settings";
 import { formSpecSchema } from "./form-spec";
+import { VALIDATION_MESSAGES } from "./validation-messages";
 
 /** Bumped when the export envelope shape changes incompatibly. */
 export const FORM_DEFINITION_VERSION = 1;
@@ -27,7 +28,7 @@ export const formDefinitionSchema = z.object({
       .string()
       .min(1)
       .max(80)
-      .regex(/^[a-z0-9-]+$/, "Use lowercase letters, numbers and hyphens only."),
+      .regex(/^[a-z0-9-]+$/, VALIDATION_MESSAGES.slug),
     status: z.enum(["draft", "live", "closed", "archived"]),
     visibility: z.enum(["public", "authenticated", "password", "role_required"]),
     openAt: z.string().datetime().nullish(),

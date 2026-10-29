@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { VALIDATION_MESSAGES } from "./validation-messages";
 
 /**
  * Reserved handles that must not be claimed by a guild. Most are also explicit
@@ -51,8 +52,5 @@ export const handleSchema = z
   .string()
   .min(2)
   .max(32)
-  .regex(
-    /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/,
-    "Use lowercase letters, numbers and hyphens (no leading or trailing hyphen).",
-  )
-  .refine((h) => !isReservedHandle(h), "That handle is reserved.");
+  .regex(/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/, VALIDATION_MESSAGES.handle)
+  .refine((h) => !isReservedHandle(h), VALIDATION_MESSAGES.handleReserved);
