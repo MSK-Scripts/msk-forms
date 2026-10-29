@@ -1,5 +1,5 @@
 import { enqueueGuildLog, notifySubmissionChange, prisma } from "@msk-forms/db";
-import { DEFAULT_STATUSES } from "@msk-forms/shared";
+import { DEFAULT_STATUSES, isUuid } from "@msk-forms/shared";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { clientIp, rateLimit } from "@/lib/rate-limit";
@@ -18,6 +18,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+  if (!isUuid(id)) return NextResponse.json({ error: "Not found." }, { status: 404 });
   const rl = await rateLimit(`withdraw:${clientIp(_request.headers)}`, 10, 60);
   if (!rl.allowed) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });

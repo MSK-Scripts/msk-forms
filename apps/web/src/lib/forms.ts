@@ -7,6 +7,7 @@ import {
   formSpecSchema,
   isLayoutField,
   isTerminalStatus,
+  isUuid,
   parseFormSettings,
   type FormSpec,
 } from "@msk-forms/shared";
@@ -320,6 +321,8 @@ export async function findActiveSubmissionId(
  * form, the guild's status definitions, and the applicant-visible events.
  */
 export async function getSubmissionForStatus(id: string) {
+  // A malformed id would make Postgres throw and the status page answer 500.
+  if (!isUuid(id)) return null;
   const submission = await prisma.submission.findUnique({
     where: { id },
     select: {
