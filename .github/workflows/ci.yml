@@ -27,7 +27,7 @@ jobs:
     # Service containers for DB-dependent tests (Prisma / integration)
     services:
       postgres:
-        image: postgres:16
+        image: postgres:18
         env:
           POSTGRES_USER: msk
           POSTGRES_PASSWORD: msk
