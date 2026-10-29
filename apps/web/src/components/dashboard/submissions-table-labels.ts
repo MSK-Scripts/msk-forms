@@ -34,6 +34,10 @@ export function submissionsTableLabels(dict: Dictionary, caption: string): Submi
     moveTo: t.board.moveTo,
     bulkDone: l.bulkDone,
     bulkFailed: t.bulk.failed,
+    bulkConfirmTitle: l.bulkConfirmTitle,
+    bulkConfirmBody: l.bulkConfirmBody,
+    bulkConfirmAction: l.bulkConfirmAction,
+    cancel: t.cancel,
     allForms: t.allForms,
     dismiss: dict.kit.dismiss,
   };

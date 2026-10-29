@@ -359,10 +359,16 @@ const en = {
       bulkLabel: "Change the status of selected submissions",
       clearSelection: "Clear selection",
       bulkDone: "Status changed to {status}.",
+      bulkConfirmTitle: "Move the selection to “{status}”?",
+      bulkConfirmBody:
+        "Selected: {count}. Every applicant with a Discord account gets a direct message about the new status. Sent messages can’t be taken back.",
+      bulkConfirmAction: "Change status and notify",
       archivedOne: "Submission from {name} archived.",
       restoredOne: "Submission from {name} restored.",
       archivedIntro:
         "Archived submissions are kept but stay off the submission list and the board. Restore one to bring it back.",
+      listTruncated: "Showing the newest {limit} of {total} submissions.",
+      listTruncatedHint: "Archive finished submissions to bring older ones into the list.",
     },
     formsList: {
       actions: "Actions",
@@ -525,6 +531,7 @@ const en = {
       add: "Add category",
       namePh: "Category name",
       color: "Color",
+      colorHint: "Leave empty for no color.",
       saved: "Saved!",
       empty: "No categories yet.",
       errSave: "Could not save categories.",
@@ -697,6 +704,7 @@ const en = {
     language: "Bot language",
     languageHint:
       "Language the bot speaks for this guild: command replies, review embeds, activity log and applicant DMs. Leave unset to send applicant DMs in each applicant’s own Discord language.",
+    languageAuto: "Not set: English, DMs in each applicant’s language",
     acceptedRole: "Accepted role IDs",
     acceptedRoleHint:
       "Default role(s) granted on acceptance. Separate multiple IDs with commas. Each form can override this in its settings.",
@@ -898,6 +906,7 @@ const en = {
     removeConfirm: "Remove this custom domain? Your forms will go back to the default URL.",
     cancel: "Cancel",
     errSave: "Could not save the domain.",
+    errRemove: "Could not remove the domain.",
     step1: "1. Point your domain to us with a CNAME record:",
     step2: "2. Prove ownership with a TXT record:",
     recordName: "Name",
@@ -1678,10 +1687,17 @@ const de: Dictionary = {
       bulkLabel: "Status der ausgewählten Einreichungen ändern",
       clearSelection: "Auswahl aufheben",
       bulkDone: "Status auf {status} geändert.",
+      bulkConfirmTitle: "Auswahl nach „{status}“ verschieben?",
+      bulkConfirmBody:
+        "Ausgewählt: {count}. Alle Bewerber mit Discord-Konto bekommen eine Direktnachricht zum neuen Status. Verschickte Nachrichten lassen sich nicht zurückholen.",
+      bulkConfirmAction: "Status ändern und benachrichtigen",
       archivedOne: "Einreichung von {name} archiviert.",
       restoredOne: "Einreichung von {name} wiederhergestellt.",
       archivedIntro:
         "Archivierte Einreichungen bleiben erhalten, erscheinen aber nicht in der Liste und auf dem Board. Stelle eine wieder her, um sie zurückzuholen.",
+      listTruncated: "Angezeigt werden die neuesten {limit} von {total} Einreichungen.",
+      listTruncatedHint:
+        "Archiviere erledigte Einreichungen, dann rücken ältere in die Liste nach.",
     },
     formsList: {
       actions: "Aktionen",
@@ -1846,6 +1862,7 @@ const de: Dictionary = {
       add: "Kategorie hinzufügen",
       namePh: "Kategoriename",
       color: "Farbe",
+      colorHint: "Leer lassen für keine Farbe.",
       saved: "Gespeichert!",
       empty: "Noch keine Kategorien.",
       errSave: "Kategorien konnten nicht gespeichert werden.",
@@ -2020,6 +2037,7 @@ const de: Dictionary = {
     language: "Bot-Sprache",
     languageHint:
       "Sprache, die der Bot für diesen Server spricht: Command-Antworten, Review-Embeds, Aktivitäts-Log und Bewerber-DMs. Leer lassen, damit Bewerber-DMs in der jeweiligen Discord-Sprache des Bewerbers gesendet werden.",
+    languageAuto: "Nicht festgelegt: Englisch, DMs in der Sprache der Bewerber",
     acceptedRole: "Annahme-Rollen-IDs",
     acceptedRoleHint:
       "Standard-Rolle(n) bei Annahme. Mehrere IDs mit Komma trennen. Jedes Formular kann das in seinen Einstellungen überschreiben.",
@@ -2227,6 +2245,7 @@ const de: Dictionary = {
       "Diese Domain entfernen? Deine Formulare sind dann wieder unter der Standard-URL erreichbar.",
     cancel: "Abbrechen",
     errSave: "Domain konnte nicht gespeichert werden.",
+    errRemove: "Die Domain konnte nicht entfernt werden.",
     step1: "1. Zeige mit einem CNAME-Eintrag auf uns:",
     step2: "2. Weise den Besitz mit einem TXT-Eintrag nach:",
     recordName: "Name",
@@ -3010,10 +3029,16 @@ const hu: Dictionary = {
       bulkLabel: "A kijelölt beküldések állapotának módosítása",
       clearSelection: "Kijelölés törlése",
       bulkDone: "Az állapot módosítva: {status}.",
+      bulkConfirmTitle: "Áthelyezed a kijelölést ide: „{status}”?",
+      bulkConfirmBody:
+        "Kijelölve: {count}. Minden Discord-fiókkal rendelkező jelentkező közvetlen üzenetet kap az új állapotról. Az elküldött üzenetek nem vonhatók vissza.",
+      bulkConfirmAction: "Állapot módosítása és értesítés",
       archivedOne: "{name} beküldése archiválva.",
       restoredOne: "{name} beküldése visszaállítva.",
       archivedIntro:
         "Az archivált beküldések megmaradnak, de nem jelennek meg a listában és a táblán. Állíts vissza egyet, hogy visszakerüljön.",
+      listTruncated: "A legújabb {limit} beküldés látható, összesen {total}.",
+      listTruncatedHint: "Archiváld a lezárt beküldéseket, és a régebbiek bekerülnek a listába.",
     },
     formsList: {
       actions: "Műveletek",
@@ -3178,6 +3203,7 @@ const hu: Dictionary = {
       add: "Kategória hozzáadása",
       namePh: "Kategória neve",
       color: "Szín",
+      colorHint: "Hagyd üresen, ha nem kell szín.",
       saved: "Mentve!",
       empty: "Még nincsenek kategóriák.",
       errSave: "A kategóriák mentése sikertelen.",
@@ -3351,6 +3377,7 @@ const hu: Dictionary = {
     language: "Bot nyelve",
     languageHint:
       "A bot nyelve ehhez a szerverhez: parancsválaszok, bírálati beágyazások, tevékenységnapló és jelentkezői DM-ek. Hagyd üresen, hogy a jelentkezői DM-ek az egyes jelentkezők saját Discord-nyelvén menjenek.",
+    languageAuto: "Nincs beállítva: angol, a DM-ek a jelentkezők nyelvén",
     acceptedRole: "Elfogadási szerep azonosítók",
     acceptedRoleHint:
       "Alapértelmezett szerep(ek) elfogadáskor. Több azonosítót vesszővel válassz el. Minden űrlap felülírhatja a saját beállításaiban.",
@@ -3555,6 +3582,7 @@ const hu: Dictionary = {
       "Eltávolítod ezt a domaint? Az űrlapjaid újra az alapértelmezett URL-en lesznek elérhetők.",
     cancel: "Mégse",
     errSave: "A domain mentése sikertelen.",
+    errRemove: "Nem sikerült eltávolítani a domaint.",
     step1: "1. Mutass ránk egy CNAME rekorddal:",
     step2: "2. Igazold a tulajdonjogot egy TXT rekorddal:",
     recordName: "Név",
@@ -4328,10 +4356,17 @@ const fr: Dictionary = {
       bulkLabel: "Changer le statut des soumissions sélectionnées",
       clearSelection: "Effacer la sélection",
       bulkDone: "Statut changé en {status}.",
+      bulkConfirmTitle: "Passer la sélection à « {status} » ?",
+      bulkConfirmBody:
+        "Sélection : {count}. Chaque candidat ayant un compte Discord reçoit un message privé sur le nouveau statut. Les messages envoyés ne peuvent pas être annulés.",
+      bulkConfirmAction: "Changer le statut et notifier",
       archivedOne: "Soumission de {name} archivée.",
       restoredOne: "Soumission de {name} restaurée.",
       archivedIntro:
         "Les soumissions archivées sont conservées, mais n’apparaissent ni dans la liste ni sur le tableau. Restaurez-en une pour la faire revenir.",
+      listTruncated: "Affichage des {limit} soumissions les plus récentes sur {total}.",
+      listTruncatedHint:
+        "Archivez les soumissions traitées pour faire apparaître les plus anciennes.",
     },
     formsList: {
       actions: "Actions",
@@ -4497,6 +4532,7 @@ const fr: Dictionary = {
       add: "Ajouter une catégorie",
       namePh: "Nom de la catégorie",
       color: "Couleur",
+      colorHint: "Laissez vide pour ne pas utiliser de couleur.",
       saved: "Enregistré !",
       empty: "Aucune catégorie pour l'instant.",
       errSave: "Impossible d'enregistrer les catégories.",
@@ -4671,6 +4707,7 @@ const fr: Dictionary = {
     language: "Langue du bot",
     languageHint:
       "Langue que le bot utilise pour ce serveur : réponses aux commandes, embeds de bilan, journal d’activité et DM aux candidats. Laissez vide pour envoyer les DM aux candidats dans la langue Discord de chaque candidat.",
+    languageAuto: "Non défini : anglais, DM dans la langue de chaque candidat",
     acceptedRole: "IDs de rôle pour acceptation",
     acceptedRoleHint:
       "Rôle(s) par défaut attribué(s) à l'acceptation. Séparez plusieurs IDs par des virgules. Chaque formulaire peut remplacer ceci dans ses paramètres.",
@@ -4876,6 +4913,7 @@ const fr: Dictionary = {
       "Supprimer ce domaine personnalisé ? Vos formulaires reviendront à l'URL par défaut.",
     cancel: "Annuler",
     errSave: "Impossible d'enregistrer le domaine.",
+    errRemove: "Impossible de supprimer le domaine.",
     step1: "1. Pointez votre domaine vers nous avec un enregistrement CNAME :",
     step2: "2. Prouvez la propriété avec un enregistrement TXT :",
     recordName: "Nom",
@@ -5655,10 +5693,16 @@ const es: Dictionary = {
       bulkLabel: "Cambiar el estado de los envíos seleccionados",
       clearSelection: "Borrar selección",
       bulkDone: "Estado cambiado a {status}.",
+      bulkConfirmTitle: "¿Mover la selección a «{status}»?",
+      bulkConfirmBody:
+        "Seleccionadas: {count}. Cada solicitante con cuenta de Discord recibe un mensaje directo sobre el nuevo estado. Los mensajes enviados no se pueden deshacer.",
+      bulkConfirmAction: "Cambiar estado y notificar",
       archivedOne: "Envío de {name} archivado.",
       restoredOne: "Envío de {name} restaurado.",
       archivedIntro:
         "Los envíos archivados se conservan, pero no aparecen en la lista ni en el tablero. Restaura uno para recuperarlo.",
+      listTruncated: "Se muestran los {limit} envíos más recientes de {total}.",
+      listTruncatedHint: "Archiva los envíos terminados para que aparezcan los más antiguos.",
     },
     formsList: {
       actions: "Acciones",
@@ -5823,6 +5867,7 @@ const es: Dictionary = {
       add: "Añadir categoría",
       namePh: "Nombre de la categoría",
       color: "Color",
+      colorHint: "Déjalo vacío para no usar color.",
       saved: "¡Guardado!",
       empty: "Aún no hay categorías.",
       errSave: "No se pudieron guardar las categorías.",
@@ -5997,6 +6042,7 @@ const es: Dictionary = {
     language: "Idioma del bot",
     languageHint:
       "Idioma que usa el bot en este servidor: respuestas a comandos, embeds de revisión, registro de actividad y DM a los candidatos. Déjalo vacío para enviar los DM a los candidatos en el idioma de Discord de cada uno.",
+    languageAuto: "Sin definir: inglés, DM en el idioma de cada candidato",
     acceptedRole: "IDs de roles de aceptación",
     acceptedRoleHint:
       "Rol(es) predeterminado(s) al aceptar. Separa múltiples IDs con comas. Cada formulario puede sobrescribir esto en su configuración.",
@@ -6201,6 +6247,7 @@ const es: Dictionary = {
       "¿Eliminar este dominio personalizado? Tus formularios volverán a la URL predeterminada.",
     cancel: "Cancelar",
     errSave: "No se pudo guardar el dominio.",
+    errRemove: "No se pudo quitar el dominio.",
     step1: "1. Apunta tu dominio hacia nosotros con un registro CNAME:",
     step2: "2. Prueba la propiedad con un registro TXT:",
     recordName: "Nombre",
@@ -6971,10 +7018,17 @@ const pt: Dictionary = {
       bulkLabel: "Alterar o status das candidaturas selecionadas",
       clearSelection: "Limpar seleção",
       bulkDone: "Status alterado para {status}.",
+      bulkConfirmTitle: "Mover a seleção para “{status}”?",
+      bulkConfirmBody:
+        "Selecionadas: {count}. Cada candidato com conta no Discord recebe uma mensagem direta sobre o novo status. Mensagens enviadas não podem ser desfeitas.",
+      bulkConfirmAction: "Alterar status e notificar",
       archivedOne: "Candidatura de {name} arquivada.",
       restoredOne: "Candidatura de {name} restaurada.",
       archivedIntro:
         "As candidaturas arquivadas são mantidas, mas não aparecem na lista nem no quadro. Restaure uma para trazê-la de volta.",
+      listTruncated: "Mostrando as {limit} candidaturas mais recentes de {total}.",
+      listTruncatedHint:
+        "Arquive as candidaturas concluídas para que as mais antigas apareçam na lista.",
     },
     formsList: {
       actions: "Ações",
@@ -7139,6 +7193,7 @@ const pt: Dictionary = {
       add: "Adicionar categoria",
       namePh: "Nome da categoria",
       color: "Cor",
+      colorHint: "Deixe vazio para não usar cor.",
       saved: "Salvo!",
       empty: "Ainda não há categorias.",
       errSave: "Não foi possível salvar as categorias.",
@@ -7313,6 +7368,7 @@ const pt: Dictionary = {
     language: "Idioma do bot",
     languageHint:
       "Idioma que o bot usa neste servidor: respostas de comandos, embeds de avaliação, registro de atividade e DMs aos candidatos. Deixe vazio para enviar as DMs aos candidatos no idioma do Discord de cada um.",
+    languageAuto: "Não definido: inglês, DMs no idioma de cada candidato",
     acceptedRole: "IDs de cargos de aceite",
     acceptedRoleHint:
       "Cargo(s) padrão concedido(s) ao aceitar. Separe múltiplos IDs com vírgulas. Cada formulário pode substituir isso em suas configurações.",
@@ -7517,6 +7573,7 @@ const pt: Dictionary = {
     removeConfirm: "Remover este domínio personalizado? Seus formulários voltarão à URL padrão.",
     cancel: "Cancelar",
     errSave: "Não foi possível salvar o domínio.",
+    errRemove: "Não foi possível remover o domínio.",
     step1: "1. Aponte seu domínio para nós com um registro CNAME:",
     step2: "2. Prove a propriedade com um registro TXT:",
     recordName: "Nome",
@@ -8287,10 +8344,16 @@ const pl: Dictionary = {
       bulkLabel: "Zmień status zaznaczonych zgłoszeń",
       clearSelection: "Wyczyść zaznaczenie",
       bulkDone: "Zmieniono status na {status}.",
+      bulkConfirmTitle: "Przenieść zaznaczenie do „{status}”?",
+      bulkConfirmBody:
+        "Zaznaczono: {count}. Każdy kandydat z kontem Discord otrzyma wiadomość prywatną o nowym statusie. Wysłanych wiadomości nie można cofnąć.",
+      bulkConfirmAction: "Zmień status i powiadom",
       archivedOne: "Zarchiwizowano zgłoszenie od {name}.",
       restoredOne: "Przywrócono zgłoszenie od {name}.",
       archivedIntro:
         "Zarchiwizowane zgłoszenia są zachowywane, ale nie pojawiają się na liście ani na tablicy. Przywróć zgłoszenie, aby je odzyskać.",
+      listTruncated: "Wyświetlono {limit} najnowszych zgłoszeń z {total}.",
+      listTruncatedHint: "Zarchiwizuj zakończone zgłoszenia, aby starsze pojawiły się na liście.",
     },
     formsList: {
       actions: "Akcje",
@@ -8454,6 +8517,7 @@ const pl: Dictionary = {
       add: "Dodaj kategorię",
       namePh: "Nazwa kategorii",
       color: "Kolor",
+      colorHint: "Zostaw puste, aby nie używać koloru.",
       saved: "Zapisano!",
       empty: "Brak kategorii.",
       errSave: "Nie udało się zapisać kategorii.",
@@ -8628,6 +8692,7 @@ const pl: Dictionary = {
     language: "Język bota",
     languageHint:
       "Język, którego bot używa na tym serwerze: odpowiedzi na komendy, osadzenia recenzji, dziennik aktywności i wiadomości DM do kandydatów. Zostaw puste, aby DM do kandydatów były w języku Discorda danego kandydata.",
+    languageAuto: "Nie ustawiono: angielski, DM w języku kandydata",
     acceptedRole: "ID ról dla zaakceptowanych",
     acceptedRoleHint:
       "Domyślna rola(e) nadawana przy akceptacji. Rozdziel wiele ID przecinkami. Każdy formularz może to nadpisać w ustawieniach.",
@@ -8829,6 +8894,7 @@ const pl: Dictionary = {
     removeConfirm: "Usunąć tę domenę? Twoje formularze wrócą pod domyślny adres URL.",
     cancel: "Anuluj",
     errSave: "Nie udało się zapisać domeny.",
+    errRemove: "Nie udało się usunąć domeny.",
     step1: "1. Wskaż na nas domenę rekordem CNAME:",
     step2: "2. Potwierdź własność rekordem TXT:",
     recordName: "Nazwa",
