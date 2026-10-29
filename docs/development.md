@@ -41,7 +41,7 @@ msk-forms/
 
 ## Local development
 
-You need Node.js 24 or newer, pnpm 11 (`corepack enable`) and Docker.
+You need Node.js 24 or newer, pnpm 12 (`corepack enable`) and Docker.
 
 ```bash
 pnpm install

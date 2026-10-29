@@ -29,7 +29,7 @@ builder, public forms and bot DMs are available in 7 languages.
 with Discord, then **[➕ invite the bot to your server](https://discord.com/oauth2/authorize?client_id=1517520313200676994&scope=bot%20applications.commands&permissions=19456)**.
 What the bot can do and which permissions it asks for: [docs/features.md](docs/features.md#discord-bot).
 
-**Run it locally:** you need Node.js 24 or newer, pnpm 11 (`corepack enable`) and Docker.
+**Run it locally:** you need Node.js 24 or newer, pnpm 12 (`corepack enable`) and Docker.
 
 ```bash
 pnpm install
