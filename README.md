@@ -46,6 +46,7 @@ pnpm dev                    # web on http://localhost:3000, plus bot and realtim
 | User guide | [docu.msk-scripts.de/ecosystem/msk-forms](https://docu.msk-scripts.de/ecosystem/msk-forms/) |
 | Features, languages and the Discord bot | [docs/features.md](docs/features.md) |
 | Tech stack, project structure, local development, CI/CD | [docs/development.md](docs/development.md) |
+| Design system: colours, type, layout, components, accessibility | [DESIGN.md](DESIGN.md) |
 | Custom domains on the server | [infra/custom-domains/README.md](infra/custom-domains/README.md) |
 | Setup, branches, commits and pull requests | [CONTRIBUTING.md](CONTRIBUTING.md) |
 

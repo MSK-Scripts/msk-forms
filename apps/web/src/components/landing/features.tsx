@@ -1,87 +1,54 @@
-import { IconBrandDiscord, IconForms, IconRefresh } from "@tabler/icons-react";
-
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { ArrowRight } from "@/components/icons";
+import { FactList } from "@/components/page/fact-list";
+import { Section, TextLink } from "@/components/page/section";
 import { getDict } from "@/i18n";
 
+/**
+ * Why MSK Forms: the status loop first, as a statement with the three steps
+ * an applicant sees, then the bot and the builder as facts beside it. Until
+ * the redesign these were one large and two small icon cards.
+ */
 export async function Features() {
   const t = await getDict();
+  const f = t.features;
 
   return (
-    <section className="container py-20 lg:py-28">
-      <div className="max-w-2xl">
-        <span className="eyebrow">{t.features.eyebrow}</span>
-        <h2 className="mt-4 text-balance font-heading text-3xl font-bold tracking-tight md:text-4xl">
-          {t.features.title}
-        </h2>
-        <p className="mt-4 text-pretty text-lg leading-relaxed text-muted-foreground">
-          {t.features.sub}
-        </p>
-      </div>
-
-      <div className="mt-12 grid gap-5 lg:grid-cols-3 lg:grid-rows-2">
-        <Card className="flex flex-col justify-between transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-card-hover lg:col-span-2 lg:row-span-2">
-          <CardContent className="flex h-full flex-col justify-between gap-10 p-8">
-            <div>
-              <FeatureIcon>
-                <IconRefresh size={22} stroke={1.75} />
-              </FeatureIcon>
-              <h3 className="mt-6 text-balance font-heading text-2xl font-bold">
-                {t.features.uspTitle}
-              </h3>
-              <p className="mt-3 max-w-md text-pretty leading-relaxed text-muted-foreground">
-                {t.features.uspBody}
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="muted">{t.features.sSubmitted}</Badge>
-              <span className="text-muted-foreground">&rarr;</span>
-              <Badge>{t.features.sInReview}</Badge>
-              <span className="text-muted-foreground">&rarr;</span>
-              <Badge>{t.features.sAccepted}</Badge>
-            </div>
-          </CardContent>
-        </Card>
-
-        <FeatureCard
-          icon={<IconBrandDiscord size={22} stroke={1.75} />}
-          title={t.features.botTitle}
-          body={t.features.botBody}
-        />
-        <FeatureCard
-          icon={<IconForms size={22} stroke={1.75} />}
-          title={t.features.buildTitle}
-          body={t.features.buildBody}
+    <Section
+      id="why-title"
+      kicker={f.eyebrow}
+      title={f.title}
+      intro={f.sub}
+      action={<TextLink href="/f/demo-whitelist">{t.hero.demo}</TextLink>}
+    >
+      <div className="grid gap-[var(--space-stack)]">
+        <div className="grid max-w-[48rem] gap-4">
+          <h3 className="font-display text-h3 font-[650] text-balance">{f.uspTitle}</h3>
+          <p className="max-w-[60ch] text-lead text-muted-foreground">{f.uspBody}</p>
+          {/* The three states an applicant sees, in order. */}
+          <ol className="flex flex-wrap items-center gap-x-2 gap-y-2">
+            {[f.sSubmitted, f.sInReview, f.sAccepted].map((state, i) => (
+              <li key={state} className="flex items-center gap-2">
+                {i > 0 && <ArrowRight className="h-4 w-4 text-muted-foreground" />}
+                <span
+                  className={
+                    i === 2
+                      ? "rounded-sm bg-accent-soft px-2.5 py-1 text-small font-semibold text-primary"
+                      : "rounded-sm bg-muted px-2.5 py-1 text-small font-semibold text-foreground"
+                  }
+                >
+                  {state}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+        <FactList
+          items={[
+            { title: f.botTitle, text: f.botBody },
+            { title: f.buildTitle, text: f.buildBody },
+          ]}
         />
       </div>
-    </section>
-  );
-}
-
-function FeatureCard({
-  icon,
-  title,
-  body,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  body: string;
-}) {
-  return (
-    <Card className="transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-card-hover">
-      <CardContent className="p-7">
-        <FeatureIcon>{icon}</FeatureIcon>
-        <h3 className="mt-6 font-heading text-xl font-bold">{title}</h3>
-        <p className="mt-2.5 text-pretty leading-relaxed text-muted-foreground">{body}</p>
-      </CardContent>
-    </Card>
-  );
-}
-
-function FeatureIcon({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="flex h-11 w-11 items-center justify-center rounded-md bg-primary/10 text-primary">
-      {children}
-    </span>
+    </Section>
   );
 }

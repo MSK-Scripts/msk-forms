@@ -1,6 +1,6 @@
 import { prisma } from "@msk-forms/db";
-import { Card } from "@msk-forms/ui";
 
+import { EmptyState, PageHeader } from "@/components/dashboard-kit";
 import { FormDeletionSetting } from "@/components/members/form-deletion-setting";
 import { MembersManager, type MemberRow } from "@/components/members/members-manager";
 import { requireUser } from "@/lib/auth";
@@ -13,11 +13,7 @@ export const dynamic = "force-dynamic";
 
 const ROLE_ORDER: Record<string, number> = { owner: 0, admin: 1, reviewer: 2, viewer: 3 };
 
-export default async function MembersPage({
-  params,
-}: {
-  params: Promise<{ guildId: string }>;
-}) {
+export default async function MembersPage({ params }: { params: Promise<{ guildId: string }> }) {
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/members`);
   const dict = await getDict();
@@ -25,9 +21,10 @@ export default async function MembersPage({
 
   if (!(await canManageForms(guildId, user.id))) {
     return (
-      <Card className="p-8">
-        <p className="text-muted-foreground">{t.noPerm}</p>
-      </Card>
+      <>
+        <PageHeader title={t.title} />
+        <EmptyState kind="unavailable" title={t.noPerm} />
+      </>
     );
   }
 
@@ -52,7 +49,9 @@ export default async function MembersPage({
       .then((rows) =>
         rows.map((f) => ({
           id: f.id,
-          title: f.archivedAt ? `${f.title} (${dict.dashboard.formArchive.archivedSuffix})` : f.title,
+          title: f.archivedAt
+            ? `${f.title} (${dict.dashboard.formArchive.archivedSuffix})`
+            : f.title,
         })),
       ),
     getGuildPlan(guildId),
@@ -75,29 +74,34 @@ export default async function MembersPage({
       role: m.role,
       access: accessByUser[m.user.id] ?? {},
     }))
-    .sort((a, b) => (ROLE_ORDER[a.role] ?? 9) - (ROLE_ORDER[b.role] ?? 9) || a.username.localeCompare(b.username));
+    .sort(
+      (a, b) =>
+        (ROLE_ORDER[a.role] ?? 9) - (ROLE_ORDER[b.role] ?? 9) ||
+        a.username.localeCompare(b.username),
+    );
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <h2 className="font-heading text-xl font-semibold text-foreground">{t.title}</h2>
-        <p className="text-sm text-muted-foreground">{t.intro}</p>
-      </div>
-      <MembersManager
-        guildId={guildId}
-        members={rows}
-        forms={forms}
-        teamCount={teamCount}
-        memberLimit={plan.memberLimit}
-        t={t}
-      />
-      {role === "owner" && (
-        <FormDeletionSetting
+    <>
+      <PageHeader title={t.title} description={t.intro} />
+      <div className="grid">
+        <MembersManager
           guildId={guildId}
-          initial={Boolean(guild?.adminsCanDeleteForms)}
-          t={dict.members.formDeletion}
+          members={rows}
+          forms={forms}
+          teamCount={teamCount}
+          memberLimit={plan.memberLimit}
+          t={t}
+          kit={{ close: dict.kit.close, dismiss: dict.kit.dismiss }}
         />
-      )}
-    </div>
+        {role === "owner" && (
+          <FormDeletionSetting
+            guildId={guildId}
+            initial={Boolean(guild?.adminsCanDeleteForms)}
+            t={dict.members.formDeletion}
+            dismissLabel={dict.kit.dismiss}
+          />
+        )}
+      </div>
+    </>
   );
 }

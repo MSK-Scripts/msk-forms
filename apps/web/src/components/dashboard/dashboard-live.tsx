@@ -5,7 +5,7 @@ import { useEffect } from "react";
 
 /**
  * Subscribes to a guild's realtime topic and refreshes the (server-rendered)
- * dashboard page when any of its submissions change — no polling. Best-effort:
+ * dashboard page when any of its submissions change, no polling. Best-effort:
  * silently retries if the WebSocket can't connect (e.g. dev without the proxy).
  * Requires a signed `token` from the server (off when REALTIME_TOKEN_SECRET is
  * unset, so this component just isn't rendered then).

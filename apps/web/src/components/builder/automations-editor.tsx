@@ -6,8 +6,13 @@ import {
   type AutomationRule,
   type FormField,
 } from "@msk-forms/shared";
-import { Input, Select } from "@msk-forms/ui";
+import { useId } from "react";
 
+import { FormField as KitField } from "@/components/dashboard-kit";
+import { Plus, X } from "@/components/icons";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import type { Dictionary } from "@/i18n";
 
 type BuilderDict = Dictionary["builder"];
@@ -33,6 +38,7 @@ export function AutomationsEditor({
   onChange: (rules: AutomationRule[]) => void;
   t: BuilderDict;
 }) {
+  const uid = useId();
   const usable = fields.filter((f) => !isLayoutField(f.type));
   const fallbackStatus = statusOptions[0]?.value ?? "accepted";
   // Condition targets: the quiz score (reserved `__score`) plus the form's fields.
@@ -82,92 +88,166 @@ export function AutomationsEditor({
     return Array.isArray(v) ? v.join(", ") : v == null ? "" : String(v);
   }
   function parseValue(cond: AutomationCondition, raw: string): AutomationCondition["value"] {
-    if (cond.op === "in_list") return raw.split(",").map((s) => s.trim()).filter(Boolean);
+    if (cond.op === "in_list")
+      return raw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     return raw;
   }
 
   if (usable.length === 0) {
-    return <p className="text-xs text-muted-foreground">{t.autom.noFields}</p>;
+    return <p className="max-w-[65ch] text-muted-foreground">{t.autom.noFields}</p>;
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      {automations.map((rule, ri) => (
-        <div key={ri} className="flex flex-col gap-2 rounded-md border border-border p-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              {t.autom.thenSet}
-            </span>
-            <Select
-              value={rule.setStatus}
-              onChange={(e) => replaceRule(ri, { ...rule, setStatus: e.target.value })}
-              options={statusOptions}
-            />
-            <button
-              type="button"
-              aria-label={t.autom.removeRule}
-              onClick={() => removeRule(ri)}
-              className="ml-auto text-xs font-medium text-muted-foreground transition-colors hover:text-destructive"
-            >
-              ✕
-            </button>
-          </div>
+    <div className="@container grid gap-4">
+      {automations.length > 0 && (
+        <ol className="grid">
+          {automations.map((rule, ri) => {
+            const rn = String(ri + 1);
+            const ruleLabel = `${uid}-rule-${ri}`;
+            return (
+              <li key={ri} className="border-t border-border py-5 first:border-t-0 first:pt-0">
+                <div role="group" aria-labelledby={ruleLabel} className="grid gap-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <span id={ruleLabel} className="font-semibold">
+                      {t.autom.ruleN.replace("{n}", rn)}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label={t.autom.removeRuleN.replace("{n}", rn)}
+                      onClick={() => removeRule(ri)}
+                    >
+                      <X className="h-5 w-5" />
+                    </Button>
+                  </div>
 
-          <p className="text-xs text-muted-foreground">
-            {rule.when.length === 0 ? t.autom.always : t.autom.whenAll}
-          </p>
+                  <p className="text-small text-muted-foreground">
+                    {rule.when.length === 0 ? t.autom.always : t.autom.whenAll}
+                  </p>
 
-          {rule.when.map((cond, ci) => (
-            <div key={ci} className="flex flex-wrap items-center gap-2">
-              <Select
-                value={cond.field}
-                onChange={(e) => replaceCondition(ri, ci, { ...cond, field: e.target.value })}
-                options={fieldOptions}
-              />
-              <Select
-                value={cond.op}
-                onChange={(e) =>
-                  replaceCondition(ri, ci, { ...cond, op: e.target.value as AutomationCondition["op"] })
-                }
-                options={opOptions}
-              />
-              {!NO_VALUE_OPS.includes(cond.op) && (
-                <Input
-                  value={valueText(cond)}
-                  placeholder={t.autom.valuePh}
-                  onChange={(e) =>
-                    replaceCondition(ri, ci, { ...cond, value: parseValue(cond, e.target.value) })
-                  }
-                />
-              )}
-              <button
-                type="button"
-                aria-label={t.autom.removeCondition}
-                onClick={() => removeCondition(ri, ci)}
-                className="text-xs font-medium text-muted-foreground transition-colors hover:text-destructive"
-              >
-                ✕
-              </button>
-            </div>
-          ))}
+                  {rule.when.length > 0 && (
+                    <ol className="grid gap-4">
+                      {rule.when.map((cond, ci) => {
+                        const cNum = String(ci + 1);
+                        return (
+                          <li key={ci}>
+                            <div
+                              role="group"
+                              aria-label={t.autom.conditionN.replace("{n}", cNum)}
+                              className="grid items-end gap-3 @xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]"
+                            >
+                              <KitField label={t.cond.field}>
+                                {(f) => (
+                                  <Select
+                                    {...f}
+                                    value={cond.field}
+                                    onChange={(e) =>
+                                      replaceCondition(ri, ci, { ...cond, field: e.target.value })
+                                    }
+                                  >
+                                    {fieldOptions.map((o) => (
+                                      <option key={o.value} value={o.value}>
+                                        {o.label}
+                                      </option>
+                                    ))}
+                                  </Select>
+                                )}
+                              </KitField>
+                              <KitField label={t.cond.operator}>
+                                {(f) => (
+                                  <Select
+                                    {...f}
+                                    value={cond.op}
+                                    onChange={(e) =>
+                                      replaceCondition(ri, ci, {
+                                        ...cond,
+                                        op: e.target.value as AutomationCondition["op"],
+                                      })
+                                    }
+                                  >
+                                    {opOptions.map((o) => (
+                                      <option key={o.value} value={o.value}>
+                                        {o.label}
+                                      </option>
+                                    ))}
+                                  </Select>
+                                )}
+                              </KitField>
+                              {!NO_VALUE_OPS.includes(cond.op) ? (
+                                <KitField label={t.autom.valuePh}>
+                                  {(f) => (
+                                    <Input
+                                      {...f}
+                                      value={valueText(cond)}
+                                      onChange={(e) =>
+                                        replaceCondition(ri, ci, {
+                                          ...cond,
+                                          value: parseValue(cond, e.target.value),
+                                        })
+                                      }
+                                    />
+                                  )}
+                                </KitField>
+                              ) : (
+                                <span aria-hidden className="hidden @xl:block" />
+                              )}
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                aria-label={t.autom.removeConditionN.replace("{n}", cNum)}
+                                onClick={() => removeCondition(ri, ci)}
+                                className="mb-0.5 justify-self-start"
+                              >
+                                <X className="h-5 w-5" />
+                              </Button>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  )}
 
-          <button
-            type="button"
-            onClick={() => addCondition(ri)}
-            className="self-start text-xs font-medium text-primary hover:underline"
-          >
-            + {t.autom.addCondition}
-          </button>
-        </div>
-      ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => addCondition(ri)}
+                    className="justify-self-start"
+                  >
+                    <Plus className="h-4 w-4" />
+                    {t.autom.addCondition}
+                  </Button>
 
-      <button
-        type="button"
-        onClick={addRule}
-        className="self-start text-sm font-medium text-primary hover:underline"
-      >
-        + {t.autom.addRule}
-      </button>
+                  <KitField label={t.autom.setStatus} className="@xl:max-w-[50%]">
+                    {(f) => (
+                      <Select
+                        {...f}
+                        value={rule.setStatus}
+                        onChange={(e) => replaceRule(ri, { ...rule, setStatus: e.target.value })}
+                      >
+                        {statusOptions.map((o) => (
+                          <option key={o.value} value={o.value}>
+                            {o.label}
+                          </option>
+                        ))}
+                      </Select>
+                    )}
+                  </KitField>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      )}
+
+      <Button type="button" variant="outline" onClick={addRule} className="justify-self-start">
+        <Plus className="h-4 w-4" />
+        {t.autom.addRule}
+      </Button>
     </div>
   );
 }

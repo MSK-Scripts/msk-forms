@@ -1,5 +1,7 @@
 import type { SelectHTMLAttributes } from "react";
 
+import { fieldClass } from "./input";
+
 export interface SelectOption {
   value: string;
   label: string;
@@ -12,23 +14,11 @@ export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   invalid?: boolean;
 }
 
-// text-base on mobile (≥16px) prevents iOS Safari from auto-zooming on focus.
-const base =
-  "flex h-10 w-full rounded-md border bg-background px-3 py-2 text-base sm:text-sm text-foreground " +
-  "transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring " +
-  "focus-visible:ring-offset-2 focus-visible:ring-offset-background " +
-  "disabled:cursor-not-allowed disabled:opacity-50";
-
-export function Select({
-  options,
-  placeholder,
-  invalid,
-  className = "",
-  ...props
-}: SelectProps) {
+/** Native select with the field look: keyboard, screen readers and the phone's picker work as they are. */
+export function Select({ options, placeholder, invalid, className = "", ...props }: SelectProps) {
   return (
     <select
-      className={`${base} ${invalid ? "border-destructive" : "border-input"} ${className}`}
+      className={`${fieldClass} pr-8 ${invalid ? "border-danger" : "border-input"} ${className}`}
       aria-invalid={invalid || undefined}
       {...props}
     >

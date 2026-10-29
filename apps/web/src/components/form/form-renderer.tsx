@@ -12,12 +12,14 @@ import {
   type FormPage,
   type FormSpec,
 } from "@msk-forms/shared";
-import { Button, Field } from "@msk-forms/ui";
+import { Button, Field, fieldDescribedBy } from "@msk-forms/ui";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
-import { FieldInput, type FieldValue } from "./field-input";
+import { Info, WarningCircle } from "@/components/icons";
+
+import { FieldInput, isGroupField, type FieldValue } from "./field-input";
 import { LayoutBlock } from "./layout-block";
 import { TurnstileWidget } from "./turnstile-widget";
 
@@ -28,6 +30,8 @@ function isLayout(field: FormField): boolean {
 }
 
 export interface FormLabels {
+  /** The app's language, for dates. */
+  locale: string;
   submit: string;
   submitting: string;
   required: string;
@@ -43,9 +47,21 @@ export interface FormLabels {
   dateToday: string;
   dateClear: string;
   dateNow: string;
+  dateEmpty: string;
+  timeEmpty: string;
+  datetimeEmpty: string;
+  prevMonth: string;
+  nextMonth: string;
+  hour: string;
+  minute: string;
   previewNote: string;
   yes: string;
   no: string;
+  selectPlaceholder: string;
+  agree: string;
+  calculatedEmpty: string;
+  countryCode: string;
+  uploaded: string;
 }
 
 export function FormRenderer({
@@ -66,6 +82,8 @@ export function FormRenderer({
   preview?: boolean;
 }) {
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
+  const stepRef = useRef<HTMLParagraphElement>(null);
   const [answers, setAnswers] = useState<Answers>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [step, setStep] = useState(0);
@@ -111,7 +129,8 @@ export function FormRenderer({
     const out: Record<string, string> = {};
     for (const field of fields) {
       // Layout has no value; calculated fields are derived, never entered.
-      if (isLayout(field) || isComputedField(field.type) || !isFieldVisible(field, answers)) continue;
+      if (isLayout(field) || isComputedField(field.type) || !isFieldVisible(field, answers))
+        continue;
       if (isFieldRequired(field, answers) && isAnswerMissing(field, answers[field.id])) {
         out[field.id] = labels.required;
       }
@@ -119,19 +138,54 @@ export function FormRenderer({
     return out;
   }
 
+  /**
+   * After a failed check the focus goes to the first field with an error, so
+   * a keyboard or screen reader user lands on it instead of searching.
+   */
+  function focusFirstError() {
+    requestAnimationFrame(() => {
+      const form = formRef.current;
+      const el =
+        form?.querySelector<HTMLElement>('[aria-invalid="true"]') ??
+        form?.querySelector<HTMLElement>(
+          'fieldset[aria-describedby$="-error"] input, fieldset[aria-describedby$="-error"] button',
+        );
+      el?.focus();
+    });
+  }
+
+  /**
+   * A new step replaces the button that was pressed, so the focus would fall
+   * back to the top of the document. It goes to the step line instead, which
+   * names the step, and the page scrolls there.
+   */
+  function focusStep() {
+    requestAnimationFrame(() => {
+      stepRef.current?.focus();
+      stepRef.current?.scrollIntoView({ block: "nearest" });
+    });
+  }
+
   function goNext() {
     const pageErrors = collectErrors(activeFields);
     if (Object.keys(pageErrors).length > 0) {
       setErrors((prev) => ({ ...prev, ...pageErrors }));
+      focusFirstError();
       return;
     }
     const nextIndex = shownPageIndices[position + 1];
-    if (nextIndex !== undefined) setStep(nextIndex);
+    if (nextIndex !== undefined) {
+      setStep(nextIndex);
+      focusStep();
+    }
   }
 
   function goBack() {
     const prevIndex = shownPageIndices[position - 1];
-    if (prevIndex !== undefined) setStep(prevIndex);
+    if (prevIndex !== undefined) {
+      setStep(prevIndex);
+      focusStep();
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -156,6 +210,7 @@ export function FormRenderer({
         visibleFieldsOf(pages[i]!).some((f) => allErrors[f.id]),
       );
       if (bad !== undefined) setStep(bad);
+      focusFirstError();
       return;
     }
     // Preview mode (managers): the form passed validation, but never submit.
@@ -176,9 +231,10 @@ export function FormRenderer({
         body: JSON.stringify({ answers, captchaToken, experimentVariant }),
       });
       if (!res.ok) {
-        const data = (await res.json().catch(() => null)) as
-          | { error?: string; submissionId?: string }
-          | null;
+        const data = (await res.json().catch(() => null)) as {
+          error?: string;
+          submissionId?: string;
+        } | null;
         // Already has an active submission → send them to its status page
         // rather than showing an error.
         if (res.status === 409 && data?.submissionId) {
@@ -200,17 +256,49 @@ export function FormRenderer({
     }
   }
 
+  const fieldLabels = {
+    yes: labels.yes,
+    no: labels.no,
+    selectPlaceholder: labels.selectPlaceholder,
+    agree: labels.agree,
+    calculatedEmpty: labels.calculatedEmpty,
+    countryCode: labels.countryCode,
+    file: {
+      uploading: labels.fileUploading,
+      remove: labels.fileRemove,
+      uploadFailed: labels.uploadFailed,
+      clear: labels.signatureClear,
+      uploaded: labels.uploaded,
+    },
+    date: {
+      locale: labels.locale,
+      today: labels.dateToday,
+      clear: labels.dateClear,
+      now: labels.dateNow,
+      empty: { date: labels.dateEmpty, time: labels.timeEmpty, datetime: labels.datetimeEmpty },
+      prevMonth: labels.prevMonth,
+      nextMonth: labels.nextMonth,
+      hour: labels.hour,
+      minute: labels.minute,
+    },
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
+    <form ref={formRef} onSubmit={handleSubmit} className="grid gap-7" noValidate>
       {totalSteps > 1 && (
-        <div className="flex flex-col gap-2">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        <div className="grid gap-2">
+          <p
+            ref={stepRef}
+            tabIndex={-1}
+            className="text-small font-semibold text-muted-foreground focus:outline-none"
+          >
             {labels.step} {position + 1} / {totalSteps}
             {pages[activeIndex]?.title ? ` · ${pages[activeIndex]!.title}` : ""}
           </p>
-          <div className="h-1 w-full overflow-hidden rounded-full bg-secondary">
+          <div aria-hidden className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+            {/* A width from state has no class; style-src allows it (proxy.ts). */}
             <div
-              className="h-full rounded-full bg-primary transition-all"
+              className="h-full rounded-full bg-primary transition-[width] duration-200"
               style={{ width: `${((position + 1) / totalSteps) * 100}%` }}
             />
           </div>
@@ -226,8 +314,12 @@ export function FormRenderer({
             htmlFor={field.id}
             label={field.label}
             required={isFieldRequired(field, answers)}
-            hint={field.description}
+            hint={
+              field.type === "consent" || field.type === "age_check" ? undefined : field.description
+            }
             error={errors[field.id]}
+            group={isGroupField(field.type)}
+            errorIcon={<WarningCircle className="mt-0.5 h-4 w-4 shrink-0" weight="bold" />}
           >
             <FieldInput
               field={field}
@@ -239,15 +331,15 @@ export function FormRenderer({
               onChange={(v) => setAnswer(field.id, v)}
               invalid={Boolean(errors[field.id])}
               disabled={submitting}
+              describedBy={fieldDescribedBy(field.id, {
+                hint:
+                  field.type === "consent" || field.type === "age_check"
+                    ? undefined
+                    : field.description,
+                error: errors[field.id],
+              })}
               slug={slug}
-              fileLabels={{
-                uploading: labels.fileUploading,
-                remove: labels.fileRemove,
-                uploadFailed: labels.uploadFailed,
-                clear: labels.signatureClear,
-              }}
-              dateLabels={{ today: labels.dateToday, clear: labels.dateClear, now: labels.dateNow }}
-              yesNoLabels={{ yes: labels.yes, no: labels.no }}
+              labels={fieldLabels}
             />
           </Field>
         ),
@@ -257,15 +349,27 @@ export function FormRenderer({
         <TurnstileWidget key={captchaNonce} siteKey={captchaSiteKey} onToken={setCaptchaToken} />
       )}
 
-      {submitError && <p className="text-sm text-destructive">{submitError}</p>}
+      {submitError && (
+        <p
+          role="alert"
+          className="flex items-start gap-2 rounded-md border-l-4 border-danger bg-muted px-4 py-3 font-semibold text-danger"
+        >
+          <WarningCircle className="mt-0.5 h-5 w-5 shrink-0" weight="bold" />
+          {submitError}
+        </p>
+      )}
 
       {previewDone && (
-        <p className="rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm font-medium text-primary">
+        <p
+          role="status"
+          className="flex items-start gap-2 rounded-md border-l-4 border-primary bg-accent-soft px-4 py-3 font-semibold text-primary"
+        >
+          <Info className="mt-0.5 h-5 w-5 shrink-0" weight="bold" />
           {labels.previewNote}
         </p>
       )}
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         {!isFirst && (
           <Button type="button" variant="ghost" onClick={goBack} disabled={submitting}>
             {labels.back}

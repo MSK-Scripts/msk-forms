@@ -1,10 +1,23 @@
 "use client";
 
-import { Button, Card, Field, Input } from "@msk-forms/ui";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useId, useState, type FormEvent } from "react";
 
-import { ConfirmDialog } from "@/components/confirm-dialog";
+import {
+  ConfirmDialog,
+  CopyField,
+  DataTable,
+  EmptyState,
+  FormField,
+  Notice,
+  SectionCard,
+  type CopyFieldCopy,
+  type DataColumn,
+} from "@/components/dashboard-kit";
+import { CircleNotch, Key, Trash } from "@/components/icons";
+import { LocalDateTime } from "@/components/public/local-datetime";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type { Dictionary } from "@/i18n";
 
 export interface ApiKeyRow {
@@ -16,28 +29,44 @@ export interface ApiKeyRow {
 
 type ApiDict = Dictionary["api"];
 
-const day = (d: Date | string) => new Date(d).toISOString().slice(0, 10);
+const iso = (d: Date | string) => new Date(d).toISOString();
 
+const fill = (template: string, values: Record<string, string>) =>
+  template.replace(/\{(\w+)\}/g, (_, key: string) => values[key] ?? "");
+
+/**
+ * The API keys of an Enterprise guild: creating one (its secret is shown once,
+ * to copy), the keys with when they were created and last used, and revoking,
+ * which cannot be undone and so asks for the key's name. Below them the
+ * endpoint example.
+ */
 export function ApiKeysManager({
   guildId,
   initial,
   baseUrl,
   t,
+  kit,
 }: {
   guildId: string;
   initial: ApiKeyRow[];
   baseUrl: string;
   t: ApiDict;
+  kit: { copyField: CopyFieldCopy; dismiss: string };
 }) {
   const router = useRouter();
+  const ids = useId();
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [revokeError, setRevokeError] = useState<string | null>(null);
+  const confirmKey = initial.find((k) => k.id === confirmId) ?? null;
+  const nameId = (k: ApiKeyRow) => `${ids}-key-${k.id}`;
 
-  async function create() {
+  async function create(e: FormEvent) {
+    e.preventDefault();
+    if (busy || !name.trim()) return;
     setError(null);
     setBusy(true);
     try {
@@ -46,7 +75,10 @@ export function ApiKeysManager({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: name.trim() }),
       });
-      const data = (await res.json().catch(() => null)) as { secret?: string; error?: string } | null;
+      const data = (await res.json().catch(() => null)) as {
+        secret?: string;
+        error?: string;
+      } | null;
       if (!res.ok || !data?.secret) throw new Error(data?.error ?? t.errCreate);
       setSecret(data.secret);
       setName("");
@@ -60,6 +92,7 @@ export function ApiKeysManager({
 
   async function revoke() {
     if (!confirmId) return;
+    setRevokeError(null);
     setBusy(true);
     try {
       const res = await fetch(`/api/guilds/${guildId}/api-keys/${confirmId}`, { method: "DELETE" });
@@ -67,106 +100,160 @@ export function ApiKeysManager({
       setConfirmId(null);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.errAction);
+      setRevokeError(err instanceof Error ? err.message : t.errAction);
     } finally {
       setBusy(false);
     }
   }
 
-  async function copySecret() {
-    if (!secret) return;
-    try {
-      await navigator.clipboard.writeText(secret);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      /* clipboard unavailable */
-    }
-  }
+  const columns: DataColumn<ApiKeyRow>[] = [
+    {
+      id: "name",
+      header: t.colName,
+      sortValue: (k) => k.name.toLowerCase(),
+      className: "min-w-[12rem]",
+      cell: (k) => (
+        <span id={nameId(k)} translate="no" className="font-semibold break-words">
+          {k.name}
+        </span>
+      ),
+    },
+    {
+      id: "created",
+      header: t.colCreated,
+      sortValue: (k) => iso(k.createdAt),
+      nowrap: true,
+      className: "tabular-nums",
+      cell: (k) => <LocalDateTime iso={iso(k.createdAt)} />,
+    },
+    {
+      id: "lastUsed",
+      header: t.colLastUsed,
+      sortValue: (k) => (k.lastUsedAt ? iso(k.lastUsedAt) : null),
+      nowrap: true,
+      className: "tabular-nums",
+      cell: (k) =>
+        k.lastUsedAt ? (
+          <LocalDateTime iso={iso(k.lastUsedAt)} />
+        ) : (
+          <span className="text-muted-foreground">{t.neverUsed}</span>
+        ),
+    },
+    {
+      id: "actions",
+      sticky: true,
+      header: t.colActions,
+      nowrap: true,
+      cell: (k) => (
+        <Button
+          size="sm"
+          variant="outline"
+          className="text-danger"
+          aria-describedby={nameId(k)}
+          onClick={() => {
+            setRevokeError(null);
+            setConfirmId(k.id);
+          }}
+        >
+          <Trash className="h-4 w-4" />
+          {t.revoke}
+        </Button>
+      ),
+    },
+  ];
 
   return (
-    <div className="flex flex-col gap-4">
+    <>
       {/* One-time secret reveal */}
       {secret && (
-        <Card className="flex flex-col gap-2 border-primary/40 bg-primary/5 p-5">
-          <h3 className="font-heading text-sm font-semibold text-foreground">{t.secretTitle}</h3>
-          <p className="text-xs text-muted-foreground">{t.secretBody}</p>
-          <div className="flex items-center gap-2">
-            <code className="flex-1 break-all rounded-md border border-border bg-background px-3 py-2 font-mono text-xs">
-              {secret}
-            </code>
-            <Button type="button" variant="ghost" onClick={copySecret}>
-              {copied ? t.copied : t.copy}
-            </Button>
-          </div>
-          <div>
-            <Button type="button" onClick={() => setSecret(null)}>
+        <Notice
+          tone="warning"
+          role="status"
+          title={t.secretTitle}
+          action={
+            <Button variant="outline" onClick={() => setSecret(null)}>
               {t.done}
             </Button>
+          }
+        >
+          <div className="grid gap-3">
+            <p>{t.secretBody}</p>
+            <CopyField value={secret} copy={kit.copyField} />
           </div>
-        </Card>
+        </Notice>
       )}
 
-      <Card className="flex flex-col gap-4 p-5">
-        <Field label={t.create}>
-          <div className="flex gap-2">
-            <Input value={name} placeholder={t.namePh} onChange={(e) => setName(e.target.value)} />
-            <Button type="button" onClick={create} disabled={busy || !name.trim()}>
-              {busy ? t.creating : t.create}
-            </Button>
-          </div>
-        </Field>
-        {error && <p className="text-sm text-destructive">{error}</p>}
-      </Card>
-
-      <Card className="flex flex-col gap-3 p-5">
-        <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {t.yourKeys}
-        </h3>
-        {initial.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t.empty}</p>
-        ) : (
-          <ul className="flex flex-col divide-y divide-border">
-            {initial.map((k) => (
-              <li key={k.id} className="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0 last:pb-0">
-                <div className="flex flex-col gap-0.5">
-                  <span className="font-medium text-foreground">{k.name}</span>
-                  <span className="font-mono text-xs text-muted-foreground">
-                    {t.created} {day(k.createdAt)} · {t.lastUsed}{" "}
-                    {k.lastUsedAt ? day(k.lastUsedAt) : t.never}
-                  </span>
-                </div>
-                <Button type="button" variant="ghost" onClick={() => setConfirmId(k.id)}>
-                  {t.revoke}
-                </Button>
-              </li>
-            ))}
-          </ul>
+      {/* Not a named region: the table below is one, by the same name. */}
+      <section className="grid gap-4">
+        <h2 className="font-display text-h3 font-[650]">{t.yourKeys}</h2>
+        <form onSubmit={create} className="flex flex-wrap items-end gap-3">
+          <FormField label={t.keyName} className="max-w-md min-w-0 flex-1 basis-64">
+            {(field) => (
+              <Input
+                {...field}
+                value={name}
+                placeholder={t.keyNamePh}
+                autoComplete="off"
+                onChange={(e) => setName(e.target.value)}
+              />
+            )}
+          </FormField>
+          <Button type="submit" disabled={busy || !name.trim()} aria-busy={busy || undefined}>
+            {busy ? <CircleNotch className="h-4 w-4 animate-spin" /> : <Key className="h-4 w-4" />}
+            {busy ? t.creating : t.create}
+          </Button>
+        </form>
+        {error && (
+          <Notice
+            tone="danger"
+            role="alert"
+            onDismiss={() => setError(null)}
+            dismissLabel={kit.dismiss}
+          >
+            {error}
+          </Notice>
         )}
-      </Card>
+        <DataTable
+          caption={t.yourKeys}
+          captionHidden
+          columns={columns}
+          rows={initial}
+          rowKey={(k) => k.id}
+          empty={<EmptyState kind="first-use" title={t.empty} />}
+        />
+      </section>
 
       {/* Endpoint docs */}
-      <Card className="flex flex-col gap-2 p-5">
-        <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {t.docsTitle}
-        </h3>
-        <p className="text-sm text-muted-foreground">{t.docsExample}</p>
-        <pre className="overflow-x-auto rounded-md border border-border bg-muted/40 p-3 font-mono text-xs">
+      <SectionCard title={t.docsTitle} description={t.docsExample}>
+        <pre
+          tabIndex={0}
+          role="region"
+          aria-label={t.docsExample}
+          className="overflow-x-auto rounded-md border border-border bg-muted p-3 font-mono text-small"
+        >
           {`curl -H "Authorization: Bearer YOUR_KEY" \\
   ${baseUrl}/api/v1/forms/FORM_ID/submissions`}
         </pre>
-      </Card>
+      </SectionCard>
 
       <ConfirmDialog
-        open={confirmId !== null}
-        title={t.revoke}
-        message={t.revokeConfirm}
-        confirmLabel={t.revoke}
+        open={confirmKey !== null}
+        onClose={() => {
+          if (busy) return;
+          setRevokeError(null);
+          setConfirmId(null);
+        }}
+        onConfirm={revoke}
+        title={confirmKey ? fill(t.revokeNamed, { name: confirmKey.name }) : t.revoke}
+        description={t.revokeConfirm}
+        confirmLabel={t.revokeKey}
         cancelLabel={t.cancel}
         busy={busy}
-        onConfirm={revoke}
-        onCancel={() => setConfirmId(null)}
+        typeToConfirm={
+          confirmKey ? { expected: confirmKey.name.trim(), label: t.typeName } : undefined
+        }
+        error={revokeError}
       />
-    </div>
+    </>
   );
 }

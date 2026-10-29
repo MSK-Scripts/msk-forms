@@ -1,8 +1,13 @@
 "use client";
 
 import { isLayoutField, type ConditionRule, type FormField } from "@msk-forms/shared";
-import { Input, Select } from "@msk-forms/ui";
+import { useId } from "react";
 
+import { FormField as KitField } from "@/components/dashboard-kit";
+import { Plus, X } from "@/components/icons";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import type { Dictionary } from "@/i18n";
 
 type CondDict = Dictionary["builder"]["cond"];
@@ -24,6 +29,7 @@ export function ConditionEditor({
   onChange: (rules: ConditionRule[]) => void;
   t: CondDict;
 }) {
+  const uid = useId();
   const rules = field.conditional ?? [];
   const others = fields.filter((f) => f.id !== field.id && !isLayoutField(f.type));
 
@@ -45,7 +51,7 @@ export function ConditionEditor({
   ];
 
   if (others.length === 0) {
-    return <p className="text-xs text-muted-foreground">{t.noFields}</p>;
+    return <p className="max-w-[65ch] text-small text-muted-foreground">{t.noFields}</p>;
   }
 
   function replace(i: number, rule: ConditionRule) {
@@ -76,63 +82,134 @@ export function ConditionEditor({
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      {rules.map((rule, i) => (
-        <div key={i} className="flex flex-wrap items-center gap-2 rounded-md border border-border p-2">
-          <Select
-            value={rule.action}
-            onChange={(e) => {
-              const action = e.target.value as ConditionRule["action"];
-              const target = action === "skip_to" ? (rule.target ?? pages[0]?.id) : undefined;
-              replace(i, { ...rule, action, target });
-            }}
-            options={ACTIONS.map((a) => ({ value: a, label: actionLabel[a]! }))}
-          />
-          <Select
-            value={rule.when.field}
-            onChange={(e) => replace(i, { ...rule, when: { ...rule.when, field: e.target.value } })}
-            options={others.map((f) => ({ value: f.id, label: f.label || f.id }))}
-          />
-          <Select
-            value={rule.when.op}
-            onChange={(e) =>
-              replace(i, { ...rule, when: { ...rule.when, op: e.target.value as ConditionRule["when"]["op"] } })
-            }
-            options={opOptions}
-          />
-          {!NO_VALUE_OPS.includes(rule.when.op) && (
-            <Input
-              value={valueText(rule)}
-              placeholder={t.valuePh}
-              onChange={(e) =>
-                replace(i, { ...rule, when: { ...rule.when, value: setValue(rule, e.target.value) } })
-              }
-            />
-          )}
-          {rule.action === "skip_to" && (
-            <Select
-              value={rule.target ?? pages[0]?.id ?? ""}
-              onChange={(e) => replace(i, { ...rule, target: e.target.value })}
-              options={pages.map((p) => ({ value: p.id, label: p.title }))}
-            />
-          )}
-          <button
-            type="button"
-            aria-label={t.removeRule}
-            onClick={() => remove(i)}
-            className="ml-auto text-xs font-medium text-muted-foreground transition-colors hover:text-destructive"
-          >
-            ✕
-          </button>
-        </div>
-      ))}
-      <button
-        type="button"
-        onClick={add}
-        className="self-start text-sm font-medium text-primary hover:underline"
-      >
-        + {t.addRule}
-      </button>
+    <div className="grid gap-4">
+      {rules.length > 0 && (
+        <ol className="grid">
+          {rules.map((rule, i) => {
+            const n = String(i + 1);
+            const labelId = `${uid}-rule-${i}`;
+            return (
+              <li key={i} className="border-t border-border py-4 first:border-t-0 first:pt-0">
+                <div role="group" aria-labelledby={labelId} className="grid gap-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span id={labelId} className="font-semibold">
+                      {t.ruleN.replace("{n}", n)}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label={t.removeRuleN.replace("{n}", n)}
+                      onClick={() => remove(i)}
+                    >
+                      <X className="h-5 w-5" />
+                    </Button>
+                  </div>
+                  <div className="grid gap-4 @md:grid-cols-2">
+                    <KitField label={t.action}>
+                      {(f) => (
+                        <Select
+                          {...f}
+                          value={rule.action}
+                          onChange={(e) => {
+                            const action = e.target.value as ConditionRule["action"];
+                            const target =
+                              action === "skip_to" ? (rule.target ?? pages[0]?.id) : undefined;
+                            replace(i, { ...rule, action, target });
+                          }}
+                        >
+                          {ACTIONS.map((a) => (
+                            <option key={a} value={a}>
+                              {actionLabel[a]}
+                            </option>
+                          ))}
+                        </Select>
+                      )}
+                    </KitField>
+                    <KitField label={t.field}>
+                      {(f) => (
+                        <Select
+                          {...f}
+                          value={rule.when.field}
+                          onChange={(e) =>
+                            replace(i, { ...rule, when: { ...rule.when, field: e.target.value } })
+                          }
+                        >
+                          {others.map((o) => (
+                            <option key={o.id} value={o.id}>
+                              {o.label || o.id}
+                            </option>
+                          ))}
+                        </Select>
+                      )}
+                    </KitField>
+                    <KitField label={t.operator}>
+                      {(f) => (
+                        <Select
+                          {...f}
+                          value={rule.when.op}
+                          onChange={(e) =>
+                            replace(i, {
+                              ...rule,
+                              when: {
+                                ...rule.when,
+                                op: e.target.value as ConditionRule["when"]["op"],
+                              },
+                            })
+                          }
+                        >
+                          {opOptions.map((o) => (
+                            <option key={o.value} value={o.value}>
+                              {o.label}
+                            </option>
+                          ))}
+                        </Select>
+                      )}
+                    </KitField>
+                    {!NO_VALUE_OPS.includes(rule.when.op) && (
+                      <KitField label={t.valuePh}>
+                        {(f) => (
+                          <Input
+                            {...f}
+                            value={valueText(rule)}
+                            onChange={(e) =>
+                              replace(i, {
+                                ...rule,
+                                when: { ...rule.when, value: setValue(rule, e.target.value) },
+                              })
+                            }
+                          />
+                        )}
+                      </KitField>
+                    )}
+                    {rule.action === "skip_to" && (
+                      <KitField label={t.target}>
+                        {(f) => (
+                          <Select
+                            {...f}
+                            value={rule.target ?? pages[0]?.id ?? ""}
+                            onChange={(e) => replace(i, { ...rule, target: e.target.value })}
+                          >
+                            {pages.map((p) => (
+                              <option key={p.id} value={p.id}>
+                                {p.title}
+                              </option>
+                            ))}
+                          </Select>
+                        )}
+                      </KitField>
+                    )}
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      )}
+      <Button type="button" variant="outline" onClick={add} className="justify-self-start">
+        <Plus className="h-4 w-4" />
+        {t.addRule}
+      </Button>
     </div>
   );
 }

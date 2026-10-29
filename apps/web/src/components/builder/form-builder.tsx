@@ -1,76 +1,57 @@
 "use client";
 
-import { isLayoutField, parseIdList, type AutomationRule, type Experiment, type FieldType, type FormField, type FormPage } from "@msk-forms/shared";
-import { Button, Card, Checkbox, Field, Input, Select, Textarea } from "@msk-forms/ui";
 import {
-  IconAdjustmentsHorizontal,
-  IconAlignJustified,
-  IconAlignLeft,
-  IconAt,
-  IconCalendar,
-  IconChevronDown,
-  IconCircleCheck,
-  IconCircleDot,
-  IconForms,
-  IconHash,
-  IconHeading,
-  IconLetterT,
-  IconLineDashed,
-  IconLink,
-  IconMathFunction,
-  IconMoodSmile,
-  IconNumbers,
-  IconPaperclip,
-  IconPhone,
-  IconPhoto,
-  IconSignature,
-  IconSquareCheck,
-  IconStar,
-  IconTable,
-  IconToggleRight,
-  type Icon,
-} from "@tabler/icons-react";
+  isLayoutField,
+  parseIdList,
+  type AutomationRule,
+  type Experiment,
+  type FieldType,
+  type FormField,
+  type FormPage,
+} from "@msk-forms/shared";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 
 import { AutomationsEditor } from "@/components/builder/automations-editor";
 import { ExperimentEditor } from "@/components/builder/experiment-editor";
 import { FieldEditor } from "@/components/builder/field-editor";
+import { FieldOutline } from "@/components/builder/field-outline";
+import {
+  Checkbox,
+  EmptyState,
+  FormField as KitField,
+  FormSection,
+  Notice,
+  PageHeader,
+  SectionCard,
+} from "@/components/dashboard-kit";
+import { FormStateBadge, formStatus } from "@/components/dashboard/form-state-badge";
 import { DateField, type DateFieldLabels } from "@/components/form/date-field";
-import { BUILDER_FIELDS, migrateFieldType, needsOptions } from "@/lib/builder-fields";
+import { CircleNotch, FloppyDisk, ListBullets } from "@/components/icons";
+import { ProNotice } from "@/components/pro-notice";
+import { Button } from "@/components/ui/button";
+import { fieldClassName, Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import type { Dictionary } from "@/i18n";
-
-/** Icon per field type for the "Add field" picker grid. */
-const FIELD_ICONS: Partial<Record<FieldType, Icon>> = {
-  short_text: IconLetterT,
-  long_text: IconAlignLeft,
-  email: IconAt,
-  number: IconHash,
-  phone: IconPhone,
-  url: IconLink,
-  single_choice: IconCircleDot,
-  dropdown: IconChevronDown,
-  multi_choice: IconSquareCheck,
-  yes_no: IconToggleRight,
-  rating_stars: IconStar,
-  nps: IconNumbers,
-  slider: IconAdjustmentsHorizontal,
-  emoji_scale: IconMoodSmile,
-  matrix: IconTable,
-  calculated: IconMathFunction,
-  date: IconCalendar,
-  file_upload: IconPaperclip,
-  image_upload: IconPhoto,
-  signature: IconSignature,
-  consent: IconCircleCheck,
-  heading: IconHeading,
-  paragraph: IconAlignJustified,
-  divider: IconLineDashed,
-};
+import { migrateFieldType, needsOptions } from "@/lib/builder-fields";
 
 type BuilderDict = Dictionary["builder"];
 type StatusOption = { value: string; label: string };
+
+/** Strings from outside the `builder` section of the dictionary. */
+export interface FormBuilderCopy {
+  /** `dashboard.formsTab`, the first breadcrumb. */
+  formsTab: string;
+  /** `dashboard.newFormTitle`, the title while the form has no name yet. */
+  newFormTitle: string;
+  /** `kit.breadcrumb`, `kit.dismiss`. */
+  breadcrumb: string;
+  dismiss: string;
+  /** `pro.title`, heading of the Pro notices for automations and A/B tests. */
+  proTitle: string;
+}
 
 export interface FormBuilderInitial {
   title: string;
@@ -106,7 +87,11 @@ function isoToLocalInput(iso: string): string {
 }
 
 const slugify = (s: string) =>
-  s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
 function newField(type: FieldType): FormField {
   return {
@@ -120,6 +105,12 @@ function newField(type: FieldType): FormField {
   };
 }
 
+/**
+ * The form builder: details, the fields (an outline of pages and fields beside
+ * the editor of the chosen field, stacked when the room is narrow), the
+ * settings, automations and the A/B test. Saving is the one primary action, in
+ * the page head and again at the end of the page.
+ */
 export function FormBuilder({
   guildId,
   formId,
@@ -130,6 +121,7 @@ export function FormBuilder({
   automationsProBody,
   experimentProBody,
   dateLabels,
+  copy,
   t,
 }: {
   guildId: string;
@@ -141,6 +133,7 @@ export function FormBuilder({
   automationsProBody: string;
   experimentProBody: string;
   dateLabels: DateFieldLabels;
+  copy: FormBuilderCopy;
   t: BuilderDict;
 }) {
   const router = useRouter();
@@ -168,13 +161,73 @@ export function FormBuilder({
   const [statusMessages, setStatusMessages] = useState<Record<string, string>>(
     initial.statusMessages,
   );
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{ title?: string; slug?: string; fields?: string }>({});
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  // The field whose settings the editor shows; the first field when unset.
+  const [selectedId, setSelectedId] = useState<string | null>(
+    () => initial.pages.flatMap((p) => p.fields)[0]?.id ?? null,
+  );
+  // The page whose "Add field" picker is open: a page without fields starts open.
+  const [pickerFor, setPickerFor] = useState<string | null>(
+    () => initial.pages.find((p) => p.fields.length === 0)?.id ?? null,
+  );
+  // Polite announcement of a move, an added or a removed item. The counter
+  // makes a repeated sentence count as a change.
+  const [announcement, setAnnouncement] = useState({ text: "", n: 0 });
+
+  const rootRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const slugRef = useRef<HTMLInputElement>(null);
+  const editorHeadingRef = useRef<HTMLSpanElement>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
+  const editorId = useId();
+  const messagesHintId = useId();
 
   // Conditions can reference any field on any page, so offer the full list.
   const allFields = pages.flatMap((p) => p.fields);
   // Page targets for `skip_to` conditions (fall back to "Page N" when untitled).
-  const pageOptions = pages.map((p, i) => ({ id: p.id, title: p.title?.trim() || `${t.page} ${i + 1}` }));
+  const pageOptions = pages.map((p, i) => ({
+    id: p.id,
+    title: p.title?.trim() || `${t.page} ${i + 1}`,
+  }));
+  const ftLabel = (type: FieldType) => (t.ft as Record<string, string>)[type] ?? type;
+  const fieldName = (field: FormField, index: number) =>
+    field.label?.trim() || t.fieldN.replace("{n}", String(index + 1));
+
+  function locate(id: string | null): { pi: number; fi: number } | null {
+    for (let pi = 0; pi < pages.length; pi++) {
+      const fi = pages[pi]!.fields.findIndex((f) => f.id === id);
+      if (fi >= 0) return { pi, fi };
+    }
+    return null;
+  }
+  const firstPos = (() => {
+    const pi = pages.findIndex((p) => p.fields.length > 0);
+    return pi >= 0 ? { pi, fi: 0 } : null;
+  })();
+  const selPos = locate(selectedId) ?? firstPos;
+  const selected = selPos ? pages[selPos.pi]!.fields[selPos.fi]! : null;
+
+  function announce(text: string) {
+    setAnnouncement((a) => ({ text, n: a.n + 1 }));
+  }
+  function focusIn(selector: string) {
+    rootRef.current?.querySelector<HTMLElement>(selector)?.focus();
+  }
+  /** After a move: the same button again, or the other one when the item reached an end. */
+  function focusMoveButton(key: string, dir: -1 | 1) {
+    const root = rootRef.current;
+    if (!root) return;
+    const k = CSS.escape(key);
+    const same = root.querySelector<HTMLButtonElement>(
+      `[data-move="${k}:${dir < 0 ? "up" : "down"}"]`,
+    );
+    const other = root.querySelector<HTMLButtonElement>(
+      `[data-move="${k}:${dir < 0 ? "down" : "up"}"]`,
+    );
+    (same && !same.disabled ? same : other)?.focus();
+  }
 
   function mutatePage(pi: number, fn: (page: FormPage) => FormPage) {
     setPages((prev) => prev.map((p, i) => (i === pi ? fn(p) : p)));
@@ -183,7 +236,12 @@ export function FormBuilder({
     mutatePage(pi, (p) => ({ ...p, title: value }));
   }
   function addPage() {
-    setPages((prev) => [...prev, { id: crypto.randomUUID(), title: "", fields: [] }]);
+    const id = crypto.randomUUID();
+    flushSync(() => {
+      setPages((prev) => [...prev, { id, title: "", fields: [] }]);
+      setPickerFor(id);
+    });
+    focusIn(`[data-page-title="${CSS.escape(id)}"]`);
   }
   /** Mark every input field (across all pages) as required in one click. */
   function markAllRequired() {
@@ -197,41 +255,104 @@ export function FormBuilder({
     );
   }
   function removePage(pi: number) {
-    setPages((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== pi)));
+    if (pages.length <= 1) return;
+    const name = pageOptions[pi]!.title;
+    const neighbour = pages[pi + 1] ?? pages[pi - 1]!;
+    flushSync(() =>
+      setPages((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== pi))),
+    );
+    focusIn(`[data-page-title="${CSS.escape(neighbour.id)}"]`);
+    announce(t.removedItem.replace("{name}", name));
   }
   function movePage(pi: number, dir: -1 | 1) {
-    setPages((prev) => {
-      const target = pi + dir;
-      if (target < 0 || target >= prev.length) return prev;
-      const next = [...prev];
-      [next[pi], next[target]] = [next[target]!, next[pi]!];
-      return next;
-    });
+    const page = pages[pi];
+    const target = pi + dir;
+    if (!page || target < 0 || target >= pages.length) return;
+    flushSync(() =>
+      setPages((prev) => {
+        const next = [...prev];
+        [next[pi], next[target]] = [next[target]!, next[pi]!];
+        return next;
+      }),
+    );
+    focusMoveButton(`page:${page.id}`, dir);
+    announce(
+      t.movedTo.replace("{pos}", String(target + 1)).replace("{total}", String(pages.length)),
+    );
   }
   function updateField(pi: number, fi: number, next: FormField) {
     mutatePage(pi, (p) => ({ ...p, fields: p.fields.map((f, i) => (i === fi ? next : f)) }));
   }
   function removeField(pi: number, fi: number) {
-    mutatePage(pi, (p) => ({ ...p, fields: p.fields.filter((_, i) => i !== fi) }));
+    const page = pages[pi];
+    const field = page?.fields[fi];
+    if (!page || !field) return;
+    const name = fieldName(field, fi);
+    const neighbour = page.fields[fi + 1] ?? page.fields[fi - 1] ?? null;
+    flushSync(() => {
+      mutatePage(pi, (p) => ({ ...p, fields: p.fields.filter((_, i) => i !== fi) }));
+      if (selected?.id === field.id) setSelectedId(neighbour?.id ?? null);
+    });
+    if (neighbour) focusIn(`[data-select="${CSS.escape(neighbour.id)}"]`);
+    else focusIn(`[data-picker="${CSS.escape(page.id)}"]`);
+    announce(t.removedItem.replace("{name}", name));
   }
   function moveField(pi: number, fi: number, dir: -1 | 1) {
-    mutatePage(pi, (p) => {
-      const target = fi + dir;
-      if (target < 0 || target >= p.fields.length) return p;
-      const fields = [...p.fields];
-      [fields[fi], fields[target]] = [fields[target]!, fields[fi]!];
-      return { ...p, fields };
-    });
+    const page = pages[pi];
+    const field = page?.fields[fi];
+    const target = fi + dir;
+    if (!page || !field || target < 0 || target >= page.fields.length) return;
+    flushSync(() =>
+      mutatePage(pi, (p) => {
+        const fields = [...p.fields];
+        [fields[fi], fields[target]] = [fields[target]!, fields[fi]!];
+        return { ...p, fields };
+      }),
+    );
+    focusMoveButton(`field:${field.id}`, dir);
+    announce(
+      t.movedTo.replace("{pos}", String(target + 1)).replace("{total}", String(page.fields.length)),
+    );
   }
   function addField(pi: number, type: FieldType) {
-    mutatePage(pi, (p) => ({ ...p, fields: [...p.fields, newField(type)] }));
+    const page = pages[pi];
+    if (!page) return;
+    const field = newField(type);
+    mutatePage(pi, (p) => ({ ...p, fields: [...p.fields, field] }));
+    setSelectedId(field.id);
+    setErrors((e) => ({ ...e, fields: undefined }));
+    announce(
+      t.addedField
+        .replace("{type}", ftLabel(type))
+        .replace("{pos}", String(page.fields.length + 1)),
+    );
+  }
+  /** Choose a field and take the focus to its settings (below the list on a phone). */
+  function selectField(id: string) {
+    flushSync(() => setSelectedId(id));
+    editorHeadingRef.current?.focus();
+  }
+  function backToList() {
+    if (selected) focusIn(`[data-select="${CSS.escape(selected.id)}"]`);
   }
 
   async function save() {
-    setError(null);
-    if (!title.trim()) return setError(t.errTitle);
-    if (!slug.trim()) return setError(t.errSlug);
-    if (allFields.length === 0) return setError(t.errFields);
+    setSaveError(null);
+    const next = {
+      title: title.trim() ? undefined : t.errTitle,
+      slug: slug.trim() ? undefined : t.errSlug,
+      fields: allFields.length === 0 ? t.errFields : undefined,
+    };
+    if (next.title || next.slug || next.fields) {
+      // Render the errors first, so the field that gets the focus already
+      // carries aria-invalid and its message.
+      flushSync(() => setErrors(next));
+      if (next.title) titleRef.current?.focus();
+      else if (next.slug) slugRef.current?.focus();
+      else focusIn("[data-picker]");
+      return;
+    }
+    setErrors({});
 
     const spec = {
       version: 1,
@@ -286,298 +407,389 @@ export function FormBuilder({
       router.push(`/dashboard/${guildId}/forms` as Route);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.errSave);
-      setSaving(false);
+      flushSync(() => {
+        setSaveError(err instanceof Error ? err.message : t.errSave);
+        setSaving(false);
+      });
+      // The message is an alert; bring it into view, the focus stays on Save.
+      errorRef.current?.scrollIntoView({ block: "nearest" });
     }
   }
 
-  const ftLabel = (type: FieldType) => (t.ft as Record<string, string>)[type] ?? type;
+  const formsHref = `/dashboard/${guildId}/forms`;
+  const statusLabel: Record<string, string> = {
+    draft: t.statusDraft,
+    live: t.statusLive,
+    closed: t.statusClosed,
+  };
+  const saveButton = (
+    <Button type="button" onClick={save} disabled={saving} aria-busy={saving || undefined}>
+      {saving ? (
+        <CircleNotch className="h-4 w-4 animate-spin" />
+      ) : (
+        <FloppyDisk className="h-4 w-4" />
+      )}
+      {saving ? t.saving : formId ? t.saveChanges : t.createForm}
+    </Button>
+  );
 
   return (
-    <div className="flex flex-col gap-6">
-      <Card className="flex flex-col gap-4 p-5">
-        <Field label={t.title} required>
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} />
-        </Field>
-        <Field label={t.description}>
-          <Textarea value={description} onChange={(e) => setDescription(e.target.value)} />
-        </Field>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Field label={t.slug} required hint={t.slugHint}>
-            <div className="flex gap-2">
-              <Input value={slug} onChange={(e) => setSlug(e.target.value)} />
-              <button
-                type="button"
-                onClick={() => setSlug(slugify(title))}
-                className="shrink-0 rounded-md border border-border px-2 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-              >
-                {t.auto}
-              </button>
-            </div>
-          </Field>
-          <Field label={t.status}>
-            <Select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              options={[
-                { value: "draft", label: t.statusDraft },
-                { value: "live", label: t.statusLive },
-                { value: "closed", label: t.statusClosed },
-              ]}
-            />
-          </Field>
-          <Field label={t.visibility}>
-            <Select
-              value={visibility}
-              onChange={(e) => setVisibility(e.target.value)}
-              options={[
-                { value: "public", label: t.visPublic },
-                { value: "authenticated", label: t.visAuth },
-              ]}
-            />
-          </Field>
-          {categories.length > 0 && (
-            <Field label={t.category}>
-              <Select
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                options={[
-                  { value: "", label: t.noCategory },
-                  ...categories.map((c) => ({ value: c.id, label: c.name })),
-                ]}
-              />
-            </Field>
-          )}
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label={t.acceptedRole} hint={t.acceptedRoleHint}>
-            <Input
-              value={acceptedRoles}
-              placeholder="123456789012345678, 987654321098765432"
-              onChange={(e) => setAcceptedRoles(e.target.value)}
-            />
-          </Field>
-          <Field label={t.reviewChannel} hint={t.reviewChannelHint}>
-            <Input
-              value={reviewChannelId}
-              placeholder="123456789012345678"
-              onChange={(e) => setReviewChannelId(e.target.value)}
-            />
-          </Field>
-        </div>
-        <details className="rounded-md border border-border p-3">
-          <summary className="cursor-pointer text-sm font-medium text-foreground">
-            {t.statusMessagesLabel}
-          </summary>
-          <p className="mt-2 text-xs text-muted-foreground">{t.statusMessagesHint}</p>
-          <div className="mt-3 flex flex-col gap-3">
-            {statusOptions.map((s) => (
-              <Field key={s.value} label={s.label}>
-                <Textarea
-                  value={statusMessages[s.value] ?? ""}
-                  onChange={(e) =>
-                    setStatusMessages((m) => ({ ...m, [s.value]: e.target.value }))
-                  }
-                  placeholder={t.statusMessagesPlaceholder}
-                  rows={2}
-                  maxLength={2000}
-                />
-              </Field>
-            ))}
-          </div>
-        </details>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label={t.opensLabel} hint={t.scheduleHint}>
-            <DateField
-              mode="datetime"
-              value={openAt}
-              onChange={(v) => setOpenAt(v ?? "")}
-              labels={dateLabels}
-            />
-          </Field>
-          <Field label={t.closesLabel} hint={t.scheduleHint}>
-            <DateField
-              mode="datetime"
-              value={closeAt}
-              onChange={(v) => setCloseAt(v ?? "")}
-              labels={dateLabels}
-            />
-          </Field>
-        </div>
-        <div>
-          <Checkbox
-            id="show-countdown"
-            checked={showCountdown}
-            onChange={(e) => setShowCountdown(e.target.checked)}
-            label={t.countdownLabel}
-          />
-          <p className="ms-[1.9rem] text-xs text-muted-foreground">{t.countdownHint}</p>
-        </div>
-        <div>
-          <Checkbox
-            id="single-submission"
-            checked={singleSubmission}
-            onChange={(e) => setSingleSubmission(e.target.checked)}
-            label={t.singleSubmissionLabel}
-          />
-          <p className="ms-[1.9rem] text-xs text-muted-foreground">{t.singleSubmissionHint}</p>
-        </div>
-      </Card>
-
-      {pages.map((page, pi) => (
-        <Card key={page.id} className="flex flex-col gap-3 p-4">
-          <div className="flex items-center gap-2">
-            <span className="shrink-0 text-xs font-semibold uppercase tracking-wide text-primary">
-              {t.page} {pi + 1}
+    <>
+      <PageHeader
+        title={
+          formId ? (
+            <span translate="no" className="break-words">
+              {initial.title}
             </span>
-            <Input
-              value={page.title ?? ""}
-              placeholder={t.pageTitlePh}
-              onChange={(e) => setPageTitle(pi, e.target.value)}
+          ) : (
+            copy.newFormTitle
+          )
+        }
+        badge={
+          formId ? (
+            <FormStateBadge
+              status={formStatus(initial.status)}
+              label={statusLabel[initial.status] ?? initial.status}
             />
-            <PageButton label={t.moveUp} disabled={pi === 0} onClick={() => movePage(pi, -1)}>
-              ↑
-            </PageButton>
-            <PageButton
-              label={t.moveDown}
-              disabled={pi === pages.length - 1}
-              onClick={() => movePage(pi, 1)}
-            >
-              ↓
-            </PageButton>
-            <PageButton
-              label={t.removePage}
-              disabled={pages.length <= 1}
-              onClick={() => removePage(pi)}
-            >
-              ✕
-            </PageButton>
-          </div>
+          ) : undefined
+        }
+        breadcrumbs={[
+          { label: copy.formsTab, href: formsHref },
+          { label: formId ? <span translate="no">{initial.title}</span> : copy.newFormTitle },
+        ]}
+        breadcrumbLabel={copy.breadcrumb}
+        action={saveButton}
+      />
 
-          {page.fields.map((field, fi) => (
-            <FieldEditor
-              key={field.id}
-              field={field}
-              fields={allFields}
-              pages={pageOptions}
-              index={fi}
-              isFirst={fi === 0}
-              isLast={fi === page.fields.length - 1}
-              onChange={(next) => updateField(pi, fi, next)}
-              onChangeType={(nt) => updateField(pi, fi, migrateFieldType(field, nt))}
-              onRemove={() => removeField(pi, fi)}
-              onMove={(dir) => moveField(pi, fi, dir)}
+      <div ref={rootRef} className="@container/builder grid gap-[var(--app-gutter-y)]">
+        <p aria-live="polite" className="sr-only">
+          {announcement.text}
+          {announcement.n % 2 ? " " : ""}
+        </p>
+
+        {saveError && (
+          <div ref={errorRef}>
+            <Notice
+              tone="danger"
+              role="alert"
+              title={t.errSave}
+              onDismiss={() => setSaveError(null)}
+              dismissLabel={copy.dismiss}
+            >
+              {saveError !== t.errSave ? saveError : undefined}
+            </Notice>
+          </div>
+        )}
+
+        <div className="max-w-[80rem]">
+          <FormSection title={t.detailsTitle} description={t.detailsIntro}>
+            <KitField label={t.title} required error={errors.title}>
+              {(f) => (
+                <Input
+                  {...f}
+                  ref={titleRef}
+                  value={title}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                    if (errors.title) setErrors((x) => ({ ...x, title: undefined }));
+                  }}
+                />
+              )}
+            </KitField>
+            <KitField label={t.description}>
+              {(f) => (
+                <textarea
+                  {...f}
+                  rows={3}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className={fieldClassName}
+                />
+              )}
+            </KitField>
+            <KitField label={t.slug} required hint={t.slugHint} error={errors.slug}>
+              {(f) => (
+                <div className="flex flex-wrap gap-2">
+                  <Input
+                    {...f}
+                    ref={slugRef}
+                    value={slug}
+                    onChange={(e) => {
+                      setSlug(e.target.value);
+                      if (errors.slug) setErrors((x) => ({ ...x, slug: undefined }));
+                    }}
+                    className="min-w-0 flex-1 basis-48 font-mono"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setSlug(slugify(title));
+                      if (errors.slug) setErrors((x) => ({ ...x, slug: undefined }));
+                    }}
+                  >
+                    {t.slugFromTitle}
+                  </Button>
+                </div>
+              )}
+            </KitField>
+          </FormSection>
+        </div>
+
+        <div className="grid items-start gap-[var(--app-gutter-y)] @4xl/builder:grid-cols-[minmax(19rem,2fr)_minmax(0,3fr)]">
+          <SectionCard
+            title={t.fieldsTitle}
+            actions={
+              allFields.length > 0 ? (
+                <Button type="button" variant="outline" onClick={markAllRequired}>
+                  {t.markAllRequired}
+                </Button>
+              ) : undefined
+            }
+          >
+            <FieldOutline
+              pages={pages}
+              pageNames={pageOptions.map((p) => p.title)}
+              selectedId={selected?.id ?? null}
+              editorId={editorId}
+              pickerFor={pickerFor}
+              fieldsError={errors.fields}
+              fieldName={fieldName}
+              handlers={{
+                onSelect: selectField,
+                onMoveField: moveField,
+                onRemoveField: removeField,
+                onMovePage: movePage,
+                onRemovePage: removePage,
+                onPageTitle: setPageTitle,
+                onAddField: addField,
+                onAddPage: addPage,
+                onPickerToggle: (pageId, open) =>
+                  setPickerFor((prev) => (open ? pageId : prev === pageId ? null : prev)),
+              }}
               t={t}
             />
-          ))}
+          </SectionCard>
 
-          <div className="border-t border-border pt-3">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              {t.addField}
-            </p>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-              {BUILDER_FIELDS.map((f) => {
-                const FieldIcon = FIELD_ICONS[f.type] ?? IconForms;
-                return (
-                  <button
-                    key={f.type}
+          {/* Beside the list the editor stays in view while the list scrolls,
+              and scrolls in itself when it is taller than the window. */}
+          <div
+            id={editorId}
+            className="rounded-lg @4xl/builder:sticky @4xl/builder:top-[calc(var(--app-topbar)+5px+1rem)] @4xl/builder:max-h-[calc(100dvh-var(--app-topbar)-5px-2rem)] @4xl/builder:overflow-y-auto"
+          >
+            {selected && selPos ? (
+              <SectionCard
+                title={
+                  <span ref={editorHeadingRef} tabIndex={-1} className="break-words">
+                    {fieldName(selected, selPos.fi)}
+                  </span>
+                }
+                description={[
+                  pages.length > 1 ? pageOptions[selPos.pi]!.title : null,
+                  ftLabel(selected.type),
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              >
+                <div className="grid gap-5">
+                  <Button
                     type="button"
-                    onClick={() => addField(pi, f.type)}
-                    className="flex flex-col items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-2 py-3 text-center transition-colors hover:border-primary/40 hover:bg-muted/50"
+                    variant="link"
+                    onClick={backToList}
+                    className="min-h-11 justify-self-start @4xl/builder:hidden"
                   >
-                    <FieldIcon size={20} stroke={1.6} className="text-muted-foreground" />
-                    <span className="text-xs font-medium text-foreground">{ftLabel(f.type)}</span>
-                  </button>
-                );
-              })}
-            </div>
+                    <ListBullets className="h-4 w-4" />
+                    {t.backToList}
+                  </Button>
+                  <FieldEditor
+                    key={selected.id}
+                    field={selected}
+                    fields={allFields}
+                    pages={pageOptions}
+                    onChange={(next) => updateField(selPos.pi, selPos.fi, next)}
+                    onChangeType={(nt) =>
+                      updateField(selPos.pi, selPos.fi, migrateFieldType(selected, nt))
+                    }
+                    t={t}
+                  />
+                </div>
+              </SectionCard>
+            ) : (
+              <div className="rounded-lg border border-border bg-card">
+                <EmptyState kind="first-use" title={t.editorEmpty}>
+                  {t.editorEmptyBody}
+                </EmptyState>
+              </div>
+            )}
           </div>
-        </Card>
-      ))}
+        </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <Button variant="ghost" type="button" onClick={addPage}>
-          + {t.addPage}
-        </Button>
-        {allFields.length > 0 && (
-          <Button variant="ghost" type="button" onClick={markAllRequired}>
-            {t.markAllRequired}
+        <div className="max-w-[80rem]">
+          <FormSection title={t.publishTitle} description={t.publishIntro}>
+            <div className="grid gap-5 @4xl:grid-cols-2">
+              <KitField label={t.status}>
+                {(f) => (
+                  <Select {...f} value={status} onChange={(e) => setStatus(e.target.value)}>
+                    <option value="draft">{t.statusDraft}</option>
+                    <option value="live">{t.statusLive}</option>
+                    <option value="closed">{t.statusClosed}</option>
+                  </Select>
+                )}
+              </KitField>
+              <KitField label={t.visibility}>
+                {(f) => (
+                  <Select {...f} value={visibility} onChange={(e) => setVisibility(e.target.value)}>
+                    <option value="public">{t.visPublic}</option>
+                    <option value="authenticated">{t.visAuth}</option>
+                  </Select>
+                )}
+              </KitField>
+              {categories.length > 0 && (
+                <KitField label={t.category}>
+                  {(f) => (
+                    <Select
+                      {...f}
+                      value={categoryId}
+                      onChange={(e) => setCategoryId(e.target.value)}
+                    >
+                      <option value="">{t.noCategory}</option>
+                      {categories.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </Select>
+                  )}
+                </KitField>
+              )}
+            </div>
+          </FormSection>
+
+          <FormSection title={t.scheduleTitle} description={t.scheduleIntro}>
+            <div className="grid gap-5 @4xl:grid-cols-2">
+              <KitField label={t.opensLabel} hint={t.scheduleHint}>
+                {(f) => (
+                  <DateField
+                    id={f.id}
+                    describedBy={f["aria-describedby"]}
+                    mode="datetime"
+                    value={openAt}
+                    onChange={(v) => setOpenAt(v ?? "")}
+                    labels={dateLabels}
+                  />
+                )}
+              </KitField>
+              <KitField label={t.closesLabel} hint={t.scheduleHint}>
+                {(f) => (
+                  <DateField
+                    id={f.id}
+                    describedBy={f["aria-describedby"]}
+                    mode="datetime"
+                    value={closeAt}
+                    onChange={(v) => setCloseAt(v ?? "")}
+                    labels={dateLabels}
+                  />
+                )}
+              </KitField>
+            </div>
+            <Checkbox
+              label={t.countdownLabel}
+              hint={t.countdownHint}
+              checked={showCountdown}
+              onChange={setShowCountdown}
+            />
+          </FormSection>
+
+          <FormSection title={t.discordTitle} description={t.discordIntro}>
+            <KitField label={t.acceptedRole} hint={t.acceptedRoleHint}>
+              {(f) => (
+                <Input
+                  {...f}
+                  value={acceptedRoles}
+                  placeholder="123456789012345678, 987654321098765432"
+                  onChange={(e) => setAcceptedRoles(e.target.value)}
+                  className="font-mono"
+                />
+              )}
+            </KitField>
+            <KitField label={t.reviewChannel} hint={t.reviewChannelHint}>
+              {(f) => (
+                <Input
+                  {...f}
+                  inputMode="numeric"
+                  value={reviewChannelId}
+                  placeholder="123456789012345678"
+                  onChange={(e) => setReviewChannelId(e.target.value)}
+                  className="font-mono"
+                />
+              )}
+            </KitField>
+          </FormSection>
+
+          <FormSection title={t.submissionsTitle} description={t.submissionsIntro}>
+            <Checkbox
+              label={t.singleSubmissionLabel}
+              hint={t.singleSubmissionHint}
+              checked={singleSubmission}
+              onChange={setSingleSubmission}
+            />
+            {statusOptions.length > 0 && (
+              <fieldset className="grid gap-4" aria-describedby={messagesHintId}>
+                <legend className="mb-1 font-semibold">{t.statusMessagesLabel}</legend>
+                <p id={messagesHintId} className="max-w-[65ch] text-small text-muted-foreground">
+                  {t.statusMessagesHint}
+                </p>
+                {statusOptions.map((s) => (
+                  <KitField key={s.value} label={s.label}>
+                    {(f) => (
+                      <textarea
+                        {...f}
+                        rows={2}
+                        maxLength={2000}
+                        value={statusMessages[s.value] ?? ""}
+                        placeholder={t.statusMessagesPlaceholder}
+                        onChange={(e) =>
+                          setStatusMessages((m) => ({ ...m, [s.value]: e.target.value }))
+                        }
+                        className={fieldClassName}
+                      />
+                    )}
+                  </KitField>
+                ))}
+              </fieldset>
+            )}
+          </FormSection>
+
+          <FormSection title={t.autom.title} description={t.autom.intro}>
+            {isPro ? (
+              <AutomationsEditor
+                automations={automations}
+                fields={allFields}
+                statusOptions={statusOptions}
+                onChange={setAutomations}
+                t={t}
+              />
+            ) : (
+              <ProNotice title={copy.proTitle} body={automationsProBody} />
+            )}
+          </FormSection>
+
+          <FormSection title={t.exp.title} description={t.exp.intro}>
+            {isPro ? (
+              <ExperimentEditor experiment={experiment} onChange={setExperiment} t={t.exp} />
+            ) : (
+              <ProNotice title={copy.proTitle} body={experimentProBody} />
+            )}
+          </FormSection>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 border-t border-border pt-5">
+          {saveButton}
+          <Button type="button" variant="outline" onClick={() => router.push(formsHref as Route)}>
+            {t.cancel}
           </Button>
-        )}
-      </div>
-
-      <Card className="flex flex-col gap-3 p-5">
-        <div className="flex flex-col gap-1">
-          <h3 className="font-heading text-sm font-semibold text-foreground">{t.autom.title}</h3>
-          <p className="text-xs text-muted-foreground">{t.autom.intro}</p>
         </div>
-        {isPro ? (
-          <AutomationsEditor
-            automations={automations}
-            fields={allFields}
-            statusOptions={statusOptions}
-            onChange={setAutomations}
-            t={t}
-          />
-        ) : (
-          <p className="rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
-            ★ {automationsProBody}
-          </p>
-        )}
-      </Card>
-
-      <Card className="flex flex-col gap-3 p-5">
-        <div className="flex flex-col gap-1">
-          <h3 className="font-heading text-sm font-semibold text-foreground">{t.exp.title}</h3>
-          <p className="text-xs text-muted-foreground">{t.exp.intro}</p>
-        </div>
-        {isPro ? (
-          <ExperimentEditor experiment={experiment} onChange={setExperiment} t={t.exp} />
-        ) : (
-          <p className="rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
-            ★ {experimentProBody}
-          </p>
-        )}
-      </Card>
-
-      {error && <p className="text-sm text-destructive">{error}</p>}
-
-      <div className="flex items-center gap-3">
-        <Button type="button" onClick={save} disabled={saving}>
-          {saving ? t.saving : formId ? t.saveChanges : t.createForm}
-        </Button>
-        <button
-          type="button"
-          onClick={() => router.push(`/dashboard/${guildId}/forms` as Route)}
-          className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-        >
-          {t.cancel}
-        </button>
       </div>
-    </div>
-  );
-}
-
-function PageButton({
-  children,
-  label,
-  disabled,
-  onClick,
-}: {
-  children: React.ReactNode;
-  label: string;
-  disabled?: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      disabled={disabled}
-      onClick={onClick}
-      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
-    >
-      {children}
-    </button>
+    </>
   );
 }

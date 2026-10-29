@@ -1,20 +1,18 @@
 import { prisma } from "@msk-forms/db";
 import { DEFAULT_STATUSES, type StatusDefInput } from "@msk-forms/shared";
-import { Card, StatusBadge } from "@msk-forms/ui";
+import { SubmissionStatusBadge } from "@msk-forms/ui";
 
+import { EmptyState, FormSection, PageHeader } from "@/components/dashboard-kit";
 import { StatusDefsForm } from "@/components/statuses/status-defs-form";
 import { requireUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
+import { dotColors } from "@/lib/color-dot";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export default async function StatusesPage({
-  params,
-}: {
-  params: Promise<{ guildId: string }>;
-}) {
+export default async function StatusesPage({ params }: { params: Promise<{ guildId: string }> }) {
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/statuses`);
   const dict = await getDict();
@@ -22,9 +20,10 @@ export default async function StatusesPage({
 
   if (!(await canManageForms(guildId, user.id))) {
     return (
-      <Card className="p-8">
-        <p className="text-muted-foreground">{t.statuses.noPerm}</p>
-      </Card>
+      <>
+        <PageHeader title={t.statusesTab} />
+        <EmptyState kind="unavailable" title={t.statuses.noPerm} />
+      </>
     );
   }
 
@@ -35,24 +34,30 @@ export default async function StatusesPage({
   });
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <h2 className="font-heading text-xl font-semibold text-foreground">{t.statuses.title}</h2>
-        <p className="text-sm text-muted-foreground">{t.statuses.intro}</p>
+    <>
+      <PageHeader title={t.statusesTab} description={t.statuses.intro} />
+
+      <div>
+        <FormSection title={t.statuses.defaultsTitle} description={t.statuses.defaultsHint}>
+          <ul className="flex flex-wrap gap-2">
+            {DEFAULT_STATUSES.map((s) => (
+              <li key={s.key}>
+                <SubmissionStatusBadge
+                  label={dict.statusLabels[s.key] ?? s.label}
+                  {...dotColors(s.color)}
+                />
+              </li>
+            ))}
+          </ul>
+        </FormSection>
+
+        <StatusDefsForm
+          guildId={guildId}
+          initial={defs as StatusDefInput[]}
+          t={t.statuses}
+          kit={{ saveBar: dict.kit.saveBar, dismiss: dict.kit.dismiss }}
+        />
       </div>
-
-      <Card className="flex flex-col gap-3 p-5">
-        <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {t.statuses.defaultsTitle}
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {DEFAULT_STATUSES.map((s) => (
-            <StatusBadge key={s.key} label={dict.statusLabels[s.key] ?? s.label} color={s.color} />
-          ))}
-        </div>
-      </Card>
-
-      <StatusDefsForm guildId={guildId} initial={defs as StatusDefInput[]} t={t.statuses} />
-    </div>
+    </>
   );
 }

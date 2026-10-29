@@ -5,3 +5,7 @@ dist
 coverage
 pnpm-lock.yaml
 packages/db/src/generated
+
+# The token tests (apps/web/src/test/tokens.ts) read the token block line by
+# line; prettier would wrap its long colour expressions and break them.
+apps/web/src/app/globals.css

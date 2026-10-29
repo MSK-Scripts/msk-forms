@@ -1,24 +1,20 @@
 import { prisma } from "@msk-forms/db";
-import { Card } from "@msk-forms/ui";
 
 import { UpgradeActions } from "@/components/billing/upgrade-button";
-import { upgradeCopy } from "@/lib/upgrade-copy";
+import { EmptyState, PageHeader } from "@/components/dashboard-kit";
 import { ProNotice } from "@/components/pro-notice";
 import { WebhooksManager, type WebhookRow } from "@/components/webhooks/webhooks-manager";
 import { requireUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
 import { enterpriseEnabled, stripeEnabled } from "@/lib/stripe";
+import { upgradeCopy } from "@/lib/upgrade-copy";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export default async function WebhooksPage({
-  params,
-}: {
-  params: Promise<{ guildId: string }>;
-}) {
+export default async function WebhooksPage({ params }: { params: Promise<{ guildId: string }> }) {
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/webhooks`);
   const dict = await getDict();
@@ -26,16 +22,17 @@ export default async function WebhooksPage({
 
   if (!(await canManageForms(guildId, user.id))) {
     return (
-      <Card className="p-8">
-        <p className="text-muted-foreground">{t.noPerm}</p>
-      </Card>
+      <>
+        <PageHeader title={t.title} />
+        <EmptyState kind="unavailable" title={t.noPerm} />
+      </>
     );
   }
 
   if (!(await isGuildPro(guildId))) {
     return (
-      <div className="flex flex-col gap-4">
-        <h2 className="font-heading text-xl font-semibold text-foreground">{t.title}</h2>
+      <>
+        <PageHeader title={t.title} description={t.intro} />
         <ProNotice
           title={dict.pro.title}
           body={dict.pro.body}
@@ -50,7 +47,7 @@ export default async function WebhooksPage({
             ) : undefined
           }
         />
-      </div>
+      </>
     );
   }
 
@@ -102,12 +99,15 @@ export default async function WebhooksPage({
   });
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <h2 className="font-heading text-xl font-semibold text-foreground">{t.title}</h2>
-        <p className="text-sm text-muted-foreground">{t.intro}</p>
-      </div>
-      <WebhooksManager guildId={guildId} initial={webhooks} forms={forms} t={t} />
-    </div>
+    <>
+      <PageHeader title={t.title} description={t.intro} />
+      <WebhooksManager
+        guildId={guildId}
+        initial={webhooks}
+        forms={forms}
+        t={t}
+        kit={{ copyField: dict.kit.copyField, dismiss: dict.kit.dismiss }}
+      />
+    </>
   );
 }

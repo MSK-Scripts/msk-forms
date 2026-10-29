@@ -1,47 +1,50 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
-import { ConfirmDialog } from "@/components/confirm-dialog";
+import { ConfirmDialog } from "@/components/dashboard-kit";
+import { Button } from "@/components/ui/button";
 
-const STYLES = {
-  neutral:
-    "rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground",
-  primary:
-    "rounded-md border border-primary/40 px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary/10",
-  danger:
-    "rounded-md border border-destructive/40 px-3 py-1.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10",
-} as const;
+export interface FormActionCopy {
+  /** Names the consequence on both buttons: "Archive", "Delete permanently". */
+  label: string;
+  title: string;
+  confirm: string;
+  cancel: string;
+  failed: string;
+  /** Error text per API error code, e.g. { pro_required: "…" }. */
+  codes?: Record<string, string>;
+}
 
-/**
- * A form-level action behind a confirmation dialog: archive, restore or delete
- * permanently. Refreshes the page on success; maps known error codes from the
- * API to readable text.
- */
-export function FormActionButton({
-  url,
-  method,
-  body,
-  variant = "neutral",
-  t,
-}: {
+export interface FormActionRequest {
   url: string;
   method: "POST" | "DELETE";
   body?: Record<string, unknown>;
-  variant?: keyof typeof STYLES;
-  t: {
-    label: string;
-    title: string;
-    confirm: string;
-    cancel: string;
-    failed: string;
-    /** Error text per API error code, e.g. { pro_required: "…" }. */
-    codes?: Record<string, string>;
-  };
+}
+
+/**
+ * The confirmation of a form-level action (archive, restore, delete
+ * permanently), controlled from outside so a row menu can open it. Sends the
+ * request, refreshes the page on success and keeps the dialog open with the
+ * reason when it fails. `typeToConfirm` for what cannot be undone.
+ */
+export function FormActionDialog({
+  open,
+  onClose,
+  request,
+  tone = "primary",
+  typeToConfirm,
+  t,
+}: {
+  open: boolean;
+  onClose: () => void;
+  request: FormActionRequest;
+  tone?: "primary" | "danger";
+  typeToConfirm?: { expected: string; label: ReactNode };
+  t: FormActionCopy;
 }) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,16 +52,16 @@ export function FormActionButton({
     setBusy(true);
     setError(null);
     try {
-      const res = await fetch(url, {
-        method,
-        headers: body ? { "Content-Type": "application/json" } : undefined,
-        body: body ? JSON.stringify(body) : undefined,
+      const res = await fetch(request.url, {
+        method: request.method,
+        headers: request.body ? { "Content-Type": "application/json" } : undefined,
+        body: request.body ? JSON.stringify(request.body) : undefined,
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => null)) as { code?: string } | null;
         throw new Error((data?.code && t.codes?.[data.code]) || t.failed);
       }
-      setOpen(false);
+      onClose();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : t.failed);
@@ -68,28 +71,58 @@ export function FormActionButton({
   }
 
   return (
+    <ConfirmDialog
+      open={open}
+      onClose={() => {
+        if (busy) return;
+        setError(null);
+        onClose();
+      }}
+      onConfirm={onConfirm}
+      title={t.title}
+      description={t.confirm}
+      confirmLabel={t.label}
+      cancelLabel={t.cancel}
+      tone={tone}
+      busy={busy}
+      typeToConfirm={typeToConfirm}
+      error={error}
+    />
+  );
+}
+
+/** A button that opens a FormActionDialog. */
+export function FormActionButton({
+  request,
+  tone = "primary",
+  typeToConfirm,
+  size = "md",
+  t,
+}: {
+  request: FormActionRequest;
+  tone?: "primary" | "danger";
+  typeToConfirm?: { expected: string; label: ReactNode };
+  size?: "sm" | "md";
+  t: FormActionCopy;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
     <>
-      <button
-        type="button"
-        onClick={() => {
-          setError(null);
-          setOpen(true);
-        }}
-        className={STYLES[variant]}
+      <Button
+        variant="outline"
+        size={size}
+        onClick={() => setOpen(true)}
+        className={tone === "danger" ? "text-danger" : undefined}
       >
         {t.label}
-      </button>
-      <ConfirmDialog
+      </Button>
+      <FormActionDialog
         open={open}
-        title={t.title}
-        message={t.confirm}
-        confirmLabel={t.label}
-        cancelLabel={t.cancel}
-        busy={busy}
-        error={error}
-        danger={variant === "danger"}
-        onConfirm={onConfirm}
-        onCancel={() => setOpen(false)}
+        onClose={() => setOpen(false)}
+        request={request}
+        tone={tone}
+        typeToConfirm={typeToConfirm}
+        t={t}
       />
     </>
   );

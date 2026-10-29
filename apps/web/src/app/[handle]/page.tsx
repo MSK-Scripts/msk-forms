@@ -13,16 +13,12 @@ export const dynamic = "force-dynamic";
  * g, pricing, ...) win over this dynamic segment, and reserved names are
  * rejected, so a handle can only point at a guild's hub.
  */
-export default async function HandleHubPage({
-  params,
-}: {
-  params: Promise<{ handle: string }>;
-}) {
+export default async function HandleHubPage({ params }: { params: Promise<{ handle: string }> }) {
   const { handle: raw } = await params;
   const handle = normalizeHandle(decodeURIComponent(raw));
   if (!handle || isReservedHandle(handle)) notFound();
 
   const guild = await getGuildByHandle(handle);
   if (!guild) notFound();
-  return <GuildHub guild={guild} />;
+  return <GuildHub guild={guild} path={`/${handle}`} />;
 }

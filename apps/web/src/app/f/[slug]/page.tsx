@@ -2,8 +2,6 @@ import { cookies, headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import Script from "next/script";
 
-import type { CSSProperties } from "react";
-
 import {
   experimentActive,
   formScheduleStatus,
@@ -12,33 +10,34 @@ import {
   singleSubmissionEnforced,
 } from "@msk-forms/shared";
 
-import { CustomCss } from "@/components/branding/custom-css";
 import { FormRenderer } from "@/components/form/form-renderer";
+import { formLabels } from "@/components/form/form-labels";
+import { Clock, HourglassMedium, Lock } from "@/components/icons";
+import { DiscordMark } from "@/components/icons/brand-marks";
 import { Countdown } from "@/components/public/countdown";
 import { ExperimentView } from "@/components/public/experiment-view";
 import { LocalDateTime } from "@/components/public/local-datetime";
-import { PoweredBy } from "@/components/public/powered-by";
+import { PublicCard, PublicHead } from "@/components/public/public-content";
+import { PublicFrame } from "@/components/public/public-frame";
+import { Button } from "@/components/ui/button";
 import { experimentCookieName } from "@/lib/experiment";
 import { getCurrentUser } from "@/lib/auth";
-import { brandStyle, logoUrl, parseBranding } from "@/lib/branding";
+import { parseBranding } from "@/lib/branding";
 import { getGuildCaptchaSiteKey } from "@/lib/guild-captcha";
 import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 import { isGuildPro } from "@/lib/plan";
 import { captchaSiteKey } from "@/lib/captcha";
 import { findActiveSubmissionId, getLiveFormBySlug } from "@/lib/forms";
-import { getDict } from "@/i18n";
+import { getDict, getLocale } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export default async function PublicFormPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function PublicFormPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const form = await getLiveFormBySlug(slug);
-  const t = (await getDict()).form;
+  const dict = await getDict();
+  const t = dict.form;
 
   if (!form || !form.spec) notFound();
 
@@ -56,23 +55,41 @@ export default async function PublicFormPage({
   const loginHref = `/api/auth/discord/login?returnTo=${encodeURIComponent(`/f/${slug}`)}`;
 
   const branding = parseBranding(form.guild.branding);
-  const brand = brandStyle(branding);
-  const logo = logoUrl(form.guildId, branding);
-  const badge = (await isGuildPro(form.guildId)) ? null : <PoweredBy label={t.poweredBy} />;
+  const poweredBy = !(await isGuildPro(form.guildId));
 
-  if (form.status !== "live") {
-    return (
-      <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
-        <p className="text-sm text-muted-foreground">{t.notAccepting}</p>
-      </Shell>
-    );
-  }
+  /** The guild's frame around the form's heading and its card. */
+  const page = (
+    title: string,
+    description: string | null | undefined,
+    body: React.ReactNode,
+    before?: React.ReactNode,
+  ) => (
+    <PublicFrame
+      guild={{ id: form.guildId, name: form.guild.name, branding }}
+      hubHref={onCustomDomain ? "/" : `/g/${form.guildId}`}
+      returnTo={`/f/${slug}`}
+      poweredBy={poweredBy}
+    >
+      <PublicHead title={title} description={description} />
+      {before}
+      <PublicCard>{body}</PublicCard>
+    </PublicFrame>
+  );
+
+  const message = (text: string) => (
+    <p className="flex items-start gap-3 text-lead">
+      <Lock className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
+      {text}
+    </p>
+  );
+
+  if (form.status !== "live") return page(form.title, null, message(t.notAccepting));
 
   // One active submission per person: a signed-in applicant who already has an
   // open (non-terminal) submission for this form is sent to its status page
-  // rather than the form. Only enforceable for signed-in applicants — anonymous
-  // submits can't be tied to a person. Once a reviewer sets a terminal status
-  // they may apply again.
+  // rather than the form. Only enforceable for signed-in applicants, since
+  // anonymous submits can't be tied to a person. Once a reviewer sets a
+  // terminal status they may apply again.
   const user = await getCurrentUser();
   if (user && singleSubmissionEnforced(parseFormSettings(form.settings))) {
     const activeId = await findActiveSubmissionId(form.id, user.id, form.guildId);
@@ -83,48 +100,50 @@ export default async function PublicFormPage({
   const schedule = formScheduleStatus(form.openAt, form.closeAt, new Date());
   if (schedule.state === "scheduled") {
     const showCountdown = parseFormSettings(form.settings).showCountdown === true;
-    return (
-      <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
-        {showCountdown ? (
-          <Countdown targetIso={form.openAt!.toISOString()} label={t.opensIn} celebrate />
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            {t.opensAt} <LocalDateTime iso={form.openAt!.toISOString()} />
-          </p>
-        )}
-      </Shell>
+    const opens = (
+      <p className="flex flex-wrap items-center gap-x-2 text-muted-foreground">
+        <Clock className="h-5 w-5 shrink-0" />
+        {t.opensAt} <LocalDateTime iso={form.openAt!.toISOString()} />
+      </p>
+    );
+    return page(
+      form.title,
+      form.description,
+      showCountdown ? (
+        <div className="grid gap-5">
+          <Countdown
+            targetIso={form.openAt!.toISOString()}
+            label={t.opensIn}
+            units={dict.publicForm}
+            celebrate
+          />
+          {opens}
+        </div>
+      ) : (
+        opens
+      ),
     );
   }
-  if (schedule.state === "closed") {
-    return (
-      <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
-        <p className="text-sm text-muted-foreground">{t.closedAt}</p>
-      </Shell>
-    );
-  }
+  if (schedule.state === "closed") return page(form.title, null, message(t.closedAt));
 
-  if (form.visibility === "authenticated") {
-    if (!user) {
-      return (
-        <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
-          <p className="text-sm text-muted-foreground">{t.needLogin}</p>
-          <a
-            href={loginHref}
-            className="mt-4 inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
+  if (form.visibility === "authenticated" && !user) {
+    return page(
+      form.title,
+      form.description,
+      <div className="grid justify-items-start gap-5">
+        <p className="text-lead">{t.needLogin}</p>
+        <Button asChild size="lg">
+          <a href={loginHref}>
+            <DiscordMark className="h-5 w-5" />
             {t.loginDiscord}
           </a>
-        </Shell>
-      );
-    }
+        </Button>
+      </div>,
+    );
   }
 
   if (form.visibility === "password" || form.visibility === "role_required") {
-    return (
-      <Shell guildName={form.guild.name} title={form.title} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
-        <p className="text-sm text-muted-foreground">{t.accessRestricted}</p>
-      </Shell>
-    );
+    return page(form.title, null, message(t.accessRestricted));
   }
 
   // The global Turnstile sitekey is bound to the primary host's allowlist, so it
@@ -135,7 +154,7 @@ export default async function PublicFormPage({
 
   // A/B test: assign a variant (sticky cookie, else weighted-random) and show
   // its copy. The variant is tracked client-side (view) and sent with the
-  // submission (conversion). Inactive experiment → the form's own copy.
+  // submission (conversion). Inactive experiment: the form's own copy.
   const experiment = parseFormSettings(form.settings).experiment;
   let variantId: string | null = null;
   let title = form.title;
@@ -150,8 +169,26 @@ export default async function PublicFormPage({
     if (variant?.description) description = variant.description;
   }
 
-  return (
-    <Shell guildName={form.guild.name} title={title} description={description} style={brand} logoSrc={logo} customCss={branding.customCss} poweredBy={badge}>
+  // When the form closes, said in words and with a sign; the guild's colour
+  // marks it when the end is near, no status colour on the guild's page.
+  const closes = form.closeAt ? (
+    schedule.endingSoon ? (
+      <p className="flex flex-wrap items-center gap-x-2 rounded-md bg-accent-soft px-4 py-3 font-semibold text-primary">
+        <HourglassMedium className="h-5 w-5 shrink-0" weight="bold" />
+        {t.endingSoon} <LocalDateTime iso={form.closeAt.toISOString()} />
+      </p>
+    ) : (
+      <p className="flex flex-wrap items-center gap-x-2 text-muted-foreground">
+        <Clock className="h-5 w-5 shrink-0" />
+        {t.closesAt} <LocalDateTime iso={form.closeAt.toISOString()} />
+      </p>
+    )
+  ) : null;
+
+  return page(
+    title,
+    description,
+    <>
       {variantId && <ExperimentView slug={form.slug} variant={variantId} />}
       {siteKey && (
         <Script
@@ -160,78 +197,14 @@ export default async function PublicFormPage({
           nonce={nonce}
         />
       )}
-      {form.closeAt && (
-        <p
-          className={`mb-5 rounded-md border px-3 py-2 text-sm ${
-            schedule.endingSoon
-              ? "border-amber-500/40 bg-amber-500/10 font-medium text-amber-600 dark:text-amber-400"
-              : "border-border bg-muted/40 text-muted-foreground"
-          }`}
-        >
-          {schedule.endingSoon ? `⏳ ${t.endingSoon} ` : `${t.closesAt} `}
-          <LocalDateTime iso={form.closeAt.toISOString()} />
-        </p>
-      )}
       <FormRenderer
         slug={form.slug}
         spec={form.spec}
         captchaSiteKey={siteKey}
         experimentVariant={variantId ?? undefined}
-        labels={{
-          submit: t.submit,
-          submitting: t.submitting,
-          required: t.required,
-          submitFailed: t.submitFailed,
-          captchaRequired: t.captchaRequired,
-          fileUploading: t.fileUploading,
-          fileRemove: t.fileRemove,
-          uploadFailed: t.uploadFailed,
-          signatureClear: t.signatureClear,
-          next: t.next,
-          back: t.back,
-          step: t.step,
-          dateToday: t.dateToday,
-          dateClear: t.dateClear,
-          dateNow: t.dateNow,
-          previewNote: t.previewNote,
-          yes: t.yes,
-          no: t.no,
-        }}
+        labels={formLabels(dict, await getLocale())}
       />
-    </Shell>
-  );
-}
-
-function Shell({
-  guildName,
-  title,
-  description,
-  children,
-  style,
-  logoSrc,
-  customCss,
-  poweredBy,
-}: {
-  guildName: string;
-  title: string;
-  description?: string | null;
-  children: React.ReactNode;
-  style?: CSSProperties;
-  logoSrc?: string | null;
-  customCss?: string;
-  poweredBy?: React.ReactNode;
-}) {
-  return (
-    <main className="msk-form pwa-safe-x pwa-safe-b mx-auto flex max-w-2xl flex-col gap-6 pt-12" style={style}>
-      <CustomCss css={customCss} />
-      <header className="flex flex-col gap-1">
-        {logoSrc && <img src={logoSrc} alt="" className="mb-2 h-12 w-auto self-start" />}
-        <span translate="no" className="text-sm font-medium text-primary">{guildName}</span>
-        <h1 className="font-heading text-3xl font-bold text-foreground">{title}</h1>
-        {description && <p className="text-muted-foreground">{description}</p>}
-      </header>
-      <div className="rounded-lg border border-border bg-card p-6 shadow-xs">{children}</div>
-      {poweredBy}
-    </main>
+    </>,
+    closes,
   );
 }

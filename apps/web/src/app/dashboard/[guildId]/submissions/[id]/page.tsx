@@ -1,23 +1,36 @@
 import { prisma } from "@msk-forms/db";
 import { parseStatusMessages, resolveStatusMessage } from "@msk-forms/shared";
-import type { Route } from "next";
-import { StatusBadge } from "@msk-forms/ui";
-import Link from "next/link";
+import { SubmissionStatusBadge } from "@msk-forms/ui";
 import { notFound } from "next/navigation";
 
-import { AnswerSummary } from "@/components/submission/answer-summary";
+import { EmptyState, PageHeader, SectionCard } from "@/components/dashboard-kit";
+import {
+  ChatText,
+  Eye,
+  Flag,
+  Lock,
+  PencilSimple,
+  Robot,
+  type IconComponent,
+} from "@/components/icons";
+import { LocalDateTime } from "@/components/public/local-datetime";
 import { ReviewPanel } from "@/components/review/review-panel";
+import { AnswerSummary } from "@/components/submission/answer-summary";
 import { requireUser } from "@/lib/auth";
 import { getSubmissionForReview, resolveStatus } from "@/lib/forms";
 import { getReviewScope } from "@/lib/guild";
+import { cn } from "@/lib/utils";
+import { dotColors } from "@/lib/color-dot";
 import { getDict } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function fmt(date: Date): string {
-  return date.toISOString().slice(0, 16).replace("T", " ");
-}
+const EVENT_ICON: Record<string, IconComponent> = {
+  status_change: Flag,
+  note: PencilSimple,
+  message: ChatText,
+};
 
 export default async function SubmissionDetailPage({
   params,
@@ -38,6 +51,8 @@ export default async function SubmissionDetailPage({
   if (!canReview) notFound();
   const status = resolveStatus(submission.status, submission.statusDefs, dict.statusLabels);
   const answers = (submission.answers ?? {}) as Record<string, unknown>;
+  const username = submission.user?.username ?? null;
+  const applicant = username ?? t.anonymous;
 
   // Resolve the per-status message template (form override -> guild) so the
   // review panel can prefill the applicant message when a status is picked.
@@ -55,65 +70,107 @@ export default async function SubmissionDetailPage({
     if (msg) statusMessages[opt.key] = msg;
   }
 
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3">
-        <Link
-          href={`/dashboard/${guildId}/submissions` as Route}
-          className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-        >
-          ← {t.back}
-        </Link>
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="font-heading text-2xl font-bold text-foreground">
-            {submission.form.title}
-          </h1>
-          <StatusBadge label={status.label} color={status.color} />
-          {submission.score != null && (
-            <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
-              {dict.dashboard.colScore}: {submission.score}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          {submission.user?.avatar && (
-            <img src={submission.user.avatar} alt="" width={20} height={20} className="rounded-full" />
-          )}
-          <span>{submission.user?.username ?? t.anonymous}</span>
-          <span>·</span>
-          <span className="font-mono text-xs">
-            {t.submitted} {submission.submittedAt.toISOString().slice(0, 10)}
-          </span>
-        </div>
-      </div>
+  const events = submission.events;
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
-        <div className="flex flex-col gap-6">
-          {submission.spec && (
-            <section className="rounded-lg border border-border bg-card p-6 shadow-xs">
-              <h2 className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {t.answers}
-              </h2>
+  return (
+    <>
+      <PageHeader
+        title={
+          <span className="inline-flex items-center gap-3">
+            {submission.user?.avatar && (
+              <img
+                src={submission.user.avatar}
+                alt=""
+                width={40}
+                height={40}
+                className="h-10 w-10 shrink-0 rounded-full"
+              />
+            )}
+            <span translate={username ? "no" : undefined} className="break-words">
+              {applicant}
+            </span>
+          </span>
+        }
+        badge={<SubmissionStatusBadge label={status.label} {...dotColors(status.color)} />}
+        breadcrumbs={[
+          { label: dict.dashboard.submissionsTab, href: `/dashboard/${guildId}/submissions` },
+          { label: <span translate={username ? "no" : undefined}>{applicant}</span> },
+        ]}
+        breadcrumbLabel={dict.kit.breadcrumb}
+        description={
+          <dl className="flex flex-wrap gap-x-8 gap-y-3 pt-1">
+            <div className="grid gap-0.5">
+              <dt className="text-label font-semibold tracking-[0.08em] text-muted-foreground uppercase">
+                {dict.dashboard.colForm}
+              </dt>
+              <dd translate="no" className="font-semibold text-foreground">
+                {submission.form.title}
+              </dd>
+            </div>
+            <div className="grid gap-0.5">
+              <dt className="text-label font-semibold tracking-[0.08em] text-muted-foreground uppercase">
+                {t.submitted}
+              </dt>
+              <dd className="text-foreground tabular-nums">
+                <LocalDateTime iso={submission.submittedAt.toISOString()} />
+              </dd>
+            </div>
+            {submission.score != null && (
+              <div className="grid gap-0.5">
+                <dt className="text-label font-semibold tracking-[0.08em] text-muted-foreground uppercase">
+                  {dict.dashboard.colScore}
+                </dt>
+                <dd className="font-semibold text-foreground tabular-nums">{submission.score}</dd>
+              </div>
+            )}
+          </dl>
+        }
+      />
+
+      {/* Answers and review side by side where the content column has room,
+          stacked on narrow screens with the answers first. */}
+      <div className="grid items-start gap-6 @4xl:grid-cols-[minmax(0,1fr)_minmax(20rem,26rem)]">
+        {submission.spec && (
+          <SectionCard title={t.answers} bodyClassName="py-1">
+            <div className="max-w-[65ch]">
               <AnswerSummary
                 spec={submission.spec}
                 answers={answers}
-                labels={{ notAnswered: dict.status.notAnswered, yes: dict.status.yes, no: dict.status.no }}
+                labels={{
+                  notAnswered: dict.status.notAnswered,
+                  yes: dict.status.yes,
+                  no: dict.status.no,
+                }}
                 files={submission.files}
               />
-            </section>
+            </div>
+          </SectionCard>
+        )}
+
+        <div className="grid gap-6">
+          {canReview ? (
+            <ReviewPanel
+              guildId={guildId}
+              submissionId={submission.id}
+              currentStatus={submission.status}
+              options={submission.options}
+              statusMessages={statusMessages}
+              t={t}
+              dismissLabel={dict.kit.dismiss}
+            />
+          ) : (
+            <EmptyState kind="unavailable" title={t.noPermReview} />
           )}
 
-          <section className="rounded-lg border border-border bg-card p-6 shadow-xs">
-            <h2 className="mb-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              {t.timeline}
-            </h2>
-            {submission.events.length === 0 ? (
-              <p className="text-sm text-muted-foreground">{t.noEvents}</p>
+          <SectionCard title={t.timeline}>
+            {events.length === 0 ? (
+              <p className="text-muted-foreground">{t.noEvents}</p>
             ) : (
-              <ol className="flex flex-col gap-4">
-                {submission.events.map((ev) => {
+              <ol className="grid">
+                {events.map((ev, i) => {
                   const internal = ev.visibility === "internal";
-                  const actor = ev.actor?.username ?? t.system;
+                  const actor = ev.actor?.username ?? null;
+                  const Icon = EVENT_ICON[ev.type] ?? Flag;
                   const verb =
                     ev.type === "status_change"
                       ? `${t.statusChanged} ${t.to} “${resolveStatus(ev.toStatus ?? "", submission.statusDefs, dict.statusLabels).label}”`
@@ -123,47 +180,65 @@ export default async function SubmissionDetailPage({
                   return (
                     <li
                       key={ev.id}
-                      className={`flex flex-col gap-1 border-s-2 ps-3 ${internal ? "border-border" : "border-primary"}`}
+                      className="relative grid grid-cols-[2rem_minmax(0,1fr)] gap-x-3 pb-5 last:pb-0"
                     >
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span className="font-mono">{fmt(ev.createdAt)}</span>
+                      {/* The line between two events. */}
+                      {i < events.length - 1 && (
                         <span
-                          className={`rounded-sm px-1.5 py-0.5 font-mono uppercase tracking-wide ${
-                            internal ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"
-                          }`}
-                        >
-                          {internal ? t.internal : t.public}
-                        </span>
-                      </div>
-                      <p className="text-sm text-foreground">
-                        <span className="font-medium">{actor}</span> {verb}
-                      </p>
-                      {ev.message && (
-                        <p className="whitespace-pre-wrap text-sm text-muted-foreground">{ev.message}</p>
+                          aria-hidden
+                          className="absolute top-9 bottom-0 left-4 w-px bg-border"
+                        />
                       )}
+                      <span
+                        aria-hidden
+                        className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-muted text-muted-foreground"
+                      >
+                        <Icon className="h-4 w-4" />
+                      </span>
+                      <div className="grid min-w-0 gap-1.5">
+                        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-small text-muted-foreground">
+                          <span className="tabular-nums">
+                            <LocalDateTime iso={ev.createdAt.toISOString()} />
+                          </span>
+                          <span
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-sm px-1.5 font-semibold",
+                              internal
+                                ? "bg-muted text-muted-foreground"
+                                : "bg-accent-soft text-primary",
+                            )}
+                          >
+                            {internal ? <Lock className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            {internal ? t.internal : t.public}
+                          </span>
+                        </p>
+                        <p className="break-words">
+                          {actor ? (
+                            <span translate="no" className="font-semibold">
+                              {actor}
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 font-semibold">
+                              <Robot className="h-4 w-4" />
+                              {t.system}
+                            </span>
+                          )}{" "}
+                          {verb}
+                        </p>
+                        {ev.message && (
+                          <p className="rounded-md bg-muted px-3 py-2 text-small break-words whitespace-pre-wrap">
+                            {ev.message}
+                          </p>
+                        )}
+                      </div>
                     </li>
                   );
                 })}
               </ol>
             )}
-          </section>
+          </SectionCard>
         </div>
-
-        {canReview ? (
-          <ReviewPanel
-            guildId={guildId}
-            submissionId={submission.id}
-            currentStatus={submission.status}
-            options={submission.options}
-            statusMessages={statusMessages}
-            t={t}
-          />
-        ) : (
-          <aside className="rounded-lg border border-border bg-card p-5 text-sm text-muted-foreground shadow-xs">
-            {t.noPermReview}
-          </aside>
-        )}
       </div>
-    </div>
+    </>
   );
 }

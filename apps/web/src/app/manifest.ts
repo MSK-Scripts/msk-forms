@@ -1,12 +1,12 @@
 import type { MetadataRoute } from "next";
 
-import { logoUrl, parseBranding } from "@/lib/branding";
+import { logoUrl, MSK_GREEN, parseBranding, THEME_SURFACES } from "@/lib/branding";
 import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
 
-// MSK green (light --primary ≈ #4ea426) — used for the title bar / splash accent.
-const THEME_COLOR = "#4ea426";
-// Matches the light --background token so the splash screen doesn't flash.
-const BACKGROUND_COLOR = "#f6f6f6";
+// MSK green (light --primary): the title bar and splash accent.
+const THEME_COLOR = MSK_GREEN;
+// The light --background token, so the splash screen doesn't flash.
+const BACKGROUND_COLOR = THEME_SURFACES.light.background;
 
 const DEFAULT_ICONS = [
   { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },

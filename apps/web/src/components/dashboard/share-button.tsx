@@ -1,102 +1,74 @@
 "use client";
 
-import { Button } from "@msk-forms/ui";
-import { useState } from "react";
+import { CopyField, type CopyFieldCopy } from "@/components/dashboard-kit";
+import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
 
 export interface ShareLabels {
   share: string;
   link: string;
-  copy: string;
-  copied: string;
   qrCode: string;
-  embedCode: string;
 }
 
 /**
- * Per-form distribution panel (concept §4/§9): public link, a (server-rendered)
- * QR code, and an embed snippet — each with a copy button. Toggled open inline.
+ * Where a live form can be shared: the public link as a CopyField that stays
+ * selectable text, and a QR code rendered on the server, so no script draws
+ * it. A dialog, opened from the form's row.
+ *
+ * No iframe embed snippet: the CSP forbids framing every page
+ * (`frame-ancestors 'none'` and `X-Frame-Options: DENY` in proxy.ts), so an
+ * embedded form never loaded.
  */
-export function ShareButton({
+export function ShareDialog({
+  open,
+  onClose,
+  title,
   url,
   qrDataUrl,
+  qrAlt,
+  closeLabel,
   t,
+  copy,
 }: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
   url: string;
-  qrDataUrl: string;
+  qrDataUrl: string | null;
+  /** Describes the QR code for a screen reader: "QR code for https://…". */
+  qrAlt: string;
+  closeLabel: string;
   t: ShareLabels;
+  copy: CopyFieldCopy;
 }) {
-  const [open, setOpen] = useState(false);
-  const [copied, setCopied] = useState<string | null>(null);
-
-  const embed = `<iframe src="${url}" width="100%" height="600" style="border:0" title="MSK Forms"></iframe>`;
-
-  async function copy(text: string, key: string) {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(key);
-      setTimeout(() => setCopied((c) => (c === key ? null : c)), 1500);
-    } catch {
-      /* clipboard unavailable — ignore */
-    }
-  }
-
-  const CopyBtn = ({ text, k }: { text: string; k: string }) => (
-    <Button variant="ghost" className="shrink-0" onClick={() => copy(text, k)}>
-      {copied === k ? t.copied : t.copy}
-    </Button>
-  );
-
   return (
-    <div className="flex flex-col gap-3">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="self-start text-sm font-medium text-primary transition-colors hover:underline"
-      >
-        {t.share}
-      </button>
-
-      {open && (
-        <div className="flex flex-col gap-4 rounded-md border border-border bg-background p-4">
-          <label className="flex flex-col gap-1">
-            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              {t.link}
-            </span>
-            <div className="flex gap-2">
-              <input
-                readOnly
-                value={url}
-                onFocus={(e) => e.currentTarget.select()}
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title={title}
+      className="w-[min(100%_-_2rem,36rem)]"
+      body={
+        <div className="grid gap-5">
+          <CopyField label={t.link} value={url} copy={copy} />
+          {qrDataUrl && (
+            <figure className="grid justify-items-start gap-1.5">
+              <figcaption className="text-small font-semibold">{t.qrCode}</figcaption>
+              {/* A white tile in both themes: phone cameras read dark modules on light ground. */}
+              <img
+                src={qrDataUrl}
+                alt={qrAlt}
+                width={176}
+                height={176}
+                className="rounded-md bg-white p-1"
               />
-              <CopyBtn text={url} k="link" />
-            </div>
-          </label>
-
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              {t.qrCode}
-            </span>
-            <img src={qrDataUrl} alt={t.qrCode} width={176} height={176} className="rounded-md" />
-          </div>
-
-          <label className="flex flex-col gap-1">
-            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              {t.embedCode}
-            </span>
-            <div className="flex gap-2">
-              <textarea
-                readOnly
-                value={embed}
-                rows={2}
-                onFocus={(e) => e.currentTarget.select()}
-                className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 font-mono text-xs text-foreground"
-              />
-              <CopyBtn text={embed} k="embed" />
-            </div>
-          </label>
+            </figure>
+          )}
         </div>
-      )}
-    </div>
+      }
+    >
+      <Button variant="outline" onClick={onClose}>
+        {closeLabel}
+      </Button>
+    </Dialog>
   );
 }

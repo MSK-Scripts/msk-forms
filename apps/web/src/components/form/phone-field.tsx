@@ -1,7 +1,9 @@
 "use client";
 
-import { IconChevronDown } from "@tabler/icons-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
+
+import { useDismiss } from "@/components/dashboard-kit/use-dismiss";
+import { CaretDown } from "@/components/icons";
 
 import { COUNTRIES, DEFAULT_COUNTRY, flagOf, formatPhone, parsePhone } from "@/lib/countries";
 
@@ -18,8 +20,13 @@ export function PhoneField({
   invalid,
   disabled,
   placeholder,
+  describedBy,
+  countryLabel,
 }: {
   id: string;
+  describedBy?: string;
+  /** Name of the country code button, before the chosen country. */
+  countryLabel: string;
   value: string | undefined;
   onChange: (value: string) => void;
   invalid?: boolean;
@@ -31,17 +38,14 @@ export function PhoneField({
   const [number, setNumber] = useState(parsed.number);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const country = COUNTRIES.find((c) => c.code === code) ?? DEFAULT_COUNTRY;
 
-  useEffect(() => {
-    if (!open) return;
-    function onDocClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    }
-    document.addEventListener("mousedown", onDocClick);
-    return () => document.removeEventListener("mousedown", onDocClick);
-  }, [open]);
+  useDismiss(open, ref, (reason) => {
+    setOpen(false);
+    if (reason === "escape") buttonRef.current?.focus();
+  });
 
   function update(nextCode: string, nextNumber: string) {
     const dial = (COUNTRIES.find((c) => c.code === nextCode) ?? DEFAULT_COUNTRY).dial;
@@ -50,22 +54,28 @@ export function PhoneField({
     onChange(formatPhone(dial, nextNumber));
   }
 
-  const border = invalid ? "border-destructive" : "border-input";
+  const border = invalid ? "border-danger" : "border-input";
 
   return (
     <div ref={ref} className="relative">
-      <div className={`flex overflow-hidden rounded-md border ${border} bg-background`}>
+      <div className={`flex min-h-11 overflow-hidden rounded-md border-[1.5px] ${border} bg-card`}>
         <button
+          ref={buttonRef}
           type="button"
           disabled={disabled}
           onClick={() => setOpen((o) => !o)}
           aria-haspopup="listbox"
           aria-expanded={open}
-          className="flex shrink-0 items-center gap-1.5 border-e border-input bg-muted/40 px-2.5 text-sm text-foreground outline-hidden transition-colors hover:bg-muted/70 disabled:opacity-50"
+          aria-label={`${countryLabel}: ${country.name} +${country.dial}`}
+          className="flex min-h-11 shrink-0 items-center gap-1.5 border-e-[1.5px] border-input bg-muted px-3 text-base text-foreground transition-colors focus-visible:outline-offset-[-3px] disabled:opacity-50"
         >
-          <span className="text-base leading-none">{flagOf(country.code)}</span>
-          <span className="tabular-nums">+{country.dial}</span>
-          <IconChevronDown size={14} stroke={1.75} className="text-muted-foreground" />
+          <span aria-hidden className="leading-none">
+            {flagOf(country.code)}
+          </span>
+          <span aria-hidden className="tabular-nums">
+            +{country.dial}
+          </span>
+          <CaretDown className="h-4 w-4 text-muted-foreground" />
         </button>
         <input
           id={id}
@@ -75,15 +85,18 @@ export function PhoneField({
           value={number}
           placeholder={placeholder ?? `+${country.dial}`}
           disabled={disabled}
+          aria-describedby={describedBy}
+          aria-invalid={invalid || undefined}
           onChange={(e) => update(code, e.target.value.replace(/[^\d]/g, ""))}
-          className="w-full bg-transparent px-3 py-2 text-sm text-foreground outline-hidden placeholder:text-muted-foreground disabled:opacity-50"
+          className="w-full min-w-0 bg-transparent px-3 py-2 text-base text-foreground placeholder:text-muted-foreground focus-visible:outline-offset-[-3px] disabled:opacity-50"
         />
       </div>
 
       {open && (
         <ul
           role="listbox"
-          className="absolute z-50 mt-1 max-h-64 w-64 overflow-auto rounded-md border border-border bg-popover p-1 shadow-md"
+          aria-label={countryLabel}
+          className="absolute z-50 mt-1.5 max-h-72 w-[min(20rem,calc(100vw-2rem))] overflow-auto rounded-lg border border-border bg-card p-1 shadow-[var(--shadow-card-hover)]"
         >
           {COUNTRIES.map((c) => (
             <li key={c.code}>
@@ -94,12 +107,15 @@ export function PhoneField({
                 onClick={() => {
                   update(c.code, number);
                   setOpen(false);
+                  buttonRef.current?.focus();
                 }}
-                className={`flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-start text-sm transition-colors hover:bg-accent ${
-                  c.code === code ? "bg-accent/60" : ""
+                className={`flex min-h-11 w-full items-center gap-2 rounded-md px-2.5 text-start text-base transition-colors hover:bg-muted ${
+                  c.code === code ? "bg-accent-soft" : ""
                 }`}
               >
-                <span className="text-base leading-none">{flagOf(c.code)}</span>
+                <span aria-hidden className="leading-none">
+                  {flagOf(c.code)}
+                </span>
                 <span className="flex-1 truncate text-foreground">{c.name}</span>
                 <span className="text-muted-foreground tabular-nums">+{c.dial}</span>
               </button>

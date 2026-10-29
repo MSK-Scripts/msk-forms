@@ -13,10 +13,7 @@ import {
  * fires `submission.created`, `changeSubmissionStatus` fires
  * `submission.status_changed`.
  */
-export const WEBHOOK_EVENTS = [
-  "submission.created",
-  "submission.status_changed",
-] as const;
+export const WEBHOOK_EVENTS = ["submission.created", "submission.status_changed"] as const;
 export type WebhookEvent = (typeof WEBHOOK_EVENTS)[number];
 
 const webhookEventSchema = z.enum(WEBHOOK_EVENTS);
@@ -63,7 +60,7 @@ export const webhookInputSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["url"],
-        message: "This looks like a Discord webhook URL — choose the Discord format.",
+        message: "This looks like a Discord webhook URL. Choose the Discord format.",
       });
     }
   });
@@ -239,13 +236,21 @@ export function buildDiscordWebhookBody(payload: SubmissionWebhookPayload): Disc
   const applicant = payload.applicant?.anonymous
     ? "Anonymous"
     : payload.applicant?.name || payload.applicant?.discordId || "Unknown";
-  fields.push({ name: "Applicant", value: truncate(applicant, DISCORD_MAX_FIELD_VALUE), inline: true });
+  fields.push({
+    name: "Applicant",
+    value: truncate(applicant, DISCORD_MAX_FIELD_VALUE),
+    inline: true,
+  });
 
   const statusText =
     !created && payload.fromStatus
       ? `${payload.fromStatus} → ${payload.toStatus ?? payload.status}`
       : payload.status;
-  fields.push({ name: "Status", value: truncate(statusText, DISCORD_MAX_FIELD_VALUE), inline: true });
+  fields.push({
+    name: "Status",
+    value: truncate(statusText, DISCORD_MAX_FIELD_VALUE),
+    inline: true,
+  });
 
   if (payload.score !== null && payload.score !== undefined) {
     fields.push({ name: "Score", value: String(payload.score), inline: true });

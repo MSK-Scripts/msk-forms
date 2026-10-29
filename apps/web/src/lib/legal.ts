@@ -8,6 +8,8 @@
 // lists, | tables, paragraphs (consecutive lines joined with <br />), plus
 // inline **bold**, *italic*, `code`, and [text](http|mailto) links.
 
+import { shopUrl } from "./shop-url";
+
 export function renderMarkdown(md: string): string {
   const lines = md.split("\n");
   const output: string[] = [];
@@ -103,7 +105,11 @@ function renderTable(lines: string[]): string {
   const rows = lines.filter((l) => !/^\|[\s\-:|]+\|$/.test(l.trim()));
   if (rows.length === 0) return "";
 
-  const parseRow = (row: string): string[] => row.split("|").slice(1, -1).map((cell) => cell.trim());
+  const parseRow = (row: string): string[] =>
+    row
+      .split("|")
+      .slice(1, -1)
+      .map((cell) => cell.trim());
 
   const [headerRow, ...bodyRows] = rows;
   const headers = parseRow(headerRow!)
@@ -122,14 +128,19 @@ function renderTable(lines: string[]): string {
 }
 
 function inline(text: string): string {
-  return text
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, "<em>$1</em>")
-    .replace(/`(.+?)`/g, "<code>$1</code>")
-    .replace(/\[(.+?)\]\((https?:\/\/.+?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
-    .replace(/\[(.+?)\]\((mailto:.+?)\)/g, '<a href="$2">$1</a>')
-    // Relative in-app links (e.g. [Privacy Policy](/terms/privacy)) — same tab.
-    .replace(/\[(.+?)\]\((\/[^)]*?)\)/g, '<a href="$2">$1</a>');
+  return (
+    text
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, "<em>$1</em>")
+      .replace(/`(.+?)`/g, "<code>$1</code>")
+      .replace(
+        /\[(.+?)\]\((https?:\/\/.+?)\)/g,
+        '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>',
+      )
+      .replace(/\[(.+?)\]\((mailto:.+?)\)/g, '<a href="$2">$1</a>')
+      // Relative in-app links (e.g. [Privacy Policy](/terms/privacy)) — same tab.
+      .replace(/\[(.+?)\]\((\/[^)]*?)\)/g, '<a href="$2">$1</a>')
+  );
 }
 
 // ── Links to the legal pages on msk-scripts.de ──────────────────────────────
@@ -140,19 +151,18 @@ function inline(text: string): string {
 // Enterprise by name. A second copy on this domain would only drift, and the
 // drifting one is always the one nobody looks at.
 //
-// Only German and English exist over there, so every other locale gets the
-// English page.
-
-const SHOP_URL = "https://www.msk-scripts.de";
+// The addresses are the shop's canonical ones in the visitor's language
+// (lib/shop-url.ts); only German and English exist over there, so every other
+// locale gets the English page.
 
 export type ShopLegalPage =
-  | "/terms"
-  | "/terms/widerruf"
-  | "/terms/avv"
-  | "/vertrag-widerrufen"
-  | "/vertrag-kuendigen"
+  | "/legal/terms"
+  | "/legal/withdrawal"
+  | "/legal/dpa"
+  | "/withdraw-contract"
+  | "/cancel-contract"
   | "/report";
 
 export function shopLegalUrl(locale: string, page: ShopLegalPage): string {
-  return `${SHOP_URL}${locale === "de" ? "/de" : ""}${page}`;
+  return shopUrl(locale, page);
 }

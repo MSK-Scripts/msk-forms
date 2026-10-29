@@ -1,12 +1,13 @@
 import { cookies } from "next/headers";
 
 import { dictionaries, type Dictionary, type Locale } from "./dictionaries";
+import { LOCALE_COOKIE } from "./locale-options";
 
 export type { Dictionary, Locale } from "./dictionaries";
+export { LOCALE_COOKIE } from "./locale-options";
 
 export const locales: Locale[] = ["en", "de", "hu", "fr", "es", "pt", "pl"];
 export const defaultLocale: Locale = "en";
-export const LOCALE_COOKIE = "NEXT_LOCALE";
 
 /**
  * Locale codes that read right-to-left. Add an RTL locale's code here (once its

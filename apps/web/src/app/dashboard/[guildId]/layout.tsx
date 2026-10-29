@@ -1,15 +1,23 @@
-import { Card } from "@msk-forms/ui";
+import Link from "next/link";
 
-import { GuildIcon } from "@/components/dashboard/guild-icon";
-import { NavTabs, type NavTab } from "@/components/dashboard/nav-tabs";
-import { requireUser } from "@/lib/auth";
-import { logoUrl as guildLogoUrl, parseBranding } from "@/lib/branding";
-import { getReviewScope, MANAGER_ROLES, requireGuildMembership } from "@/lib/guild";
+import { DashboardFrame } from "@/components/dashboard/dashboard-frame";
+import { EmptyState, PageHeader } from "@/components/dashboard-kit";
+import { Button } from "@/components/ui/button";
 import { getDict } from "@/i18n";
+import { requireUser } from "@/lib/auth";
+import { dashboardAccess, visibleGuildAreas } from "@/lib/dashboard-nav";
+import { getReviewScope, requireGuildMembership } from "@/lib/guild";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+/**
+ * A guild's dashboard. Membership is checked here (404 for anyone else), the
+ * sidebar lists the areas the member's role and grants open
+ * (lib/dashboard-nav.ts), and every page checks its own permission again.
+ * A member who can neither manage nor review sees that the access is pending
+ * instead of the page.
+ */
 export default async function GuildLayout({
   children,
   params,
@@ -20,62 +28,34 @@ export default async function GuildLayout({
   const { guildId } = await params;
   const user = await requireUser(`/dashboard/${guildId}/forms`);
   const guild = await requireGuildMembership(guildId, user.id);
-  const t = (await getDict()).dashboard;
-
-  const canManage = (MANAGER_ROLES as readonly string[]).includes(guild.role);
   const scope = await getReviewScope(guildId, user.id);
-  const canReview = scope.all || scope.formIds.length > 0;
-  const tabs: NavTab[] = [
-    ...(canManage || canReview
-      ? [{ href: `/dashboard/${guildId}/forms`, label: t.formsTab, prefix: true }]
-      : []),
-    ...(canReview
-      ? [
-          { href: `/dashboard/${guildId}/submissions`, label: t.submissionsTab, prefix: true },
-          { href: `/dashboard/${guildId}/board`, label: t.boardTab, prefix: true },
-        ]
-      : []),
-    ...(canManage
-      ? [
-          { href: `/dashboard/${guildId}/statuses`, label: t.statusesTab, prefix: true },
-          { href: `/dashboard/${guildId}/messages`, label: t.messagesTab, prefix: true },
-          { href: `/dashboard/${guildId}/categories`, label: t.categoriesTab, prefix: true },
-          { href: `/dashboard/${guildId}/branding`, label: t.brandingTab, prefix: true },
-          { href: `/dashboard/${guildId}/bot`, label: t.botTab, prefix: true },
-          // Not "/logs": the root .gitignore ignores every logs/ directory, so a
-          // page there silently never gets committed (that happened once).
-          { href: `/dashboard/${guildId}/audit-log`, label: t.logsTab, prefix: true },
-          { href: `/dashboard/${guildId}/webhooks`, label: t.webhooksTab, prefix: true },
-          { href: `/dashboard/${guildId}/domain`, label: t.domainTab, prefix: true },
-          { href: `/dashboard/${guildId}/api`, label: t.apiTab, prefix: true },
-          { href: `/dashboard/${guildId}/members`, label: t.membersTab, prefix: true },
-        ]
-      : []),
-  ];
+  const areas = visibleGuildAreas(dashboardAccess(guild.role, scope));
 
+  if (areas.length > 0) {
+    return (
+      <DashboardFrame user={user} guildId={guildId} areas={areas}>
+        {children}
+      </DashboardFrame>
+    );
+  }
+
+  const t = (await getDict()).dashboard;
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center gap-3">
-        <GuildIcon
-          icon={guild.icon}
-          logoUrl={guildLogoUrl(guild.id, parseBranding(guild.branding))}
-          name={guild.name}
-          size={36}
-          className="rounded-md"
-        />
-        <h1 translate="no" className="font-heading text-2xl font-bold text-foreground">{guild.name}</h1>
-      </div>
-
-      {canManage || canReview ? (
-        <>
-          <NavTabs tabs={tabs} />
-          <div>{children}</div>
-        </>
-      ) : (
-        <Card className="p-8">
-          <p className="text-muted-foreground">{t.pendingAccess}</p>
-        </Card>
-      )}
-    </div>
+    <DashboardFrame user={user} guildId={guildId} areas={areas}>
+      <PageHeader title={<span translate="no">{guild.name}</span>} />
+      <EmptyState
+        kind="unavailable"
+        title={t.pendingTitle}
+        action={
+          <Button asChild variant="outline">
+            <Link href="/dashboard" prefetch={false}>
+              {t.nav.allServers}
+            </Link>
+          </Button>
+        }
+      >
+        {t.pendingAccess}
+      </EmptyState>
+    </DashboardFrame>
   );
 }

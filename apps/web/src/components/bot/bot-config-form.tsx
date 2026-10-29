@@ -1,10 +1,17 @@
 "use client";
 
 import { acceptedRoleIdsOf, parseIdList, type BotConfig } from "@msk-forms/shared";
-import { Button, Card, Field, Input } from "@msk-forms/ui";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { FormField, FormSection, Notice } from "@/components/dashboard-kit";
+import {
+  SettingsSaveBar,
+  type SaveResult,
+  type SettingsSaveCopy,
+} from "@/components/settings/settings-save-bar";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import type { Dictionary } from "@/i18n";
 
 type BotDict = Dictionary["botConfig"];
@@ -19,30 +26,62 @@ const LOCALE_OPTIONS = [
   { value: "pl", label: "Polski" },
 ] as const;
 
+interface Values {
+  channel: string;
+  logChannel: string;
+  locale: string;
+  role: string;
+  postName: string;
+}
+
+const valuesOf = (config: BotConfig): Values => ({
+  channel: config.reviewChannelId ?? "",
+  logChannel: config.logChannelId ?? "",
+  locale: config.locale ?? "en",
+  role: acceptedRoleIdsOf(config).join(", "),
+  postName: config.postName ?? "",
+});
+
+/** A Discord id field: a machine value, so monospace and no autocorrection. */
+const ID_FIELD = {
+  placeholder: "123456789012345678",
+  spellCheck: false,
+  autoComplete: "off",
+  autoCapitalize: "off",
+  className: "max-w-md font-mono",
+} as const;
+
 export function BotConfigForm({
   guildId,
   initial,
   t,
+  kit,
 }: {
   guildId: string;
   initial: BotConfig;
   t: BotDict;
+  kit: SettingsSaveCopy;
 }) {
   const router = useRouter();
-  const [channel, setChannel] = useState(initial.reviewChannelId ?? "");
-  const [logChannel, setLogChannel] = useState(initial.logChannelId ?? "");
-  const [locale, setLocale] = useState<string>(initial.locale ?? "en");
-  const [role, setRole] = useState(acceptedRoleIdsOf(initial).join(", "));
-  const [postName, setPostName] = useState(initial.postName ?? "");
+  const [values, setValues] = useState<Values>(() => valuesOf(initial));
+  const [saved, setSaved] = useState<Values>(values);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
+  const [result, setResult] = useState<SaveResult>(null);
+
+  const dirty = (Object.keys(values) as (keyof Values)[]).some((key) => values[key] !== saved[key]);
+
+  const set =
+    (key: keyof Values) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const value = e.target.value;
+      setValues((v) => ({ ...v, [key]: value }));
+      setResult(null);
+    };
 
   async function save() {
-    setError(null);
-    setSaved(false);
+    setResult(null);
     setSaving(true);
     try {
+      const { channel, logChannel, locale, role, postName } = values;
       const body: Record<string, unknown> = {};
       if (channel.trim()) body.reviewChannelId = channel.trim();
       if (logChannel.trim()) body.logChannelId = logChannel.trim();
@@ -59,60 +98,101 @@ export function BotConfigForm({
         const data = (await res.json().catch(() => null)) as { error?: string } | null;
         throw new Error(data?.error ?? t.errSave);
       }
-      setSaved(true);
+      setSaved(values);
+      setResult({ tone: "success", message: t.saved });
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.errSave);
+      setResult({ tone: "danger", message: err instanceof Error ? err.message : t.errSave });
     } finally {
       setSaving(false);
     }
   }
 
-  const onEdit = (set: (v: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    set(e.target.value);
-    setSaved(false);
-  };
+  function discard() {
+    setValues(saved);
+    setResult(null);
+  }
 
   return (
-    <Card className="flex flex-col gap-4 p-5">
-      <Field label={t.reviewChannel} hint={t.reviewChannelHint}>
-        <Input value={channel} placeholder="123456789012345678" onChange={onEdit(setChannel)} />
-      </Field>
-      <Field label={t.logChannel} hint={t.logChannelHint}>
-        <Input value={logChannel} placeholder="123456789012345678" onChange={onEdit(setLogChannel)} />
-      </Field>
-      <Field label={t.language} hint={t.languageHint}>
-        <select
-          value={locale}
-          onChange={(e) => {
-            setLocale(e.target.value);
-            setSaved(false);
-          }}
-          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-        >
-          {LOCALE_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-      </Field>
-      <Field label={t.acceptedRole} hint={t.acceptedRoleHint}>
-        <Input value={role} placeholder="123456789012345678" onChange={onEdit(setRole)} />
-      </Field>
-      <p className="text-xs text-muted-foreground">{t.idHint}</p>
+    <>
+      <Notice tone="info" className="mb-6">
+        {t.idHint}
+      </Notice>
 
-      <Field label={t.postName} hint={t.postNameHint}>
-        <Input value={postName} placeholder="MSK Forms" onChange={onEdit(setPostName)} />
-      </Field>
+      <div>
+        <FormSection title={t.sectionPosting}>
+          <FormField label={t.reviewChannel} hint={t.reviewChannelHint}>
+            {(field) => (
+              <Input
+                {...field}
+                {...ID_FIELD}
+                inputMode="numeric"
+                value={values.channel}
+                onChange={set("channel")}
+              />
+            )}
+          </FormField>
+          <FormField label={t.logChannel} hint={t.logChannelHint}>
+            {(field) => (
+              <Input
+                {...field}
+                {...ID_FIELD}
+                inputMode="numeric"
+                value={values.logChannel}
+                onChange={set("logChannel")}
+              />
+            )}
+          </FormField>
+          <FormField label={t.postName} hint={t.postNameHint}>
+            {(field) => (
+              <Input
+                {...field}
+                value={values.postName}
+                placeholder="MSK Forms"
+                onChange={set("postName")}
+                className="max-w-md"
+              />
+            )}
+          </FormField>
+        </FormSection>
 
-      <div className="flex items-center gap-3">
-        <Button type="button" onClick={save} disabled={saving}>
-          {saving ? t.saving : t.save}
-        </Button>
-        {saved && <span className="text-sm text-primary">{t.saved}</span>}
+        <FormSection title={t.sectionLanguage}>
+          <FormField label={t.language} hint={t.languageHint}>
+            {(field) => (
+              <Select
+                {...field}
+                value={values.locale}
+                onChange={set("locale")}
+                className="max-w-md"
+              >
+                {LOCALE_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value} lang={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </FormField>
+        </FormSection>
+
+        <FormSection title={t.sectionRoles}>
+          <FormField label={t.acceptedRole} hint={t.acceptedRoleHint}>
+            {(field) => (
+              <Input {...field} {...ID_FIELD} value={values.role} onChange={set("role")} />
+            )}
+          </FormField>
+        </FormSection>
+
+        <SettingsSaveBar
+          dirty={dirty}
+          busy={saving}
+          result={result}
+          onSave={save}
+          onDiscard={discard}
+          onDismissResult={() => setResult(null)}
+          copy={kit}
+        />
       </div>
-      {error && <p className="text-sm text-destructive">{error}</p>}
-    </Card>
+    </>
   );
 }

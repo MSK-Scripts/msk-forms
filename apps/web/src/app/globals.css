@@ -2,363 +2,533 @@
 
 @source '../../../../packages/ui/src/**/*.{ts,tsx}';
 
-@custom-variant dark (&:is(.dark *));
+/* Dark mode as a class variant, set by the ThemeProvider (next-themes). */
+@custom-variant dark (&:where(.dark, .dark *));
 
-@utility container {
-  margin-inline: auto;
-  padding-inline: 1.5rem;
-  @media (width >= --theme(--breakpoint-sm)) {
-    max-width: none;
-  }
-  @media (width >= 1180px) {
-    max-width: 1180px;
-  }
-}
+/* ============================================================================
+   MSK Forms design tokens: the msk-shop system (DESIGN.md)
+   ============================================================================
+   Two layers.
 
+   1. Source tokens, further down in `@layer base`: shadcn-style names holding
+      bare HSL channels (`--primary: 125.3 50.3% 30.8%`). They are a public
+      API: a public page sets `--primary`, `--primary-foreground` and `--ring`
+      on its wrapper (lib/branding.ts), and Pro customers override any of them
+      in custom CSS against `.msk-form`, also as `hsl(var(--primary) / 0.05)`.
+      Names and format stay as they are.
+
+   2. Utilities, right here in `@theme inline`: `--color-primary` and friends
+      wrap the channels. `inline` makes every utility carry the expression
+      itself, so `bg-primary` resolves `--primary` on the element that uses
+      it and follows a wrapper's override (src/test/branding-contract.test.ts).
+      Code names the utility (`bg-primary`, `text-muted-foreground`) or, in
+      CSS, `hsl(var(--primary))`; never the `--color-*` variable, which is
+      computed once on :root.
+
+   The values are the shop's, converted to channels with one decimal (each
+   round-trips to the shop's hex). src/test/contrast.test.ts reads them from
+   this file and recomputes every rendered pair in both themes.
+   ============================================================================ */
 @theme inline {
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
+  /* Ground, tile and card. */
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
-
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  /* shadcn's quiet hover surface; the tile in this system. */
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
 
+  /* Lines and controls. */
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  /* The accent: MSK green by default, the customer's colour on a branded
+     public page. Hover fill and soft surface are derived from `--primary`
+     rather than stored, so a wrapper that only sets `--primary` recolours
+     them too. With MSK green they land on the shop's values (hover exactly
+     in light, within a few steps in dark; contrast.test.ts measures them). */
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-hover: color-mix(in oklab, hsl(var(--primary)) 85%, var(--primary-hover-toward));
+  --color-accent-soft: color-mix(in oklab, hsl(var(--primary)) var(--accent-soft-amount), hsl(var(--background)));
+
+  /* Status colours of the dashboards: text, sign and border, never a fill
+     under text. `danger` is the shop's name for `destructive`; both utilities
+     read the same channels. */
+  --color-success: hsl(var(--success));
+  --color-warning: hsl(var(--warning));
+  --color-info: hsl(var(--info));
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-danger: hsl(var(--destructive));
+  --color-danger-foreground: hsl(var(--destructive-foreground));
 
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
+  /* Discord blurple: the fill of Discord actions and the mark beside them. */
+  --color-discord: hsl(var(--discord));
 
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
+  /* Anthracite band (marketing heads, footer) and the MSK green band. Both
+     keep their colours in both themes and do not follow a customer accent. */
+  --color-band: hsl(var(--band));
+  --color-band-foreground: hsl(var(--band-foreground));
+  --color-band-muted: hsl(var(--band-muted));
+  --color-band-line: hsl(var(--band-line));
+  --color-band-accent: hsl(var(--band-accent));
+  --color-band-accent-foreground: hsl(var(--band-accent-foreground));
+  --color-brand: hsl(var(--brand));
+  --color-brand-foreground: hsl(var(--brand-foreground));
+  --color-brand-muted: hsl(var(--brand-muted));
+  --color-brand-button: hsl(var(--brand-button));
+  --color-brand-button-foreground: hsl(var(--brand-button-foreground));
 
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-
+  /* Chart series, after the shop's breakdown colours. */
   --color-chart-1: hsl(var(--chart-1));
   --color-chart-2: hsl(var(--chart-2));
   --color-chart-3: hsl(var(--chart-3));
   --color-chart-4: hsl(var(--chart-4));
   --color-chart-5: hsl(var(--chart-5));
 
+  /* Radii follow `--radius` (10 px): 4 px tags and badges, 6 px controls,
+     10 px cards and dialogs, 16 px for the few large surfaces. A customer's
+     `.msk-form { --radius: … }` scales them all; calc() clamps at zero. */
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 4px);
   --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+  --radius-xl: calc(var(--radius) + 6px);
+}
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+@theme {
+  /* Type, loaded locally through @fontsource-variable in app/layout.tsx.
+     Archivo for headings and names (with its width axis), Source Sans 3 for
+     everything else, and no web font for code: the system monospace is
+     enough there. */
+  --font-sans: "Source Sans 3 Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Archivo Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
 
+  /* Fluid type scale. The minimum is the phone size, the size grows with the
+     window and stops at the UWQHD value. Every maximum is at most 2.5 times
+     its minimum, so browser zoom still reaches 200 % (WCAG 1.4.4). */
+  --text-display: clamp(2.25rem, 1.2rem + 2.4vw, 5rem);
+  --text-display--line-height: 1.06;
+  --text-h2: clamp(1.75rem, 1.2rem + 1.1vw, 3rem);
+  --text-h2--line-height: 1.15;
+  --text-h3: clamp(1.25rem, 1.05rem + 0.45vw, 1.75rem);
+  --text-h3--line-height: 1.25;
+  --text-product: clamp(1.375rem, 1.1rem + 0.55vw, 2rem);
+  --text-product--line-height: 1.15;
+  --text-lead: clamp(1.1875rem, 1rem + 0.35vw, 1.5rem);
+  --text-lead--line-height: 1.55;
+  --text-body: clamp(1.0625rem, 0.9rem + 0.2vw, 1.25rem);
+  --text-body--line-height: 1.6;
+  --text-small: clamp(0.9375rem, 0.85rem + 0.12vw, 1.0625rem);
+  --text-small--line-height: 1.5;
+  --text-label: clamp(0.8125rem, 0.75rem + 0.08vw, 0.9375rem);
+  --text-label--line-height: 1.4;
+
+  /* Shadows: a seam at rest, a lift on hover. Tailwind copies the light
+     value into `shadow-card`; components that need the dark value write
+     `shadow-[var(--shadow-card)]`, which the .dark scope overrides. */
   --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-card-hover: 0 8px 24px -8px rgb(0 0 0 / 0.12);
 
-  --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up: accordion-up 0.2s ease-out;
-  --animate-fade-in: fade-in 0.2s ease-out;
-  --animate-slide-up: slide-up 0.3s ease-out;
+  --animate-fade-in: fadeIn 0.2s ease-out;
+  --animate-pulse-dot: pulseDot 2s ease-in-out infinite;
+}
 
-  @keyframes accordion-down {
-    from {
-      height: 0;
-    }
-    to {
-      height: var(--radix-accordion-content-height);
-    }
+/* ============================================================================
+   Source tokens (public API): HSL channels, light default, dark override
+   ============================================================================ */
+@layer base {
+  :root {
+    /* Ground with a tone (L 96 %) so the white card has something to stand
+       out from; the tile sits between them. */
+    --background: 60 10% 96.1%;
+    --foreground: 220 5.1% 11.6%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 5.1% 11.6%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 5.1% 11.6%;
+    --muted: 60 7.7% 92.4%;
+    /* 5.64:1 on the tile, 6.12:1 on the ground, 6.62:1 on a card. */
+    --muted-foreground: 214.3 3.7% 36.7%;
+    --accent: 60 7.7% 92.4%;
+    --accent-foreground: 220 5.1% 11.6%;
+    --secondary: 60 7.7% 92.4%;
+    --secondary-foreground: 220 5.1% 11.6%;
+
+    /* Hairlines, never text. Fields, outline buttons and radio cards take
+       --input, which reaches 3:1 on card and ground (WCAG 1.4.11). */
+    --border: 60 5.4% 85.5%;
+    --input: 214.3 2.9% 53.1%;
+    --ring: 125.3 50.3% 30.8%;
+
+    /* MSK green from the logo ramp (#27762e): fill with a white label
+       (5.65:1) and green text on every light surface. */
+    --primary: 125.3 50.3% 30.8%;
+    --primary-foreground: 0 0% 100%;
+    /* Hover darkens in light (15 % toward black: #1d5e23), the soft surface
+       is 7 % of the accent over the ground. */
+    --primary-hover-toward: #000000;
+    --accent-soft-amount: 7%;
+
+    --success: 125.3 50.3% 30.8%;
+    --warning: 31.1 89.4% 29.6%;
+    --info: 204.1 86.2% 31.2%;
+    --destructive: 3.2 71.3% 41%;
+    --destructive-foreground: 0 0% 100%;
+    --discord: 234.9 85.6% 64.7%;
+
+    --band: 216 6.2% 15.9%;
+    --band-foreground: 60 7.1% 94.5%;
+    --band-muted: 214.3 4.5% 69.2%;
+    --band-line: 214.3 5.6% 24.5%;
+    --band-accent: 94.9 48.1% 52.4%;
+    --band-accent-foreground: 120 17.9% 7.6%;
+    --brand: 125.3 50.3% 30.8%;
+    --brand-foreground: 0 0% 100%;
+    --brand-muted: 102.9 38.9% 92.9%;
+    /* The white button in the green band keeps a dark green label in both
+       themes (7.84:1). */
+    --brand-button: 0 0% 100%;
+    --brand-button-foreground: 125.5 52.8% 24.1%;
+
+    /* Green, blue, amber, rose, violet; each reaches 4.5:1 on the tile. */
+    --chart-1: 125.3 50.3% 30.8%;
+    --chart-2: 204.1 86.2% 31.2%;
+    --chart-3: 31.1 89.4% 29.6%;
+    --chart-4: 345.3 82.7% 40.8%;
+    --chart-5: 274.9 72.2% 52%;
+
+    --radius: 0.625rem;
   }
-  @keyframes accordion-up {
-    from {
-      height: var(--radix-accordion-content-height);
-    }
-    to {
-      height: 0;
-    }
+
+  /* Anthracite, a palette of its own rather than an inversion. The tile sits
+     below the ground here and the card above it. Bands keep their values. */
+  .dark {
+    --background: 220 5.9% 10%;
+    --foreground: 60 5% 92.2%;
+    --card: 225 5.7% 13.7%;
+    --card-foreground: 60 5% 92.2%;
+    --popover: 225 5.7% 13.7%;
+    --popover-foreground: 60 5% 92.2%;
+    --muted: 220 8.1% 7.3%;
+    --muted-foreground: 220 3.5% 66.7%;
+    --accent: 220 8.1% 7.3%;
+    --accent-foreground: 60 5% 92.2%;
+    --secondary: 225 4.5% 17.3%;
+    --secondary-foreground: 60 5% 92.2%;
+
+    --border: 220 5.8% 20.4%;
+    /* 3.20:1 on a card, 3.54:1 on the ground. */
+    --input: 217.5 3.5% 44.3%;
+    --ring: 97.1 50.8% 48.6%;
+
+    /* Green as text: 7.64:1 on the ground. White on it would be too weak,
+       so the label is dark (7.79:1). Hover lightens here. */
+    --primary: 97.1 50.8% 48.6%;
+    --primary-foreground: 120 20% 6.9%;
+    --primary-hover-toward: #ffffff;
+    --accent-soft-amount: 10%;
+
+    /* The status colours are light here, so the destructive button needs a
+       dark label. */
+    --success: 97.1 50.8% 48.6%;
+    --warning: 33.2 70.6% 61.4%;
+    --info: 204.8 69.9% 67.5%;
+    --destructive: 5.8 81.4% 72.5%;
+    --destructive-foreground: 220 5.9% 10%;
+
+    --chart-1: 97.1 50.8% 48.6%;
+    --chart-2: 204.8 69.9% 67.5%;
+    --chart-3: 33.2 70.6% 61.4%;
+    --chart-4: 351.3 94.5% 71.4%;
+    --chart-5: 275.2 71.6% 66.9%;
+
+    --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+    --shadow-card-hover: 0 12px 32px -8px rgb(0 0 0 / 0.6);
   }
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
+}
+
+/* ----------------------------------------------------------------------------
+   Customer accent on the public pages (lib/branding.ts, DESIGN.md)
+   ----------------------------------------------------------------------------
+   `brandProps` puts the guild's accent on the page's wrapper as two sets of
+   channels, one per theme: the customer's colour, or where it fails WCAG
+   contrast in that theme a readable variant of the same hue. These rules map
+   the set of the current theme onto `--primary` and its label.
+
+   In a cascade layer on purpose: a customer's custom CSS is unlayered, so
+   `.msk-form { --primary: … }` wins over the accent and its fallback. And the
+   label follows whichever accent is in effect: where the browser knows
+   relative colours, `--primary-foreground` is computed from `--primary`
+   itself, white below the luminance where both labels read equally well
+   (0.1938) and #0e150e above it, the same choice `labelFor` makes. The
+   per-theme labels from lib/branding.ts are the fallback for older browsers.
+
+   The same text is in lib/guild-accent-css.ts for the custom CSS preview;
+   src/test/css-preview-sync.test.ts holds the two together, and
+   lib/branding.test.ts checks the constants. */
+@layer base {
+  [data-guild-accent] {
+    --primary: var(--guild-accent-light);
+    --primary-foreground: var(--guild-accent-light-label);
   }
-  @keyframes slide-up {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
+  .dark [data-guild-accent] {
+    --primary: var(--guild-accent-dark);
+    --primary-foreground: var(--guild-accent-dark-label);
+  }
+  .msk-form,
+  [data-guild-accent] {
+    --ring: var(--primary);
+  }
+  @supports (color: hsl(from red h s l)) {
+    .msk-form,
+    [data-guild-accent],
+    .dark [data-guild-accent] {
+      --primary-foreground: from color(from hsl(var(--primary)) xyz-d65 calc(0.0053 + 0.9452 * clamp(0, (0.1938 - y) * 1000000, 1)) calc(0.0066 + 0.9934 * clamp(0, (0.1938 - y) * 1000000, 1)) calc(0.0052 + 1.0839 * clamp(0, (0.1938 - y) * 1000000, 1))) h s l;
     }
   }
 }
 
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
+/* ----------------------------------------------------------------------------
+   Layout tokens
+   ----------------------------------------------------------------------------
+   Column, gutter, card minimum and rhythm grow with the window through
+   clamp() instead of stepping at breakpoints. Card grids are
+   `repeat(auto-fill, minmax(min(100%, var(--grid-card)), 1fr))`: a wider
+   window buys bigger cards first and more columns second. */
+:root {
+  /* Height of the sticky header bar, without its 4 px stripe. */
+  --header-height: clamp(3.75rem, 3rem + 1vw, 5rem);
+  --space-section: clamp(3rem, 1.5rem + 3.5vw, 7.5rem);
+  --space-stack: clamp(1.25rem, 0.75rem + 1vw, 2.5rem);
+  --page-gutter: clamp(1rem, 4vw, 7.5rem);
+  --page-column: clamp(72rem, 84vw, 180rem);
+  --grid-card: clamp(18rem, 16.25rem + 6.3vw, 30rem);
+  --grid-card-wide: clamp(20.5rem, 18.75rem + 6.3vw, 32.5rem);
+  /* Content width of a guild's public pages (`public-column`). */
+  --public-column: clamp(36rem, 28rem + 14vw, 56rem);
 
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
+  /* App shell of the dashboard (components/dashboard-kit). Denser than the
+     public pages: a smaller top bar and gutter, because the content is
+     tables and forms. The content column stops at 130rem, so a table row
+     stays readable on UWQHD. */
+  --app-topbar: clamp(3.5rem, 3.1rem + 0.6vw, 4.25rem);
+  --app-sidebar: clamp(16.5rem, 14rem + 3vw, 21rem);
+  --app-gutter: clamp(1rem, 0.6rem + 1.6vw, 3rem);
+  --app-gutter-y: clamp(1.25rem, 0.9rem + 1.2vw, 2.75rem);
+  --app-content: 130rem;
+  --app-tabbar: 3.75rem;
+}
+
 @layer base {
   *,
   ::after,
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
+    border-color: hsl(var(--border));
   }
 
   /* Tailwind v4 dropped `cursor: pointer` on buttons from its preflight; keep
-     the v3 behaviour so clickable controls still show the hand cursor. */
+     it so clickable controls still show the hand cursor. */
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+
+  html {
+    scroll-behavior: smooth;
+    /* Keeps an element the browser scrolls to on focus clear of a sticky
+       header (WCAG 2.2 SC 2.4.11, Focus Not Obscured). */
+    scroll-padding-top: calc(var(--header-height) + 1rem);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, hsl(var(--primary)) 35%, transparent);
+    color: hsl(var(--foreground));
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+  }
+
+  /* One focus style for everything: a 3 px outline in the ring colour. On a
+     branded page it takes the customer's `--ring`. */
+  :focus-visible {
+    outline: 3px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: calc(var(--radius) - 6px);
+  }
+
+  :target {
+    scroll-margin-top: 5rem;
+  }
+
+  /* The page behind an open modal <dialog> stops scrolling. A stylesheet
+     rule instead of a script that sets inline styles. */
+  html:has(dialog[open]:modal) {
+    overflow: hidden;
+  }
 }
 
 /* ============================================================================
-   PWA safe-area insets. env() is 0 in a normal browser tab, so these are no-ops
-   there and only take effect in an installed/standalone PWA (viewport-fit=cover)
-   — keeping content clear of the notch (landscape) and the home indicator.
-   Uses logical `padding-inline` so it mirrors correctly under RTL.
+   Keyframes
    ============================================================================ */
-
-@utility pwa-safe-x {
-  padding-inline-start: max(1.5rem, env(safe-area-inset-left));
-  padding-inline-end: max(1.5rem, env(safe-area-inset-right));
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.5; transform: scale(0.85); }
 }
 
-@utility pwa-safe-b {
-  padding-bottom: max(3rem, env(safe-area-inset-bottom));
+/* ============================================================================
+   Utilities
+   ============================================================================ */
+/* The page shell of the public site: header, content and footer share one
+   edge. Content that does not gain from the width caps itself inside. */
+@utility container-page {
+  width: 100%;
+  max-width: calc(var(--page-column) + 2 * var(--page-gutter));
+  margin-inline: auto;
+  padding-inline: max(var(--page-gutter), env(safe-area-inset-left, 0px)) max(var(--page-gutter), env(safe-area-inset-right, 0px));
 }
 
+/* The column of a guild's public pages (form, status page, form index):
+   narrower than the site column, because a form reads best at a form's
+   width, and fluid up to UWQHD. Header, content and footer share it. */
+@utility public-column {
+  width: 100%;
+  max-width: calc(var(--public-column) + 2 * var(--page-gutter));
+  margin-inline: auto;
+  padding-inline: max(var(--page-gutter), env(safe-area-inset-left, 0px)) max(var(--page-gutter), env(safe-area-inset-right, 0px));
+}
+
+/* Extends the hit area of a control to 44 px without changing its visible
+   size (WCAG 2.2 SC 2.5.8 asks for 24 px; 44 px because the dashboard gets
+   used on phones). */
+@utility tap-target {
+  position: relative;
+}
+.tap-target::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
+}
+
+/* Kicker: the small green label above a heading. Source Sans 3 at the label
+   size, uppercase, no leading dash and no monospace. */
+.kicker {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: hsl(var(--primary));
+}
+
+/* The anthracite band and the MSK green band. The focus ring changes with
+   them: the page green measures about 2.3:1 on anthracite. */
+.surface-band {
+  background-color: hsl(var(--band));
+  color: hsl(var(--band-foreground));
+}
+.surface-band .kicker { color: hsl(var(--band-accent)); }
+.surface-band :focus-visible { outline-color: hsl(var(--band-accent)); }
+.surface-brand {
+  background-color: hsl(var(--brand));
+  color: hsl(var(--brand-foreground));
+}
+.surface-brand :focus-visible { outline-color: hsl(var(--brand-foreground)); }
+
+/* Pulsing dot of a live indicator, the one animation that runs on its own. */
+.pulse-dot {
+  animation: var(--animate-pulse-dot);
+}
+
+/* Skip link (WCAG 2.4.1), the first child of the body. Hidden by transform,
+   not sr-only, so it stays readable when it appears. */
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border-radius: calc(var(--radius) - 6px);
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
+  box-shadow: var(--shadow-card-hover);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transform: translateY(-300%);
+  transition: transform 0.2s;
+  z-index: 100;
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* PWA safe-area inset at the top of a sticky header. env() is 0 in a normal
+   browser tab, so it only takes effect in an installed PWA
+   (viewport-fit=cover). */
 @utility pwa-safe-top {
   padding-top: env(safe-area-inset-top);
 }
 
-/* shadcn/ui theme — Neutral base + Emerald primary + Yellow charts. */
-@layer base {
-  :root {
-    --background: 0 0% 96.5%;
-    --foreground: 0 0% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-    --primary: 101 62% 40%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 93%;
-    --secondary-foreground: 0 0% 10%;
-    --muted: 0 0% 93%;
-    --muted-foreground: 0 0% 42%;
-    --accent: 0 0% 93%;
-    --accent-foreground: 0 0% 10%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 88%;
-    --input: 0 0% 88%;
-    --ring: 101 62% 40%;
-    --chart-1: 43 96% 56%;
-    --chart-2: 161 64% 42%;
-    --chart-3: 200 80% 47%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --radius: 0.75rem;
-  }
-
-  .dark {
-    --background: 0 0% 9%;
-    --foreground: 0 0% 97%;
-    --card: 0 0% 12%;
-    --card-foreground: 0 0% 97%;
-    --popover: 0 0% 12%;
-    --popover-foreground: 0 0% 97%;
-    --primary: 99 57% 44%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 17%;
-    --secondary-foreground: 0 0% 97%;
-    --muted: 0 0% 17%;
-    --muted-foreground: 0 0% 66%;
-    --accent: 0 0% 19%;
-    --accent-foreground: 0 0% 97%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 20%;
-    --input: 0 0% 23%;
-    --ring: 99 57% 44%;
-    --chart-1: 43 96% 56%;
-    --chart-2: 161 64% 50%;
-    --chart-3: 200 80% 55%;
-    --chart-4: 280 65% 65%;
-    --chart-5: 340 75% 60%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  html {
-    scroll-behavior: smooth;
-  }
-  body {
-    @apply bg-background text-foreground;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-  }
-  ::selection {
-    @apply bg-primary/20;
-  }
+/* A vertical scroll container on the card surface that shows a soft shadow
+   at an edge only while there is more to scroll that way (the dashboard
+   sidebar on a short window). Pure CSS: two card-coloured covers scroll with
+   the content (`local`) and hide the two shadows, which stay at the edges
+   (`scroll`), whenever the content reaches that edge. */
+@utility scroll-shadow-y {
+  background:
+    linear-gradient(hsl(var(--card)) 30%, hsl(var(--card) / 0)) center top / 100% 3rem no-repeat local,
+    linear-gradient(hsl(var(--card) / 0), hsl(var(--card)) 70%) center bottom / 100% 3rem no-repeat local,
+    radial-gradient(farthest-side at 50% 0, hsl(var(--foreground) / 0.2), transparent) center top / 100% 1rem no-repeat scroll,
+    radial-gradient(farthest-side at 50% 100%, hsl(var(--foreground) / 0.2), transparent) center bottom / 100% 1rem no-repeat scroll,
+    hsl(var(--card));
 }
 
 /* ============================================================================
-   Legal pages (imprint / privacy / terms) — rendered Markdown. Mirrors the
-   msk-shop legal styling, ported to the HSL token system.
+   Scrollbars
    ============================================================================ */
-.legal-content {
-  color: hsl(var(--muted-foreground));
-  line-height: 1.7;
-}
-.legal-content h1 {
-  font-size: 1.875rem;
-  font-weight: 800;
-  color: hsl(var(--foreground));
-  margin-bottom: 1rem;
-}
-.legal-content h2 {
-  color: hsl(var(--foreground));
-  font-size: 1.125rem;
-  font-weight: 700;
-  margin-top: 2.5rem;
-  margin-bottom: 0.75rem;
-  padding-top: 0.5rem;
-}
-.legal-content h3 {
-  color: hsl(var(--foreground));
-  font-weight: 600;
-  margin-top: 1.25rem;
-  margin-bottom: 0.5rem;
-}
-.legal-content p { margin-top: 0.75rem; margin-bottom: 1.25rem; }
-.legal-content ul { list-style: disc; padding-left: 1.5rem; margin-top: 0.75rem; margin-bottom: 1.25rem; }
-.legal-content ol { list-style: decimal; padding-left: 1.5rem; margin-top: 0.75rem; margin-bottom: 1.25rem; }
-.legal-content li { margin-bottom: 0.375rem; line-height: 1.7; }
-.legal-content strong { color: hsl(var(--foreground)); font-weight: 600; }
-.legal-content em { font-style: italic; }
-.legal-content a { color: hsl(var(--primary)); }
-.legal-content a:hover { text-decoration: underline; }
-.legal-content code {
-  background-color: hsl(var(--muted));
-  color: hsl(var(--primary));
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.75rem;
-  padding: 0.125rem 0.375rem;
-  border-radius: calc(var(--radius) - 4px);
-}
-.legal-content hr {
-  border: none;
-  border-top: 1px solid hsl(var(--border));
-  margin: 1.5rem 0;
-}
-.legal-content hr + h2 { margin-top: 1rem; }
-.legal-content table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1.25rem 0;
-  font-size: 0.875rem;
-}
-.legal-content thead tr { background: hsl(var(--muted)); }
-.legal-content th {
-  text-align: left;
-  padding: 0.625rem 1rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: hsl(var(--foreground));
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.legal-content td {
-  padding: 0.625rem 1rem;
-  font-size: 0.75rem;
-  color: hsl(var(--muted-foreground));
-  border-top: 1px solid hsl(var(--border));
-}
-.legal-content tbody tr:nth-child(even) { background: hsl(var(--muted) / 0.4); }
-.legal-content .table-wrap {
-  overflow-x: auto;
-  border-radius: var(--radius);
-  border: 1px solid hsl(var(--border));
-  margin: 1.25rem 0;
-}
-
-/* ============================================================================
-   Polish patterns — aligned with the MSK ecosystem (msk-shop / paste / shortener)
-   ============================================================================ */
-
-/* Eyebrow label — small MSK-green mono kicker above section headlines. */
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: hsl(var(--primary));
-}
-.eyebrow::before {
-  content: "";
-  display: block;
-  width: 24px;
-  height: 1px;
-  background: hsl(var(--primary));
-}
-
-/* Radial accent gradient behind hero sections (CSP-safe, no inline styles). */
-.hero-decor-gradient {
-  background: radial-gradient(
-    ellipse 60% 50% at 30% 20%,
-    hsl(var(--primary) / 0.12),
-    transparent 70%
-  );
-}
-
-/* Pulsing live-indicator dot. */
-.pulse-dot {
-  animation: pulse-dot 2s ease-in-out infinite;
-}
-@keyframes pulse-dot {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(0.85);
-  }
-}
-
-/* Custom scrollbars (pointer devices only). */
 @media (pointer: fine) {
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-  ::-webkit-scrollbar-track {
-    background: hsl(var(--muted));
-  }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: hsl(var(--muted)); }
   ::-webkit-scrollbar-thumb {
     background: hsl(var(--border));
     border-radius: 5px;
@@ -368,14 +538,153 @@
   }
 }
 
-/* Respect reduced-motion preferences. */
+/* ============================================================================
+   Reduced motion
+   ============================================================================ */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================================
+   More contrast and forced colours
+   ============================================================================
+   "More contrast" in the system settings: secondary text and lines go to
+   full strength. Unlayered, so it wins over the token values in both
+   themes. */
+@media (prefers-contrast: more) {
+  :root, .dark {
+    --muted-foreground: var(--foreground);
+    --border: var(--input);
+    --band-muted: var(--band-foreground);
+    --band-line: var(--band-foreground);
+  }
+}
+
+/* Windows contrast themes replace every colour and drop backgrounds. A
+   filled button would lose its outline then, so controls get a system
+   border, and focus uses the system highlight. */
+@media (forced-colors: active) {
+  button, [role="button"], select, input, textarea {
+    border: 1px solid ButtonText;
+  }
+  :focus-visible {
+    outline-color: Highlight;
+  }
+}
+
+/* ============================================================================
+   Legal content renderer (Markdown legal texts, lib/legal.ts)
+   ============================================================================ */
+@layer components {
+  .legal-content {
+    /* Running text in the full text colour: on these pages it is the main
+       thing. Larger and with more leading than the rest of the site, the
+       counterweight to the long line below. */
+    color: hsl(var(--foreground));
+    font-size: 1.125rem;
+    line-height: 1.75;
+  }
+  /* Measure: 82rem, taken from musiker15.de/impressum like the shop. The cap
+     sits on the text elements, so tables keep the full column. */
+  .legal-content > p,
+  .legal-content > ul,
+  .legal-content > ol,
+  .legal-content > h1,
+  .legal-content > h2,
+  .legal-content > h3,
+  .legal-content > .table-wrap,
+  .legal-content > blockquote {
+    max-width: 82rem;
+  }
+  .legal-content blockquote {
+    margin: 1.5rem 0;
+    padding: 1rem 1.25rem;
+    border-left: 3px solid hsl(var(--primary));
+    border-radius: calc(var(--radius) - 6px);
+    background: color-mix(in oklab, hsl(var(--primary)) 8%, transparent);
+  }
+  .legal-content blockquote p { margin: 0; }
+  .legal-content h1 {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: hsl(var(--foreground));
+    margin-bottom: 1rem;
+  }
+  .legal-content h2 {
+    color: hsl(var(--foreground));
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+    padding-top: 0.5rem;
+  }
+  .legal-content h3 {
+    color: hsl(var(--foreground));
+    font-weight: 600;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+  .legal-content p { margin-top: 0.75rem; margin-bottom: 1.25rem; }
+  .legal-content ul { list-style: disc; padding-left: 1.5rem; margin-top: 0.75rem; margin-bottom: 1.25rem; }
+  .legal-content ol { list-style: decimal; padding-left: 1.5rem; margin-top: 0.75rem; margin-bottom: 1.25rem; }
+  .legal-content li { margin-bottom: 0.375rem; line-height: 1.7; }
+  .legal-content strong { color: hsl(var(--foreground)); font-weight: 600; }
+  .legal-content em { font-style: italic; }
+  /* Underlined at rest: in running text a link must not be told by colour
+     alone (WCAG 1.4.1). Hover thickens the line. */
+  .legal-content a {
+    color: hsl(var(--primary));
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .legal-content a:hover { text-decoration-thickness: 2px; }
+  .legal-content code {
+    background-color: hsl(var(--muted));
+    color: hsl(var(--primary));
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 0.125rem 0.375rem;
+    border-radius: calc(var(--radius) - 6px);
+  }
+  .legal-content hr {
+    border-color: hsl(var(--border));
+    margin: 1.5rem 0;
+  }
+  .legal-content hr + h2 { margin-top: 1rem; }
+  .legal-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.25rem 0;
+    font-size: 0.875rem;
+  }
+  .legal-content thead tr { background: hsl(var(--muted)); }
+  .legal-content th {
+    text-align: left;
+    padding: 0.625rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .legal-content td {
+    padding: 0.625rem 1rem;
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+    border-top: 1px solid hsl(var(--border));
+  }
+  .legal-content tbody tr:nth-child(even) {
+    background: color-mix(in oklab, hsl(var(--muted)) 40%, transparent);
+  }
+  .legal-content .table-wrap {
+    overflow-x: auto;
+    border-radius: calc(var(--radius) - 4px);
+    border: 1px solid hsl(var(--border));
+    margin: 1.25rem 0;
   }
 }

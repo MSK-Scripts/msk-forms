@@ -20,7 +20,7 @@ By logging in, inviting the bot to a server, building or sharing a form, or subm
 
 ## 2. The Service
 
-MSK Forms lets a Discord server (guild) build forms, share them via a link, QR code, embed, or the bot, and review the resulting submissions. Applicants receive a private link on which they can track the status of their submission. Acceptance can grant a Discord role and notify the applicant by direct message.
+MSK Forms lets a Discord server (guild) build forms, share them via a link, QR code or the bot, and review the resulting submissions. Applicants receive a private link on which they can track the status of their submission. Acceptance can grant a Discord role and notify the applicant by direct message.
 
 We provide the platform; we do not author the forms or decide what data they collect. That is done by the guilds that use the service (see section 5).
 
@@ -162,7 +162,7 @@ Mit der Anmeldung, dem Einladen des Bots auf einen Server, dem Erstellen oder Te
 
 ## 2. Der Dienst
 
-MSK Forms ermöglicht einem Discord-Server (Guild), Formulare zu erstellen, per Link, QR-Code, Einbettung oder über den Bot zu teilen und die eingehenden Einreichungen zu prüfen. Bewerber erhalten einen privaten Link, auf dem sie den Status ihrer Einreichung verfolgen können. Eine Annahme kann eine Discord-Rolle vergeben und den Bewerber per Direktnachricht benachrichtigen.
+MSK Forms ermöglicht einem Discord-Server (Guild), Formulare zu erstellen, per Link, QR-Code oder über den Bot zu teilen und die eingehenden Einreichungen zu prüfen. Bewerber erhalten einen privaten Link, auf dem sie den Status ihrer Einreichung verfolgen können. Eine Annahme kann eine Discord-Rolle vergeben und den Bewerber per Direktnachricht benachrichtigen.
 
 Wir stellen die Plattform bereit; wir erstellen die Formulare nicht und entscheiden nicht, welche Daten sie erheben. Das tun die Guilds, die den Dienst nutzen (siehe Abschnitt 5).
 

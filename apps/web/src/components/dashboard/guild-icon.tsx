@@ -49,11 +49,14 @@ export function GuildIcon({
     );
   }
 
+  // Decorative like the image above: the guild's name always follows, so a
+  // screen reader should not read the initial in front of it.
   return (
     <div
+      aria-hidden
       style={{ width: size, height: size }}
       className={cn(
-        "flex shrink-0 items-center justify-center bg-muted font-heading text-muted-foreground",
+        "flex shrink-0 items-center justify-center bg-muted font-display text-muted-foreground",
         className,
         fallbackTextClassName,
       )}

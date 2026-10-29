@@ -1,7 +1,7 @@
 import { prisma } from "@msk-forms/db";
 import { parseStatusMessages } from "@msk-forms/shared";
-import { Card } from "@msk-forms/ui";
 
+import { EmptyState, PageHeader } from "@/components/dashboard-kit";
 import { StatusMessagesForm } from "@/components/messages/status-messages-form";
 import { requireUser } from "@/lib/auth";
 import { getStatusOptionsForGuild } from "@/lib/forms";
@@ -23,9 +23,10 @@ export default async function StatusMessagesPage({
 
   if (!(await canManageForms(guildId, user.id))) {
     return (
-      <Card className="p-8">
-        <p className="text-muted-foreground">{t.msgNoPerm}</p>
-      </Card>
+      <>
+        <PageHeader title={t.msgTitle} />
+        <EmptyState kind="unavailable" title={t.msgNoPerm} />
+      </>
     );
   }
 
@@ -36,24 +37,23 @@ export default async function StatusMessagesPage({
   const messages = parseStatusMessages(guild?.statusMessages);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <h2 className="font-heading text-xl font-semibold text-foreground">{t.msgTitle}</h2>
-        <p className="text-sm text-muted-foreground">{t.msgIntro}</p>
+    <>
+      <PageHeader title={t.msgTitle} description={t.msgIntro} />
+      <div>
+        <StatusMessagesForm
+          guildId={guildId}
+          statuses={statuses}
+          initial={messages}
+          t={{
+            section: t.msgSection,
+            placeholder: t.msgPlaceholder,
+            hint: t.msgHint,
+            saved: t.msgSaved,
+            errSave: t.msgErr,
+          }}
+          kit={{ saveBar: dict.kit.saveBar, dismiss: dict.kit.dismiss }}
+        />
       </div>
-      <StatusMessagesForm
-        guildId={guildId}
-        statuses={statuses}
-        initial={messages}
-        t={{
-          placeholder: t.msgPlaceholder,
-          hint: t.msgHint,
-          save: t.msgSave,
-          saving: t.msgSaving,
-          saved: t.msgSaved,
-          errSave: t.msgErr,
-        }}
-      />
-    </div>
+    </>
   );
 }

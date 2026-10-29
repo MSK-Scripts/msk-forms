@@ -1,48 +1,66 @@
 "use client";
 
-import { Button, Card, Field, Textarea } from "@msk-forms/ui";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { FormField, FormSection } from "@/components/dashboard-kit";
+import {
+  SettingsSaveBar,
+  type SaveResult,
+  type SettingsSaveCopy,
+} from "@/components/settings/settings-save-bar";
+import { fieldClassName } from "@/components/ui/input";
+
 interface StatusMessagesLabels {
+  section: string;
   placeholder: string;
   hint: string;
-  save: string;
-  saving: string;
   saved: string;
   errSave: string;
+}
+
+/** True when two message maps say the same; a blank message is no message. */
+function sameMessages(a: Record<string, string>, b: Record<string, string>): boolean {
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+  for (const key of keys) if ((a[key] ?? "") !== (b[key] ?? "")) return false;
+  return true;
 }
 
 /**
  * Guild-wide per-status message editor. Each status gets an optional message
  * automatically sent to the applicant when a submission enters it. Blank = no
- * message. A per-form override can be set in the form builder.
+ * message. A per-form override can be set in the form builder. The kit
+ * SaveBar saves all of them at once; Discard restores the last saved ones.
  */
 export function StatusMessagesForm({
   guildId,
   statuses,
   initial,
   t,
+  kit,
 }: {
   guildId: string;
   statuses: { value: string; label: string }[];
   initial: Record<string, string>;
   t: StatusMessagesLabels;
+  kit: SettingsSaveCopy;
 }) {
   const router = useRouter();
   const [messages, setMessages] = useState<Record<string, string>>(initial);
+  const [saved, setSaved] = useState<Record<string, string>>(initial);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
+  const [result, setResult] = useState<SaveResult>(null);
+
+  const dirty = !sameMessages(messages, saved);
 
   function set(key: string, value: string) {
     setMessages((m) => ({ ...m, [key]: value }));
-    setSaved(false);
+    setResult(null);
   }
 
   async function save() {
     setSaving(true);
-    setError(null);
+    setResult(null);
     try {
       const res = await fetch(`/api/guilds/${guildId}/status-messages`, {
         method: "PATCH",
@@ -50,38 +68,50 @@ export function StatusMessagesForm({
         body: JSON.stringify({ messages }),
       });
       if (!res.ok) throw new Error(t.errSave);
-      setSaved(true);
+      setSaved(messages);
+      setResult({ tone: "success", message: t.saved });
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.errSave);
+      setResult({ tone: "danger", message: err instanceof Error ? err.message : t.errSave });
     } finally {
       setSaving(false);
     }
   }
 
+  function discard() {
+    setMessages(saved);
+    setResult(null);
+  }
+
   return (
-    <Card className="flex flex-col gap-4 p-5">
-      <div className="flex flex-col gap-4">
+    <>
+      <FormSection title={t.section} description={t.hint}>
         {statuses.map((s) => (
-          <Field key={s.value} label={s.label}>
-            <Textarea
-              value={messages[s.value] ?? ""}
-              onChange={(e) => set(s.value, e.target.value)}
-              placeholder={t.placeholder}
-              rows={2}
-              maxLength={2000}
-            />
-          </Field>
+          <FormField key={s.value} label={s.label}>
+            {(field) => (
+              <textarea
+                {...field}
+                value={messages[s.value] ?? ""}
+                onChange={(e) => set(s.value, e.target.value)}
+                placeholder={t.placeholder}
+                rows={3}
+                maxLength={2000}
+                className={fieldClassName}
+              />
+            )}
+          </FormField>
         ))}
-      </div>
-      <p className="text-xs text-muted-foreground">{t.hint}</p>
-      <div className="flex items-center gap-3">
-        <Button type="button" onClick={save} disabled={saving}>
-          {saving ? t.saving : t.save}
-        </Button>
-        {saved && <span className="text-sm text-primary">{t.saved}</span>}
-        {error && <span className="text-sm text-destructive">{error}</span>}
-      </div>
-    </Card>
+      </FormSection>
+
+      <SettingsSaveBar
+        dirty={dirty}
+        busy={saving}
+        result={result}
+        onSave={save}
+        onDiscard={discard}
+        onDismissResult={() => setResult(null)}
+        copy={kit}
+      />
+    </>
   );
 }

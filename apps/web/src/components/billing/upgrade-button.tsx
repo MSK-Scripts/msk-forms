@@ -1,7 +1,8 @@
 "use client";
 
-import { Button } from "@msk-forms/ui";
 import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
 
 import type { UpgradeCopy } from "@/lib/upgrade-copy";
 
@@ -56,7 +57,7 @@ export function UpgradeActions({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-3">
         {proLabel && (
           <Button
             type="button"
@@ -70,7 +71,7 @@ export function UpgradeActions({
         {enterpriseLabel && (
           <Button
             type="button"
-            variant={proLabel ? "ghost" : "primary"}
+            variant={proLabel ? "outline" : "primary"}
             disabled={busy}
             aria-expanded={pending === "enterprise"}
             onClick={() => setPending(pending === "enterprise" ? null : "enterprise")}
@@ -81,27 +82,27 @@ export function UpgradeActions({
       </div>
 
       {pending && (
-        <div className="rounded-lg border border-primary/30 bg-primary/5 p-4">
-          <h4 className="text-sm font-semibold text-foreground">{t.orderTitle}</h4>
-          <dl className="mt-3 space-y-1.5 text-sm">
+        <div className="grid max-w-[40rem] gap-3 rounded-lg border border-border bg-muted p-4">
+          <p className="font-display text-lead font-[650]">{t.orderTitle}</p>
+          <dl className="grid gap-1.5 text-small">
             <div className="flex flex-wrap gap-x-2">
               <dt className="text-muted-foreground">{t.orderService}:</dt>
-              <dd className="font-medium text-foreground">
+              <dd className="font-semibold text-foreground">
                 MSK Forms {pending === "enterprise" ? "Enterprise" : "Pro"}
               </dd>
             </div>
             <div className="flex flex-wrap gap-x-2">
               <dt className="text-muted-foreground">{t.orderPrice}:</dt>
-              <dd className="font-medium text-foreground">
+              <dd className="font-semibold text-foreground">
                 {t.orderPriceValue.replace("{price}", copy.prices[pending])}
               </dd>
             </div>
             <div className="flex flex-wrap gap-x-2">
               <dt className="text-muted-foreground">{t.orderTerm}:</dt>
-              <dd className="font-medium text-foreground">{t.orderTermValue}</dd>
+              <dd className="font-semibold text-foreground">{t.orderTermValue}</dd>
             </div>
           </dl>
-          <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+          <p className="max-w-[65ch] text-small text-muted-foreground">
             {t.orderLegalPre}{" "}
             <a href={copy.termsHref} className="text-primary hover:underline">
               {t.orderTerms}
@@ -117,7 +118,7 @@ export function UpgradeActions({
             </a>
             {t.orderLegalPost}
           </p>
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             <Button
               type="button"
               disabled={busy}
@@ -125,7 +126,12 @@ export function UpgradeActions({
             >
               {t.orderSubmit}
             </Button>
-            <Button type="button" variant="ghost" disabled={busy} onClick={() => setPending(null)}>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={busy}
+              onClick={() => setPending(null)}
+            >
               {t.orderCancel}
             </Button>
           </div>

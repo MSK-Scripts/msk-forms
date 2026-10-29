@@ -1,12 +1,17 @@
 import { prisma } from "@msk-forms/db";
 import { experimentActive, parseFormSettings } from "@msk-forms/shared";
-import { Card } from "@msk-forms/ui";
+import type { Route } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { ExperimentResultsTable } from "@/components/builder/experiment-results-table";
+import { EmptyState, PageHeader, StatGrid, StatTile } from "@/components/dashboard-kit";
+import { PencilSimple } from "@/components/icons";
+import { Button } from "@/components/ui/button";
+import { getDict, getLocale } from "@/i18n";
 import { requireUser } from "@/lib/auth";
 import { getFormForEdit } from "@/lib/forms";
 import { canManageForms } from "@/lib/guild";
-import { getDict, getLocale } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,12 +25,21 @@ export default async function ExperimentResultsPage({
   const user = await requireUser(`/dashboard/${guildId}/forms/${formId}/experiment`);
   const dict = await getDict();
   const t = dict.experiment;
+  const formsHref = `/dashboard/${guildId}/forms`;
 
   if (!(await canManageForms(guildId, user.id))) {
     return (
-      <Card className="p-8">
-        <p className="text-muted-foreground">{dict.dashboard.noPermEdit}</p>
-      </Card>
+      <>
+        <PageHeader
+          title={t.title}
+          breadcrumbs={[
+            { label: dict.dashboard.formsTab, href: formsHref },
+            { label: dict.dashboard.experimentLink },
+          ]}
+          breadcrumbLabel={dict.kit.breadcrumb}
+        />
+        <EmptyState kind="unavailable" title={dict.dashboard.noPermEdit} />
+      </>
     );
   }
 
@@ -38,64 +52,102 @@ export default async function ExperimentResultsPage({
     select: { variantId: true, views: true, submissions: true },
   });
   const byId = new Map(stats.map((s) => [s.variantId, s]));
-  const pct = new Intl.NumberFormat(await getLocale(), { style: "percent", maximumFractionDigits: 1 });
+  const locale = await getLocale();
+  const pct = new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1 });
+  const count = new Intl.NumberFormat(locale);
 
   const rows = (experiment?.variants ?? []).map((v) => {
     const s = byId.get(v.id);
     const views = s?.views ?? 0;
     const submissions = s?.submissions ?? 0;
-    return { id: v.id, name: v.name, views, submissions, rate: views > 0 ? submissions / views : 0 };
+    return {
+      id: v.id,
+      name: v.name,
+      views,
+      submissions,
+      rate: views > 0 ? submissions / views : 0,
+    };
   });
   // Highlight the leader (needs a meaningful sample so a 1/1 fluke doesn't "win").
   const ranked = [...rows].filter((r) => r.views >= 10).sort((a, b) => b.rate - a.rate);
   const winnerId = ranked.length > 1 && ranked[0]!.rate > ranked[1]!.rate ? ranked[0]!.id : null;
+  const winner = rows.find((r) => r.id === winnerId);
+
+  const totalViews = rows.reduce((sum, r) => sum + r.views, 0);
+  const totalSubmissions = rows.reduce((sum, r) => sum + r.submissions, 0);
+  const editHref = `/dashboard/${guildId}/forms/${formId}/edit`;
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <h2 className="font-heading text-xl font-semibold text-foreground">{t.title}</h2>
-        <p className="text-sm text-muted-foreground">{form.title}</p>
-      </div>
+    <>
+      <PageHeader
+        title={t.title}
+        description={t.hint}
+        breadcrumbs={[
+          { label: dict.dashboard.formsTab, href: formsHref },
+          { label: <span translate="no">{form.title}</span>, href: editHref },
+          { label: dict.dashboard.experimentLink },
+        ]}
+        breadcrumbLabel={dict.kit.breadcrumb}
+      />
 
       {!experimentActive(experiment) ? (
-        <Card className="p-8">
-          <p className="text-muted-foreground">{t.inactive}</p>
-        </Card>
+        <EmptyState
+          kind="first-use"
+          title={t.inactive}
+          action={
+            <Button asChild variant="outline">
+              <Link href={editHref as Route} prefetch={false}>
+                <PencilSimple className="h-4 w-4" />
+                {dict.dashboard.editFormTitle}
+              </Link>
+            </Button>
+          }
+        />
       ) : (
-        <Card className="overflow-hidden p-0">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border bg-muted/40 text-start font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-                <th className="px-4 py-3 text-start font-medium">{t.variant}</th>
-                <th className="px-4 py-3 text-end font-medium">{t.views}</th>
-                <th className="px-4 py-3 text-end font-medium">{t.submissions}</th>
-                <th className="px-4 py-3 text-end font-medium">{t.rate}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.id} className="border-b border-border last:border-0">
-                  <td className="px-4 py-3 text-sm font-medium text-foreground">
-                    {r.name}
-                    {winnerId === r.id && (
-                      <span className="ms-2 rounded bg-primary/10 px-1.5 py-0.5 text-xs font-medium text-primary">
-                        {t.winner}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-end text-sm tabular-nums text-muted-foreground">{r.views}</td>
-                  <td className="px-4 py-3 text-end text-sm tabular-nums text-muted-foreground">{r.submissions}</td>
-                  <td className="px-4 py-3 text-end text-sm font-medium tabular-nums text-foreground">
-                    {r.views > 0 ? pct.format(r.rate) : "—"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
-      )}
+        <div className="grid gap-5">
+          <StatGrid>
+            <StatTile label={t.views} value={count.format(totalViews)} hint={t.allVariants} />
+            <StatTile
+              label={t.submissions}
+              value={count.format(totalSubmissions)}
+              hint={t.allVariants}
+            />
+            <StatTile
+              label={t.rate}
+              value={totalViews > 0 ? pct.format(totalSubmissions / totalViews) : t.noViews}
+              hint={t.allVariants}
+            />
+            <StatTile
+              label={t.winner}
+              value={winner ? <span translate="no">{winner.name}</span> : t.noLeader}
+              hint={winner ? pct.format(winner.rate) : t.leaderHint}
+            />
+          </StatGrid>
 
-      <p className="text-xs text-muted-foreground">{t.hint}</p>
-    </div>
+          <ExperimentResultsTable
+            rows={rows.map((r) => ({
+              id: r.id,
+              name: r.name,
+              views: r.views,
+              submissions: r.submissions,
+              rate: r.views > 0 ? r.rate : null,
+              viewsLabel: count.format(r.views),
+              submissionsLabel: count.format(r.submissions),
+              rateLabel: r.views > 0 ? pct.format(r.rate) : t.noViews,
+              leading: r.id === winnerId,
+            }))}
+            copy={{
+              caption: t.title,
+              variant: t.variant,
+              views: t.views,
+              submissions: t.submissions,
+              rate: t.rate,
+              winner: t.winner,
+            }}
+            empty={<EmptyState kind="no-results" title={t.inactive} />}
+          />
+        </div>
+      )}
+    </>
   );
 }

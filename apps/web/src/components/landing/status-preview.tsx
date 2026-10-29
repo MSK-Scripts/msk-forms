@@ -1,42 +1,56 @@
-import { IconCheck, IconClock, IconRefresh, IconSend } from "@tabler/icons-react";
-
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getDict } from "@/i18n";
+import { Check, Clock, PaperPlaneTilt } from "@/components/icons";
+import { getDict, getLocale } from "@/i18n";
+import { cn } from "@/lib/utils";
 
 /**
- * Hero visual: a faithful miniature of the real applicant status card (the
- * product's feedback-loop USP), built from the actual shadcn Card + Badge.
+ * Hero picture: a miniature of the real applicant status page, the product's
+ * status loop, as a figure with a caption that says what it shows. The dates
+ * are a fixed example in the visitor's date format, not data.
  */
 export async function StatusPreview() {
-  const t = (await getDict()).preview;
+  const [dict, locale] = await Promise.all([getDict(), getLocale()]);
+  const t = dict.preview;
+  const day = (d: number) =>
+    new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(
+      new Date(2026, 5, d),
+    );
 
   return (
-    <Card className="mx-auto w-full max-w-md text-start shadow-lg">
-      <CardHeader className="flex-row items-start justify-between space-y-0">
-        <div>
-          <CardDescription className="text-[11px] uppercase tracking-wider">
-            {t.submission}
-          </CardDescription>
-          <CardTitle className="mt-1.5">{t.title}</CardTitle>
+    <figure className="grid gap-3">
+      <div className="mx-auto grid w-full max-w-[30rem] gap-5 rounded-lg border border-border bg-card p-[clamp(1.25rem,1rem+0.8vw,2rem)] text-card-foreground shadow-[var(--shadow-card-hover)]">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="grid gap-1">
+            <span className="text-label font-semibold tracking-[0.08em] text-muted-foreground uppercase">
+              {t.submission}
+            </span>
+            <span className="font-display text-h3 font-[650]">{t.title}</span>
+          </div>
+          <span className="inline-flex items-center gap-1.5 rounded-sm bg-accent-soft px-2.5 py-1 text-small font-semibold text-primary">
+            <Clock className="h-4 w-4" weight="bold" />
+            {t.inReview}
+          </span>
         </div>
-        <Badge>
-          <IconRefresh size={12} stroke={2} />
-          {t.inReview}
-        </Badge>
-      </CardHeader>
-      <CardContent className="space-y-5">
-        <div className="space-y-3.5">
-          <Row icon={<IconSend size={13} stroke={1.75} />} label={t.submitted} time="Jun 18" done />
-          <Row icon={<IconClock size={13} stroke={1.75} />} label={t.pickedUp} time="Jun 19" done />
-          <Row icon={<IconCheck size={13} stroke={1.75} />} label={t.decision} time={t.pending} />
+        <ol className="grid gap-3.5">
+          <Row
+            icon={<PaperPlaneTilt className="h-4 w-4" />}
+            label={t.submitted}
+            time={day(18)}
+            done
+          />
+          <Row icon={<Clock className="h-4 w-4" />} label={t.pickedUp} time={day(19)} done />
+          <Row icon={<Check className="h-4 w-4" />} label={t.decision} time={t.pending} />
+        </ol>
+        <div className="grid gap-1 rounded-md bg-muted p-3.5">
+          <span className="text-label font-semibold tracking-[0.08em] text-muted-foreground uppercase">
+            {t.reviewerNote}
+          </span>
+          <p className="text-small text-foreground">{t.note}</p>
         </div>
-        <div className="rounded-md border bg-muted/50 p-3">
-          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{t.reviewerNote}</p>
-          <p className="mt-1 text-sm text-foreground">{t.note}</p>
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+      <figcaption className="mx-auto w-full max-w-[30rem] text-small text-band-muted">
+        {dict.marketing.previewCaption}
+      </figcaption>
+    </figure>
   );
 }
 
@@ -52,16 +66,19 @@ function Row({
   done?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-3">
+    <li className="flex items-center gap-3">
       <span
-        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border ${
-          done ? "border-primary/30 bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-        }`}
+        className={cn(
+          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border",
+          done
+            ? "border-primary bg-accent-soft text-primary"
+            : "border-input text-muted-foreground",
+        )}
       >
         {icon}
       </span>
-      <span className="flex-1 text-sm text-foreground">{label}</span>
-      <span className="text-[11px] tabular-nums text-muted-foreground">{time}</span>
-    </div>
+      <span className="flex-1 text-small text-foreground">{label}</span>
+      <span className="text-small text-muted-foreground tabular-nums">{time}</span>
+    </li>
   );
 }

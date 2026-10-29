@@ -1,95 +1,73 @@
-import { IconArrowRight, IconBrandDiscord } from "@tabler/icons-react";
-
+import { ArrowRight } from "@/components/icons";
+import { DiscordMark } from "@/components/icons/brand-marks";
 import { StatusPreview } from "@/components/landing/status-preview";
-import { Badge } from "@/components/ui/badge";
+import { Accent, PageHero } from "@/components/page/page-hero";
+import { TextLink } from "@/components/page/section";
 import { Button } from "@/components/ui/button";
 import { getActiveServerCount } from "@/lib/stats";
 import { getDict, getLocale } from "@/i18n";
 
-export async function Hero({
-  loggedIn,
-  botInvite,
-}: {
-  loggedIn: boolean;
-  botInvite: string;
-}) {
-  const [t, locale, servers] = await Promise.all([
-    getDict(),
-    getLocale(),
-    getActiveServerCount(),
-  ]);
+/**
+ * The head of the landing page on the anthracite band: what MSK Forms is, the
+ * three ways in (sign in or the dashboard, a demo form, the bot), the number
+ * of servers that use it (counted from the database, not claimed), and a
+ * miniature of the status page as the picture.
+ */
+export async function Hero({ loggedIn, botInvite }: { loggedIn: boolean; botInvite: string }) {
+  const [t, locale, servers] = await Promise.all([getDict(), getLocale(), getActiveServerCount()]);
 
   return (
-    <section className="relative overflow-hidden">
-      <div aria-hidden className="hero-decor-gradient pointer-events-none absolute inset-0 -z-10" />
-      <div className="container grid items-center gap-12 pb-20 pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:pb-28 lg:pt-24">
-        <div>
-          <Badge variant="outline" className="gap-1.5 border-primary/30 text-primary">
-            <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-primary" />
-            {t.hero.badge}
-          </Badge>
-
-          <h1 className="mt-6 max-w-xl text-balance font-heading text-4xl font-bold leading-[1.08] tracking-tight md:text-5xl md:leading-none lg:text-6xl">
-            {t.hero.headPre}
-            <span className="text-primary">{t.hero.headAccent}</span>
-            {t.hero.headPost}
-          </h1>
-
-          <p className="mt-6 max-w-lg text-pretty text-lg leading-relaxed text-muted-foreground">
-            {t.hero.sub}
-          </p>
-
-          <div className="mt-9 flex flex-wrap items-center gap-3">
-            {loggedIn ? (
-              <Button asChild size="lg">
-                <a href="/dashboard">
-                  {t.hero.openDashboard}
-                  <IconArrowRight size={16} stroke={2} />
-                </a>
-              </Button>
-            ) : (
-              <Button asChild size="lg">
-                <a href="/api/auth/discord/login">
-                  <IconBrandDiscord size={16} stroke={1.75} />
-                  {t.hero.loginDiscord}
-                </a>
-              </Button>
-            )}
-            <Button asChild variant="outline" size="lg">
-              <a href="/f/demo-whitelist">{t.hero.demo}</a>
-            </Button>
-            <Button asChild variant="discord" size="lg">
-              <a href={botInvite} target="_blank" rel="noopener noreferrer">
-                <IconBrandDiscord size={16} stroke={1.75} />
-                {t.hero.inviteBot}
+    <PageHero
+      id="hero-title"
+      kicker={t.hero.badge}
+      title={
+        <>
+          {t.hero.headPre}
+          <Accent>{t.hero.headAccent}</Accent>
+          {t.hero.headPost}
+        </>
+      }
+      lead={t.hero.sub}
+      actions={
+        <>
+          {loggedIn ? (
+            <Button asChild variant="band" size="lg">
+              <a href="/dashboard">
+                {t.hero.openDashboard}
+                <ArrowRight className="h-5 w-5" />
               </a>
             </Button>
-          </div>
-
-          {servers > 0 && (
-            <a
-              href="/stats"
-              className="mt-7 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />
-              <span>
-                <span className="font-semibold tabular-nums text-foreground">
-                  {new Intl.NumberFormat(locale).format(servers)}
-                </span>{" "}
-                {servers === 1 ? t.hero.serverOne : t.hero.serverMany}
-              </span>
-            </a>
+          ) : (
+            <Button asChild variant="band" size="lg">
+              <a href="/api/auth/discord/login">
+                <DiscordMark className="h-5 w-5" />
+                {t.hero.loginDiscord}
+              </a>
+            </Button>
           )}
-        </div>
-
-        <div className="relative">
-          <div
-            aria-hidden
-            className="absolute -inset-6 -z-10 rounded-full bg-primary/10 blur-3xl"
-          />
-          <StatusPreview />
-        </div>
-      </div>
-    </section>
+          <Button asChild variant="band-outline" size="lg">
+            <a href="/f/demo-whitelist">{t.hero.demo}</a>
+          </Button>
+          <TextLink href={botInvite} tone="band" newTab={t.site.newTab}>
+            {t.hero.inviteBot}
+          </TextLink>
+        </>
+      }
+      aside={<StatusPreview />}
+    >
+      {servers > 0 && (
+        <p className="text-small text-band-muted">
+          <a
+            href="/stats"
+            className="inline-flex min-h-11 items-center gap-1.5 underline-offset-4 hover:text-band-foreground hover:underline"
+          >
+            <span className="font-semibold text-band-foreground tabular-nums">
+              {new Intl.NumberFormat(locale).format(servers)}
+            </span>
+            {servers === 1 ? t.hero.serverOne : t.hero.serverMany}
+          </a>
+        </p>
+      )}
+    </PageHero>
   );
 }

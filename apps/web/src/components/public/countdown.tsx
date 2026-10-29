@@ -3,28 +3,46 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
+import { cn } from "@/lib/utils";
+
+export interface CountdownUnits {
+  days: string;
+  hours: string;
+  minutes: string;
+  seconds: string;
+}
+
 /**
- * Live countdown to a scheduled form's opening time. Ticks every second and,
- * when it reaches zero, refreshes the route so the now-open form appears. With
- * `celebrate`, it fires a burst of confetti at that moment (used on the public
- * form page where the applicant is waiting).
+ * Live countdown to a scheduled form's opening time, the customer's own
+ * content on their page. Ticks every second and, at zero, refreshes the route
+ * so the now-open form appears. With `celebrate` it fires a burst of confetti
+ * in the guild's colours at that moment, unless the visitor asked the system
+ * for reduced motion.
  *
- * The initial render is timezone/clock independent (label only) to avoid a
- * hydration mismatch; the ticking numbers appear after mount.
+ * The first render is clock independent (label only) to avoid a hydration
+ * mismatch; the figures appear after mount. The ticking figures are hidden
+ * from screen readers, which would otherwise be told every second; the
+ * opening time beside them (rendered by the page) is what they read.
  */
 export function Countdown({
   targetIso,
   label,
+  units,
   celebrate = false,
+  size = "lg",
 }: {
   targetIso: string;
   label: string;
+  units: CountdownUnits;
   celebrate?: boolean;
+  /** `lg` on the form page, `sm` in the form index. */
+  size?: "lg" | "sm";
 }) {
   const router = useRouter();
   const target = new Date(targetIso).getTime();
   const [remaining, setRemaining] = useState<number | null>(null);
   const firedRef = useRef(false);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function tick() {
@@ -32,9 +50,11 @@ export function Countdown({
       setRemaining(Math.max(0, ms));
       if (ms <= 0 && !firedRef.current) {
         firedRef.current = true;
-        if (celebrate) fireConfetti();
+        const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const party = celebrate && !still;
+        if (party) fireConfetti(confettiColours(rootRef.current));
         // Give the confetti a moment before swapping the form in.
-        window.setTimeout(() => router.refresh(), celebrate ? 1500 : 0);
+        window.setTimeout(() => router.refresh(), party ? 1500 : 0);
       }
     }
     tick();
@@ -42,35 +62,61 @@ export function Countdown({
     return () => window.clearInterval(id);
   }, [target, celebrate, router]);
 
-  if (remaining === null) {
-    // Pre-mount placeholder (SSR + first paint): label only, no clock read.
-    return (
-      <span className="mt-1 inline-flex items-center gap-2 text-sm text-muted-foreground">
-        {label}
-      </span>
-    );
-  }
-
-  const totalSeconds = Math.floor(remaining / 1000);
-  const days = Math.floor(totalSeconds / 86_400);
-  const hours = Math.floor((totalSeconds % 86_400) / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  const pad = (n: number) => String(n).padStart(2, "0");
-  const clock = `${days > 0 ? `${days}d ` : ""}${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+  const totalSeconds = Math.floor((remaining ?? 0) / 1000);
+  const parts = [
+    { value: Math.floor(totalSeconds / 86_400), unit: units.days },
+    { value: Math.floor((totalSeconds % 86_400) / 3600), unit: units.hours },
+    { value: Math.floor((totalSeconds % 3600) / 60), unit: units.minutes },
+    { value: totalSeconds % 60, unit: units.seconds },
+  ].filter((part, i) => i > 0 || part.value > 0);
 
   return (
-    <span className="mt-1 inline-flex items-center gap-2 text-sm text-muted-foreground">
-      {label}
-      <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />
-      <span className="font-mono font-medium tabular-nums text-primary">{clock}</span>
-    </span>
+    <div ref={rootRef} className="grid gap-2">
+      <p className={cn("font-semibold text-muted-foreground", size === "sm" && "text-small")}>
+        {label}
+      </p>
+      {remaining !== null && (
+        <dl aria-hidden className="flex flex-wrap gap-x-[clamp(1rem,0.5rem+1.5vw,2rem)] gap-y-2">
+          {parts.map((part) => (
+            <div key={part.unit} className="grid">
+              {/* The unit is the term, the figure its value; shown figure first. */}
+              <dt className="order-2 text-label font-semibold tracking-[0.08em] text-muted-foreground uppercase">
+                {part.unit}
+              </dt>
+              <dd
+                className={cn(
+                  "order-1 font-display font-bold text-primary tabular-nums",
+                  size === "lg" ? "text-display leading-none" : "text-h3",
+                )}
+              >
+                {String(part.value).padStart(2, "0")}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      )}
+    </div>
   );
 }
 
-/** Self-contained canvas confetti burst — no dependency, CSP-safe (no eval). */
-function fireConfetti() {
+/**
+ * The guild's colours for the confetti: its accent as the page shows it, the
+ * chart series of the theme and the text colour, which stands out on either
+ * ground. Read from the custom properties in effect where the countdown sits,
+ * so nothing is hard-coded.
+ */
+function confettiColours(el: HTMLElement | null): string[] {
+  const style = getComputedStyle(el ?? document.documentElement);
+  return ["--primary", "--chart-2", "--chart-3", "--chart-4", "--chart-5", "--foreground"]
+    .map((name) => style.getPropertyValue(name).trim())
+    .filter(Boolean)
+    .map((channels) => `hsl(${channels})`);
+}
+
+/** Self-contained canvas confetti burst: no dependency, CSP-safe (no eval). */
+function fireConfetti(colors: string[]) {
   const canvas = document.createElement("canvas");
+  canvas.setAttribute("aria-hidden", "true");
   canvas.style.cssText =
     "position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999";
   canvas.width = window.innerWidth;
@@ -82,7 +128,6 @@ function fireConfetti() {
     return;
   }
 
-  const colors = ["#4ea426", "#5eb131", "#f59e0b", "#3b82f6", "#ec4899", "#ffffff"];
   const gravity = 0.32;
   const parts = Array.from({ length: 160 }, () => ({
     x: canvas.width / 2 + (Math.random() - 0.5) * 160,
