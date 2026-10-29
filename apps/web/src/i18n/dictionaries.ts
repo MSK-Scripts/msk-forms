@@ -703,6 +703,7 @@ const en = {
     language: "Bot language",
     languageHint:
       "Language the bot speaks for this guild: command replies, review embeds, activity log and applicant DMs. Leave unset to send applicant DMs in each applicant’s own Discord language.",
+    languageAuto: "Not set: English, DMs in each applicant’s language",
     acceptedRole: "Accepted role IDs",
     acceptedRoleHint:
       "Default role(s) granted on acceptance. Separate multiple IDs with commas. Each form can override this in its settings.",
@@ -2016,6 +2017,7 @@ const de: Dictionary = {
     language: "Bot-Sprache",
     languageHint:
       "Sprache, die der Bot für diesen Server spricht: Command-Antworten, Review-Embeds, Aktivitäts-Log und Bewerber-DMs. Leer lassen, damit Bewerber-DMs in der jeweiligen Discord-Sprache des Bewerbers gesendet werden.",
+    languageAuto: "Nicht festgelegt: Englisch, DMs in der Sprache der Bewerber",
     acceptedRole: "Annahme-Rollen-IDs",
     acceptedRoleHint:
       "Standard-Rolle(n) bei Annahme. Mehrere IDs mit Komma trennen. Jedes Formular kann das in seinen Einstellungen überschreiben.",
@@ -3336,6 +3338,7 @@ const hu: Dictionary = {
     language: "Bot nyelve",
     languageHint:
       "A bot nyelve ehhez a szerverhez: parancsválaszok, bírálati beágyazások, tevékenységnapló és jelentkezői DM-ek. Hagyd üresen, hogy a jelentkezői DM-ek az egyes jelentkezők saját Discord-nyelvén menjenek.",
+    languageAuto: "Nincs beállítva: angol, a DM-ek a jelentkezők nyelvén",
     acceptedRole: "Elfogadási szerep azonosítók",
     acceptedRoleHint:
       "Alapértelmezett szerep(ek) elfogadáskor. Több azonosítót vesszővel válassz el. Minden űrlap felülírhatja a saját beállításaiban.",
@@ -4647,6 +4650,7 @@ const fr: Dictionary = {
     language: "Langue du bot",
     languageHint:
       "Langue que le bot utilise pour ce serveur : réponses aux commandes, embeds de bilan, journal d’activité et DM aux candidats. Laissez vide pour envoyer les DM aux candidats dans la langue Discord de chaque candidat.",
+    languageAuto: "Non défini : anglais, DM dans la langue de chaque candidat",
     acceptedRole: "IDs de rôle pour acceptation",
     acceptedRoleHint:
       "Rôle(s) par défaut attribué(s) à l'acceptation. Séparez plusieurs IDs par des virgules. Chaque formulaire peut remplacer ceci dans ses paramètres.",
@@ -5961,6 +5965,7 @@ const es: Dictionary = {
     language: "Idioma del bot",
     languageHint:
       "Idioma que usa el bot en este servidor: respuestas a comandos, embeds de revisión, registro de actividad y DM a los candidatos. Déjalo vacío para enviar los DM a los candidatos en el idioma de Discord de cada uno.",
+    languageAuto: "Sin definir: inglés, DM en el idioma de cada candidato",
     acceptedRole: "IDs de roles de aceptación",
     acceptedRoleHint:
       "Rol(es) predeterminado(s) al aceptar. Separa múltiples IDs con comas. Cada formulario puede sobrescribir esto en su configuración.",
@@ -7268,6 +7273,7 @@ const pt: Dictionary = {
     language: "Idioma do bot",
     languageHint:
       "Idioma que o bot usa neste servidor: respostas de comandos, embeds de avaliação, registro de atividade e DMs aos candidatos. Deixe vazio para enviar as DMs aos candidatos no idioma do Discord de cada um.",
+    languageAuto: "Não definido: inglês, DMs no idioma de cada candidato",
     acceptedRole: "IDs de cargos de aceite",
     acceptedRoleHint:
       "Cargo(s) padrão concedido(s) ao aceitar. Separe múltiplos IDs com vírgulas. Cada formulário pode substituir isso em suas configurações.",
@@ -8573,6 +8579,7 @@ const pl: Dictionary = {
     language: "Język bota",
     languageHint:
       "Język, którego bot używa na tym serwerze: odpowiedzi na komendy, osadzenia recenzji, dziennik aktywności i wiadomości DM do kandydatów. Zostaw puste, aby DM do kandydatów były w języku Discorda danego kandydata.",
+    languageAuto: "Nie ustawiono: angielski, DM w języku kandydata",
     acceptedRole: "ID ról dla zaakceptowanych",
     acceptedRoleHint:
       "Domyślna rola(e) nadawana przy akceptacji. Rozdziel wiele ID przecinkami. Każdy formularz może to nadpisać w ustawieniach.",
