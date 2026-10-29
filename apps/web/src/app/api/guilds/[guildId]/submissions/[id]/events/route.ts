@@ -18,6 +18,7 @@ import { resolveStatus } from "@/lib/forms";
 import { canReviewForm } from "@/lib/guild";
 import { submissionActionSchema } from "@/lib/submission-action";
 import { getDict } from "@/i18n";
+import { validationMessage } from "@/lib/validation-error";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -57,7 +58,7 @@ export async function POST(
   const parsed = submissionActionSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid action." },
+      { error: (await validationMessage(parsed.error)) ?? "Invalid action." },
       { status: 422 },
     );
   }

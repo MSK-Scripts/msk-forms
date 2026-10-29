@@ -17,10 +17,7 @@ import {
 export { MANAGER_ROLES, REVIEWER_ROLES } from "./access";
 
 /** The user's role in a guild, or null if they aren't a member. */
-export async function getGuildRole(
-  guildId: string,
-  userId: string,
-): Promise<string | null> {
+export async function getGuildRole(guildId: string, userId: string): Promise<string | null> {
   const membership = await prisma.guildMember.findUnique({
     where: { guildId_userId: { guildId, userId } },
     select: { role: true },
@@ -45,7 +42,10 @@ export async function canDeleteForms(guildId: string, userId: string): Promise<b
     where: { guildId_userId: { guildId, userId } },
     select: { role: true, guild: { select: { adminsCanDeleteForms: true } } },
   });
-  return canDeleteFormsFromRole(membership?.role ?? null, Boolean(membership?.guild.adminsCanDeleteForms));
+  return canDeleteFormsFromRole(
+    membership?.role ?? null,
+    Boolean(membership?.guild.adminsCanDeleteForms),
+  );
 }
 
 /**
@@ -253,27 +253,37 @@ export async function countArchivedForms(guildId: string, scope: ReviewScope): P
 }
 
 /**
+ * Most rows a submission list loads. Sorting and the form filter run in the
+ * browser over the loaded rows, so the list is not paged; above the limit the
+ * newest rows are shown and the page says so.
+ */
+export const SUBMISSION_LIST_LIMIT = 1000;
+
+/**
  * Submissions across a guild's forms, scoped to what the viewer may review.
  * Pass a {@link ReviewScope}: `all` returns everything; otherwise only the
- * granted forms' submissions (empty grants → no rows).
+ * granted forms' submissions (empty grants → no rows). Returns the newest
+ * {@link SUBMISSION_LIST_LIMIT} rows and the total, which is only counted
+ * separately when the limit cut the list.
  */
 export async function getGuildSubmissions(
   guildId: string,
   scope: ReviewScope,
   opts: { archived?: boolean } = {},
 ) {
-  if (!scope.all && scope.formIds.length === 0) return [];
-  return prisma.submission.findMany({
-    where: {
-      guildId,
-      ...(scope.all ? {} : { formId: { in: scope.formIds } }),
-      archivedAt: opts.archived ? { not: null } : null,
-      // Submissions of an archived form leave the lists with their form; they
-      // are reachable from the form archive instead.
-      form: { archivedAt: null },
-    },
+  if (!scope.all && scope.formIds.length === 0) return { rows: [], total: 0 };
+  const where = {
+    guildId,
+    ...(scope.all ? {} : { formId: { in: scope.formIds } }),
+    archivedAt: opts.archived ? { not: null } : null,
+    // Submissions of an archived form leave the lists with their form; they
+    // are reachable from the form archive instead.
+    form: { archivedAt: null },
+  };
+  const rows = await prisma.submission.findMany({
+    where,
     orderBy: { submittedAt: "desc" },
-    take: 100,
+    take: SUBMISSION_LIST_LIMIT,
     select: {
       id: true,
       status: true,
@@ -284,6 +294,9 @@ export async function getGuildSubmissions(
       user: { select: { username: true, avatar: true } },
     },
   });
+  const total =
+    rows.length < SUBMISSION_LIST_LIMIT ? rows.length : await prisma.submission.count({ where });
+  return { rows, total };
 }
 
 /** Count a guild's archived submissions within the reviewer's scope. */

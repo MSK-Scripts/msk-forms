@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { VALIDATION_MESSAGES } from "./validation-messages";
 
 /** Max categories a guild can define. */
 export const MAX_CATEGORIES = 40;
@@ -13,7 +14,7 @@ export const categoryInputSchema = z.object({
   name: z.string().min(1).max(60),
   color: z
     .string()
-    .regex(/^#[0-9a-fA-F]{6}$/, "Use a hex color like #4ea426.")
+    .regex(/^#[0-9a-fA-F]{6}$/, VALIDATION_MESSAGES.hexColor)
     .nullable()
     .optional(),
   order: z.number().int().min(0).max(1000).default(0),

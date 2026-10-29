@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { VALIDATION_MESSAGES } from "./validation-messages";
 
 /**
  * Per-guild branding stored in `Guild.branding` (JSON). Applied to that guild's
@@ -7,7 +8,7 @@ import { z } from "zod";
  */
 const accentColor = z
   .string()
-  .regex(/^#[0-9a-fA-F]{6}$/, "Use a hex color like #00E676.")
+  .regex(/^#[0-9a-fA-F]{6}$/, VALIDATION_MESSAGES.hexColor)
   .optional();
 
 /** Hard ceiling for guild custom CSS. */
