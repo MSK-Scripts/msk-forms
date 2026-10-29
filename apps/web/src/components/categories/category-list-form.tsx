@@ -23,6 +23,13 @@ import { Input } from "@/components/ui/input";
 import type { Dictionary } from "@/i18n";
 import { dotColors } from "@/lib/color-dot";
 
+import {
+  categoryPayload,
+  categoryRowsFrom,
+  NEW_CATEGORY_COLOR,
+  type CategoryRow,
+} from "./category-rows";
+
 type CategoriesDict = Dictionary["dashboard"]["categories"];
 
 /**
@@ -30,18 +37,8 @@ type CategoriesDict = Dictionary["dashboard"]["categories"];
  * is saved again. It is written to the database, so it stays this value; it
  * is the customer's colour on the public hub, not the dashboard's green.
  */
-const DEFAULT_COLOR = "#4ea426";
-
-type Row = { uid: string; id?: string; name: string; color: string };
+type Row = CategoryRow;
 type Move = "up" | "down";
-
-const rowsFrom = (categories: CategoryInput[]): Row[] =>
-  categories.map((c, i) => ({
-    uid: c.id ?? `saved-${i}`,
-    id: c.id,
-    name: c.name,
-    color: c.color ?? DEFAULT_COLOR,
-  }));
 
 /** What is compared to the last save: everything the payload is made of. */
 const contentOf = (rows: Row[]) => JSON.stringify(rows.map((r) => [r.id ?? null, r.name, r.color]));
@@ -64,7 +61,7 @@ export function CategoryListForm({
   kit: SettingsSaveCopy;
 }) {
   const router = useRouter();
-  const [rows, setRows] = useState<Row[]>(() => rowsFrom(initial));
+  const [rows, setRows] = useState<Row[]>(() => categoryRowsFrom(initial));
   const [saved, setSaved] = useState<Row[]>(rows);
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<SaveResult>(null);
@@ -100,7 +97,7 @@ export function CategoryListForm({
     seq.current += 1;
     const uid = `new-${seq.current}`;
     pendingFocus.current = () => nameInputs.current.get(uid)?.focus();
-    edit([...rows, { uid, name: "", color: DEFAULT_COLOR }]);
+    edit([...rows, { uid, name: "", color: NEW_CATEGORY_COLOR }]);
   }
   function remove(i: number) {
     const target = rows[i + 1]?.uid ?? rows[i - 1]?.uid;
@@ -132,12 +129,7 @@ export function CategoryListForm({
     setResult(null);
     setSaving(true);
     try {
-      const payload = rows.map((r, i) => ({
-        id: r.id,
-        name: r.name.trim(),
-        color: r.color,
-        order: i,
-      }));
+      const payload = categoryPayload(rows);
       const res = await fetch(`/api/guilds/${guildId}/categories`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -148,7 +140,7 @@ export function CategoryListForm({
         throw new Error(data?.error ?? t.errSave);
       }
       const data = (await res.json()) as { categories: CategoryInput[] };
-      const next = rowsFrom(data.categories);
+      const next = categoryRowsFrom(data.categories);
       setRows(next);
       setSaved(next);
       setResult({ tone: "success", message: t.saved });
@@ -182,12 +174,12 @@ export function CategoryListForm({
             <ol className="grid divide-y divide-border">
               {rows.map((row, i) => {
                 const name = nameOf(row);
-                const swatch = HEX_COLOR.test(row.color.trim()) ? row.color.trim() : DEFAULT_COLOR;
+                const swatch = HEX_COLOR.test(row.color.trim()) ? row.color.trim() : null;
                 return (
                   <li key={row.uid} className="py-5 first:pt-0">
                     <fieldset className="min-w-0">
                       <legend className="mb-3 flex items-center gap-2 font-semibold">
-                        <ColorDot {...dotColors(swatch)} size="md" />
+                        {swatch && <ColorDot {...dotColors(swatch)} size="md" />}
                         <span translate="no" className="break-words">
                           {name}
                         </span>
@@ -211,8 +203,10 @@ export function CategoryListForm({
                           pickerLabel={t.colorPicker}
                           invalidText={t.hexError}
                           value={row.color}
+                          hint={t.colorHint}
                           onChange={(color) => patch(i, { color })}
-                          fallback={DEFAULT_COLOR}
+                          fallback={NEW_CATEGORY_COLOR}
+                          optional
                         />
                         <div className="ms-auto flex gap-1">
                           <Button
