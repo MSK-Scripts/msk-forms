@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { DEFAULT_STATUSES } from "./constants";
+import { VALIDATION_MESSAGES } from "./validation-messages";
 
 /**
  * True when a status is terminal — an "ending" state that closes the review
@@ -23,11 +24,9 @@ export function isTerminalStatus(
  */
 export const statusDefInputSchema = z.object({
   // Stable machine key — lowercase letters, digits, underscores.
-  key: z
-    .string()
-    .regex(/^[a-z0-9_]{1,32}$/, "Use 1–32 lowercase letters, digits or underscores."),
+  key: z.string().regex(/^[a-z0-9_]{1,32}$/, VALIDATION_MESSAGES.statusKey),
   label: z.string().min(1).max(60),
-  color: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Use a hex color like #00E676."),
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/, VALIDATION_MESSAGES.hexColor),
   isTerminal: z.boolean().default(false),
   visibleToApplicant: z.boolean().default(true),
 });
@@ -41,7 +40,11 @@ export const statusDefsSchema = z
     const seen = new Set<string>();
     defs.forEach((d, i) => {
       if (seen.has(d.key)) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: [i, "key"], message: "Duplicate key." });
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [i, "key"],
+          message: VALIDATION_MESSAGES.duplicateKey,
+        });
       }
       seen.add(d.key);
     });

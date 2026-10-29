@@ -8,6 +8,7 @@ import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
+import { validationMessage } from "@/lib/validation-error";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -58,13 +59,16 @@ export async function POST(
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
   if (!(await isGuildPro(guildId))) {
-    return NextResponse.json({ error: "Pro plan required.", code: "pro_required" }, { status: 402 });
+    return NextResponse.json(
+      { error: "Pro plan required.", code: "pro_required" },
+      { status: 402 },
+    );
   }
 
   const parsed = webhookInputSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid webhook." },
+      { error: (await validationMessage(parsed.error)) ?? "Invalid webhook." },
       { status: 422 },
     );
   }
