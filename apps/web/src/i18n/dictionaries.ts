@@ -363,6 +363,8 @@ const en = {
       restoredOne: "Submission from {name} restored.",
       archivedIntro:
         "Archived submissions are kept but stay off the submission list and the board. Restore one to bring it back.",
+      listTruncated: "Showing the newest {limit} of {total} submissions.",
+      listTruncatedHint: "Archive finished submissions to bring older ones into the list.",
     },
     formsList: {
       actions: "Actions",
@@ -1665,6 +1667,9 @@ const de: Dictionary = {
       restoredOne: "Einreichung von {name} wiederhergestellt.",
       archivedIntro:
         "Archivierte Einreichungen bleiben erhalten, erscheinen aber nicht in der Liste und auf dem Board. Stelle eine wieder her, um sie zurückzuholen.",
+      listTruncated: "Angezeigt werden die neuesten {limit} von {total} Einreichungen.",
+      listTruncatedHint:
+        "Archiviere erledigte Einreichungen, dann rücken ältere in die Liste nach.",
     },
     formsList: {
       actions: "Aktionen",
@@ -2980,6 +2985,8 @@ const hu: Dictionary = {
       restoredOne: "{name} beküldése visszaállítva.",
       archivedIntro:
         "Az archivált beküldések megmaradnak, de nem jelennek meg a listában és a táblán. Állíts vissza egyet, hogy visszakerüljön.",
+      listTruncated: "A legújabb {limit} beküldés látható, összesen {total}.",
+      listTruncatedHint: "Archiváld a lezárt beküldéseket, és a régebbiek bekerülnek a listába.",
     },
     formsList: {
       actions: "Műveletek",
@@ -4282,6 +4289,9 @@ const fr: Dictionary = {
       restoredOne: "Soumission de {name} restaurée.",
       archivedIntro:
         "Les soumissions archivées sont conservées, mais n’apparaissent ni dans la liste ni sur le tableau. Restaurez-en une pour la faire revenir.",
+      listTruncated: "Affichage des {limit} soumissions les plus récentes sur {total}.",
+      listTruncatedHint:
+        "Archivez les soumissions traitées pour faire apparaître les plus anciennes.",
     },
     formsList: {
       actions: "Actions",
@@ -5591,6 +5601,8 @@ const es: Dictionary = {
       restoredOne: "Envío de {name} restaurado.",
       archivedIntro:
         "Los envíos archivados se conservan, pero no aparecen en la lista ni en el tablero. Restaura uno para recuperarlo.",
+      listTruncated: "Se muestran los {limit} envíos más recientes de {total}.",
+      listTruncatedHint: "Archiva los envíos terminados para que aparezcan los más antiguos.",
     },
     formsList: {
       actions: "Acciones",
@@ -6891,6 +6903,9 @@ const pt: Dictionary = {
       restoredOne: "Candidatura de {name} restaurada.",
       archivedIntro:
         "As candidaturas arquivadas são mantidas, mas não aparecem na lista nem no quadro. Restaure uma para trazê-la de volta.",
+      listTruncated: "Mostrando as {limit} candidaturas mais recentes de {total}.",
+      listTruncatedHint:
+        "Arquive as candidaturas concluídas para que as mais antigas apareçam na lista.",
     },
     formsList: {
       actions: "Ações",
@@ -8191,6 +8206,8 @@ const pl: Dictionary = {
       restoredOne: "Przywrócono zgłoszenie od {name}.",
       archivedIntro:
         "Zarchiwizowane zgłoszenia są zachowywane, ale nie pojawiają się na liście ani na tablicy. Przywróć zgłoszenie, aby je odzyskać.",
+      listTruncated: "Wyświetlono {limit} najnowszych zgłoszeń z {total}.",
+      listTruncatedHint: "Zarchiwizuj zakończone zgłoszenia, aby starsze pojawiły się na liście.",
     },
     formsList: {
       actions: "Akcje",
