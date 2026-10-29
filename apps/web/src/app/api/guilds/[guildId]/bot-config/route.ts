@@ -5,6 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { actor } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/auth";
 import { canManageForms } from "@/lib/guild";
+import { validationMessage } from "@/lib/validation-error";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,7 +26,7 @@ export async function PATCH(
   const parsed = botConfigSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid configuration." },
+      { error: (await validationMessage(parsed.error)) ?? "Invalid configuration." },
       { status: 422 },
     );
   }

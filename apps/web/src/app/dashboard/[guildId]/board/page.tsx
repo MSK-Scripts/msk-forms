@@ -3,14 +3,14 @@ import type { Route } from "next";
 import Link from "next/link";
 
 import { KanbanBoard, type BoardColumn } from "@/components/board/kanban-board";
-import { EmptyState, PageHeader } from "@/components/dashboard-kit";
+import { EmptyState, Notice, PageHeader } from "@/components/dashboard-kit";
 import { DashboardLive } from "@/components/dashboard/dashboard-live";
 import { Button } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth";
 import { resolveStatus, statusOptions } from "@/lib/forms";
 import { getGuildSubmissions, getReviewScope } from "@/lib/guild";
 import { signGuildRealtimeToken } from "@/lib/realtime-token";
-import { getDict } from "@/i18n";
+import { getDict, getLocale } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -31,7 +31,7 @@ export default async function BoardPage({ params }: { params: Promise<{ guildId:
     );
   }
 
-  const [submissions, defs] = await Promise.all([
+  const [{ rows: submissions, total }, defs] = await Promise.all([
     getGuildSubmissions(guildId, scope),
     prisma.formStatusDef.findMany({
       where: { guildId },
@@ -58,6 +58,9 @@ export default async function BoardPage({ params }: { params: Promise<{ guildId:
   }));
 
   const liveToken = signGuildRealtimeToken(guildId);
+  const truncated = t.submissionsList.listTruncated
+    .replace("{limit}", String(submissions.length))
+    .replace("{total}", String(total));
 
   return (
     <>
@@ -66,6 +69,11 @@ export default async function BoardPage({ params }: { params: Promise<{ guildId:
         title={t.board.title}
         description={cards.length > 0 ? t.board.intro : undefined}
       />
+      {total > submissions.length && (
+        <Notice tone="info" title={truncated} className="mb-5">
+          {t.submissionsList.listTruncatedHint}
+        </Notice>
+      )}
       {cards.length === 0 ? (
         <EmptyState
           kind="first-use"
@@ -93,8 +101,12 @@ export default async function BoardPage({ params }: { params: Promise<{ guildId:
             moved: t.board.moved,
             empty: t.board.columnEmpty,
             anonymous: t.anonymous,
-            countOne: t.countSubmission,
-            countMany: t.countSubmissions,
+            count: {
+              one: t.countSubmission,
+              few: t.countSubmissionsFew,
+              other: t.countSubmissions,
+            },
+            locale: await getLocale(),
             saveFailed: t.board.saveFailed,
             dismiss: dict.kit.dismiss,
           }}

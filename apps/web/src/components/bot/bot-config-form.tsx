@@ -1,6 +1,6 @@
 "use client";
 
-import { acceptedRoleIdsOf, parseIdList, type BotConfig } from "@msk-forms/shared";
+import type { BotConfig } from "@msk-forms/shared";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import type { Dictionary } from "@/i18n";
 
+import { botConfigBody, botConfigValuesOf, type BotConfigValues } from "./bot-config-values";
+
 type BotDict = Dictionary["botConfig"];
 
 const LOCALE_OPTIONS = [
@@ -26,21 +28,7 @@ const LOCALE_OPTIONS = [
   { value: "pl", label: "Polski" },
 ] as const;
 
-interface Values {
-  channel: string;
-  logChannel: string;
-  locale: string;
-  role: string;
-  postName: string;
-}
-
-const valuesOf = (config: BotConfig): Values => ({
-  channel: config.reviewChannelId ?? "",
-  logChannel: config.logChannelId ?? "",
-  locale: config.locale ?? "en",
-  role: acceptedRoleIdsOf(config).join(", "),
-  postName: config.postName ?? "",
-});
+type Values = BotConfigValues;
 
 /** A Discord id field: a machine value, so monospace and no autocorrection. */
 const ID_FIELD = {
@@ -63,7 +51,7 @@ export function BotConfigForm({
   kit: SettingsSaveCopy;
 }) {
   const router = useRouter();
-  const [values, setValues] = useState<Values>(() => valuesOf(initial));
+  const [values, setValues] = useState<Values>(() => botConfigValuesOf(initial));
   const [saved, setSaved] = useState<Values>(values);
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<SaveResult>(null);
@@ -81,14 +69,7 @@ export function BotConfigForm({
     setResult(null);
     setSaving(true);
     try {
-      const { channel, logChannel, locale, role, postName } = values;
-      const body: Record<string, unknown> = {};
-      if (channel.trim()) body.reviewChannelId = channel.trim();
-      if (logChannel.trim()) body.logChannelId = logChannel.trim();
-      body.locale = locale;
-      const roleIds = parseIdList(role);
-      if (roleIds.length > 0) body.acceptedRoleIds = roleIds;
-      if (postName.trim()) body.postName = postName.trim();
+      const body = botConfigBody(values);
       const res = await fetch(`/api/guilds/${guildId}/bot-config`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -165,6 +146,7 @@ export function BotConfigForm({
                 onChange={set("locale")}
                 className="max-w-md"
               >
+                <option value="">{t.languageAuto}</option>
                 {LOCALE_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value} lang={o.value}>
                     {o.label}

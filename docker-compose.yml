@@ -2,7 +2,8 @@
 # Start: docker compose up -d
 services:
   postgres:
-    image: postgres:16
+    # Same major version as production.
+    image: postgres:18
     container_name: msk-forms-postgres
     restart: unless-stopped
     environment:
@@ -12,7 +13,10 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      # Since postgres:18 the data lives in a versioned subdirectory, so the
+      # volume is mounted one level up. A new volume name keeps an old
+      # Postgres 16 volume from being picked up.
+      - pgdata18:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U msk"]
       interval: 10s
@@ -29,7 +33,9 @@ services:
       - redisdata:/data
 
   minio:
-    image: minio/minio:latest
+    # MinIO no longer publishes images; pgsty/minio is a maintained build of
+    # the same server with the same CLI and environment variables.
+    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
     container_name: msk-forms-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
@@ -42,7 +48,19 @@ services:
     volumes:
       - miniodata:/data
 
+  # Creates the upload bucket once; the app expects it to exist. Retries until
+  # MinIO accepts connections, then exits.
+  minio-init:
+    image: cgr.dev/chainguard/minio-client:latest
+    container_name: msk-forms-minio-init
+    depends_on:
+      - minio
+    restart: on-failure
+    environment:
+      MC_HOST_local: http://msk:msk-secret@minio:9000
+    command: ["mb", "--ignore-existing", "local/msk-forms"]
+
 volumes:
-  pgdata:
+  pgdata18:
   redisdata:
   miniodata:

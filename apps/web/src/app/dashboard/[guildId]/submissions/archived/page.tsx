@@ -1,6 +1,6 @@
 import { prisma } from "@msk-forms/db";
 
-import { EmptyState, PageHeader } from "@/components/dashboard-kit";
+import { EmptyState, Notice, PageHeader } from "@/components/dashboard-kit";
 import { SubmissionsTable } from "@/components/dashboard/submissions-table";
 import { submissionsTableLabels } from "@/components/dashboard/submissions-table-labels";
 import { requireUser } from "@/lib/auth";
@@ -41,7 +41,7 @@ export default async function ArchivedSubmissionsPage({
     );
   }
 
-  const [submissions, defs] = await Promise.all([
+  const [{ rows: submissions, total }, defs] = await Promise.all([
     getGuildSubmissions(guildId, scope, { archived: true }),
     prisma.formStatusDef.findMany({
       where: { guildId },
@@ -67,6 +67,10 @@ export default async function ArchivedSubmissionsPage({
     score: s.score,
   }));
 
+  const truncated = t.submissionsList.listTruncated
+    .replace("{limit}", String(submissions.length))
+    .replace("{total}", String(total));
+
   return (
     <>
       <PageHeader
@@ -75,6 +79,7 @@ export default async function ArchivedSubmissionsPage({
         breadcrumbs={crumbs}
         breadcrumbLabel={dict.kit.breadcrumb}
       />
+      {total > submissions.length && <Notice tone="info" title={truncated} className="mb-5" />}
       <SubmissionsTable
         guildId={guildId}
         rows={rows}

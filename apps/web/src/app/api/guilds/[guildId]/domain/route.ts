@@ -10,6 +10,7 @@ import { primaryHostname } from "@/lib/custom-domain";
 import { requestDomainSync } from "@/lib/domain-sync";
 import { canManageForms } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
+import { validationMessage } from "@/lib/validation-error";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,13 +28,16 @@ export async function PATCH(
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
   if (!(await isGuildPro(guildId))) {
-    return NextResponse.json({ error: "Pro plan required.", code: "pro_required" }, { status: 402 });
+    return NextResponse.json(
+      { error: "Pro plan required.", code: "pro_required" },
+      { status: 402 },
+    );
   }
 
   const parsed = customDomainSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid domain." },
+      { error: (await validationMessage(parsed.error)) ?? "Invalid domain." },
       { status: 422 },
     );
   }

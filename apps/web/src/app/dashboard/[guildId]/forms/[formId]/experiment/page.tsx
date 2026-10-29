@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { getDict, getLocale } from "@/i18n";
 import { requireUser } from "@/lib/auth";
 import { getFormForEdit } from "@/lib/forms";
-import { canManageForms } from "@/lib/guild";
+import { canManageForm } from "@/lib/guild";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,7 +27,9 @@ export default async function ExperimentResultsPage({
   const t = dict.experiment;
   const formsHref = `/dashboard/${guildId}/forms`;
 
-  if (!(await canManageForms(guildId, user.id))) {
+  // Per form, like editing and preview: a manager of only some forms sees the
+  // results of those.
+  if (!(await canManageForm(guildId, user.id, formId))) {
     return (
       <>
         <PageHeader

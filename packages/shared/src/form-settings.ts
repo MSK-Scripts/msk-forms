@@ -2,13 +2,14 @@ import { z } from "zod";
 
 import { evaluateCondition, type AnswerMap } from "./conditions";
 import { conditionOperatorSchema } from "./form-spec";
+import { VALIDATION_MESSAGES } from "./validation-messages";
 
 /**
  * Per-form settings stored in `Form.settings` (JSON): a per-form accepted role
  * that overrides the guild-wide `botConfig.acceptedRoleId`, plus "when-then"
  * automation rules (concept §20).
  */
-const snowflake = z.string().regex(/^\d{17,20}$/, "Enter a valid Discord ID.");
+const snowflake = z.string().regex(/^\d{17,20}$/, VALIDATION_MESSAGES.discordId);
 
 /** A single condition: `answers[field] <op> value` (same shape as field conditions). */
 export const automationConditionSchema = z.object({
