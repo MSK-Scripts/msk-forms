@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { LOG_ACTIONS, type LogAction } from "./notifications";
 import { DISCORD_WEBHOOK_URL_RE } from "./webhooks";
+import { VALIDATION_MESSAGES } from "./validation-messages";
 
 /**
  * Audit-log webhooks: a guild points a Discord channel webhook at MSK Forms and
@@ -106,10 +107,10 @@ export const auditWebhookInputSchema = z.object({
     .string()
     .trim()
     .max(2000)
-    .regex(DISCORD_WEBHOOK_URL_RE, "Enter a valid Discord channel webhook URL."),
+    .regex(DISCORD_WEBHOOK_URL_RE, VALIDATION_MESSAGES.discordWebhookUrl),
   actions: z
     .array(logActionSchema)
-    .min(1, "Select at least one thing to log.")
+    .min(1, VALIDATION_MESSAGES.oneLogEvent)
     .transform((actions) => [...new Set(actions)]),
   /** Optional form to scope form-related entries to; null = every form. */
   formId: z.string().uuid().nullish(),
@@ -122,7 +123,7 @@ export const auditWebhookUpdateSchema = z
     name: z.string().trim().max(80).nullish(),
     actions: z
       .array(logActionSchema)
-      .min(1, "Select at least one thing to log.")
+      .min(1, VALIDATION_MESSAGES.oneLogEvent)
       .transform((actions) => [...new Set(actions)]),
     formId: z.string().uuid().nullish(),
     active: z.boolean(),

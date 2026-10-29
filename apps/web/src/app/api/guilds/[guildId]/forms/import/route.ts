@@ -10,6 +10,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { resolveOrCreateCategoryByName } from "@/lib/forms";
 import { canManageForms } from "@/lib/guild";
 import { isGuildPro } from "@/lib/plan";
+import { validationMessage } from "@/lib/validation-error";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -52,7 +53,7 @@ export async function POST(
   const parsed = importBodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid form file." },
+      { error: (await validationMessage(parsed.error)) ?? "Invalid form file." },
       { status: 422 },
     );
   }

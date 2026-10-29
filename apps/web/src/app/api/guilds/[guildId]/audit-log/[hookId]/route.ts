@@ -12,6 +12,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { actorLine, postDiscordEmbed } from "@/lib/discord-webhook";
 import { canManageForms } from "@/lib/guild";
 import { getDict } from "@/i18n";
+import { validationMessage } from "@/lib/validation-error";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -41,7 +42,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   const parsed = auditWebhookUpdateSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request." },
+      { error: (await validationMessage(parsed.error)) ?? "Invalid request." },
       { status: 422 },
     );
   }

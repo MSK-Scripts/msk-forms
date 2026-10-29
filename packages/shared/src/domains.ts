@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { VALIDATION_MESSAGES } from "./validation-messages";
 
 /** A DNS hostname (no scheme, no path, no port). Lowercased before validation. */
 const HOSTNAME = /^(?=.{1,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/;
@@ -8,7 +9,7 @@ export const customDomainSchema = z.object({
     .string()
     .trim()
     .transform((s) => s.toLowerCase())
-    .pipe(z.string().regex(HOSTNAME, "Enter a valid domain like apply.example.com.")),
+    .pipe(z.string().regex(HOSTNAME, VALIDATION_MESSAGES.domain)),
 });
 export type CustomDomainInput = z.infer<typeof customDomainSchema>;
 
