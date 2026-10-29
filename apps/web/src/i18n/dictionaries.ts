@@ -359,6 +359,10 @@ const en = {
       bulkLabel: "Change the status of selected submissions",
       clearSelection: "Clear selection",
       bulkDone: "Status changed to {status}.",
+      bulkConfirmTitle: "Move the selection to “{status}”?",
+      bulkConfirmBody:
+        "Selected: {count}. Every applicant with a Discord account gets a direct message about the new status. Sent messages can’t be taken back.",
+      bulkConfirmAction: "Change status and notify",
       archivedOne: "Submission from {name} archived.",
       restoredOne: "Submission from {name} restored.",
       archivedIntro:
@@ -1663,6 +1667,10 @@ const de: Dictionary = {
       bulkLabel: "Status der ausgewählten Einreichungen ändern",
       clearSelection: "Auswahl aufheben",
       bulkDone: "Status auf {status} geändert.",
+      bulkConfirmTitle: "Auswahl nach „{status}“ verschieben?",
+      bulkConfirmBody:
+        "Ausgewählt: {count}. Alle Bewerber mit Discord-Konto bekommen eine Direktnachricht zum neuen Status. Verschickte Nachrichten lassen sich nicht zurückholen.",
+      bulkConfirmAction: "Status ändern und benachrichtigen",
       archivedOne: "Einreichung von {name} archiviert.",
       restoredOne: "Einreichung von {name} wiederhergestellt.",
       archivedIntro:
@@ -2981,6 +2989,10 @@ const hu: Dictionary = {
       bulkLabel: "A kijelölt beküldések állapotának módosítása",
       clearSelection: "Kijelölés törlése",
       bulkDone: "Az állapot módosítva: {status}.",
+      bulkConfirmTitle: "Áthelyezed a kijelölést ide: „{status}”?",
+      bulkConfirmBody:
+        "Kijelölve: {count}. Minden Discord-fiókkal rendelkező jelentkező közvetlen üzenetet kap az új állapotról. Az elküldött üzenetek nem vonhatók vissza.",
+      bulkConfirmAction: "Állapot módosítása és értesítés",
       archivedOne: "{name} beküldése archiválva.",
       restoredOne: "{name} beküldése visszaállítva.",
       archivedIntro:
@@ -4285,6 +4297,10 @@ const fr: Dictionary = {
       bulkLabel: "Changer le statut des soumissions sélectionnées",
       clearSelection: "Effacer la sélection",
       bulkDone: "Statut changé en {status}.",
+      bulkConfirmTitle: "Passer la sélection à « {status} » ?",
+      bulkConfirmBody:
+        "Sélection : {count}. Chaque candidat ayant un compte Discord reçoit un message privé sur le nouveau statut. Les messages envoyés ne peuvent pas être annulés.",
+      bulkConfirmAction: "Changer le statut et notifier",
       archivedOne: "Soumission de {name} archivée.",
       restoredOne: "Soumission de {name} restaurée.",
       archivedIntro:
@@ -5597,6 +5613,10 @@ const es: Dictionary = {
       bulkLabel: "Cambiar el estado de los envíos seleccionados",
       clearSelection: "Borrar selección",
       bulkDone: "Estado cambiado a {status}.",
+      bulkConfirmTitle: "¿Mover la selección a «{status}»?",
+      bulkConfirmBody:
+        "Seleccionadas: {count}. Cada solicitante con cuenta de Discord recibe un mensaje directo sobre el nuevo estado. Los mensajes enviados no se pueden deshacer.",
+      bulkConfirmAction: "Cambiar estado y notificar",
       archivedOne: "Envío de {name} archivado.",
       restoredOne: "Envío de {name} restaurado.",
       archivedIntro:
@@ -6899,6 +6919,10 @@ const pt: Dictionary = {
       bulkLabel: "Alterar o status das candidaturas selecionadas",
       clearSelection: "Limpar seleção",
       bulkDone: "Status alterado para {status}.",
+      bulkConfirmTitle: "Mover a seleção para “{status}”?",
+      bulkConfirmBody:
+        "Selecionadas: {count}. Cada candidato com conta no Discord recebe uma mensagem direta sobre o novo status. Mensagens enviadas não podem ser desfeitas.",
+      bulkConfirmAction: "Alterar status e notificar",
       archivedOne: "Candidatura de {name} arquivada.",
       restoredOne: "Candidatura de {name} restaurada.",
       archivedIntro:
@@ -8202,6 +8226,10 @@ const pl: Dictionary = {
       bulkLabel: "Zmień status zaznaczonych zgłoszeń",
       clearSelection: "Wyczyść zaznaczenie",
       bulkDone: "Zmieniono status na {status}.",
+      bulkConfirmTitle: "Przenieść zaznaczenie do „{status}”?",
+      bulkConfirmBody:
+        "Zaznaczono: {count}. Każdy kandydat z kontem Discord otrzyma wiadomość prywatną o nowym statusie. Wysłanych wiadomości nie można cofnąć.",
+      bulkConfirmAction: "Zmień status i powiadom",
       archivedOne: "Zarchiwizowano zgłoszenie od {name}.",
       restoredOne: "Przywrócono zgłoszenie od {name}.",
       archivedIntro:
