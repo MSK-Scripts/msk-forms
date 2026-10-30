@@ -3,12 +3,13 @@ import type { ReactNode } from "react";
 
 import { CustomCss } from "@/components/branding/custom-css";
 import { ThemeSwitch } from "@/components/dashboard-kit/theme-switch";
-import { SignOut } from "@/components/icons";
 import { DiscordMark } from "@/components/icons/brand-marks";
+import { accountCopy, dashboardLinks } from "@/components/site/account";
+import { AccountMenu } from "@/components/site/account-menu";
 import { LanguagePicker } from "@/components/site/language-picker";
 import { getCurrentUser } from "@/lib/auth";
-import { logoutAction } from "@/lib/auth-actions";
 import { brandProps, logoUrl } from "@/lib/branding";
+import { requestHostname } from "@/lib/custom-domain";
 import { getDict, getLocale } from "@/i18n";
 
 import { PoweredBy } from "./powered-by";
@@ -25,7 +26,8 @@ export interface PublicGuild {
  * controls, focus); the colour is the customer's, with a readable fallback
  * per theme (lib/branding.ts). No msk-scripts.de navigation: the page belongs
  * to the guild, and only a small "Powered by" line on the Free plan says who
- * runs it.
+ * runs it. A signed-in visitor gets the site's account menu, so the way into
+ * the dashboard is the same here as on the site pages.
  *
  * Three layers, each for a reason:
  * - the outer wrapper carries the accent (`brandProps`), so the bar, the
@@ -51,7 +53,12 @@ export async function PublicFrame({
   poweredBy?: boolean;
   children: ReactNode;
 }) {
-  const [dict, locale, user] = await Promise.all([getDict(), getLocale(), getCurrentUser()]);
+  const [dict, locale, user, host] = await Promise.all([
+    getDict(),
+    getLocale(),
+    getCurrentUser(),
+    requestHostname(),
+  ]);
   const logo = logoUrl(guild.id, guild.branding);
   // Same-origin login link on every host. The login route is host-aware: on
   // a custom domain with its own Discord OAuth app it runs the whole flow
@@ -90,35 +97,15 @@ export async function PublicFrame({
               className="hidden sm:inline-flex"
             />
             {user ? (
-              <form action={logoutAction} className="flex items-center gap-2">
-                {user.avatar && (
-                  <img
-                    src={user.avatar}
-                    alt=""
-                    width={28}
-                    height={28}
-                    className="hidden h-7 w-7 rounded-full sm:block"
-                  />
-                )}
-                <span className="sr-only">
-                  {dict.site.signedInAs.replace("{name}", user.username)}
-                </span>
-                <span
-                  aria-hidden
-                  translate="no"
-                  className="hidden max-w-[10rem] truncate text-small font-semibold sm:inline"
-                >
-                  {user.username}
-                </span>
-                <button
-                  type="submit"
-                  aria-label={dict.header.logout}
-                  title={dict.header.logout}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  <SignOut className="h-5 w-5" />
-                </button>
-              </form>
+              <AccountMenu
+                account={{
+                  user: { username: user.username, avatar: user.avatar },
+                  loginHref,
+                  ...dashboardLinks(host),
+                }}
+                copy={accountCopy(dict)}
+                hideNameOnPhone
+              />
             ) : (
               <a
                 href={loginHref}

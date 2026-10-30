@@ -4,6 +4,7 @@ import { resolveHostOAuth } from "@/lib/guild-oauth";
 import { appBaseUrl } from "@/lib/url";
 import { getDict, getLocale } from "@/i18n";
 
+import { accountCopy, dashboardLinks } from "./account";
 import { HeaderBar } from "./header-bar";
 import { aboutLink, productLines, sectionLinks } from "./navigation";
 
@@ -22,16 +23,15 @@ export async function SiteHeader() {
   ]);
   const t = dict.site;
 
-  // The dashboard lives only on the primary domain. Login is host-aware: on a
-  // custom domain whose guild has its OWN Discord OAuth app, log in right here
-  // (relative) so that app is used and the session lands on this domain.
+  // Login is host-aware: on a custom domain whose guild has its OWN Discord
+  // OAuth app, log in right here (relative) so that app is used and the
+  // session lands on this domain.
   // Without an own app, auth must run on the primary host (the OAuth state
   // cookie and callback must be same-origin), else login fails with a state
   // mismatch.
   const onCustomDomain = Boolean(host) && !isPrimaryHostname(host!);
   const ownOAuth = onCustomDomain ? await resolveHostOAuth(host!) : null;
   const loginBase = onCustomDomain && !ownOAuth ? appBaseUrl() : "";
-  const appBase = onCustomDomain ? appBaseUrl() : "";
 
   return (
     <HeaderBar
@@ -42,14 +42,7 @@ export async function SiteHeader() {
         newTab: t.newTab,
         menu: dict.header.menu,
         language: dict.header.language,
-        account: t.account,
-        login: dict.header.login,
-        signIn: dict.hero.loginDiscord,
-        signedInAs: t.signedInAs,
-        dashboard: dict.header.dashboard,
-        mySubmissions: dict.dashboard.mySubmissions,
-        logout: dict.header.logout,
-        theme: dict.kit.shell.theme,
+        ...accountCopy(dict),
       }}
       section={sectionLinks(dict)}
       lines={productLines(t, locale)}
@@ -57,8 +50,7 @@ export async function SiteHeader() {
       account={{
         user: user ? { username: user.username, avatar: user.avatar } : null,
         loginHref: `${loginBase}/api/auth/discord/login`,
-        dashboardHref: `${appBase}/dashboard`,
-        mySubmissionsHref: `${appBase}/dashboard/me`,
+        ...dashboardLinks(host),
       }}
     />
   );
