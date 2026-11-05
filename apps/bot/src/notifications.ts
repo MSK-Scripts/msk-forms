@@ -16,6 +16,7 @@ import {
   type Client,
 } from "discord.js";
 
+import { isChannelInGuild } from "./channel-scope.js";
 import { config } from "./config.js";
 import { isExhausted, isTerminalDmCode, nextAttemptAt } from "./delivery-policy.js";
 import { describeError } from "./log.js";
@@ -107,7 +108,10 @@ async function deliverReview(client: Client, row: PendingRow): Promise<Outcome> 
   // bot config. Look both up via the submission this notification is about.
   const sub = await prisma.submission.findUnique({
     where: { id: payload.submissionId },
-    select: { form: { select: { settings: true } }, guild: { select: { botConfig: true } } },
+    select: {
+      form: { select: { settings: true } },
+      guild: { select: { botConfig: true, discordGuildId: true } },
+    },
   });
   const botCfg = parseBotConfig(sub?.guild.botConfig);
   const channelId = parseFormSettings(sub?.form.settings).reviewChannelId ?? botCfg.reviewChannelId;
@@ -118,6 +122,10 @@ async function deliverReview(client: Client, row: PendingRow): Promise<Outcome> 
     const channel = await client.channels.fetch(channelId);
     if (!channel?.isTextBased() || !channel.isSendable()) {
       console.warn(`[bot] review channel ${channelId} not usable — dropping ${row.id}.`);
+      return true;
+    }
+    if (!isChannelInGuild(channel, sub?.guild.discordGuildId)) {
+      console.warn(`[bot] review channel ${channelId} is not in the form's guild — dropping ${row.id}.`);
       return true;
     }
 
@@ -168,7 +176,7 @@ async function deliverLog(client: Client, row: PendingRow): Promise<Outcome> {
 
   const guild = await prisma.guild.findUnique({
     where: { id: row.guildId },
-    select: { botConfig: true },
+    select: { botConfig: true, discordGuildId: true },
   });
   const botCfg = parseBotConfig(guild?.botConfig);
   const channelId = botCfg.logChannelId;
@@ -188,6 +196,10 @@ async function deliverLog(client: Client, row: PendingRow): Promise<Outcome> {
     const channel = await client.channels.fetch(channelId);
     if (!channel?.isTextBased() || !channel.isSendable()) {
       console.warn(`[bot] log channel ${channelId} not usable — dropping ${row.id}.`);
+      return true;
+    }
+    if (!isChannelInGuild(channel, guild?.discordGuildId)) {
+      console.warn(`[bot] log channel ${channelId} is not in the guild — dropping ${row.id}.`);
       return true;
     }
 
