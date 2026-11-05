@@ -15,11 +15,10 @@ import { config } from "./config.js";
 import { guildStrings } from "./guild-i18n.js";
 import { buildLogEmbed } from "./log-embed.js";
 import { dashboardSubmissionUrl } from "./urls.js";
+import { failedAttempt } from "./webhook-retry.js";
 
 /** How many pending deliveries to drain per tick. */
 const BATCH = 25;
-/** Give up (mark failed) after this many attempts. */
-const MAX_ATTEMPTS = 6;
 /** Per-request timeout. */
 const TIMEOUT_MS = 10_000;
 
@@ -45,12 +44,6 @@ const DISCORD_WEBHOOK_GONE = new Set([401, 404]);
 /** What happened to one delivery, as far as the poll loop needs to know. */
 type DeliveryResult = { rateLimitedUntil?: number; disabled?: boolean };
 
-/** Exponential-ish backoff (minutes) keyed by the attempt just made. */
-function backoffMs(attempts: number): number {
-  const minutes = [1, 5, 15, 60, 180, 360];
-  return (minutes[Math.min(attempts, minutes.length - 1)] ?? 360) * 60_000;
-}
-
 /** The thin payload stored in the outbox at enqueue time. */
 type ThinPayload = {
   event?: WebhookEvent;
@@ -66,12 +59,12 @@ type ThinPayload = {
  * Turn the thin outbox payload into the rich {@link buildSubmissionWebhookPayload}
  * body by loading the submission + form once at delivery time. This enriches
  * every event regardless of which path enqueued it (submit, web review, bulk, bot
- * accept, automations) and always reflects the current state. Falls back to the
- * stored thin payload when the submission has since been deleted.
+ * accept, automations) and always reflects the current state. Returns null when
+ * the payload names no submission or the submission has since been deleted.
  */
-async function hydratePayload(stored: unknown): Promise<unknown> {
+async function hydratePayload(stored: unknown): Promise<SubmissionWebhookPayload | null> {
   const thin = (stored ?? {}) as ThinPayload;
-  if (!thin.event || !thin.submissionId) return stored ?? {};
+  if (!thin.event || !thin.submissionId) return null;
 
   const sub = await prisma.submission.findUnique({
     where: { id: thin.submissionId },
@@ -86,7 +79,7 @@ async function hydratePayload(stored: unknown): Promise<unknown> {
       user: { select: { discordId: true, username: true } },
     },
   });
-  if (!sub) return stored ?? {};
+  if (!sub) return null;
 
   return buildSubmissionWebhookPayload({
     event: thin.event,
@@ -174,9 +167,20 @@ async function deliverOne(row: DeliveryRow): Promise<DeliveryResult> {
     body = JSON.stringify(auditBody);
   } else {
     const hydrated = await hydratePayload(row.payload);
-    body = isDiscord
-      ? JSON.stringify(buildDiscordWebhookBody(hydrated as SubmissionWebhookPayload))
-      : JSON.stringify(hydrated);
+    if (hydrated) {
+      body = JSON.stringify(isDiscord ? buildDiscordWebhookBody(hydrated) : hydrated);
+    } else if (isDiscord) {
+      // The Discord embed is built from the submission itself. Without it there
+      // is nothing to show, and retrying will not bring it back.
+      await prisma.webhookDelivery.update({
+        where: { id: row.id },
+        data: { status: "failed", lastError: "Submission no longer exists." },
+      });
+      return {};
+    } else {
+      // Generic hooks still get the stored thin payload, as before.
+      body = JSON.stringify(row.payload ?? {});
+    }
   }
 
   const headers: Record<string, string> = {
@@ -248,17 +252,31 @@ async function deliverOne(row: DeliveryRow): Promise<DeliveryResult> {
     return { disabled: true };
   }
 
-  const giveUp = attempts >= MAX_ATTEMPTS;
   await prisma.webhookDelivery.update({
     where: { id: row.id },
-    data: {
-      status: giveUp ? "failed" : "pending",
-      attempts,
-      lastError: error,
-      nextAttemptAt: new Date(Date.now() + backoffMs(attempts)),
-    },
+    data: failedAttempt(row.attempts, error),
   });
   return {};
+}
+
+/**
+ * Count an attempt that threw before it could record its own outcome (a body
+ * that cannot be built, a database hiccup). Without this the row stays due and
+ * is retried on every tick, forever.
+ */
+async function recordCrash(row: DeliveryRow, err: unknown): Promise<void> {
+  const message = err instanceof Error ? err.message : String(err);
+  try {
+    await prisma.webhookDelivery.update({
+      where: { id: row.id },
+      data: failedAttempt(row.attempts, `Delivery crashed: ${message}`),
+    });
+  } catch (updateErr) {
+    console.error(
+      `[bot] could not record the failed delivery ${row.id}:`,
+      (updateErr as Error).message,
+    );
+  }
 }
 
 /** Drain the webhook outbox: deliver every due `pending` row (best-effort). */
@@ -292,6 +310,7 @@ export async function deliverPendingWebhooks(): Promise<void> {
         if (result.disabled) blocked.set(row.webhookId, Number.POSITIVE_INFINITY);
       } catch (err) {
         console.error(`[bot] webhook delivery ${row.id} failed:`, (err as Error).message);
+        await recordCrash(row, err);
       }
     }
   } catch (err) {
