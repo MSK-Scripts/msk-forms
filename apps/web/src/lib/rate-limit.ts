@@ -1,6 +1,7 @@
 import "server-only";
 
 import { getRedis } from "./redis";
+import { whenReady } from "./redis-ready";
 
 export { clientIp } from "./client-ip";
 
@@ -10,6 +11,10 @@ export interface RateLimitResult {
   /** Seconds until the current window resets (for a Retry-After header). */
   retryAfter: number;
 }
+
+// Upper bound for waiting on the first connection after a process start.
+// Redis runs on loopback, so a healthy connect takes a few milliseconds.
+const CONNECT_WAIT_MS = 1000;
 
 // Atomic fixed-window counter: INCR, set the TTL only on the first hit of a
 // window, and return the count plus the remaining TTL.
@@ -33,6 +38,7 @@ export async function rateLimit(
   if (!redis) return { allowed: true, remaining: limit, retryAfter: 0 };
 
   try {
+    await whenReady(redis, CONNECT_WAIT_MS);
     const [count, ttl] = (await redis.eval(
       FIXED_WINDOW,
       1,
