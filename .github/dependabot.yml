@@ -50,6 +50,11 @@ updates:
       # is not yet supported by our toolchain (typescript-eslint 8 crashes on it).
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
+      # pg 9 drops the internal query queue. @prisma/adapter-pg 7.10 still sends
+      # overlapping queries on one transaction connection (prisma/orm#31112,
+      # #30925), which pg 8 only warns about. Lift this once Prisma ships the fix.
+      - dependency-name: "pg"
+        update-types: ["version-update:semver-major"]
 
   # --- GitHub Actions ------------------------------------------------------
   - package-ecosystem: "github-actions"

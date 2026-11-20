@@ -3,6 +3,8 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import pg from "pg";
 import { WebSocket, WebSocketServer } from "ws";
 
+import { createSerialQueue } from "./serial-queue.js";
+
 /**
  * Realtime service (concept §10/§14) — live status updates for applicants.
  *
@@ -158,14 +160,17 @@ async function listenForChanges(fanout: (topic: string) => void): Promise<void> 
 
   const connect = async (): Promise<void> => {
     const client = new pg.Client({ connectionString });
+    // One lookup at a time on this client (see serial-queue.ts).
+    const serial = createSerialQueue();
     client.on("notification", (msg) => {
       if (msg.channel !== CHANNEL || !msg.payload) return;
       const submissionId = msg.payload;
       // The applicant's status page (UUID capability).
       fanout(`submission:${submissionId}`);
       // The guild dashboard/board: resolve the submission's guild and fan out.
-      void client
-        .query("SELECT guild_id FROM submissions WHERE id = $1", [submissionId])
+      void serial(() =>
+        client.query("SELECT guild_id FROM submissions WHERE id = $1", [submissionId]),
+      )
         .then((res) => {
           const guildId = res.rows[0]?.guild_id as string | undefined;
           if (guildId) fanout(`guild:${guildId}`);

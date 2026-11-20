@@ -1,16 +1,16 @@
-# Graph Report - msk-forms  (2026-10-30)
+# Graph Report - msk-forms  (2026-11-20)
 
 ## Corpus Check
-- 453 files · ~230,602 words
+- 461 files · ~232,222 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2558 nodes · 6773 edges · 166 communities (109 shown, 26 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 56 edges (avg confidence: 0.84)
+- 2582 nodes · 6819 edges · 172 communities (145 shown, 27 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 57 edges (avg confidence: 0.84)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `98ebc9eb`
+- Built from commit: `2be85b3d`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -20,41 +20,41 @@
 - getCurrentUser
 - scripts
 - pnpm + Turborepo Monorepo
-- webhooks-manager.tsx
-- dashboard-kit/index.ts
+- submissions/[id]/page.tsx
+- app-shell.tsx
 - submissions/page.tsx
 - shared/src/webhooks.ts
 - ui/src/index.ts
 - db/package.json
 - tasks
 - realtime/package.json
+- category-list-form.tsx
+- callback/route.ts
 - form-builder.tsx
-- public-frame.tsx
-- ui/button.tsx
 - bot/package.json
 - compilerOptions
 - compilerOptions
 - ui/package.json
-- lib/forms.ts
-- form-renderer.tsx
+- i18n/index.ts
+- FormRenderer
 - branding/logo/route.ts
-- requireUser
+- forms/page.tsx
 - validation-message.ts
 - field-input.tsx
 - form-settings.ts
 - dependencies
-- submit/route.ts
+- [slug]/page.tsx
 - index.tsx
 - form-spec.ts
 - devDependencies
-- shared/src/index.ts
-- guild.ts
-- submissions-table.tsx
+- rateLimit
+- actor
+- dashboard-kit/index.ts
 - shared/package.json
-- src/branding.ts
+- css-preview.tsx
 - i18n/package.json
 - getSession
-- plan.ts
+- db/src/index.ts
 - LogoForm
 - tokens.ts
 - validation-messages.ts
@@ -64,14 +64,14 @@
 - DomainForm
 - compilerOptions
 - formula.ts
-- audit-log/[hookId]/route.ts
-- [formId]/archive/route.ts
+- shared/src/index.ts
+- guild.ts
 - status-defs.ts
 - mirror job (Push to Codeberg)
 - scripts
 - generate-pwa-icons.mjs
 - [handle]/page.tsx
-- field-editor.tsx
+- FormBuilder
 - header-bar.tsx
 - db/tsconfig.json
 - i18n/tsconfig.json
@@ -80,7 +80,7 @@
 - bot/tsconfig.json
 - webhook/route.ts
 - CaptchaForm
-- createServer
+- realtime/src/index.ts
 - MSK Logo (green M mark)
 - copy-standalone-assets.mjs
 - WebhooksManager
@@ -93,11 +93,11 @@
 - Dependabot Config
 - next.config.ts
 - exceljs
-- SubmissionActions
+- s/[id]/page.tsx
 - @msk-forms/shared
 - site-footer.tsx
 - next
-- next-themes
+- submit/route.ts
 - qrcode
 - dotColors
 - sharp
@@ -105,39 +105,40 @@
 - lib/branding.ts
 - 20260619142218_init/migration.sql
 - health/route.ts
-- app/layout.tsx
+- app/page.tsx
 - ecosystem.config.cjs
 - md-message.sh
 - Funding Config (GitHub Sponsors)
 - Workspace package globs (apps/*, packages/*)
 - bot/src/index.ts
 - bot/src/notifications.ts
-- audit-log-manager.tsx
+- bot/src/webhooks.ts
 - guild-i18n.ts
 - Design System: MSK Forms
 - review-actions.ts
 - MSK Forms Platform
 - CI Workflow
 - AuditLogManager
-- css-preview.tsx
+- css-preview-sync.test.ts
 - CategoryListForm
 - error.tsx
 - AutomationsEditor
 - MembersManager
 - branding-contract.test.ts
-- submission-action.ts
+- access.ts
+- public-frame.tsx
 - SignatureField
 - Colour
 - The dashboard
-- [formId]/export/route.ts
+- Custom Domains Runbook (Apache mod_md)
 - BrandingForm
-- sort-rows.test.ts
-- turnstile-widget.tsx
+- phone-field.tsx
+- submission-status.ts
 - Components
 - Development
 - Issue Template Config
-- Features
-- db/src/index.ts
+- SubmissionsTable
+- requireUser
 - @aws-sdk/client-s3
 - iron-session
 - @msk-forms/db
@@ -145,9 +146,14 @@
 - @phosphor-icons/react
 - @radix-ui/react-slot
 - zod
-- parseBranding
-- domain/route.ts
-- category-rows.ts
+- (account)/page.tsx
+- mail.ts
+- ConditionEditor
+- ApiKeysManager
+- ExperimentEditor
+- experiment-page-access.test.ts
+- OAuthForm
+- class-variance-authority
 - dictionaries.ts
 - guild-submissions.test.ts
 
@@ -170,10 +176,10 @@
   .github/workflows/ci.yml → docker-compose.yml
 - `PATCH()` --indirect_call--> `auditActionFromEvent()`  [INFERRED]
   apps/web/src/app/api/guilds/[guildId]/audit-log/[hookId]/route.ts → packages/shared/src/audit-log.ts
+- `AuditLogPage()` --indirect_call--> `auditActionFromEvent()`  [INFERRED]
+  apps/web/src/app/dashboard/[guildId]/audit-log/page.tsx → packages/shared/src/audit-log.ts
 - `markAllRequired()` --calls--> `isLayoutField()`  [EXTRACTED]
   apps/web/src/components/builder/form-builder.tsx → packages/shared/src/form-spec.ts
-- `apps/realtime (WebSocket, Postgres LISTEN/NOTIFY)` --shares_data_with--> `Postgres 16 Service`  [INFERRED]
-  README.md → docker-compose.yml
 
 ## Import Cycles
 - None detected.
@@ -185,47 +191,47 @@
 - **Codeberg mirroring flow (trigger, guards, exact push)** — _github_workflows_mirror_mirror_to_codeberg, _github_workflows_mirror_main_and_tags_trigger, _github_workflows_mirror_fork_guard, _github_workflows_mirror_mirror_job, _github_workflows_mirror_exact_mirror_semantics, _github_workflows_mirror_codeberg_secrets [EXTRACTED 1.00]
 - **pnpm supply-chain hardening (allowlist plus advisory overrides)** — pnpm_workspace_allowbuilds, pnpm_workspace_security_overrides, pnpm_workspace_minimatch_lift, pnpm_workspace_sharp_override, pnpm_workspace_find_my_way_override [EXTRACTED 1.00]
 
-## Communities (166 total, 26 thin omitted)
+## Communities (172 total, 27 thin omitted)
 
 ### Community 0 - "src/forms.ts"
-Cohesion: 0.28
-Nodes (14): handleFormsAutocomplete(), handleFormsCommand(), liveForms(), LOCALE_NAMES, resolveGuild(), fmt(), deliverLog(), deliverOne() (+6 more)
+Cohesion: 0.23
+Nodes (15): commands, config, handleFormsAutocomplete(), handleFormsCommand(), liveForms(), LOCALE_NAMES, resolveGuild(), fmt() (+7 more)
 
 ### Community 1 - "getDict"
-Cohesion: 0.07
-Nodes (48): dynamic, MySubmissionsPage(), runtime, BotConfigPage(), BrandingPage(), dynamic, runtime, CategoriesPage() (+40 more)
+Cohesion: 0.10
+Nodes (24): metadata, OfflinePage(), metadata, revalidate, runtime, StatsPage(), DiscordMark(), ArrowRight (+16 more)
 
 ### Community 2 - "getCurrentUser"
-Cohesion: 0.08
-Nodes (70): DELETE(), dynamic, runtime, POST(), dynamic, PATCH(), runtime, dynamic (+62 more)
+Cohesion: 0.06
+Nodes (69): DELETE(), dynamic, runtime, dynamic, PATCH(), runtime, dynamic, PATCH() (+61 more)
 
 ### Community 3 - "scripts"
 Cohesion: 0.04
 Nodes (48): dotenv, eslint, @eslint/js, author, description, devDependencies, dotenv, eslint (+40 more)
 
 ### Community 4 - "pnpm + Turborepo Monorepo"
-Cohesion: 0.14
-Nodes (15): PWA Assets (service worker + icons), public/ Static Assets Doc, Event-Driven Domain Sync (systemd .path), Apache mod_md Auto-TLS, Custom Domains Runbook (Apache mod_md), sync-custom-domains.sh, apps/bot (discord.js), apps/realtime (WebSocket, Postgres LISTEN/NOTIFY) (+7 more)
+Cohesion: 0.20
+Nodes (10): PWA Assets (service worker + icons), public/ Static Assets Doc, apps/bot (discord.js), apps/web (Next.js), Multi-Tenant Discord Bot, Real Feedback Loop, Form Builder (20+ field types), pnpm + Turborepo Monorepo (+2 more)
 
-### Community 5 - "webhooks-manager.tsx"
-Cohesion: 0.09
-Nodes (21): dynamic, runtime, ExperimentResultRow, ExperimentResultsCopy, ExperimentResultsTable(), ARROW, MEANING, StatGrid() (+13 more)
+### Community 5 - "submissions/[id]/page.tsx"
+Cohesion: 0.06
+Nodes (31): dynamic, EVENT_ICON, runtime, DashboardShell(), DashboardShellCopy, GROUPS, ICON, MOBILE (+23 more)
 
-### Community 6 - "dashboard-kit/index.ts"
-Cohesion: 0.07
-Nodes (41): DashboardShell(), FormStateBadge(), STATE, AccountMenu(), AppShell(), AppShellProps, NavDrawer(), navItemClass (+33 more)
+### Community 6 - "app-shell.tsx"
+Cohesion: 0.08
+Nodes (29): AccountMenu(), AppShellProps, NavDrawer(), navItemClass, ShellAccount, ShellCopy, close(), EmptyKind (+21 more)
 
 ### Community 7 - "submissions/page.tsx"
-Cohesion: 0.07
-Nodes (46): BoardPage(), dynamic, runtime, dynamic, GuildLayout(), runtime, ArchivedSubmissionsPage(), dynamic (+38 more)
+Cohesion: 0.11
+Nodes (30): POST(), BoardPage(), dynamic, runtime, ArchivedFormsPage(), dynamic, runtime, ArchivedSubmissionsPage() (+22 more)
 
 ### Community 8 - "shared/src/webhooks.ts"
-Cohesion: 0.08
-Nodes (33): backoffMs(), deliverOne(), DeliveryResult, DeliveryRow, DISCORD_WEBHOOK_GONE, hydratePayload(), retryAfterMs(), ThinPayload (+25 more)
+Cohesion: 0.10
+Nodes (22): AnswerValueLabels, buildDiscordWebhookBody(), DiscordWebhookBody, form, schema, submission, truncate(), WEBHOOK_ANSWER_LABELS (+14 more)
 
 ### Community 9 - "ui/src/index.ts"
-Cohesion: 0.10
-Nodes (29): Button(), ButtonProps, styles, Variant, Card(), CardProps, Checkbox(), CheckboxProps (+21 more)
+Cohesion: 0.07
+Nodes (40): BoardColumn, BoardLabels, BoardSubmission, fill(), KanbanBoard(), move(), countForm(), CountForms (+32 more)
 
 ### Community 10 - "db/package.json"
 Cohesion: 0.06
@@ -239,17 +245,17 @@ Nodes (29): ^build, coverage/**, .env, !.next/cache/**, NODE_ENV, dependsOn, out
 Cohesion: 0.07
 Nodes (28): dependencies, pg, ws, devDependencies, tsx, @types/pg, @types/ws, typescript (+20 more)
 
-### Community 13 - "form-builder.tsx"
-Cohesion: 0.07
-Nodes (46): BotDict, ID_FIELD, LOCALE_OPTIONS, Values, BrandingDict, CSS_SNIPPETS, Values, BuilderDict (+38 more)
-
-### Community 14 - "public-frame.tsx"
+### Community 13 - "category-list-form.tsx"
 Cohesion: 0.09
-Nodes (46): dynamic, GET(), runtime, dynamic, GET(), runtime, generateMetadata(), DEFAULT_ICONS (+38 more)
+Nodes (25): BotDict, ID_FIELD, LOCALE_OPTIONS, Values, BrandingDict, CSS_SNIPPETS, Values, CategoriesDict (+17 more)
 
-### Community 15 - "ui/button.tsx"
-Cohesion: 0.06
-Nodes (49): ApiDict, ApiKeysManager(), fill(), iso(), BrandingDict, FILE_INPUT, FormActionCopy, FormActionDialog() (+41 more)
+### Community 14 - "callback/route.ts"
+Cohesion: 0.14
+Nodes (22): dynamic, GET(), runtime, dynamic, GET(), runtime, buildAuthorizeUrl(), discordAvatarUrl() (+14 more)
+
+### Community 15 - "form-builder.tsx"
+Cohesion: 0.08
+Nodes (56): ApiDict, AuditDict, GROUPS, BrandingDict, FILE_INPUT, BuilderDict, NO_VALUE_OPS, StatusOption (+48 more)
 
 ### Community 16 - "bot/package.json"
 Cohesion: 0.07
@@ -267,93 +273,93 @@ Nodes (25): compilerOptions, allowJs, declaration, declarationMap, incremental, 
 Cohesion: 0.08
 Nodes (25): devDependencies, react, @types/react, @types/react-dom, typescript, vitest, exports, react (+17 more)
 
-### Community 20 - "lib/forms.ts"
-Cohesion: 0.10
-Nodes (29): dynamic, EditFormPage(), runtime, dynamic, FormPreviewPage(), runtime, dynamic, runtime (+21 more)
+### Community 20 - "i18n/index.ts"
+Cohesion: 0.11
+Nodes (27): dynamic, EditFormPage(), runtime, dynamic, ExperimentResultsPage(), runtime, dynamic, FormPreviewPage() (+19 more)
 
-### Community 21 - "form-renderer.tsx"
-Cohesion: 0.15
-Nodes (25): FieldValue, isGroupField(), Answers, FormLabels, FormRenderer(), collectErrors(), focusFirstError(), focusStep() (+17 more)
+### Community 21 - "FormRenderer"
+Cohesion: 0.21
+Nodes (17): FormRenderer(), collectErrors(), focusFirstError(), focusStep(), goBack(), goNext(), handleSubmit(), isLayout() (+9 more)
 
 ### Community 22 - "branding/logo/route.ts"
 Cohesion: 0.13
 Nodes (24): dynamic, GET(), runtime, dynamic, POST(), runtime, DELETE(), dynamic (+16 more)
 
-### Community 23 - "requireUser"
-Cohesion: 0.08
-Nodes (41): ApiPage(), dynamic, runtime, DomainPage(), dynamic, runtime, ExperimentResultsPage(), dynamic (+33 more)
+### Community 23 - "forms/page.tsx"
+Cohesion: 0.10
+Nodes (34): ApiPage(), dynamic, runtime, DomainPage(), dynamic, runtime, dynamic, NewFormPage() (+26 more)
 
 ### Community 24 - "validation-message.ts"
 Cohesion: 0.53
 Nodes (3): localizeIssue(), ZOD_LOCALES, validationMessageKey
 
 ### Community 25 - "field-input.tsx"
-Cohesion: 0.16
-Nodes (15): DateFieldLabels, FieldInputLabels, FieldInputProps, GROUP_TYPES, FileField(), FileFieldLabels, formatSize(), MatrixField() (+7 more)
+Cohesion: 0.09
+Nodes (26): DateFieldLabels, FieldInput(), FieldInputLabels, FieldInputProps, FieldValue, GROUP_TYPES, isGroupField(), FileField() (+18 more)
 
 ### Community 26 - "form-settings.ts"
-Cohesion: 0.09
-Nodes (20): FormInput, AnswerMap, FORM_DEFINITION_VERSION, FormDefinition, formDefinitionSchema, AutomationCondition, automationConditionSchema, automationRuleSchema (+12 more)
+Cohesion: 0.10
+Nodes (21): FormInput, AnswerMap, FORM_DEFINITION_VERSION, FormDefinition, formDefinitionSchema, AutomationCondition, automationConditionSchema, automationRuleSchema (+13 more)
 
 ### Community 27 - "dependencies"
 Cohesion: 0.10
-Nodes (21): dependencies, class-variance-authority, clsx, @fontsource-variable/archivo, @fontsource-variable/source-sans-3, ioredis, @msk-forms/ui, pdf-lib (+13 more)
+Nodes (21): dependencies, clsx, @fontsource-variable/archivo, @fontsource-variable/source-sans-3, ioredis, @msk-forms/ui, next-themes, pdf-lib (+13 more)
 
-### Community 28 - "submit/route.ts"
-Cohesion: 0.11
-Nodes (25): buildPreview(), dynamic, POST(), PREVIEW_LABELS, runtime, PublicFormPage(), captchaEnabled(), captchaSiteKey() (+17 more)
+### Community 28 - "[slug]/page.tsx"
+Cohesion: 0.10
+Nodes (25): dynamic, POST(), runtime, dynamic, PublicFormPage(), runtime, ExperimentView(), GuildFormsHub() (+17 more)
 
 ### Community 29 - "index.tsx"
-Cohesion: 0.04
-Nodes (70): dynamic, EVENT_ICON, runtime, BuilderDict, FIELD_ICONS, fieldIcon(), FieldOutline(), GROUP_ORDER (+62 more)
+Cohesion: 0.05
+Nodes (59): Cell, metadata, FieldEditorProps, BuilderDict, FIELD_ICONS, fieldIcon(), FieldOutline(), GROUP_ORDER (+51 more)
 
 ### Community 30 - "form-spec.ts"
-Cohesion: 0.07
-Nodes (32): FieldInput(), AnswerLabels, AnswerSummary(), formatAnswer(), SubmissionFile, BOOLEAN_TYPES, buildFieldSchema(), conditionRuleSchema (+24 more)
+Cohesion: 0.09
+Nodes (21): BOOLEAN_TYPES, conditionRuleSchema, fieldOptionSchema, fieldTypeSchema, fieldValidationSchema, fileAnswerSchema, formFieldSchema, formPageSchema (+13 more)
 
 ### Community 31 - "devDependencies"
 Cohesion: 0.11
 Nodes (19): devDependencies, postcss, tailwindcss, @tailwindcss/postcss, @types/nodemailer, @types/qrcode, @types/react, @types/react-dom (+11 more)
 
-### Community 32 - "shared/src/index.ts"
-Cohesion: 0.11
-Nodes (24): dynamic, POST(), runtime, dynamic, GET(), runtime, DELETE(), dynamic (+16 more)
+### Community 32 - "rateLimit"
+Cohesion: 0.06
+Nodes (41): csvCell(), dynamic, ExportFormat, FORMATS, GET(), runtime, POST(), dynamic (+33 more)
 
-### Community 33 - "guild.ts"
-Cohesion: 0.08
-Nodes (44): bodySchema, dynamic, PATCH(), runtime, ASSIGNABLE, AssignableRole, dynamic, POST() (+36 more)
+### Community 33 - "actor"
+Cohesion: 0.10
+Nodes (29): bodySchema, dynamic, PATCH(), runtime, ASSIGNABLE, AssignableRole, dynamic, POST() (+21 more)
 
-### Community 34 - "submissions-table.tsx"
-Cohesion: 0.13
-Nodes (18): ArchivedFormRow, DataColumn, DataTable(), compare(), SortDirection, sortRows(), SortState, SortValue (+10 more)
+### Community 34 - "dashboard-kit/index.ts"
+Cohesion: 0.07
+Nodes (40): ArchivedFormRow, FormActionCopy, FormActionDialog(), FormActionRequest, importDefinition(), ImportFormButton(), onFile(), useReplaceFromJson() (+32 more)
 
 ### Community 35 - "shared/package.json"
 Cohesion: 0.11
 Nodes (18): dependencies, zod, devDependencies, typescript, vitest, exports, typescript, vitest (+10 more)
 
-### Community 36 - "src/branding.ts"
-Cohesion: 0.21
-Nodes (9): CustomCss(), PublicGuild, accentColor, Branding, brandingColorSchema, brandingSchema, customCss, MAX_CUSTOM_CSS (+1 more)
+### Community 36 - "css-preview.tsx"
+Cohesion: 0.17
+Nodes (13): CssPreview(), CssPreviewLabels, esc(), noSubscription(), useHydrated(), CustomCss(), GUILD_ACCENT_ATTRIBUTE, accentColor (+5 more)
 
 ### Community 37 - "i18n/package.json"
 Cohesion: 0.11
 Nodes (17): devDependencies, typescript, vitest, exports, ./de, ./en, typescript, vitest (+9 more)
 
 ### Community 38 - "getSession"
-Cohesion: 0.24
-Nodes (9): dynamic, POST(), runtime, dynamic, GET(), runtime, getSession(), getSessionOptions() (+1 more)
+Cohesion: 0.22
+Nodes (10): dynamic, POST(), runtime, dynamic, GET(), runtime, logoutAction(), getSession() (+2 more)
 
-### Community 39 - "plan.ts"
-Cohesion: 0.10
-Nodes (25): dynamic, GET(), runtime, dynamic, GET(), runtime, DELETE(), dynamic (+17 more)
+### Community 39 - "db/src/index.ts"
+Cohesion: 0.07
+Nodes (37): dynamic, GET(), POST(), runtime, dynamic, GET(), runtime, DELETE() (+29 more)
 
 ### Community 40 - "LogoForm"
 Cohesion: 1.00
 Nodes (3): LogoForm(), call(), onSelect()
 
 ### Community 41 - "tokens.ts"
-Cohesion: 0.11
-Nodes (25): LINES_ONLY, Pair, PAIRS, Ref, resolve(), STATUS, tokens, utilities (+17 more)
+Cohesion: 0.13
+Nodes (24): LINES_ONLY, Pair, PAIRS, Ref, resolve(), STATUS, tokens, utilities (+16 more)
 
 ### Community 42 - "validation-messages.ts"
 Cohesion: 0.18
@@ -364,8 +370,8 @@ Cohesion: 0.33
 Nodes (8): payloadOf(), slugifyKey(), StatusDefsForm(), add(), edit(), patch(), remove(), save()
 
 ### Community 44 - "forms-hub.tsx"
-Cohesion: 0.13
-Nodes (16): dynamic, runtime, HourglassMedium, Tray, confettiColours(), Countdown(), tick(), CountdownUnits (+8 more)
+Cohesion: 0.20
+Nodes (11): HourglassMedium, Tray, confettiColours(), Countdown(), tick(), CountdownUnits, fireConfetti(), HubCategory (+3 more)
 
 ### Community 45 - "compilerOptions"
 Cohesion: 0.14
@@ -383,13 +389,13 @@ Nodes (11): compilerOptions, lib, module, moduleResolution, outDir, rootDir, ext
 Cohesion: 0.27
 Nodes (10): evaluateFormula(), parse(), expr(), factor(), term(), referencedFieldIds(), referenceValue(), roundTo() (+2 more)
 
-### Community 49 - "audit-log/[hookId]/route.ts"
-Cohesion: 0.16
-Nodes (21): authorize(), DELETE(), dynamic, Params, PATCH(), runtime, dynamic, POST() (+13 more)
+### Community 49 - "shared/src/index.ts"
+Cohesion: 0.12
+Nodes (25): authorize(), DELETE(), dynamic, Params, PATCH(), runtime, dynamic, POST() (+17 more)
 
-### Community 50 - "[formId]/archive/route.ts"
-Cohesion: 0.24
-Nodes (8): bodySchema, dynamic, POST(), runtime, dynamic, GET(), runtime, canManageForm()
+### Community 50 - "guild.ts"
+Cohesion: 0.13
+Nodes (21): dynamic, GET(), runtime, DELETE(), dynamic, PATCH(), runtime, dynamic (+13 more)
 
 ### Community 51 - "status-defs.ts"
 Cohesion: 0.24
@@ -408,16 +414,16 @@ Cohesion: 0.22
 Nodes (6): BG, here, iconsDir, publicDir, source, TRANSPARENT
 
 ### Community 55 - "[handle]/page.tsx"
-Cohesion: 0.22
-Nodes (9): dynamic, HandleHubPage(), runtime, getGuildByHandle(), APP_DIR, handleSchema, isReservedHandle(), normalizeHandle() (+1 more)
+Cohesion: 0.21
+Nodes (8): dynamic, HandleHubPage(), runtime, getGuildByHandle(), APP_DIR, handleSchema, isReservedHandle(), RESERVED_HANDLES
 
-### Community 56 - "field-editor.tsx"
-Cohesion: 0.05
-Nodes (57): BotConfigForm(), save(), botConfigBody(), BotConfigValues, botConfigValuesOf(), empty, ConditionEditor(), BuilderDict (+49 more)
+### Community 56 - "FormBuilder"
+Cohesion: 0.06
+Nodes (52): BotConfigForm(), save(), botConfigBody(), BotConfigValues, botConfigValuesOf(), empty, FieldEditor(), addOption() (+44 more)
 
 ### Community 57 - "header-bar.tsx"
-Cohesion: 0.08
-Nodes (33): isoToLocalInput(), useDismiss(), DateField(), emit(), pickDay(), setTime(), DateFieldMode, pad() (+25 more)
+Cohesion: 0.10
+Nodes (29): isoToLocalInput(), useDismiss(), DateField(), emit(), pickDay(), setTime(), DateFieldMode, pad() (+21 more)
 
 ### Community 58 - "db/tsconfig.json"
 Cohesion: 0.25
@@ -440,12 +446,12 @@ Cohesion: 0.29
 Nodes (6): compilerOptions, noEmit, extends, include, src/**/*.ts, ../../tsconfig.base.json
 
 ### Community 63 - "webhook/route.ts"
-Cohesion: 0.07
-Nodes (40): ACTIVE, customerId(), dynamic, logPlanChange(), POST(), resolveGuildId(), runtime, sendOrderConfirmation() (+32 more)
+Cohesion: 0.11
+Nodes (28): ACTIVE, customerId(), dynamic, logPlanChange(), POST(), resolveGuildId(), runtime, sendOrderConfirmation() (+20 more)
 
-### Community 65 - "createServer"
-Cohesion: 0.31
-Nodes (6): ClientState, createServer(), fanout(), listenForChanges(), PORT, verifyGuildToken()
+### Community 65 - "realtime/src/index.ts"
+Cohesion: 0.23
+Nodes (7): ClientState, createServer(), fanout(), listenForChanges(), PORT, verifyGuildToken(), createSerialQueue()
 
 ### Community 66 - "MSK Logo (green M mark)"
 Cohesion: 0.47
@@ -461,7 +467,7 @@ Nodes (7): deliveryState(), eventLabel(), sourceLabel(), WebhooksManager(), add(
 
 ### Community 69 - "audit-log.ts"
 Cohesion: 0.10
-Nodes (26): AuditLogPage(), AuditHookRow, AUDIT_EVENT_PREFIX, auditActionFromEvent(), AuditWebhookInput, auditWebhookInputSchema, AuditWebhookUpdate, auditWebhookUpdateSchema (+18 more)
+Nodes (23): AuditHookRow, AUDIT_EVENT_PREFIX, AuditWebhookInput, auditWebhookInputSchema, AuditWebhookUpdate, auditWebhookUpdateSchema, EVENT_WEBHOOK_KIND, LOG_ACTION_GROUPS (+15 more)
 
 ### Community 70 - "Security overrides for transitive dependencies"
 Cohesion: 0.60
@@ -476,44 +482,52 @@ Cohesion: 0.40
 Nodes (4): defaultLocale, Locale, locales, messages
 
 ### Community 74 - "cn"
-Cohesion: 0.11
-Nodes (22): GuildIcon(), GuildRow, Checkbox(), FieldControlProps, LanguageSelect(), Globe, LanguagePicker(), Card (+14 more)
+Cohesion: 0.08
+Nodes (32): ExperimentResultRow, ExperimentResultsCopy, LanguageSelect(), ARROW, MEANING, StatGrid(), StatTile(), StatTrend (+24 more)
+
+### Community 78 - "s/[id]/page.tsx"
+Cohesion: 0.19
+Nodes (8): dynamic, runtime, TERMINAL, PublicCard(), PublicHead(), PublicSection(), StatusLive(), SubmissionActions()
 
 ### Community 80 - "site-footer.tsx"
-Cohesion: 0.11
-Nodes (24): ImprintPage(), metadata, metadata, TermsPage(), metadata, PrivacyPage(), CaretRight, LegalContent() (+16 more)
+Cohesion: 0.10
+Nodes (23): ImprintPage(), metadata, metadata, TermsPage(), metadata, PrivacyPage(), GithubMark(), LegalContent() (+15 more)
+
+### Community 82 - "submit/route.ts"
+Cohesion: 0.13
+Nodes (22): buildPreview(), dynamic, POST(), PREVIEW_LABELS, runtime, AnswerLabels, AnswerSummary(), formatAnswer() (+14 more)
 
 ### Community 84 - "dotColors"
-Cohesion: 0.17
-Nodes (24): SubmissionRowsTable(), Theme, UI_CONTRAST, channelsToHex(), clamp01(), dotColors, dotContrast(), readableDot() (+16 more)
+Cohesion: 0.15
+Nodes (27): SubmissionRow, SubmissionRowsTable(), accentContrast(), Theme, UI_CONTRAST, channelsToHex(), clamp01(), contrastRatio() (+19 more)
 
 ### Community 87 - "lib/branding.ts"
-Cohesion: 0.23
-Nodes (17): accentContrast(), AccentSet, accentSets(), brandProps, GUILD_ACCENT_ATTRIBUTE, hexToHslChannels(), labelFor(), LABELS (+9 more)
+Cohesion: 0.25
+Nodes (15): AccentSet, accentSets(), brandProps, brandVariables(), hexToHslChannels(), labelFor(), LABELS, MSK_GREEN (+7 more)
 
 ### Community 88 - "20260619142218_init/migration.sql"
 Cohesion: 0.19
 Nodes (16): "api_keys", "files", "form_statuses", "form_versions", "forms", "guild_members", "guilds", "notifications" (+8 more)
 
-### Community 91 - "app/layout.tsx"
-Cohesion: 0.31
-Nodes (6): DEFAULT_METADATA, RootLayout(), viewport, ServiceWorkerRegister(), ThemeProvider(), getDirection()
+### Community 91 - "app/page.tsx"
+Cohesion: 0.17
+Nodes (20): DEFAULT_METADATA, generateMetadata(), viewport, DEFAULT_ICONS, manifest(), NotFound(), dynamic, HomePage() (+12 more)
 
 ### Community 101 - "bot/src/index.ts"
-Cohesion: 0.22
-Nodes (14): commands, registerCommands(), assertConfig(), config, guildIconUrl(), syncAllGuilds(), syncGuild(), updateGuildMeta() (+6 more)
+Cohesion: 0.38
+Nodes (10): registerCommands(), assertConfig(), guildIconUrl(), syncAllGuilds(), syncGuild(), updateGuildMeta(), createClient(), main() (+2 more)
 
 ### Community 102 - "bot/src/notifications.ts"
-Cohesion: 0.19
-Nodes (15): isExhausted(), isTerminalDmCode(), MAX_DELIVERY_ATTEMPTS, nextAttemptAt(), retryDelayMs(), TERMINAL_DM_CODES, dmStrings, Locale (+7 more)
+Cohesion: 0.14
+Nodes (21): isChannelInGuild(), isExhausted(), isTerminalDmCode(), MAX_DELIVERY_ATTEMPTS, nextAttemptAt(), retryDelayMs(), TERMINAL_DM_CODES, dmStrings (+13 more)
 
-### Community 103 - "audit-log-manager.tsx"
+### Community 103 - "bot/src/webhooks.ts"
 Cohesion: 0.17
-Nodes (12): AuditDict, GROUPS, NoticeTone, TONE, SaveBar(), StatusTone, TONE, CheckCircle (+4 more)
+Nodes (16): backoffMs(), failedAttempt, MAX_ATTEMPTS, NOW, deliverOne(), DeliveryResult, DeliveryRow, DISCORD_WEBHOOK_GONE (+8 more)
 
 ### Community 104 - "guild-i18n.ts"
-Cohesion: 0.16
-Nodes (15): de, en, es, fr, guildStrings, hu, pl, pt (+7 more)
+Cohesion: 0.17
+Nodes (13): de, en, es, fr, hu, pl, pt, STRINGS (+5 more)
 
 ### Community 105 - "Design System: MSK Forms"
 Cohesion: 0.13
@@ -524,24 +538,24 @@ Cohesion: 0.25
 Nodes (12): Action, ACTION_STATUS, handleReviewButton(), statusLabel(), updateMessage(), grantAcceptedRole(), grantRoles(), dashboardSubmissionUrl() (+4 more)
 
 ### Community 107 - "MSK Forms Platform"
-Cohesion: 0.22
-Nodes (11): Pull Request Template, Code of Conduct (Contributor Covenant 2.1), Conventional Commits Convention, Contributing Guide, i18n Dictionary Completeness Enforcement, Node 22 / pnpm 11 Requirements, 7-Language i18n (EN/DE/HU/FR/ES/PT/PL), MSK Forms Platform (+3 more)
+Cohesion: 0.15
+Nodes (14): Pull Request Template, Code of Conduct (Contributor Covenant 2.1), Conventional Commits Convention, Contributing Guide, i18n Dictionary Completeness Enforcement, Node 22 / pnpm 11 Requirements, Discord bot, Features (+6 more)
 
 ### Community 108 - "CI Workflow"
-Cohesion: 0.18
-Nodes (13): CI Workflow, CI Postgres 16 Service, CI Redis 7 Service, CodeQL Security Workflow, Production Deploy Workflow, SSH Deploy to Debian/PM2, Local Dev Infra (docker-compose), MinIO S3 Service (+5 more)
+Cohesion: 0.29
+Nodes (8): CI Workflow, CI Redis 7 Service, CodeQL Security Workflow, Production Deploy Workflow, SSH Deploy to Debian/PM2, Redis 7 Service, Branch & CI/CD Workflow, packages/db (Prisma schema & client)
 
 ### Community 109 - "AuditLogManager"
 Cohesion: 0.21
 Nodes (10): ActionPicker(), setMany(), AuditLogManager(), add(), patch(), saveEdit(), test(), deliveryState() (+2 more)
 
-### Community 110 - "css-preview.tsx"
-Cohesion: 0.25
-Nodes (10): PREVIEW_BASE_CSS, CssPreview(), CssPreviewLabels, esc(), noSubscription(), useHydrated(), brandVariables(), GUILD_ACCENT_CSS (+2 more)
+### Community 110 - "css-preview-sync.test.ts"
+Cohesion: 0.29
+Nodes (5): PREVIEW_BASE_CSS, GUILD_ACCENT_CSS, live, preview, GLOBALS_CSS
 
 ### Community 111 - "CategoryListForm"
-Cohesion: 0.39
-Nodes (7): CategoryListForm(), add(), edit(), move(), patch(), remove(), contentOf()
+Cohesion: 0.19
+Nodes (13): CategoryListForm(), add(), edit(), move(), patch(), remove(), save(), contentOf() (+5 more)
 
 ### Community 112 - "error.tsx"
 Cohesion: 0.28
@@ -559,6 +573,14 @@ Nodes (9): fill(), MembersManager(), accessCell(), addMember(), call(), remove()
 Cohesion: 0.22
 Nodes (5): APP_DIR, BRANDABLE, CSS, SRC_DIR, UI_DIR
 
+### Community 116 - "access.ts"
+Cohesion: 0.22
+Nodes (15): canDeleteFormsFromRole(), isGlobalReviewerRole(), isManagerRole(), MANAGER_ROLES, manageScopeFromRole(), REVIEWER_ROLES, ReviewScope, scopeFromRole() (+7 more)
+
+### Community 117 - "public-frame.tsx"
+Cohesion: 0.26
+Nodes (12): PoweredBy(), PublicFrame(), PublicGuild, accountCopy(), dashboardLinks(), aboutLink(), productLines(), sectionLinks() (+4 more)
+
 ### Community 118 - "SignatureField"
 Cohesion: 0.43
 Nodes (6): SignatureField(), end(), move(), pos(), start(), upload()
@@ -571,21 +593,21 @@ Nodes (6): Colour, Contrast, Plain colours outside the tokens, Tokens, Two layer
 Cohesion: 0.33
 Nodes (6): Colours a guild picks, Moving without dragging (WCAG 2.5.7), Pages, Sidebar, The dashboard, Who sees which area (a rule)
 
-### Community 121 - "[formId]/export/route.ts"
-Cohesion: 0.19
-Nodes (12): csvCell(), dynamic, ExportFormat, FORMATS, GET(), runtime, bodySchema, dynamic (+4 more)
+### Community 121 - "Custom Domains Runbook (Apache mod_md)"
+Cohesion: 0.20
+Nodes (10): CI Postgres 16 Service, Local Dev Infra (docker-compose), MinIO S3 Service, Postgres 16 Service, Event-Driven Domain Sync (systemd .path), Apache mod_md Auto-TLS, Custom Domains Runbook (Apache mod_md), sync-custom-domains.sh (+2 more)
 
 ### Community 122 - "BrandingForm"
 Cohesion: 0.50
 Nodes (3): BrandingForm(), addSnippet(), update()
 
-### Community 123 - "sort-rows.test.ts"
-Cohesion: 0.40
-Nodes (3): columns, Row, rows
+### Community 123 - "phone-field.tsx"
+Cohesion: 0.38
+Nodes (8): PhoneField(), update(), COUNTRIES, Country, DEFAULT_COUNTRY, flagOf(), formatPhone(), parsePhone()
 
-### Community 124 - "turnstile-widget.tsx"
-Cohesion: 0.40
-Nodes (3): TurnstileApi, TurnstileWidget(), Window
+### Community 124 - "submission-status.ts"
+Cohesion: 0.29
+Nodes (8): changeSubmissionStatus(), ChangeSubmissionStatusArgs, ChangeSubmissionStatusResult, messageFromMap(), resolveTransitionMessage(), StatusChangeOutboxNotification, Db, enqueueWebhooks()
 
 ### Community 125 - "Components"
 Cohesion: 0.40
@@ -599,49 +621,53 @@ Nodes (5): Branches and CI/CD, Development, Local development, Project structure
 Cohesion: 0.50
 Nodes (4): Bug Report Issue Template, Issue Template Config, Feature Request Issue Template, Private Vulnerability Reporting
 
-### Community 128 - "Features"
-Cohesion: 0.50
-Nodes (3): Discord bot, Features, Languages
+### Community 128 - "SubmissionsTable"
+Cohesion: 0.39
+Nodes (5): fill(), SubmissionsTable(), apply(), report(), setArchived()
 
-### Community 129 - "db/src/index.ts"
-Cohesion: 0.07
-Nodes (31): dynamic, POST(), runtime, dynamic, runtime, dynamic, runtime, dynamic (+23 more)
+### Community 129 - "requireUser"
+Cohesion: 0.06
+Nodes (38): dynamic, MySubmissionsPage(), runtime, AuditLogPage(), dynamic, runtime, BotConfigPage(), dynamic (+30 more)
 
-### Community 162 - "parseBranding"
-Cohesion: 0.22
-Nodes (12): AccountLayout(), dynamic, runtime, dynamic, GuildsPage(), runtime, DashboardFrame(), Member (+4 more)
+### Community 162 - "(account)/page.tsx"
+Cohesion: 0.21
+Nodes (11): AccountLayout(), dynamic, runtime, dynamic, GuildsPage(), runtime, DashboardFrame(), Member (+3 more)
 
-### Community 164 - "domain/route.ts"
-Cohesion: 0.27
-Nodes (8): DELETE(), dynamic, runtime, dynamic, lookupTxt(), POST(), runtime, requestDomainSync()
+### Community 163 - "mail.ts"
+Cohesion: 0.43
+Nodes (6): forLog(), getTransporter(), MailConfig, mailConfigFromEnv(), MailMessage, sendMail()
 
-### Community 165 - "category-rows.ts"
-Cohesion: 0.36
-Nodes (6): save(), categoryPayload(), CategoryRow, categoryRowsFrom(), NEW_CATEGORY_COLOR, CategoryInput
+### Community 165 - "ApiKeysManager"
+Cohesion: 0.40
+Nodes (3): ApiKeysManager(), fill(), iso()
+
+### Community 167 - "experiment-page-access.test.ts"
+Cohesion: 0.40
+Nodes (3): canManageForm, canManageForms, getFormForEdit
 
 ### Community 171 - "dictionaries.ts"
-Cohesion: 0.13
-Nodes (12): de, dictionaries, en, es, fr, hu, pl, pt (+4 more)
+Cohesion: 0.20
+Nodes (9): de, dictionaries, en, es, fr, hu, pl, pt (+1 more)
 
 ## Knowledge Gaps
-- **829 isolated node(s):** `semi`, `singleQuote`, `trailingComma`, `printWidth`, `tabWidth` (+824 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 968 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **26 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **832 isolated node(s):** `semi`, `singleQuote`, `trailingComma`, `printWidth`, `tabWidth` (+827 more)
+  These have ≤1 connection - possible missing edges or undocumented components.
+- **27 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `prisma` connect `db/src/index.ts` to `src/forms.ts`, `getDict`, `getCurrentUser`, `webhooks-manager.tsx`, `submissions/page.tsx`, `shared/src/webhooks.ts`, `public-frame.tsx`, `lib/forms.ts`, `branding/logo/route.ts`, `requireUser`, `submit/route.ts`, `index.tsx`, `shared/src/index.ts`, `guild.ts`, `domain/route.ts`, `plan.ts`, `forms-hub.tsx`, `audit-log/[hookId]/route.ts`, `[formId]/archive/route.ts`, `webhook/route.ts`, `bot/src/index.ts`, `bot/src/notifications.ts`, `review-actions.ts`, `[formId]/export/route.ts`?**
-  _High betweenness centrality (0.035) - this node is a cross-community bridge._
-- **Why does `getDict()` connect `getDict` to `db/src/index.ts`, `getCurrentUser`, `parseBranding`, `guild.ts`, `audit-log.ts`, `webhooks-manager.tsx`, `submissions/page.tsx`, `forms-hub.tsx`, `public-frame.tsx`, `site-footer.tsx`, `audit-log/[hookId]/route.ts`, `lib/forms.ts`, `requireUser`, `[formId]/export/route.ts`, `app/layout.tsx`, `submit/route.ts`, `index.tsx`?**
-  _High betweenness centrality (0.021) - this node is a cross-community bridge._
-- **Why does `cn()` connect `cn` to `getDict`, `submissions-table.tsx`, `webhooks-manager.tsx`, `dashboard-kit/index.ts`, `submissions/page.tsx`, `audit-log-manager.tsx`, `forms-hub.tsx`, `form-builder.tsx`, `ui/button.tsx`, `lib/forms.ts`, `field-editor.tsx`, `header-bar.tsx`, `BrandingForm`, `index.tsx`, `field-input.tsx`?**
-  _High betweenness centrality (0.020) - this node is a cross-community bridge._
+- **Why does `prisma` connect `db/src/index.ts` to `src/forms.ts`, `requireUser`, `getCurrentUser`, `getDict`, `submissions/[id]/page.tsx`, `submissions/page.tsx`, `callback/route.ts`, `i18n/index.ts`, `branding/logo/route.ts`, `forms/page.tsx`, `[slug]/page.tsx`, `rateLimit`, `actor`, `shared/src/index.ts`, `guild.ts`, `webhook/route.ts`, `submit/route.ts`, `app/page.tsx`, `bot/src/index.ts`, `bot/src/notifications.ts`, `bot/src/webhooks.ts`, `review-actions.ts`, `submission-status.ts`?**
+  _High betweenness centrality (0.045) - this node is a cross-community bridge._
+- **Why does `getDict()` connect `getDict` to `rateLimit`, `requireUser`, `getCurrentUser`, `(account)/page.tsx`, `actor`, `submissions/[id]/page.tsx`, `submissions/page.tsx`, `s/[id]/page.tsx`, `site-footer.tsx`, `shared/src/index.ts`, `submit/route.ts`, `i18n/index.ts`, `public-frame.tsx`, `forms/page.tsx`, `app/page.tsx`, `[slug]/page.tsx`, `index.tsx`?**
+  _High betweenness centrality (0.037) - this node is a cross-community bridge._
+- **Why does `!.next/cache/**` connect `tasks` to `getDict`?**
+  _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **What connects `semi`, `singleQuote`, `trailingComma` to the rest of the system?**
-  _829 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _832 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `getDict` be split into smaller, more focused modules?**
-  _Cohesion score 0.06512890094979647 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.10476190476190476 - nodes in this community are weakly interconnected._
 - **Should `getCurrentUser` be split into smaller, more focused modules?**
-  _Cohesion score 0.07865168539325842 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06392009987515605 - nodes in this community are weakly interconnected._
 - **Should `scripts` be split into smaller, more focused modules?**
   _Cohesion score 0.04081632653061224 - nodes in this community are weakly interconnected._
