@@ -266,8 +266,8 @@ importers:
   apps/web:
     dependencies:
       '@aws-sdk/client-s3':
-        specifier: ^3.1168.0
-        version: 3.1168.0
+        specifier: ^3.1171.0
+        version: 3.1171.0
       '@fontsource-variable/archivo':
         specifier: ^5.3.0
         version: 5.3.0
@@ -311,8 +311,8 @@ importers:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       nodemailer:
-        specifier: ^10.5.0
-        version: 10.5.0
+        specifier: ^10.6.0
+        version: 10.6.0
       pdf-lib:
         specifier: ^1.17.1
         version: 1.17.1
@@ -448,8 +448,8 @@ packages:
     resolution: {integrity: sha512-OHlfkNzDFjYnwNPABhwAkDTUi0HPjfsKUHJDR0bSMORpCXNzRpInPCNCIT08xKDhjaPlcLJ+2Av+Sk7hHnuC8A==}
     engines: {node: '>=20.0.0'}
 
-  '@aws-sdk/client-s3@3.1168.0':
-    resolution: {integrity: sha512-7NcVxqy7Vc6I8A3KOZFORGh+zfMCd4S5aje55tBNBfshddz+F1NZwxLXblt44TC6nw0Hgx5os3AM2d/P0McELQ==}
+  '@aws-sdk/client-s3@3.1171.0':
+    resolution: {integrity: sha512-EIWM2ZuLBYqwM1W1PkNIWrQzFy6Y7WBwVpEDpnCrMtcQyIN3VOXbf0uy+0xG2dbv+PcvxIlEK8A1ohdbyMV72w==}
     engines: {node: '>=20.0.0'}
 
   '@aws-sdk/core@3.981.0':
@@ -2508,8 +2508,8 @@ packages:
       sass:
         optional: true
 
-  nodemailer@10.5.0:
-    resolution: {integrity: sha512-L/w/HH5MqpzMDuZD7fQdt/+KqymuvrpaApaIjAH2XA3ILePwlcvXCVVvP75xVrXCEt2ggK2marrrHHFB5Qu0kA==}
+  nodemailer@10.6.0:
+    resolution: {integrity: sha512-jWanL7D9GD3jvUDYKmoC5rWTiG8MnBgnN2yV68bgMKip1zUJhiSTyz7Eg+18y8sk5OvdVDzws5nZK5arSI4f5Q==}
     engines: {node: '>=20.0.0'}
 
   normalize-path@3.0.0:
@@ -3202,7 +3202,7 @@ snapshots:
       '@smithy/types': 4.20.0
       tslib: 2.8.1
 
-  '@aws-sdk/client-s3@3.1168.0':
+  '@aws-sdk/client-s3@3.1171.0':
     dependencies:
       '@aws-sdk/checksums': 3.1002.5
       '@aws-sdk/core': 3.981.0
@@ -5230,7 +5230,7 @@ snapshots:
       - '@types/node'
       - babel-plugin-macros
 
-  nodemailer@10.5.0: {}
+  nodemailer@10.6.0: {}
 
   normalize-path@3.0.0: {}
 
