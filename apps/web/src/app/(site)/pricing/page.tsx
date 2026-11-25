@@ -9,7 +9,12 @@ import { Button } from "@/components/ui/button";
 import { botInviteUrl } from "@/lib/url";
 import { getDict, getLocale } from "@/i18n";
 
-export const metadata: Metadata = { title: "Pricing · MSK Forms" };
+export const metadata: Metadata = {
+  title: "Pricing and plans · MSK Forms",
+  description:
+    "Start free with up to 3 forms and 100 submissions a month. Plans are per Discord server, and each guild can upgrade on its own when it outgrows the free limits.",
+  alternates: { canonical: "/pricing" },
+};
 
 type Cell = boolean | string;
 

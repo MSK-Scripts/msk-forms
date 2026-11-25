@@ -9,7 +9,12 @@ export const runtime = "nodejs";
 // Public, anonymized aggregate counts — cache for 5 minutes to spare the DB.
 export const revalidate = 300;
 
-export const metadata: Metadata = { title: "Stats · MSK Forms" };
+export const metadata: Metadata = {
+  title: "Platform statistics · MSK Forms",
+  description:
+    "MSK Forms in numbers: Discord servers, forms created, live forms and submissions received. Aggregate counts only, no server names or personal data.",
+  alternates: { canonical: "/stats" },
+};
 
 /**
  * Platform statistics after the shop's statistics pages: the head on the

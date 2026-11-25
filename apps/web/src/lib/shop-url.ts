@@ -15,9 +15,7 @@ export const SHOP_ORIGIN = "https://www.msk-scripts.de";
 /** Internal path on the shop, with its German public form. */
 const SHOP_ROUTES = {
   "/": "/",
-  "/fivem": "/fivem",
   "/fivem/free": "/fivem/kostenlos",
-  "/fivem/all-access": "/fivem/alle-scripts",
   "/stats": "/statistiken",
   "/discord": "/discord",
   "/discord/ticket-bot": "/discord/ticket-bot",

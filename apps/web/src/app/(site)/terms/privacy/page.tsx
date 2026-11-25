@@ -5,7 +5,12 @@ import { privacy } from "@/content/legal/privacy";
 import { renderMarkdown } from "@/lib/legal";
 import { getDict, getLocale } from "@/i18n";
 
-export const metadata: Metadata = { title: "Privacy Policy · MSK Forms" };
+export const metadata: Metadata = {
+  title: "Privacy Policy (GDPR) · MSK Forms",
+  description:
+    "How MSK Forms handles personal data under the GDPR: what is stored for guilds and applicants, for how long, and which rights you have.",
+  alternates: { canonical: "/terms/privacy" },
+};
 
 export default async function PrivacyPage() {
   const locale = await getLocale();

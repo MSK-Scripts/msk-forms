@@ -6,6 +6,7 @@ import { ErrorCopyProvider } from "@/components/site/error-copy";
 import { ThemeProvider } from "@/components/theme-provider";
 import { logoUrl, parseBranding, THEME_SURFACES } from "@/lib/branding";
 import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/custom-domain";
+import { appBaseUrl } from "@/lib/url";
 import { getDict, getDirection, getLocale } from "@/i18n";
 // Fonts come from the @fontsource-variable packages and are served by this
 // app, like in msk-shop: nothing is fetched from Google, neither at build time
@@ -53,15 +54,20 @@ export const viewport: Viewport = {
  * guild's own site. Falls back to the MSK Forms defaults everywhere else.
  */
 export async function generateMetadata(): Promise<Metadata> {
+  // The base for every relative canonical below: the public origin on the
+  // primary host, the guild's own domain on a verified custom domain, so each
+  // host names its own address as canonical.
+  const primary: Metadata = { ...DEFAULT_METADATA, metadataBase: new URL(appBaseUrl()) };
   const host = await requestHostname();
-  if (!host || isPrimaryHostname(host)) return DEFAULT_METADATA;
+  if (!host || isPrimaryHostname(host)) return primary;
 
   const guild = await getGuildByDomain(host);
-  if (!guild) return DEFAULT_METADATA;
+  if (!guild) return primary;
 
   const logo = logoUrl(guild.id, parseBranding(guild.branding));
   return {
     ...DEFAULT_METADATA,
+    metadataBase: new URL(`https://${host}`),
     title: guild.name,
     ...(logo ? { icons: { icon: [{ url: logo, type: "image/webp" }], apple: logo } } : {}),
   };

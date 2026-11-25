@@ -43,7 +43,7 @@ export async function SiteFooter() {
         { label: dict.stats.nav, href: "/stats" },
         { label: t.demoForm, href: "/f/demo-whitelist" },
         { label: "MSK Scripts Hub", href: `${FORMS_ORIGIN}/msk-forms` },
-        { label: t.documentation, href: "https://docu.msk-scripts.de/ecosystem/msk-forms" },
+        { label: t.documentation, href: "https://docu.msk-scripts.de/ecosystem/msk-forms/" },
         { label: t.github, href: "https://github.com/MSK-Scripts" },
       ],
     },
@@ -90,12 +90,12 @@ export async function SiteFooter() {
               >
                 <img
                   src="/logo.png"
-                  alt=""
+                  alt="MSK Forms"
                   width={32}
                   height={32}
                   className="h-8 w-8 rounded-lg object-contain"
                 />
-                <span className="font-display text-lead font-bold [font-stretch:108%]">
+                <span aria-hidden className="font-display text-lead font-bold [font-stretch:108%]">
                   MSK Forms
                 </span>
               </a>
