@@ -10,9 +10,9 @@ import { botInviteUrl } from "@/lib/url";
 import { getDict, getLocale } from "@/i18n";
 
 export const metadata: Metadata = {
-  title: "Pricing and plans · MSK Forms",
+  title: "Pricing and plans per server · MSK Forms",
   description:
-    "Start free with up to 3 forms and 100 submissions a month. Plans are per Discord server, and each guild can upgrade on its own when it outgrows the free limits.",
+    "Start free with up to 3 forms and 100 submissions a month. Plans are per Discord server, and each guild upgrades on its own when it needs more.",
   alternates: { canonical: "/pricing" },
 };
 
