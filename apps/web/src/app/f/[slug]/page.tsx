@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import Script from "next/script";
@@ -28,10 +29,33 @@ import { getGuildByDomain, isPrimaryHostname, requestHostname } from "@/lib/cust
 import { isGuildPro } from "@/lib/plan";
 import { captchaSiteKey } from "@/lib/captcha";
 import { findActiveSubmissionId, getLiveFormBySlug } from "@/lib/forms";
+import { metaExcerpt } from "@/lib/seo";
 import { getDict, getLocale } from "@/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+/**
+ * Title, description and canonical from the form itself. Until 25.11.2026
+ * every form had the landing page's title and description, so all public
+ * forms looked like duplicates of the home page to a search engine.
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const form = await getLiveFormBySlug(slug);
+  if (!form) return {};
+  return {
+    title: `${form.title} · ${form.guild.name}`,
+    description:
+      metaExcerpt(form.description) ||
+      `Application form "${form.title}" of ${form.guild.name}, on MSK Forms.`,
+    alternates: { canonical: `/f/${form.slug}` },
+  };
+}
 
 export default async function PublicFormPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

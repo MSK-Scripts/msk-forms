@@ -40,17 +40,14 @@ export function productLines(t: Dictionary["site"], locale: string): ProductLine
   return [
     {
       id: "fivem",
-      href: shopUrl(locale, "/fivem"),
+      // Since 05.11.2026 every FiveM script is free on GitHub. The shop's menu
+      // has the free scripts and the statistics; the paid catalogue and the
+      // all-access subscription only redirect there.
+      href: shopUrl(locale, "/fivem/free"),
       label: t.fivem,
       current: false,
       links: [
-        { href: shopUrl(locale, "/fivem"), label: t.fivemPaid, description: t.fivemPaidDesc },
         { href: shopUrl(locale, "/fivem/free"), label: t.fivemFree, description: t.fivemFreeDesc },
-        {
-          href: shopUrl(locale, "/fivem/all-access"),
-          label: t.fivemAllAccess,
-          description: t.fivemAllAccessDesc,
-        },
         { href: shopUrl(locale, "/stats"), label: t.fivemStats, description: t.fivemStatsDesc },
       ],
     },

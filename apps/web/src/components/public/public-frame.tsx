@@ -75,7 +75,16 @@ export async function PublicFrame({
         <div className="public-column flex min-h-[var(--header-height)] items-center gap-3">
           <a href={hubHref} className="flex min-h-11 min-w-0 items-center gap-3 text-foreground">
             {logo ? (
-              <img src={logo} alt="" className="h-9 w-auto max-w-[7rem] shrink-0 object-contain" />
+              // The logo names the link, the written name next to it is only
+              // seen. Width and height give the img a size in the HTML; CSS
+              // keeps the logo's own aspect ratio once it has loaded.
+              <img
+                src={logo}
+                alt={guild.name}
+                width={36}
+                height={36}
+                className="h-9 w-auto max-w-[7rem] shrink-0 object-contain"
+              />
             ) : (
               <span
                 aria-hidden
@@ -84,7 +93,11 @@ export async function PublicFrame({
                 {guild.name.trim().charAt(0).toUpperCase()}
               </span>
             )}
-            <span translate="no" className="truncate font-display text-lead font-bold">
+            <span
+              translate="no"
+              aria-hidden={logo ? true : undefined}
+              className="truncate font-display text-lead font-bold"
+            >
               {guild.name}
             </span>
           </a>

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { Notice } from "@/components/dashboard-kit/notice";
@@ -14,6 +15,10 @@ import { botInviteUrl } from "@/lib/url";
 import { getDict } from "@/i18n";
 
 export const dynamic = "force-dynamic";
+
+// Relative to the metadataBase of the root layout: the landing page on the
+// primary host, the form index of a guild on its custom domain.
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 /**
  * `/` is two pages. On a guild's verified custom domain it is that guild's
